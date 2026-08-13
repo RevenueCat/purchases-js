@@ -1028,6 +1028,7 @@ export class Purchases {
       let component: ReturnType<typeof mount> | null = null;
       let paywallImpressionTracked = false;
       let paywallCloseTracked = false;
+      let purchaseInFlight = false;
 
       certainHTMLTarget.addEventListener("click", recordTextLinkClick);
 
@@ -1114,6 +1115,27 @@ export class Purchases {
         notifyPurchaseError(error);
       };
 
+      const createPurchaseClickHandler = (checkoutLocale: string) => {
+        return (selectedPackageId: string) => {
+          if (purchaseInFlight) {
+            return;
+          }
+          purchaseInFlight = true;
+
+          const pkg = offering.packagesById[selectedPackageId];
+          if (pkg) {
+            notifyPurchaseStarted(pkg);
+          }
+
+          startPurchaseFlow(selectedPackageId, checkoutLocale)
+            .then(onSuccess)
+            .catch(onError("Error performing purchase"))
+            .finally(() => {
+              purchaseInFlight = false;
+            });
+        };
+      };
+
       const walletButtonRender = this.getWalletButtonRender(
         offering,
         onSuccess,
@@ -1178,15 +1200,8 @@ export class Purchases {
               variablesPerPackage,
               infoPerPackage,
               walletButtonRender,
-              onPurchaseClicked: (selectedPackageId: string) => {
-                const pkg = offering.packagesById[selectedPackageId];
-                if (pkg) {
-                  notifyPurchaseStarted(pkg);
-                }
-                startPurchaseFlow(selectedPackageId, finalWorkflowLocale)
-                  .then(onSuccess)
-                  .catch(onError("Error performing purchase"));
-              },
+              onPurchaseClicked:
+                createPurchaseClickHandler(finalWorkflowLocale),
               onClose: closePaywall,
               onExitBack: () => {
                 if (paywallParams.onBack) {
@@ -1239,15 +1254,7 @@ export class Purchases {
               closePaywall();
             },
             onRestorePurchasesClicked: onRestorePurchasesClicked,
-            onPurchaseClicked: (selectedPackageId: string) => {
-              const pkg = offering.packagesById[selectedPackageId];
-              if (pkg) {
-                notifyPurchaseStarted(pkg);
-              }
-              startPurchaseFlow(selectedPackageId)
-                .then(onSuccess)
-                .catch(onError("Error performing purchase"));
-            },
+            onPurchaseClicked: createPurchaseClickHandler(finalLocale),
             onError: (err: unknown) => {
               unmountPaywall();
               reject(err);

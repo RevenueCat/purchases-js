@@ -5,6 +5,7 @@ import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { CustomVariableValue, ErrorCode, PurchasesError } from "../main";
 import type { Offering, Package } from "../entities/offerings";
 import type { CompleteWorkflowNavigateArgs } from "../entities/present-paywall-params";
+import type { PurchaseResult } from "../entities/purchase-result";
 import type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
 import * as browserGlobals from "../helpers/browser-globals";
 import { Logger } from "../helpers/logger";
@@ -187,6 +188,69 @@ describe("Purchases.presentPaywall() paywall events", () => {
     expect(
       trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
     ).toEqual(["paywall_impression"]);
+  });
+
+  test("ignores rapid package clicks while a purchase is already in flight", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const packageId = offering.availablePackages[0]!.identifier;
+    let resolvePurchase: ((value: PurchaseResult) => void) | undefined;
+    const purchaseSpy = vi.spyOn(purchases, "purchase").mockImplementation(
+      () =>
+        new Promise<PurchaseResult>((resolve) => {
+          resolvePurchase = resolve;
+        }),
+    );
+    const onPurchaseStarted = vi.fn();
+
+    void purchases.presentPaywall({
+      offering,
+      listener: { onPurchaseStarted },
+    });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    paywallProps!.onPurchaseClicked(packageId);
+    paywallProps!.onPurchaseClicked(packageId);
+    paywallProps!.onPurchaseClicked(packageId);
+
+    await vi.waitFor(() => expect(purchaseSpy).toHaveBeenCalledTimes(1));
+    expect(onPurchaseStarted).toHaveBeenCalledTimes(1);
+
+    resolvePurchase?.({
+      customerInfo: {} as PurchaseResult["customerInfo"],
+      redemptionInfo: null,
+      operationSessionId: "opsess",
+      storeTransaction: {
+        storeTransactionId: "opsess",
+        productIdentifier: "monthly",
+        purchaseDate: new Date(),
+      },
+    });
+  });
+
+  test("allows another package click after the previous purchase attempt finishes", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const packageId = offering.availablePackages[0]!.identifier;
+    const purchaseSpy = vi
+      .spyOn(purchases, "purchase")
+      .mockRejectedValue(new PurchasesError(ErrorCode.NetworkError));
+
+    void purchases.presentPaywall({
+      offering,
+      onPurchaseError: () => {},
+    });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    paywallProps!.onPurchaseClicked(packageId);
+
+    await vi.waitFor(() => expect(purchaseSpy).toHaveBeenCalledTimes(1));
+
+    // Wait until the in-flight guard clears after the failed attempt.
+    await vi.waitFor(() => {
+      paywallProps!.onPurchaseClicked(packageId);
+      expect(purchaseSpy).toHaveBeenCalledTimes(2);
+    });
   });
 
   test("passes presentedOfferingContext to paywall events", async () => {
