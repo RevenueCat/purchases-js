@@ -1,5 +1,6 @@
 import en from "./locale/en.json";
 import es from "./locale/es.json";
+import et from "./locale/et.json";
 import it from "./locale/it.json";
 import ar from "./locale/ar.json";
 import ca from "./locale/ca.json";
@@ -147,6 +148,7 @@ export const supportedLanguages: Record<
 > = {
   en,
   es,
+  et,
   it,
   ar,
   ca,
