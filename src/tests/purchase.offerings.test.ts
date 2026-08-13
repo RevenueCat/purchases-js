@@ -952,10 +952,10 @@ describe("getOfferings placements", () => {
 
     expect(offeringWithPlacement?.identifier).toEqual("offering_2");
     expect(APIGetRequest).toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly_2`,
+      url: `${productsUrl}?id=monthly_2&supports_price_id=true`,
     });
     expect(APIGetRequest).not.toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly&id=monthly_2`,
+      url: `${productsUrl}?id=monthly&id=monthly_2&supports_price_id=true`,
     });
   });
 
@@ -969,13 +969,13 @@ describe("getOfferings placements", () => {
 
     expect(offeringWithPlacement?.identifier).toEqual("offering_1");
     expect(APIGetRequest).toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly_2`,
+      url: `${productsUrl}?id=monthly_2&supports_price_id=true`,
     });
     expect(APIGetRequest).toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly`,
+      url: `${productsUrl}?id=monthly&supports_price_id=true`,
     });
     expect(APIGetRequest).not.toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly&id=monthly_2`,
+      url: `${productsUrl}?id=monthly&id=monthly_2&supports_price_id=true`,
     });
   });
 
@@ -992,7 +992,7 @@ describe("getOfferings placements", () => {
 
     expect(offeringWithPlacement?.identifier).toEqual("offering_2");
     expect(APIGetRequest).toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly_2&currency=USD&discount_code=SUMMER2024`,
+      url: `${productsUrl}?id=monthly_2&currency=USD&discount_code=SUMMER2024&supports_price_id=true`,
     });
   });
 
@@ -1006,11 +1006,12 @@ describe("getOfferings placements", () => {
 
     expect(offeringWithPlacement).toBeNull();
     expect(APIGetRequest).toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly`,
+      url: `${productsUrl}?id=monthly&supports_price_id=true`,
     });
     expect(
       APIGetRequest.mock.calls.filter(
-        ([request]) => request.url === `${productsUrl}?id=monthly`,
+        ([request]) =>
+          request.url === `${productsUrl}?id=monthly&supports_price_id=true`,
       ),
     ).toHaveLength(1);
   });
