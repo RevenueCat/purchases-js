@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   floorMicrosToCurrencyUnit,
   formatPrice,
+  formatPriceWithPeriod,
   getPeriodDurationLabel,
   getTranslatedPeriodFrequency,
 } from "../../helpers/price-labels";
@@ -85,6 +86,37 @@ describe("formatPrice", () => {
     expect(formatPrice(9990000, "USD", "en-GB")).toEqual("$9.99");
     expect(formatPrice(9990000, "CNY", "en-US")).toEqual("CN¥9.99");
     expect(formatPrice(9990000, "CNY", "zh-CN")).toEqual("¥9.99");
+  });
+});
+
+describe("formatPriceWithPeriod", () => {
+  const translator: Translator = new Translator();
+
+  test("returns the bare price when period is missing", () => {
+    expect(formatPriceWithPeriod("$9.99", null, translator)).toEqual("$9.99");
+    expect(formatPriceWithPeriod("$9.99", undefined, translator)).toEqual(
+      "$9.99",
+    );
+  });
+
+  test("appends a short singular period unit", () => {
+    expect(
+      formatPriceWithPeriod(
+        "$9.99",
+        { number: 1, unit: PeriodUnit.Month },
+        translator,
+      ),
+    ).toEqual("$9.99/mo");
+  });
+
+  test("appends a short multi-unit period", () => {
+    expect(
+      formatPriceWithPeriod(
+        "$9.99",
+        { number: 3, unit: PeriodUnit.Month },
+        translator,
+      ),
+    ).toEqual("$9.99/3mo");
   });
 });
 

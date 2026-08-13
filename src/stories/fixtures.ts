@@ -781,13 +781,15 @@ const subscriptionChangeFromProduct = {
   display_name: "Basic Monthly",
   price_in_micros: 9990000,
   currency: "USD",
+  period_duration: "P1M",
 };
 
 const subscriptionChangeToProduct = {
-  product_id: "premium_monthly",
-  display_name: "Premium Monthly",
-  price_in_micros: 19990000,
+  product_id: "premium_yearly",
+  display_name: "Premium Yearly",
+  price_in_micros: 99990000,
   currency: "USD",
+  period_duration: "P1Y",
 };
 
 const subscriptionChangePaymentMethod = {
@@ -819,16 +821,16 @@ const immediatePriceBreakdownTaxPending = {
 
 const deferredRenewalPriceWithTax = {
   currency: "USD",
-  total_amount_in_micros: 19990000 + 1599200,
-  tax_amount_in_micros: 1599200,
-  total_excluding_tax_in_micros: 19990000,
+  total_amount_in_micros: 9990000 + 799200,
+  tax_amount_in_micros: 799200,
+  total_excluding_tax_in_micros: 9990000,
   original_amount_in_micros: null,
 };
 
 const deferredRenewalPriceTaxPending = {
   ...deferredRenewalPriceWithTax,
   tax_amount_in_micros: null,
-  total_amount_in_micros: 19990000,
+  total_amount_in_micros: 9990000,
 };
 
 /** Immediate upgrade: due today with estimated tax, payment method + address on file. */
@@ -873,6 +875,20 @@ export const subscriptionChangeImmediateMinimal: SubscriptionChangeCheckoutStart
     email: "customer@example.com",
     payment_method: null,
     billing_address: null,
+  };
+
+export const subscriptionChangeImmediateLongNames: SubscriptionChangeCheckoutStartResponse =
+  {
+    ...subscriptionChangeImmediateWithTax,
+    operation_session_id: "rcbopsess_story_immediate_long_names",
+    from_product: {
+      ...subscriptionChangeFromProduct,
+      display_name: "someverylongproductnamesomevery someverylongproductname",
+    },
+    to_product: {
+      ...subscriptionChangeToProduct,
+      display_name: "somevery longproductname someverylongproductname",
+    },
   };
 
 /** Deferred change: no charge now, next-renewal estimate with tax. */

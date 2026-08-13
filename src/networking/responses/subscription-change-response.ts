@@ -3,6 +3,7 @@ export interface SubscriptionChangeProductSummary {
   display_name: string | null;
   price_in_micros: number;
   currency: string;
+  period_duration?: string | null;
 }
 
 export interface SubscriptionChangePaymentMethodSummary {

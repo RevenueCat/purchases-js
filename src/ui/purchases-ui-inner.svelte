@@ -199,6 +199,9 @@
         confirming={isConfirmingProductChange}
         confirmError={productChangeConfirmError}
         brandingAppearance={brandingInfo?.appearance ?? undefined}
+        {brandingInfo}
+        purchaseOption={purchaseOptionToUse}
+        {termsAndConditionsUrl}
         onConfirm={onConfirmProductChange ?? (() => {})}
       />
     {/if}
