@@ -533,6 +533,7 @@ export interface PurchasesErrorExtra {
 // @public
 export interface RedemptionInfo {
     readonly redeemUrl: string | null;
+    readonly redeemUrlRedirect?: string | null;
 }
 
 // @public
