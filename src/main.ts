@@ -522,6 +522,11 @@ export class Purchases {
         "Branding info is not available for RC Test Store API keys.",
       );
       return;
+    } else if (isAmazonApiKey(this._API_KEY)) {
+      Logger.warnLog(
+        "Branding info is not available for Amazon Store API keys.",
+      );
+      return;
     }
     this._brandingInfo = await this.backend.getBrandingInfo();
     this.syncApplePayWebsiteIcon();
