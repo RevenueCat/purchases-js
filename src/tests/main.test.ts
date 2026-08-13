@@ -379,6 +379,88 @@ describe("billing wrapper selection", () => {
   });
 });
 
+describe("Purchases.syncPurchases and Purchases.restorePurchases", () => {
+  test.each([
+    ["syncPurchases", "syncPurchases"],
+    ["restorePurchases", "restorePurchases"],
+  ] as const)(
+    "%s delegates to the Amazon billing wrapper for Amazon API keys",
+    async (method, wrapperMethod) => {
+      const purchases = configurePurchases(
+        testUserId,
+        "rcSource",
+        "amzn_valid_key",
+      );
+      const expectedResult = { customerInfo: {} as CustomerInfo };
+      const syncPurchasesSpy = vi
+        .spyOn(AmazonBillingWrapper.prototype, "syncPurchases")
+        .mockResolvedValue(expectedResult);
+      const restorePurchasesSpy = vi
+        .spyOn(AmazonBillingWrapper.prototype, "restorePurchases")
+        .mockResolvedValue(expectedResult);
+
+      await expect(purchases[method]()).resolves.toBe(expectedResult);
+
+      const expectedSpy =
+        wrapperMethod === "syncPurchases"
+          ? syncPurchasesSpy
+          : restorePurchasesSpy;
+      const otherSpy =
+        wrapperMethod === "syncPurchases"
+          ? restorePurchasesSpy
+          : syncPurchasesSpy;
+      expect(expectedSpy).toHaveBeenCalledExactlyOnceWith(testUserId);
+      expect(otherSpy).not.toHaveBeenCalled();
+    },
+  );
+
+  test.each(["syncPurchases", "restorePurchases"] as const)(
+    "%s rejects for non-Amazon API keys without calling the Amazon wrapper",
+    async (method) => {
+      const purchases = configurePurchases();
+      const syncPurchasesSpy = vi.spyOn(
+        AmazonBillingWrapper.prototype,
+        "syncPurchases",
+      );
+      const restorePurchasesSpy = vi.spyOn(
+        AmazonBillingWrapper.prototype,
+        "restorePurchases",
+      );
+
+      await expect(purchases[method]()).rejects.toMatchObject({
+        errorCode: ErrorCode.ConfigurationError,
+        message: `${method}() is only supported for Amazon Appstore API keys.`,
+      });
+
+      expect(syncPurchasesSpy).not.toHaveBeenCalled();
+      expect(restorePurchasesSpy).not.toHaveBeenCalled();
+    },
+  );
+
+  test.each([
+    ["syncPurchases", "syncPurchases"],
+    ["restorePurchases", "restorePurchases"],
+  ] as const)(
+    "%s propagates errors from the Amazon billing wrapper",
+    async (method, wrapperMethod) => {
+      const purchases = configurePurchases(
+        testUserId,
+        "rcSource",
+        "amzn_valid_key",
+      );
+      const error = new PurchasesError(
+        ErrorCode.StoreProblemError,
+        "Amazon unavailable",
+      );
+      vi.spyOn(AmazonBillingWrapper.prototype, wrapperMethod).mockRejectedValue(
+        error,
+      );
+
+      await expect(purchases[method]()).rejects.toBe(error);
+    },
+  );
+});
+
 describe("Purchases.isConfigured()", () => {
   test("returns false if not configured", () => {
     expect(Purchases.isConfigured()).toBeFalsy();
