@@ -1115,32 +1115,25 @@ export class Purchases {
         notifyPurchaseError(error);
       };
 
-      const handlePurchaseClicked = (
-        selectedPackageId: string,
-        checkoutLocale?: string,
-      ) => {
-        // Ignore repeated selections so we don't start overlapping checkouts
-        if (purchaseInFlight) {
-          return;
-        }
-        purchaseInFlight = true;
+      const createPurchaseClickHandler = (checkoutLocale: string) => {
+        return (selectedPackageId: string) => {
+          if (purchaseInFlight) {
+            return;
+          }
+          purchaseInFlight = true;
 
-        const pkg = offering.packagesById[selectedPackageId];
-        if (pkg) {
-          notifyPurchaseStarted(pkg);
-        }
+          const pkg = offering.packagesById[selectedPackageId];
+          if (pkg) {
+            notifyPurchaseStarted(pkg);
+          }
 
-        const purchasePromise =
-          checkoutLocale === undefined
-            ? startPurchaseFlow(selectedPackageId)
-            : startPurchaseFlow(selectedPackageId, checkoutLocale);
-
-        purchasePromise
-          .then(onSuccess)
-          .catch(onError("Error performing purchase"))
-          .finally(() => {
-            purchaseInFlight = false;
-          });
+          startPurchaseFlow(selectedPackageId, checkoutLocale)
+            .then(onSuccess)
+            .catch(onError("Error performing purchase"))
+            .finally(() => {
+              purchaseInFlight = false;
+            });
+        };
       };
 
       const walletButtonRender = this.getWalletButtonRender(
@@ -1207,9 +1200,8 @@ export class Purchases {
               variablesPerPackage,
               infoPerPackage,
               walletButtonRender,
-              onPurchaseClicked: (selectedPackageId: string) => {
-                handlePurchaseClicked(selectedPackageId, finalWorkflowLocale);
-              },
+              onPurchaseClicked:
+                createPurchaseClickHandler(finalWorkflowLocale),
               onClose: closePaywall,
               onExitBack: () => {
                 if (paywallParams.onBack) {
@@ -1262,7 +1254,7 @@ export class Purchases {
               closePaywall();
             },
             onRestorePurchasesClicked: onRestorePurchasesClicked,
-            onPurchaseClicked: handlePurchaseClicked,
+            onPurchaseClicked: createPurchaseClickHandler(finalLocale),
             onError: (err: unknown) => {
               unmountPaywall();
               reject(err);
