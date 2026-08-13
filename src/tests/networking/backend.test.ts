@@ -1647,6 +1647,25 @@ describe("postReceipt request", () => {
     expect(result).toEqual(customerInfoResponse);
   });
 
+  test("posts a null currency when provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      null,
+      "test_fetch_token",
+      null,
+      "restore",
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.currency).toBeNull();
+  });
+
   test("includes targeting context when provided", async () => {
     setPostReceiptResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
@@ -1686,6 +1705,35 @@ describe("postReceipt request", () => {
     });
 
     expect(result).toEqual(customerInfoResponse);
+  });
+
+  test("uses null offering context fields when no offering context is provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "EUR",
+      "test_fetch_token",
+      null,
+      "restore",
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).toMatchObject({
+      fetch_token: "test_fetch_token",
+      product_id: "monthly",
+      currency: "EUR",
+      app_user_id: "someAppUserId",
+      presented_offering_identifier: null,
+      presented_placement_identifier: null,
+      applied_targeting_rule: null,
+      initiation_source: "restore",
+    });
+    expect(requestBody).not.toHaveProperty("presented_workflow_id");
   });
 
   test("handles placement identifier correctly", async () => {

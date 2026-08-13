@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { getProductData, notifyFulfillment, purchase } = vi.hoisted(() => ({
-  getProductData: vi.fn(),
-  notifyFulfillment: vi.fn(),
-  purchase: vi.fn(),
-}));
+const { getProductData, getPurchaseUpdates, notifyFulfillment, purchase } =
+  vi.hoisted(() => ({
+    getProductData: vi.fn(),
+    getPurchaseUpdates: vi.fn(),
+    notifyFulfillment: vi.fn(),
+    purchase: vi.fn(),
+  }));
 
 vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
   FulfillmentResult: { FULFILLED: 1 },
@@ -25,12 +27,22 @@ vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
     NOT_SUPPORTED: 3,
     FAILED: 4,
   },
+  PurchaseUpdatesResponseCode: {
+    SUCCESSFUL: 1,
+    NOT_SUPPORTED: 2,
+    FAILED: 3,
+  },
   ProductType: {
     CONSUMABLE: 1,
     ENTITLED: 2,
     SUBSCRIPTION: 3,
   },
-  PurchasingService: { getProductData, notifyFulfillment, purchase },
+  PurchasingService: {
+    getProductData,
+    getPurchaseUpdates,
+    notifyFulfillment,
+    purchase,
+  },
 }));
 
 import {
@@ -41,6 +53,7 @@ import {
   ProductDataResponseCode,
   type PurchaseResponse,
   PurchaseResponseCode,
+  PurchaseUpdatesResponseCode,
   ProductType,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
 import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
@@ -112,14 +125,37 @@ const successfulPurchaseResponse = (): PurchaseResponse => ({
   },
 });
 
+const successfulPurchaseUpdatesResponse = (
+  receiptId = "amazon-receipt-id",
+) => ({
+  receiptList: [
+    {
+      ...successfulPurchaseResponse().receipt,
+      receiptId,
+    },
+  ],
+  responseCode: 1,
+  userData: successfulPurchaseResponse().userData,
+  hasMore: false,
+});
+
+const purchaseUpdatesResponse = (
+  overrides: Partial<ReturnType<typeof successfulPurchaseUpdatesResponse>> = {},
+) => ({
+  ...successfulPurchaseUpdatesResponse(),
+  ...overrides,
+});
+
 const createBackend = () =>
   ({
+    getCustomerInfo: vi.fn().mockResolvedValue(customerInfoResponse),
     postReceipt: vi.fn(),
   }) as unknown as Backend;
 
 describe("AmazonBillingWrapper", () => {
   beforeEach(() => {
     getProductData.mockReset();
+    getPurchaseUpdates.mockReset();
     notifyFulfillment.mockReset();
     purchase.mockReset();
     vi.restoreAllMocks();
@@ -285,6 +321,256 @@ describe("AmazonBillingWrapper", () => {
           "An error occurred when fetching product data. An unrecognized ProductDataResponseCode was received.",
       } satisfies Partial<PurchasesError>);
     });
+  });
+
+  describe("purchase syncing", () => {
+    test.each([
+      ["syncPurchases", false],
+      ["restorePurchases", true],
+    ] as const)(
+      "%s requests the complete Amazon purchase history",
+      async (method) => {
+        const backend = createBackend();
+        vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+        getPurchaseUpdates.mockResolvedValue(
+          successfulPurchaseUpdatesResponse(),
+        );
+
+        await new AmazonBillingWrapper(backend)[method]("app-user-id");
+
+        expect(getPurchaseUpdates).toHaveBeenCalledExactlyOnceWith({
+          reset: true,
+        });
+      },
+    );
+
+    test("does not post a receipt more than once during the wrapper lifetime", async () => {
+      const backend = createBackend();
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
+      const wrapper = new AmazonBillingWrapper(backend);
+
+      await wrapper.syncPurchases("app-user-id");
+      await wrapper.syncPurchases("app-user-id");
+      await wrapper.restorePurchases("app-user-id");
+
+      expect(backend.postReceipt).toHaveBeenCalledExactlyOnceWith(
+        "app-user-id",
+        "monthly",
+        null,
+        "amazon-receipt-id",
+        null,
+        "restore",
+        undefined,
+        "amazon-store-user-id",
+        false,
+      );
+      expect(backend.getCustomerInfo).toHaveBeenCalledTimes(2);
+      expect(backend.getCustomerInfo).toHaveBeenNthCalledWith(1, "app-user-id");
+      expect(backend.getCustomerInfo).toHaveBeenNthCalledWith(2, "app-user-id");
+    });
+
+    test.each([
+      ["syncPurchases", false],
+      ["restorePurchases", true],
+    ] as const)(
+      "%s posts every receipt across paginated responses",
+      async (method, isRestore) => {
+        const backend = createBackend();
+        vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+        getPurchaseUpdates
+          .mockResolvedValueOnce(
+            purchaseUpdatesResponse({
+              hasMore: true,
+              receiptList: [
+                {
+                  ...successfulPurchaseResponse().receipt,
+                  receiptId: "first-receipt",
+                  productType: ProductType.SUBSCRIPTION,
+                  termSku: "monthly",
+                },
+              ],
+            }),
+          )
+          .mockResolvedValueOnce(
+            purchaseUpdatesResponse({
+              hasMore: false,
+              receiptList: [
+                {
+                  ...successfulPurchaseResponse().receipt,
+                  receiptId: "second-receipt",
+                  productType: ProductType.CONSUMABLE,
+                  sku: "coin-pack",
+                  termSku: "unused-term-sku",
+                },
+              ],
+            }),
+          );
+
+        await new AmazonBillingWrapper(backend)[method]("app-user-id");
+
+        expect(getPurchaseUpdates).toHaveBeenCalledTimes(2);
+        expect(getPurchaseUpdates).toHaveBeenNthCalledWith(1, { reset: true });
+        expect(getPurchaseUpdates).toHaveBeenNthCalledWith(2, { reset: true });
+        expect(backend.postReceipt).toHaveBeenNthCalledWith(
+          1,
+          "app-user-id",
+          "monthly",
+          null,
+          "first-receipt",
+          null,
+          "restore",
+          undefined,
+          "amazon-store-user-id",
+          isRestore,
+        );
+        expect(backend.postReceipt).toHaveBeenNthCalledWith(
+          2,
+          "app-user-id",
+          "coin-pack",
+          null,
+          "second-receipt",
+          null,
+          "restore",
+          undefined,
+          "amazon-store-user-id",
+          isRestore,
+        );
+      },
+    );
+
+    test.each([
+      ["syncPurchases", false],
+      ["restorePurchases", true],
+    ] as const)(
+      "%s fetches customer info when no receipts are returned",
+      async (method) => {
+        const backend = createBackend();
+        getPurchaseUpdates.mockResolvedValue(
+          purchaseUpdatesResponse({ receiptList: [] }),
+        );
+
+        await new AmazonBillingWrapper(backend)[method]("app-user-id");
+
+        expect(backend.postReceipt).not.toHaveBeenCalled();
+        expect(backend.getCustomerInfo).toHaveBeenCalledExactlyOnceWith(
+          "app-user-id",
+        );
+      },
+    );
+
+    test.each(["syncPurchases", "restorePurchases"] as const)(
+      "%s stops when Amazon reports more pages but returns an empty page",
+      async (method) => {
+        const backend = createBackend();
+        getPurchaseUpdates.mockResolvedValue(
+          purchaseUpdatesResponse({ hasMore: true, receiptList: [] }),
+        );
+
+        await new AmazonBillingWrapper(backend)[method]("app-user-id");
+
+        expect(getPurchaseUpdates).toHaveBeenCalledExactlyOnceWith({
+          reset: true,
+        });
+        expect(backend.getCustomerInfo).toHaveBeenCalledExactlyOnceWith(
+          "app-user-id",
+        );
+      },
+    );
+
+    test.each(["syncPurchases", "restorePurchases"] as const)(
+      "%s does not mark a receipt as synced when posting it fails",
+      async (method) => {
+        const backend = createBackend();
+        const error = new Error("backend unavailable");
+        vi.mocked(backend.postReceipt)
+          .mockRejectedValueOnce(error)
+          .mockResolvedValueOnce(customerInfoResponse);
+        getPurchaseUpdates.mockResolvedValue(
+          successfulPurchaseUpdatesResponse(),
+        );
+        const wrapper = new AmazonBillingWrapper(backend);
+
+        await expect(wrapper[method]("app-user-id")).rejects.toBe(error);
+        await wrapper[method]("app-user-id");
+
+        expect(backend.postReceipt).toHaveBeenCalledTimes(2);
+      },
+    );
+
+    test.each([
+      [
+        "syncPurchases",
+        PurchaseUpdatesResponseCode.NOT_SUPPORTED,
+        ErrorCode.UnsupportedError,
+        "Syncing purchases is not supported.",
+      ],
+      [
+        "restorePurchases",
+        PurchaseUpdatesResponseCode.NOT_SUPPORTED,
+        ErrorCode.UnsupportedError,
+        "Restoring purchases is not supported.",
+      ],
+      [
+        "syncPurchases",
+        PurchaseUpdatesResponseCode.FAILED,
+        ErrorCode.StoreProblemError,
+        "Syncing purchases with the Amazon Store failed.",
+      ],
+      [
+        "restorePurchases",
+        PurchaseUpdatesResponseCode.FAILED,
+        ErrorCode.StoreProblemError,
+        "Restoring purchases with the Amazon Store failed.",
+      ],
+      [
+        "syncPurchases",
+        999 as PurchaseUpdatesResponseCode,
+        ErrorCode.StoreProblemError,
+        "Received an unexpected response code from the Amazon Store while syncing purchases.",
+      ],
+      [
+        "restorePurchases",
+        999 as PurchaseUpdatesResponseCode,
+        ErrorCode.StoreProblemError,
+        "Received an unexpected response code from the Amazon Store while restoring purchases.",
+      ],
+    ] as const)(
+      "%s maps response code %s to an error",
+      async (method, responseCode, errorCode, message) => {
+        const backend = createBackend();
+        getPurchaseUpdates.mockResolvedValue(
+          purchaseUpdatesResponse({ responseCode }),
+        );
+
+        await expect(
+          new AmazonBillingWrapper(backend)[method]("app-user-id"),
+        ).rejects.toMatchObject({ errorCode, message });
+
+        expect(backend.postReceipt).not.toHaveBeenCalled();
+        expect(backend.getCustomerInfo).not.toHaveBeenCalled();
+      },
+    );
+
+    test.each(["syncPurchases", "restorePurchases"] as const)(
+      "%s wraps an error thrown by Amazon in a PurchasesError",
+      async (method) => {
+        const backend = createBackend();
+        const error = new Error("Amazon IAP unavailable");
+        getPurchaseUpdates.mockRejectedValue(error);
+
+        await expect(
+          new AmazonBillingWrapper(backend)[method]("app-user-id"),
+        ).rejects.toMatchObject({
+          errorCode: ErrorCode.StoreProblemError,
+          message: `${method === "restorePurchases" ? "Restoring" : "Syncing"} purchases with the Amazon Store failed.`,
+          underlyingErrorMessage: "Amazon IAP unavailable",
+        });
+
+        expect(backend.postReceipt).not.toHaveBeenCalled();
+        expect(backend.getCustomerInfo).not.toHaveBeenCalled();
+      },
+    );
   });
 
   describe("purchases", () => {
@@ -470,23 +756,24 @@ describe("AmazonBillingWrapper", () => {
     test.each([
       [
         NotifyFulfillmentResponseCode.NOT_SUPPORTED,
+        "warnLog",
         "Failed to fulfill receipt ID amazon-receipt-id with the Amazon Store: fulfillment is not supported.",
       ],
       [
         NotifyFulfillmentResponseCode.FAILED,
+        "errorLog",
         "Failed to fulfill receipt ID amazon-receipt-id with the Amazon Store.",
       ],
       [
         999 as NotifyFulfillmentResponseCode,
+        "warnLog",
         "Received an unexpected response code from Amazon when fulfilling receipt ID amazon-receipt-id.",
       ],
     ])(
       "returns a completed purchase and logs fulfillment response %s",
-      async (responseCode, expectedWarning) => {
+      async (responseCode, logMethod, expectedLog) => {
         const backend = createBackend();
-        const warningLog = vi
-          .spyOn(Logger, "warnLog")
-          .mockImplementation(() => {});
+        const log = vi.spyOn(Logger, logMethod).mockImplementation(() => {});
         vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
         notifyFulfillment.mockResolvedValue({ responseCode });
 
@@ -498,7 +785,7 @@ describe("AmazonBillingWrapper", () => {
         ).resolves.toMatchObject({ operationSessionId: "amazon-receipt-id" });
 
         expect(notifyFulfillment).toHaveBeenCalledOnce();
-        expect(warningLog).toHaveBeenCalledWith(expectedWarning);
+        expect(log).toHaveBeenCalledWith(expectedLog);
       },
     );
 

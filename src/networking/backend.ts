@@ -549,12 +549,13 @@ export class Backend {
   async postReceipt(
     appUserId: string,
     productId: string,
-    currency: string,
+    currency: string | null,
     fetchToken: string,
-    presentedOfferingContext: PresentedOfferingContext,
+    presentedOfferingContext: PresentedOfferingContext | null,
     initiationSource: string,
     paywallId?: string,
     storeUserId?: string,
+    is_restore?: boolean,
   ): Promise<SubscriberResponse> {
     type PostReceiptTargetingRule = {
       rule_id: string;
@@ -563,9 +564,9 @@ export class Backend {
     type PostReceiptRequestBody = {
       fetch_token: string;
       product_id: string;
-      currency: string;
+      currency: string | null;
       app_user_id: string;
-      presented_offering_identifier: string;
+      presented_offering_identifier: string | null;
       presented_placement_identifier: string | null;
       presented_workflow_id?: string | null;
       applied_targeting_rule?: PostReceiptTargetingRule | null;
@@ -574,10 +575,11 @@ export class Backend {
         paywall_id: string;
       };
       store_user_id?: string;
+      is_restore?: boolean;
     };
 
     let targetingInfo: PostReceiptTargetingRule | null = null;
-    if (presentedOfferingContext.targetingContext) {
+    if (presentedOfferingContext?.targetingContext) {
       targetingInfo = {
         rule_id: presentedOfferingContext.targetingContext.ruleId,
         revision: presentedOfferingContext.targetingContext.revision,
@@ -590,14 +592,15 @@ export class Backend {
       currency: currency,
       app_user_id: appUserId,
       presented_offering_identifier:
-        presentedOfferingContext.offeringIdentifier,
+        presentedOfferingContext?.offeringIdentifier ?? null,
       presented_placement_identifier:
-        presentedOfferingContext.placementIdentifier,
+        presentedOfferingContext?.placementIdentifier ?? null,
       presented_workflow_id:
         this.purchasesContext?.workflowContext?.workflowIdentifier,
       applied_targeting_rule: targetingInfo,
       initiation_source: initiationSource,
       store_user_id: storeUserId,
+      is_restore: is_restore,
     };
 
     if (paywallId) {
