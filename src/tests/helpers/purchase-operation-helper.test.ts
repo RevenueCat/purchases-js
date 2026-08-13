@@ -862,6 +862,8 @@ describe("PurchaseOperationHelper", () => {
         error: null,
         redemption_info: {
           redeem_url: "test-url://redeem_my_rcb?token=1234",
+          redeem_url_redirect:
+            "https://api.revenuecat.com/redirect?url=test-url://redeem_my_rcb?token=1234",
         },
         store_transaction_identifier: "test-store-transaction-id",
         product_identifier: "test-product_identifier",
@@ -886,6 +888,9 @@ describe("PurchaseOperationHelper", () => {
       await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
     expect(pollResult.redemptionInfo?.redeemUrl).toEqual(
       "test-url://redeem_my_rcb?token=1234",
+    );
+    expect(pollResult.redemptionInfo?.redeemUrlRedirect).toEqual(
+      "https://api.revenuecat.com/redirect?url=test-url://redeem_my_rcb?token=1234",
     );
     expect(pollResult.operationSessionId).toEqual(operationSessionId);
     expect(pollResult.storeTransactionIdentifier).toEqual(

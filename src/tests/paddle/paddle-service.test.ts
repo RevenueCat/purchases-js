@@ -763,6 +763,7 @@ describe("PaddleService", () => {
       expect(result).toEqual({
         redemptionInfo: {
           redeemUrl: "test-url://redeem_my_rcb?token=1234",
+          redeemUrlRedirect: null,
         },
         operationSessionId: operationSessionId,
         storeTransactionIdentifier: "test-store-transaction-id",
