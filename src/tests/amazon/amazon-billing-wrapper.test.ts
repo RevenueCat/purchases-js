@@ -324,10 +324,7 @@ describe("AmazonBillingWrapper", () => {
   });
 
   describe("purchase syncing", () => {
-    test.each([
-      ["syncPurchases", false],
-      ["restorePurchases", true],
-    ] as const)(
+    test.each([["syncPurchases"], ["restorePurchases"]] as const)(
       "%s requests the complete Amazon purchase history",
       async (method) => {
         const backend = createBackend();
@@ -439,10 +436,7 @@ describe("AmazonBillingWrapper", () => {
       },
     );
 
-    test.each([
-      ["syncPurchases", false],
-      ["restorePurchases", true],
-    ] as const)(
+    test.each([["syncPurchases"], ["restorePurchases"]] as const)(
       "%s fetches customer info when no receipts are returned",
       async (method) => {
         const backend = createBackend();
@@ -673,7 +667,7 @@ describe("AmazonBillingWrapper", () => {
         ErrorCode.StoreProblemError,
         "Amazon purchase failed",
       ],
-    ])(
+    ] as const)(
       "maps Amazon purchase response code %s to the appropriate error",
       async (responseCode, errorCode, message) => {
         const backend = createBackend();
@@ -753,7 +747,7 @@ describe("AmazonBillingWrapper", () => {
       expect(notifyFulfillment).not.toHaveBeenCalled();
     });
 
-    test.each([
+    test.each<[NotifyFulfillmentResponseCode, "warnLog" | "errorLog", string]>([
       [
         NotifyFulfillmentResponseCode.NOT_SUPPORTED,
         "warnLog",
@@ -773,7 +767,11 @@ describe("AmazonBillingWrapper", () => {
       "returns a completed purchase and logs fulfillment response %s",
       async (responseCode, logMethod, expectedLog) => {
         const backend = createBackend();
-        const log = vi.spyOn(Logger, logMethod).mockImplementation(() => {});
+        const log =
+          logMethod === "warnLog"
+            ? vi.spyOn(Logger, "warnLog")
+            : vi.spyOn(Logger, "errorLog");
+        log.mockImplementation(() => {});
         vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
         notifyFulfillment.mockResolvedValue({ responseCode });
 
