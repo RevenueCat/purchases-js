@@ -140,9 +140,9 @@ describe("AmazonBillingWrapper", () => {
         ]),
       );
 
-      const result = await new AmazonBillingWrapper().getProducts("user", [
-        "monthly",
-      ]);
+      const result = await new AmazonBillingWrapper(
+        createBackend(),
+      ).getProducts("user", ["monthly"]);
 
       expect(getProductData).toHaveBeenCalledExactlyOnceWith({
         skus: ["monthly"],
@@ -164,7 +164,7 @@ describe("AmazonBillingWrapper", () => {
         responseForProducts([product({ sku: "monthly" })]),
       );
 
-      await new AmazonBillingWrapper().getProducts("user", [
+      await new AmazonBillingWrapper(createBackend()).getProducts("user", [
         "monthly",
         "yearly",
         "monthly",
@@ -183,7 +183,10 @@ describe("AmazonBillingWrapper", () => {
       );
       getProductData.mockResolvedValue(responseForProducts([]));
 
-      await new AmazonBillingWrapper().getProducts("user", productIds);
+      await new AmazonBillingWrapper(createBackend()).getProducts(
+        "user",
+        productIds,
+      );
 
       expect(getProductData).toHaveBeenCalledExactlyOnceWith({
         skus: productIds,
@@ -206,10 +209,9 @@ describe("AmazonBillingWrapper", () => {
           responseForProducts([product({ sku: "product-200" })]),
         );
 
-      const result = await new AmazonBillingWrapper().getProducts(
-        "user",
-        productIds,
-      );
+      const result = await new AmazonBillingWrapper(
+        createBackend(),
+      ).getProducts("user", productIds);
 
       expect(getProductData).toHaveBeenNthCalledWith(1, {
         skus: productIds.slice(0, 100),
@@ -240,7 +242,10 @@ describe("AmazonBillingWrapper", () => {
         .mockResolvedValueOnce(responseForProducts([]))
         .mockResolvedValueOnce(responseForProducts([]));
 
-      await new AmazonBillingWrapper().getProducts("user", requestedProductIds);
+      await new AmazonBillingWrapper(createBackend()).getProducts(
+        "user",
+        requestedProductIds,
+      );
 
       expect(getProductData).toHaveBeenCalledTimes(2);
       expect(getProductData).toHaveBeenNthCalledWith(1, {
