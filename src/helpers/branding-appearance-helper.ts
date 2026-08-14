@@ -1,4 +1,7 @@
-import type { BrandingAppearance } from "../entities/branding";
+import {
+  DEFAULT_BRANDING_APPEARANCE,
+  type BrandingAppearance,
+} from "../entities/branding";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 
 export function mergeBrandingAppearanceOverrides(
@@ -22,8 +25,9 @@ export function applyBrandingAppearanceOverride(
 
   return {
     ...brandingInfo,
-    appearance: brandingInfo.appearance
-      ? { ...brandingInfo.appearance, ...appearanceOverride }
-      : null,
+    appearance: {
+      ...(brandingInfo.appearance ?? DEFAULT_BRANDING_APPEARANCE),
+      ...appearanceOverride,
+    },
   };
 }

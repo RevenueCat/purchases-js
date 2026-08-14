@@ -665,7 +665,6 @@ describe("Purchases.identifyUser", () => {
 
 describe("Purchases.purchase()", () => {
   type PurchaseRouterMethods = {
-    _brandingInfo: BrandingInfoResponse | null;
     performPaddlePurchase: (
       params: PurchaseParams,
       brandingInfo: BrandingInfoResponse | null,
@@ -690,21 +689,6 @@ describe("Purchases.purchase()", () => {
       },
     });
     const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
-    await purchases.preload();
-    purchasesInternal._brandingInfo = {
-      ...purchasesInternal._brandingInfo!,
-      appearance: {
-        color_buttons_primary: "#aaaaaa",
-        color_accent: "#bbbbbb",
-        color_error: "#cc0000",
-        color_product_info_bg: "#eeeeee",
-        color_form_bg: "#dddddd",
-        color_page_bg: "#cccccc",
-        font: "default",
-        shapes: "default",
-        show_product_description: true,
-      },
-    };
     const performWebBillingPurchaseSpy = vi
       .spyOn(purchasesInternal, "performWebBillingPurchase")
       .mockResolvedValue({});

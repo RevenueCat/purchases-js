@@ -46,6 +46,32 @@ describe("applyBrandingAppearanceOverride", () => {
   test("returns the cached branding unchanged when no override is provided", () => {
     expect(applyBrandingAppearanceOverride(brandingInfo)).toBe(brandingInfo);
   });
+
+  test("applies overrides over defaults when cached branding has no appearance", () => {
+    const brandingWithoutAppearance = {
+      ...brandingInfo,
+      appearance: null,
+    };
+
+    const result = applyBrandingAppearanceOverride(brandingWithoutAppearance, {
+      color_buttons_primary: "#abcdef",
+      color_page_bg: "#123456",
+    });
+
+    expect(result?.appearance).toEqual({
+      color_buttons_primary: "#abcdef",
+      color_buttons_primary_text: null,
+      color_accent: "#1148B8",
+      color_error: "#B0171F",
+      color_product_info_bg: "#EFF3FA",
+      color_form_bg: "#FFFFFF",
+      color_page_bg: "#123456",
+      font: "default",
+      shapes: "default",
+      show_product_description: false,
+    });
+    expect(brandingWithoutAppearance.appearance).toBeNull();
+  });
 });
 
 describe("mergeBrandingAppearanceOverrides", () => {
