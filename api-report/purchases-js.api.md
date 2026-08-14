@@ -337,6 +337,7 @@ export interface PresentPaywallParams {
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
     readonly listener?: PaywallListener;
+    readonly metadata?: PurchaseMetadata;
     readonly offering?: Offering;
     readonly onBack?: (closePaywall: () => void) => void;
     readonly onDiscountCodeChanged?: (discountCode: string | null) => void;
