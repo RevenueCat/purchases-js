@@ -1,3 +1,8 @@
+## 1.52.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* WEB-4553 Expose the alternative redemption redirect URL (#1049) via Nicola Sacco (@nicfix)
+
 ## 1.52.2
 ## RevenueCat SDK
 ### 🐞 Bugfixes
