@@ -7,7 +7,7 @@ export const configuredAppearanceOverride = {
   color_error: "#d94a4a",
   color_product_info_bg: "#d8b9ff",
   color_form_bg: "#ffffff",
-  color_page_bg: "#f5f5f5",
+  color_page_bg: "#d8b9ff",
   shapes: "rounded",
 } satisfies Partial<BrandingAppearance>;
 
@@ -18,6 +18,6 @@ export const operationAppearanceOverride = {
   color_error: "#d94a4a",
   color_product_info_bg: "#ffcdc2",
   color_form_bg: "#ffffff",
-  color_page_bg: "#f5f5f5",
+  color_page_bg: "#ffcdc2",
   shapes: "pill",
 } satisfies Partial<BrandingAppearance>;
