@@ -4538,6 +4538,47 @@
           "members": [
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#brandingAppearanceOverride:member",
+              "docComment": "/**\n * Overrides the branding appearance for the purchase started from this paywall. Only the provided values are overridden. These values take precedence over the override passed to `Purchases.configure()`.\n *\n * For Stripe Checkout, this customizes the supported mobile wallet experience. The Stripe-hosted fallback opened through \"Pay another way\" remains light and cannot currently be customized.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly brandingAppearanceOverride?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Partial",
+                  "canonicalReference": "!Partial:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "BrandingAppearance",
+                  "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "brandingAppearanceOverride",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#customerEmail:member",
               "docComment": "/**\n * The email of the customer starting the purchase. If passed the checkout flow will not ask for it to the customer.\n */\n",
               "excerptTokens": [
@@ -6147,6 +6188,47 @@
           "name": "PurchaseParams",
           "preserveMemberOrder": false,
           "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#brandingAppearanceOverride:member",
+              "docComment": "/**\n * Overrides the Dashboard branding appearance for this purchase. Only the provided values are overridden; all other values keep their Dashboard configuration.\n *\n * For Stripe Checkout, this customizes the supported mobile wallet experience. The Stripe-hosted fallback opened through \"Pay another way\" remains light and cannot currently be customized.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "brandingAppearanceOverride?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Partial",
+                  "canonicalReference": "!Partial:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "BrandingAppearance",
+                  "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "brandingAppearanceOverride",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              }
+            },
             {
               "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PurchaseParams#customerEmail:member",
@@ -8078,6 +8160,47 @@
               "propertyTypeTokenRange": {
                 "startIndex": 1,
                 "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PurchasesConfig#brandingAppearanceOverride:member",
+              "docComment": "/**\n * Overrides the Dashboard branding appearance for purchases created by this instance, including purchases started through {@link Purchases.presentPaywall}. Only the provided values are overridden. A value passed directly to {@link PurchaseParams.brandingAppearanceOverride} takes precedence for that purchase.\n *\n * For Stripe Checkout, this customizes the supported mobile wallet experience. The Stripe-hosted fallback opened through \"Pay another way\" remains light and cannot currently be customized.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "brandingAppearanceOverride?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Partial",
+                  "canonicalReference": "!Partial:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "BrandingAppearance",
+                  "canonicalReference": "@revenuecat/purchases-js!BrandingAppearance:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "brandingAppearanceOverride",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
               }
             },
             {

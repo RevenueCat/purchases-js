@@ -6,6 +6,7 @@ import {
   LogLevel,
   Purchases,
   type PurchasesConfig,
+  type PurchaseParams,
   PurchasesError,
   ReservedCustomerAttribute,
 } from "../main";
@@ -663,10 +664,43 @@ describe("Purchases.identifyUser", () => {
 
 describe("Purchases.purchase()", () => {
   type PurchaseRouterMethods = {
-    performPaddlePurchase: (params: unknown) => Promise<unknown>;
-    performStripePurchase: (params: unknown) => Promise<unknown>;
-    performWebBillingPurchase: (params: unknown) => Promise<unknown>;
+    performPaddlePurchase: (params: PurchaseParams) => Promise<unknown>;
+    performStripePurchase: (params: PurchaseParams) => Promise<unknown>;
+    performWebBillingPurchase: (params: PurchaseParams) => Promise<unknown>;
   };
+
+  test("applies configured appearance defaults to every purchase", async () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+      brandingAppearanceOverride: {
+        color_buttons_primary: "#000000",
+        color_page_bg: "#111111",
+      },
+    });
+    const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    const performWebBillingPurchaseSpy = vi
+      .spyOn(purchasesInternal, "performWebBillingPurchase")
+      .mockResolvedValue({});
+
+    await purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+      brandingAppearanceOverride: {
+        color_page_bg: "#ffffff",
+        shapes: "pill",
+      },
+    });
+
+    expect(performWebBillingPurchaseSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        brandingAppearanceOverride: {
+          color_buttons_primary: "#000000",
+          color_page_bg: "#ffffff",
+          shapes: "pill",
+        },
+      }),
+    );
+  });
 
   test("pressing back button unmounts the component", async () => {
     const unmountSpy = vi.spyOn(svelte, "unmount").mockImplementation(() => {

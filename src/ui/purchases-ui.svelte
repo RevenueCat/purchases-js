@@ -71,6 +71,7 @@
     attributionMetadata?: AttributionMetadata;
     paywallId?: string;
     paywallSessionId?: string;
+    appearanceOverride?: Partial<BrandingAppearance>;
     productChange?: {
       subscriptionId?: string;
       productIdentifier?: string;
@@ -106,6 +107,7 @@
     attributionMetadata,
     paywallId,
     paywallSessionId,
+    appearanceOverride,
     productChange = undefined,
     onFinished,
     onProductChangeFinished = undefined,
@@ -246,6 +248,7 @@
         paywallId,
         paywallSessionId,
         locale: selectedLocale,
+        ...(appearanceOverride ? { appearanceOverride } : {}),
         productChange: productChange
           ? {
               subscriptionId: productChange.subscriptionId,
@@ -274,6 +277,7 @@
             paywallId,
             paywallSessionId,
             locale: selectedLocale,
+            ...(appearanceOverride ? { appearanceOverride } : {}),
             productChange: productChange
               ? {
                   subscriptionId: productChange.subscriptionId,

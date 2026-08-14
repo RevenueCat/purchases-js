@@ -95,6 +95,37 @@ describe("Purchases.presentPaywall() paywall events", () => {
     document.body.innerHTML = "";
   });
 
+  test("passes an appearance override to the purchase started from the paywall", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const packageId = offering.availablePackages[0]!.identifier;
+    const purchaseSpy = vi
+      .spyOn(purchases, "purchase")
+      .mockResolvedValue({} as PurchaseResult);
+
+    void purchases.presentPaywall({
+      offering,
+      brandingAppearanceOverride: {
+        color_buttons_primary: "#ffffff",
+        color_page_bg: "#101010",
+      },
+    });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    paywallProps!.onPurchaseClicked(packageId);
+
+    await vi.waitFor(() => {
+      expect(purchaseSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          brandingAppearanceOverride: {
+            color_buttons_primary: "#ffffff",
+            color_page_bg: "#101010",
+          },
+        }),
+      );
+    });
+  });
+
   test("fires paywall_cancel and paywall_close when purchase is cancelled and paywall is dismissed", async () => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();

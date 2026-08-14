@@ -245,6 +245,34 @@ describe("PurchaseOperationHelper", () => {
     });
   });
 
+  test("checkoutStart passes an appearance override to the backend", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      appearanceOverride: {
+        color_buttons_primary: "#ffffff",
+      },
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appearanceOverride: {
+          color_buttons_primary: "#ffffff",
+        },
+      }),
+    );
+  });
+
   test("checkoutStart passes locale to backend when provided", async () => {
     const mockPostCheckoutStart = vi
       .spyOn(backend, "postCheckoutStart")
