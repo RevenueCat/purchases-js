@@ -814,6 +814,7 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
+        metadata: paywallParams.metadata,
         showDiscountCodeField: paywallParams.showDiscountCodeField,
         discountCode: paywallParams.discountCode,
         onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
