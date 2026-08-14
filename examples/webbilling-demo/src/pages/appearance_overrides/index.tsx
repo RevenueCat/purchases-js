@@ -12,11 +12,25 @@ type DemoStatus = {
   message: string;
 };
 
+type AppearanceMode = "default" | "configured" | "operation";
+
+const purchaseLabels: Record<AppearanceMode, string> = {
+  default: "checkout without a runtime override",
+  configured: "configure-time checkout",
+  operation: "per-purchase checkout",
+};
+
+const paywallLabels: Record<AppearanceMode, string> = {
+  default: "paywall without a runtime override",
+  configured: "configure-time paywall",
+  operation: "presentPaywall-time paywall",
+};
+
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
 const AppearanceOverridesPage = () => {
-  const { purchases, offering } = usePurchasesLoaderData();
+  const { purchases, defaultPurchases, offering } = usePurchasesLoaderData();
   const packages =
     offering?.availablePackages.filter((pkg) => pkg.webBillingProduct) ?? [];
   const [selectedPackageId, setSelectedPackageId] = useState(
@@ -46,32 +60,33 @@ const AppearanceOverridesPage = () => {
     }
   };
 
-  const purchase = (pkg: Package, useOperationOverride: boolean) =>
-    runFlow(
-      useOperationOverride ? "per-purchase checkout" : "configured checkout",
-      () =>
-        purchases.purchase({
-          rcPackage: pkg,
-          ...(useOperationOverride
-            ? { brandingAppearanceOverride: operationAppearanceOverride }
-            : {}),
-        }),
-    );
+  const purchase = (pkg: Package, appearanceMode: AppearanceMode) => {
+    const purchaseInstance =
+      appearanceMode === "default" ? defaultPurchases : purchases;
 
-  const presentPaywall = (useOperationOverride: boolean) => {
+    return runFlow(purchaseLabels[appearanceMode], () =>
+      purchaseInstance.purchase({
+        rcPackage: pkg,
+        ...(appearanceMode === "operation"
+          ? { brandingAppearanceOverride: operationAppearanceOverride }
+          : {}),
+      }),
+    );
+  };
+
+  const presentPaywall = (appearanceMode: AppearanceMode) => {
     if (!offering) return Promise.resolve();
 
-    return runFlow(
-      useOperationOverride
-        ? "presentPaywall-time paywall"
-        : "configured paywall",
-      () =>
-        purchases.presentPaywall({
-          offering,
-          ...(useOperationOverride
-            ? { brandingAppearanceOverride: operationAppearanceOverride }
-            : {}),
-        }),
+    const purchaseInstance =
+      appearanceMode === "default" ? defaultPurchases : purchases;
+
+    return runFlow(paywallLabels[appearanceMode], () =>
+      purchaseInstance.presentPaywall({
+        offering,
+        ...(appearanceMode === "operation"
+          ? { brandingAppearanceOverride: operationAppearanceOverride }
+          : {}),
+      }),
     );
   };
 
@@ -95,9 +110,10 @@ const AppearanceOverridesPage = () => {
         <span className="appearance-demo__eyebrow">WEB-4597 demo</span>
         <h1>Runtime appearance overrides</h1>
         <p>
-          Compare colors stored when Purchases is configured with colors passed
-          only to one purchase or paywall presentation. Operation colors should
-          win when both are present.
+          Compare the Dashboard/default appearance with colors stored when
+          Purchases is configured and colors passed only to one purchase or
+          paywall presentation. Operation colors should win when both are
+          present.
         </p>
       </header>
 
@@ -173,14 +189,21 @@ const AppearanceOverridesPage = () => {
             <button
               className="compact-button compact-button--secondary"
               disabled={isRunning}
-              onClick={() => purchase(selectedPackage, false)}
+              onClick={() => purchase(selectedPackage, "default")}
+            >
+              No runtime override
+            </button>
+            <button
+              className="compact-button compact-button--secondary"
+              disabled={isRunning}
+              onClick={() => purchase(selectedPackage, "configured")}
             >
               Use configure-time colors
             </button>
             <button
               className="compact-button compact-button--primary"
               disabled={isRunning}
-              onClick={() => purchase(selectedPackage, true)}
+              onClick={() => purchase(selectedPackage, "operation")}
             >
               Override this purchase
             </button>
@@ -192,14 +215,21 @@ const AppearanceOverridesPage = () => {
             <button
               className="compact-button compact-button--secondary"
               disabled={isRunning}
-              onClick={() => presentPaywall(false)}
+              onClick={() => presentPaywall("default")}
+            >
+              No runtime override
+            </button>
+            <button
+              className="compact-button compact-button--secondary"
+              disabled={isRunning}
+              onClick={() => presentPaywall("configured")}
             >
               Use configure-time colors
             </button>
             <button
               className="compact-button compact-button--primary"
               disabled={isRunning}
-              onClick={() => presentPaywall(true)}
+              onClick={() => presentPaywall("operation")}
             >
               Override this paywall
             </button>

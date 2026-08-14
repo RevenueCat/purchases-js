@@ -26,6 +26,7 @@ export const isStripeApiKey = /^strp_[a-zA-Z0-9_.-]+$/.test(apiKey);
 
 type IPurchasesLoaderData = {
   purchases: Purchases;
+  defaultPurchases: Purchases;
   customerInfo: CustomerInfo;
   offering: Offering;
 };
@@ -112,20 +113,35 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
   Purchases.setLogLevel(LogLevel.Verbose);
   try {
-    if (!Purchases.isConfigured()) {
-      Purchases.configure({
+    const purchasesConfig = {
+      apiKey,
+      appUserId,
+      httpConfig,
+      flags: flagsConfig,
+    };
+    let purchases: Purchases;
+    let defaultPurchases: Purchases;
+
+    if (useConfiguredAppearanceOverride) {
+      defaultPurchases = Purchases.configure(purchasesConfig);
+      purchases = Purchases.configure({
+        ...purchasesConfig,
+        brandingAppearanceOverride: configuredAppearanceOverride,
+      });
+    } else if (!Purchases.isConfigured()) {
+      purchases = Purchases.configure({
         apiKey,
         appUserId,
         httpConfig,
         flags: flagsConfig,
-        ...(useConfiguredAppearanceOverride
-          ? { brandingAppearanceOverride: configuredAppearanceOverride }
-          : {}),
       });
+      defaultPurchases = purchases;
     } else {
       await Purchases.getSharedInstance().changeUser(appUserId);
+      purchases = Purchases.getSharedInstance();
+      defaultPurchases = purchases;
     }
-    const purchases = Purchases.getSharedInstance();
+
     const [customerInfo, offerings] = await Promise.all([
       purchases.getCustomerInfo(),
       purchases.getOfferings({
@@ -143,6 +159,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
     return {
       purchases,
+      defaultPurchases,
       customerInfo,
       offering,
     };
