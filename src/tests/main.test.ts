@@ -27,6 +27,7 @@ import { waitFor } from "@testing-library/svelte";
 import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
+import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
@@ -664,12 +665,22 @@ describe("Purchases.identifyUser", () => {
 
 describe("Purchases.purchase()", () => {
   type PurchaseRouterMethods = {
-    performPaddlePurchase: (params: PurchaseParams) => Promise<unknown>;
-    performStripePurchase: (params: PurchaseParams) => Promise<unknown>;
-    performWebBillingPurchase: (params: PurchaseParams) => Promise<unknown>;
+    _brandingInfo: BrandingInfoResponse | null;
+    performPaddlePurchase: (
+      params: PurchaseParams,
+      brandingInfo: BrandingInfoResponse | null,
+    ) => Promise<unknown>;
+    performStripePurchase: (
+      params: PurchaseParams,
+      brandingInfo: BrandingInfoResponse | null,
+    ) => Promise<unknown>;
+    performWebBillingPurchase: (
+      params: PurchaseParams,
+      brandingInfo: BrandingInfoResponse | null,
+    ) => Promise<unknown>;
   };
 
-  test("applies configured appearance defaults to every purchase", async () => {
+  test("resolves appearance overrides before routing the purchase", async () => {
     const purchases = Purchases.configure({
       apiKey: testApiKey,
       appUserId: testUserId,
@@ -679,6 +690,21 @@ describe("Purchases.purchase()", () => {
       },
     });
     const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    await purchases.preload();
+    purchasesInternal._brandingInfo = {
+      ...purchasesInternal._brandingInfo!,
+      appearance: {
+        color_buttons_primary: "#aaaaaa",
+        color_accent: "#bbbbbb",
+        color_error: "#cc0000",
+        color_product_info_bg: "#eeeeee",
+        color_form_bg: "#dddddd",
+        color_page_bg: "#cccccc",
+        font: "default",
+        shapes: "default",
+        show_product_description: true,
+      },
+    };
     const performWebBillingPurchaseSpy = vi
       .spyOn(purchasesInternal, "performWebBillingPurchase")
       .mockResolvedValue({});
@@ -698,6 +724,13 @@ describe("Purchases.purchase()", () => {
           color_page_bg: "#ffffff",
           shapes: "pill",
         },
+      }),
+      expect.objectContaining({
+        appearance: expect.objectContaining({
+          color_buttons_primary: "#000000",
+          color_page_bg: "#ffffff",
+          shapes: "pill",
+        }),
       }),
     );
   });

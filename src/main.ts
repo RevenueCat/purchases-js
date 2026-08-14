@@ -1677,6 +1677,10 @@ export class Purchases {
     const effectiveParams = appearanceOverride
       ? { ...params, brandingAppearanceOverride: appearanceOverride }
       : params;
+    const effectiveBrandingInfo = applyBrandingAppearanceOverride(
+      this._brandingInfo,
+      appearanceOverride,
+    );
 
     if (isSimulatedStoreApiKey(this._API_KEY)) {
       const purchaseResult = await purchaseSimulatedStoreProduct(
@@ -1690,19 +1694,29 @@ export class Purchases {
 
     const isPaddle = isPaddleApiKey(this._API_KEY);
     if (isPaddle) {
-      return await this.performPaddlePurchase(effectiveParams);
+      return await this.performPaddlePurchase(
+        effectiveParams,
+        effectiveBrandingInfo,
+      );
     }
 
     const isStripe = isStripeApiKey(this._API_KEY);
     if (isStripe) {
-      return await this.performStripePurchase(effectiveParams);
+      return await this.performStripePurchase(
+        effectiveParams,
+        effectiveBrandingInfo,
+      );
     }
 
-    return await this.performWebBillingPurchase(effectiveParams);
+    return await this.performWebBillingPurchase(
+      effectiveParams,
+      effectiveBrandingInfo,
+    );
   }
 
   private async performStripePurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
     const {
       rcPackage,
@@ -1732,7 +1746,7 @@ export class Purchases {
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -1745,11 +1759,6 @@ export class Purchases {
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
     let component: ReturnType<typeof mount> | null = null;
-
-    const finalBrandingInfo = applyBrandingAppearanceOverride(
-      this._brandingInfo,
-      params.brandingAppearanceOverride,
-    );
 
     const isInElement = htmlTarget !== undefined;
 
@@ -1803,7 +1812,7 @@ export class Purchases {
           onClose,
           onError,
           eventsTracker: this.eventsTracker,
-          brandingInfo: finalBrandingInfo,
+          brandingInfo,
           appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
           selectedLocale: localeToBeUsed,
@@ -1818,6 +1827,7 @@ export class Purchases {
 
   private async performWebBillingPurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
     const productChange = this.resolveProductChange(params);
     const {
@@ -1849,7 +1859,7 @@ export class Purchases {
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -1863,13 +1873,8 @@ export class Purchases {
 
     let component: ReturnType<typeof mount> | null = null;
 
-    const finalBrandingInfo = applyBrandingAppearanceOverride(
-      this._brandingInfo,
-      params.brandingAppearanceOverride,
-    );
-
     const termsAndConditionsUrl = resolveTermsAndConditionsUrl({
-      brandingInfo: finalBrandingInfo,
+      brandingInfo,
       termsAndConditionsUrl: params.termsAndConditionsUrl,
     });
 
@@ -1951,7 +1956,7 @@ export class Purchases {
           onError,
           purchases: this,
           eventsTracker: this.eventsTracker,
-          brandingInfo: finalBrandingInfo,
+          brandingInfo,
           appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
           selectedLocale: localeToBeUsed,
@@ -1971,6 +1976,7 @@ export class Purchases {
 
   private async performPaddlePurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
     const {
       rcPackage,
@@ -2003,13 +2009,8 @@ export class Purchases {
       ...(params.metadata || {}),
     };
 
-    const finalBrandingInfo = applyBrandingAppearanceOverride(
-      this._brandingInfo,
-      params.brandingAppearanceOverride,
-    );
-
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -2064,7 +2065,7 @@ export class Purchases {
           target: certainHTMLTarget,
           props: {
             eventsTracker: this.eventsTracker,
-            brandingInfo: finalBrandingInfo,
+            brandingInfo,
             selectedLocale: selectedLocale || defaultLocale,
             defaultLocale,
             customTranslations: params.labelsOverride,
