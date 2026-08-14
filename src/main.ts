@@ -3,6 +3,7 @@ import type {
   Offerings,
   Package,
   Product,
+  PurchaseMetadata,
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
@@ -1143,6 +1144,7 @@ export class Purchases {
         paywallParams.customerEmail,
         onError("Error presenting express purchase button"),
         listener,
+        paywallParams.metadata,
       );
 
       certainHTMLTarget.innerHTML = "";
@@ -1571,6 +1573,8 @@ export class Purchases {
    * @param onSuccess - The callback to be called when the purchase is successful.
    * @param customerEmail - The email of the user. If undefined, RevenueCat will ask the customer for their email.
    * @param onPurchaseError - The callback to be called when the purchase fails.
+   * @param listener - Optional paywall listener for purchase lifecycle events.
+   * @param metadata - Optional purchase metadata forwarded to express checkout.
    * @returns Function that renders the wallet button.
    */
   public getWalletButtonRender(
@@ -1579,6 +1583,7 @@ export class Purchases {
     customerEmail?: string,
     onError?: (error: Error) => void,
     listener?: PaywallListener,
+    metadata?: PurchaseMetadata,
   ): WalletButtonRender | undefined {
     if (!isWebBillingApiKey(this._API_KEY)) {
       return undefined;
@@ -1600,6 +1605,7 @@ export class Purchases {
         rcPackage: pkg,
         customerEmail: customerEmail,
         htmlTarget: element,
+        metadata,
         onButtonReady: (updater, walletsAvailable) => {
           buttonUpdater = updater;
           onReady?.(walletsAvailable);
