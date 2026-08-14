@@ -9,6 +9,7 @@ import {
 } from "@revenuecat/purchases-js";
 import type { LoaderFunction } from "react-router-dom";
 import { redirect, useLoaderData } from "react-router-dom";
+import { configuredAppearanceOverride } from "./runtime-appearance-overrides";
 
 declare global {
   interface Window {
@@ -46,6 +47,8 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const useCustomLogger = searchParams.get("useCustomLogger") === "true";
   const storeLoadTime =
     (searchParams.get("storeLoadTime") as StoreLoadTime) || undefined;
+  const useConfiguredAppearanceOverride =
+    searchParams.get("configuredAppearanceOverride") === "true";
 
   if (!appUserId) {
     throw redirect("/");
@@ -115,6 +118,9 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
         appUserId,
         httpConfig,
         flags: flagsConfig,
+        ...(useConfiguredAppearanceOverride
+          ? { brandingAppearanceOverride: configuredAppearanceOverride }
+          : {}),
       });
     } else {
       await Purchases.getSharedInstance().changeUser(appUserId);
@@ -160,4 +166,20 @@ const loadPurchasesWithDelayedStore: LoaderFunction<
   });
 };
 
-export { loadPurchases, loadPurchasesWithDelayedStore, usePurchasesLoaderData };
+const loadPurchasesWithAppearanceOverride: LoaderFunction<
+  IPurchasesLoaderData
+> = async (args) => {
+  const url = new URL(args.request.url);
+  url.searchParams.set("configuredAppearanceOverride", "true");
+  return loadPurchases({
+    ...args,
+    request: new Request(url, args.request),
+  });
+};
+
+export {
+  loadPurchases,
+  loadPurchasesWithAppearanceOverride,
+  loadPurchasesWithDelayedStore,
+  usePurchasesLoaderData,
+};
