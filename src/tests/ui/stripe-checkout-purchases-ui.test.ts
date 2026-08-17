@@ -6,6 +6,7 @@ import StripeCheckoutPurchasesUi from "../../ui/stripe-checkout-purchases-ui.sve
 import {
   brandingInfo,
   rcPackage,
+  subscriptionChangeImmediateWithTax,
   subscriptionOption,
 } from "../../stories/fixtures";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
@@ -321,6 +322,46 @@ describe("StripeCheckoutPurchasesUi", () => {
       expect(checkoutStartSpy).toHaveBeenCalledTimes(1);
     });
     expect(screen.queryByText("SANDBOX")).not.toBeInTheDocument();
+  });
+
+  test("renders the close button on the upgrade confirm page", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      subscriptionChangeImmediateWithTax,
+    );
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        isInElement: false,
+        onClose: vi.fn(),
+        productChange: { subscriberToken: "subscriber.token" },
+      },
+    });
+
+    // BrandingHeader renders both a back and a close affordance, and both
+    // carry the "close-button" test id.
+    expect(await screen.findAllByTestId("close-button")).toHaveLength(2);
+  });
+
+  test("does not render the close button on the upgrade confirm page when hideBackButton is true", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        isInElement: false,
+        onClose: vi.fn(),
+        hideBackButton: true,
+        productChange: { subscriberToken: "subscriber.token" },
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(screen.queryAllByTestId("close-button")).toHaveLength(0);
   });
 
   test("uses default product background when branding appearance is not customized", async () => {

@@ -20,9 +20,14 @@
   interface Props {
     startData: SubscriptionChangeCheckoutStartResponse;
     unusedTimeAdjustmentVariant?: "refund" | "credit";
+    unresolvedTaxCalculationStatus?: "pending" | "disabled";
   }
 
-  let { startData, unusedTimeAdjustmentVariant = "refund" }: Props = $props();
+  let {
+    startData,
+    unusedTimeAdjustmentVariant = "refund",
+    unresolvedTaxCalculationStatus = "pending",
+  }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
@@ -69,7 +74,8 @@
       totalExcludingTaxInMicros: summary.total_excluding_tax_in_micros,
       originalAmountInMicros: summary.original_amount_in_micros ?? undefined,
       taxAmountInMicros: taxAmount,
-      taxCalculationStatus: taxAmount != null ? "calculated" : "pending",
+      taxCalculationStatus:
+        taxAmount != null ? "calculated" : unresolvedTaxCalculationStatus,
       taxBreakdown:
         taxAmount != null
           ? [
