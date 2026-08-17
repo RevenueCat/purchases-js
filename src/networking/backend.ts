@@ -552,7 +552,7 @@ export class Backend {
     currency: string | null,
     fetchToken: string,
     presentedOfferingContext: PresentedOfferingContext | null,
-    initiationSource: string,
+    initiationSource: PostReceiptInitiationSource,
     paywallId?: string,
     storeUserId?: string,
     is_restore?: boolean,
@@ -676,4 +676,14 @@ export class Backend {
     }
     return (await cdnResponse.json()) as WorkflowDataResponse;
   }
+}
+
+/**
+ * The different intiation sources for a receipt posted to the backend.
+ *
+ * @internal
+ */
+export enum PostReceiptInitiationSource {
+  PURCHASE = "purchase",
+  RESTORE = "restore",
 }
