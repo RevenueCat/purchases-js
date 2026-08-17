@@ -119,7 +119,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
       rcPackage.webBillingProduct.price.currency,
       receipt.receiptId,
       rcPackage.webBillingProduct.presentedOfferingContext,
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
       undefined,
       storeUserId,
     );
@@ -246,7 +246,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
           null,
           receipt.receiptId,
           null,
-          "restore",
+          PostReceiptInitiationSource.RESTORE,
           undefined,
           response.userData.userId,
           isRestore,
