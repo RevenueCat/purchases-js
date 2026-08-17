@@ -11,7 +11,7 @@ import {
   getVirtualCurrenciesResponseWith3Currencies,
   getVirtualCurrenciesResponseWithNoCurrencies,
 } from "../test-responses";
-import { Backend } from "../../networking/backend";
+import { Backend, PostReceiptInitiationSource } from "../../networking/backend";
 import { StatusCodes } from "http-status-codes";
 import {
   BackendErrorCode,
@@ -1621,7 +1621,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      "restore",
+      PostReceiptInitiationSource.RESTORE,
       undefined,
       "amazon_store_user_id",
     );
@@ -1658,7 +1658,7 @@ describe("postReceipt request", () => {
       null,
       "test_fetch_token",
       null,
-      "restore",
+      PostReceiptInitiationSource.RESTORE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1684,7 +1684,7 @@ describe("postReceipt request", () => {
         },
         placementIdentifier: "placement_1",
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     expect(postReceiptAPIMock).toHaveBeenCalledTimes(1);
@@ -1718,7 +1718,7 @@ describe("postReceipt request", () => {
       "EUR",
       "test_fetch_token",
       null,
-      "restore",
+      PostReceiptInitiationSource.RESTORE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1751,7 +1751,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: "home_screen",
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1778,7 +1778,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1801,7 +1801,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1824,7 +1824,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
@@ -1855,7 +1855,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,
@@ -1878,7 +1878,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.NetworkError,
@@ -1909,7 +1909,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.InvalidReceiptError,
