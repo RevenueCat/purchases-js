@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "稅金 (預估)",
   "upgrade_confirm_page.subtitle_deferred": "檢閱您的付款詳情並排定變更",
   "upgrade_confirm_page.confirm_schedule": "確認排程",
-  "upgrade_confirm_page.on_file": "已存檔"
+  "upgrade_confirm_page.on_file": "已存檔",
+  "credit_for_unused_time.title": "未使用時間的抵用金",
+  "credit_for_unused_time.message": "您的付款方式將會收取訂閱方案之間的差額，並抵用您 {{previousProductName}} 訂閱方案上未使用的時間。"
 }

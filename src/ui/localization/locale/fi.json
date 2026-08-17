@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Vero (arvioitu)",
   "upgrade_confirm_page.subtitle_deferred": "Tarkista maksutietosi ja aikatauluta muutos",
   "upgrade_confirm_page.confirm_schedule": "Vahvista aikataulu",
-  "upgrade_confirm_page.on_file": "Tallennettu"
+  "upgrade_confirm_page.on_file": "Tallennettu",
+  "credit_for_unused_time.title": "Hyvitys käyttämättömästä ajasta",
+  "credit_for_unused_time.message": "Maksutapaasi veloitetaan tilausten välinen erotus, huomioiden hyvitys {{previousProductName}}-tilauksesi käyttämättömästä ajasta."
 }

@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "세금 (예상)",
   "upgrade_confirm_page.subtitle_deferred": "결제 세부 정보를 검토하고 변경 일정을 확인하세요",
   "upgrade_confirm_page.confirm_schedule": "일정 확인",
-  "upgrade_confirm_page.on_file": "등록됨"
+  "upgrade_confirm_page.on_file": "등록됨",
+  "credit_for_unused_time.title": "미사용 시간에 대한 크레딧",
+  "credit_for_unused_time.message": "회원님의 결제 수단으로 구독 간의 차액이 청구되며, {{previousProductName}} 구독의 미사용 시간에 대한 크레딧이 적용됩니다."
 }

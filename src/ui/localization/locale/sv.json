@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Moms (uppskattad)",
   "upgrade_confirm_page.subtitle_deferred": "Granska dina betalningsuppgifter och schemalägg ändring",
   "upgrade_confirm_page.confirm_schedule": "Bekräfta schema",
-  "upgrade_confirm_page.on_file": "Sparad"
+  "upgrade_confirm_page.on_file": "Sparad",
+  "credit_for_unused_time.title": "Kredit för oanvänd tid",
+  "credit_for_unused_time.message": "Din betalningsmetod kommer att debiteras för skillnaden mellan prenumerationerna, med en kredit för oanvänd tid på din {{previousProductName}}-prenumeration."
 }

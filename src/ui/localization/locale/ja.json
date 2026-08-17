@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "税金 (概算)",
   "upgrade_confirm_page.subtitle_deferred": "お支払い詳細を確認し、変更をスケジュールしてください",
   "upgrade_confirm_page.confirm_schedule": "スケジュールを確定",
-  "upgrade_confirm_page.on_file": "登録済み"
+  "upgrade_confirm_page.on_file": "登録済み",
+  "credit_for_unused_time.title": "未使用期間分のクレジット",
+  "credit_for_unused_time.message": "お客様の{{previousProductName}}サブスクリプションの未使用期間分のクレジットが適用され、サブスクリプション間の差額がお支払い方法に請求されます。"
 }
