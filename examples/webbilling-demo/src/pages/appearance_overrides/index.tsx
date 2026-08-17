@@ -107,7 +107,9 @@ const AppearanceOverridesPage = () => {
       <LogoutButton />
 
       <header className="appearance-demo__header">
-        <span className="appearance-demo__eyebrow">WEB-4597 demo</span>
+        <span className="appearance-demo__eyebrow">
+          Appearance Override demo
+        </span>
         <h1>Runtime appearance overrides</h1>
         <p>
           Compare the Dashboard/default appearance with colors stored when
