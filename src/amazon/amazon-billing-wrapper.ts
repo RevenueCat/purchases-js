@@ -15,7 +15,8 @@ import type {
   SubscriptionOptionResponse,
 } from "../networking/responses/products-response";
 import type { PurchaseParams, PurchaseResult } from "../main";
-import type { Backend } from "../networking/backend";
+import type { Backend} from "../networking/backend";
+import { PostReceiptInitiationSource } from "../networking/backend";
 import { toCustomerInfo } from "../entities/customer-info";
 import type { CustomerInfo } from "../entities/customer-info";
 import type { RestorePurchasesResult } from "../entities/restore-purchases-result";
