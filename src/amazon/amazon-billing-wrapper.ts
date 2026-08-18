@@ -15,7 +15,7 @@ import type {
   SubscriptionOptionResponse,
 } from "../networking/responses/products-response";
 import type { PurchaseParams, PurchaseResult } from "../main";
-import type { Backend} from "../networking/backend";
+import type { Backend } from "../networking/backend";
 import { PostReceiptInitiationSource } from "../networking/backend";
 import { toCustomerInfo } from "../entities/customer-info";
 import type { CustomerInfo } from "../entities/customer-info";
@@ -180,7 +180,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
       >;
       try {
         response = await PurchasingService.getPurchaseUpdates({
-          reset: true,
+          reset: executedGetPurchaseUpdatesRequests == 0 ? true : false,
         });
       } catch (error) {
         Logger.errorLog(
