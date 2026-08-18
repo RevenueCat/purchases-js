@@ -15,7 +15,7 @@ export interface RedemptionInfo {
    * The HTTPS URL that redirects to the redeem URL.
    * Use this URL when a browser-compatible URL is required, such as for QR codes.
    */
-  readonly redeemUrlRedirect?: string | null;
+  readonly redeemUrlRedirect: string | null;
 }
 
 export function toRedemptionInfo(

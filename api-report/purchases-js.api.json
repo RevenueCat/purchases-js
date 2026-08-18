@@ -4744,6 +4744,34 @@
             },
             {
               "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#metadata:member",
+              "docComment": "/**\n * The purchase metadata to be passed to the backend when a purchase is started from the paywall. Any information provided here will be propagated to the payment gateway and to the RC transaction as metadata.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "readonly metadata?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "PurchaseMetadata",
+                  "canonicalReference": "@revenuecat/purchases-js!PurchaseMetadata:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "metadata",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
               "canonicalReference": "@revenuecat/purchases-js!PresentPaywallParams#offering:member",
               "docComment": "/**\n * The identifier of the offering to fetch the paywall for. Can be a string identifier or one of the predefined keywords.\n */\n",
               "excerptTokens": [
@@ -8627,7 +8655,7 @@
               "excerptTokens": [
                 {
                   "kind": "Content",
-                  "text": "readonly redeemUrlRedirect?: "
+                  "text": "readonly redeemUrlRedirect: "
                 },
                 {
                   "kind": "Content",
@@ -8639,7 +8667,7 @@
                 }
               ],
               "isReadonly": true,
-              "isOptional": true,
+              "isOptional": false,
               "releaseTag": "Public",
               "name": "redeemUrlRedirect",
               "propertyTypeTokenRange": {
