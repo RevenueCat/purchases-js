@@ -55,6 +55,10 @@ export const AllOfferingsList = () => {
   }, []);
 
   const purchase = async (pkg: Package) => {
+    if (purchasingPackageId !== null) {
+      return;
+    }
+
     setPurchasingPackageId(pkg.identifier);
     console.log(`Purchasing ${pkg.webBillingProduct.identifier}...`);
 
@@ -103,7 +107,6 @@ export const AllOfferingsList = () => {
                   </Text>
                   <View style={styles.actions}>
                     <Button
-                      disabled={isPurchasing}
                       label={isPurchasing ? 'Purchasing…' : 'Purchase'}
                       onPress={() => void purchase(pkg)}
                     />
@@ -133,6 +136,7 @@ export const AllOfferingsList = () => {
             <View style={styles.sheetHeader}>
               <Text style={styles.sheetTitle}>Product details</Text>
               <Button
+                hasTVPreferredFocus
                 label="Close"
                 onPress={() => setSelectedProduct(null)}
                 variant="secondary"
