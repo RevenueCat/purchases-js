@@ -331,6 +331,7 @@ export interface PresentExpressPurchaseButtonParams {
 
 // @public
 export interface PresentPaywallParams {
+    readonly brandingAppearanceOverride?: Partial<BrandingAppearance>;
     readonly customerEmail?: string;
     readonly customVariables?: CustomVariables;
     readonly discountCode?: string;
@@ -423,6 +424,7 @@ export interface PurchaseOption {
 
 // @public
 export interface PurchaseParams {
+    brandingAppearanceOverride?: Partial<BrandingAppearance>;
     customerEmail?: string;
     defaultLocale?: string;
     discountCode?: string;
@@ -456,6 +458,7 @@ export class Purchases {
     /* Excluded from this release type: _loadingResourcesPromise */
     /* Excluded from this release type: _flags */
     /* Excluded from this release type: _subscriberToken */
+    /* Excluded from this release type: _brandingAppearanceOverride */
     /* Excluded from this release type: _context */
     /* Excluded from this release type: backend */
     /* Excluded from this release type: purchaseOperationHelper */
@@ -504,6 +507,7 @@ export class Purchases {
 export interface PurchasesConfig {
     apiKey: string;
     appUserId: string;
+    brandingAppearanceOverride?: Partial<BrandingAppearance>;
     flags?: FlagsConfig;
     httpConfig?: HttpConfig;
     /* Excluded from this release type: subscriberToken */

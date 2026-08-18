@@ -56,6 +56,7 @@ import {
 } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
+import type { BrandingAppearance } from "./entities/branding";
 import { requiresLoadedResources } from "./helpers/decorators";
 import { resolveTermsAndConditionsUrl } from "./helpers/checkout-consent-helper";
 import {
@@ -150,6 +151,10 @@ import {
   removeManagedAppleTouchIcon,
   syncManagedAppleTouchIcon,
 } from "./helpers/apple-touch-icon";
+import {
+  applyBrandingAppearanceOverride,
+  mergeBrandingAppearanceOverrides,
+} from "./helpers/branding-appearance-helper";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -272,6 +277,9 @@ export class Purchases {
 
   /** @internal */
   private readonly _subscriberToken: string | null;
+
+  /** @internal */
+  private readonly _brandingAppearanceOverride?: Partial<BrandingAppearance>;
 
   /** @internal */
   private readonly _context?: PurchasesContext;
@@ -444,6 +452,7 @@ export class Purchases {
       httpConfig,
       flags,
       subscriberToken,
+      brandingAppearanceOverride,
       context,
       trace_id,
     } = config;
@@ -457,6 +466,7 @@ export class Purchases {
       finalHttpConfig,
       finalFlags,
       subscriberToken,
+      brandingAppearanceOverride,
       context,
       trace_id,
     );
@@ -543,6 +553,7 @@ export class Purchases {
     httpConfig: HttpConfig = defaultHttpConfig,
     flags: FlagsConfig = defaultFlagsConfig,
     subscriberToken?: string,
+    brandingAppearanceOverride?: Partial<BrandingAppearance>,
     context?: PurchasesContext,
     trace_id?: string,
   ) {
@@ -550,6 +561,9 @@ export class Purchases {
     this._appUserId = appUserId;
     this._flags = { ...defaultFlagsConfig, ...flags };
     this._subscriberToken = subscriberToken ?? null;
+    this._brandingAppearanceOverride = brandingAppearanceOverride
+      ? { ...brandingAppearanceOverride }
+      : undefined;
     this._context = context;
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
@@ -816,6 +830,7 @@ export class Purchases {
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
         metadata: paywallParams.metadata,
+        brandingAppearanceOverride: paywallParams.brandingAppearanceOverride,
         showDiscountCodeField: paywallParams.showDiscountCodeField,
         discountCode: paywallParams.discountCode,
         onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
@@ -1655,9 +1670,21 @@ export class Purchases {
    */
   @requiresLoadedResources
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
+    const appearanceOverride = mergeBrandingAppearanceOverrides(
+      this._brandingAppearanceOverride,
+      params.brandingAppearanceOverride,
+    );
+    const effectiveParams = appearanceOverride
+      ? { ...params, brandingAppearanceOverride: appearanceOverride }
+      : params;
+    const effectiveBrandingInfo = applyBrandingAppearanceOverride(
+      this._brandingInfo,
+      appearanceOverride,
+    );
+
     if (isSimulatedStoreApiKey(this._API_KEY)) {
       const purchaseResult = await purchaseSimulatedStoreProduct(
-        params,
+        effectiveParams,
         this.backend,
         this._appUserId,
       );
@@ -1667,19 +1694,29 @@ export class Purchases {
 
     const isPaddle = isPaddleApiKey(this._API_KEY);
     if (isPaddle) {
-      return await this.performPaddlePurchase(params);
+      return await this.performPaddlePurchase(
+        effectiveParams,
+        effectiveBrandingInfo,
+      );
     }
 
     const isStripe = isStripeApiKey(this._API_KEY);
     if (isStripe) {
-      return await this.performStripePurchase(params);
+      return await this.performStripePurchase(
+        effectiveParams,
+        effectiveBrandingInfo,
+      );
     }
 
-    return await this.performWebBillingPurchase(params);
+    return await this.performWebBillingPurchase(
+      effectiveParams,
+      effectiveBrandingInfo,
+    );
   }
 
   private async performStripePurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
     const {
       rcPackage,
@@ -1709,7 +1746,7 @@ export class Purchases {
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -1722,12 +1759,6 @@ export class Purchases {
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
     let component: ReturnType<typeof mount> | null = null;
-
-    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
-
-    if (finalBrandingInfo && params.brandingAppearanceOverride) {
-      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
-    }
 
     const isInElement = htmlTarget !== undefined;
 
@@ -1781,7 +1812,8 @@ export class Purchases {
           onClose,
           onError,
           eventsTracker: this.eventsTracker,
-          brandingInfo: this._brandingInfo,
+          brandingInfo,
+          appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
@@ -1795,6 +1827,7 @@ export class Purchases {
 
   private async performWebBillingPurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
     const productChange = this.resolveProductChange(params);
     const {
@@ -1826,7 +1859,7 @@ export class Purchases {
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -1840,14 +1873,8 @@ export class Purchases {
 
     let component: ReturnType<typeof mount> | null = null;
 
-    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
-
-    if (finalBrandingInfo && params.brandingAppearanceOverride) {
-      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
-    }
-
     const termsAndConditionsUrl = resolveTermsAndConditionsUrl({
-      brandingInfo: finalBrandingInfo,
+      brandingInfo,
       termsAndConditionsUrl: params.termsAndConditionsUrl,
     });
 
@@ -1929,7 +1956,8 @@ export class Purchases {
           onError,
           purchases: this,
           eventsTracker: this.eventsTracker,
-          brandingInfo: this._brandingInfo,
+          brandingInfo,
+          appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
@@ -1948,6 +1976,7 @@ export class Purchases {
 
   private async performPaddlePurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
     const {
       rcPackage,
@@ -1980,14 +2009,8 @@ export class Purchases {
       ...(params.metadata || {}),
     };
 
-    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
-
-    if (finalBrandingInfo && params.brandingAppearanceOverride) {
-      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
-    }
-
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -2042,7 +2065,7 @@ export class Purchases {
           target: certainHTMLTarget,
           props: {
             eventsTracker: this.eventsTracker,
-            brandingInfo: this._brandingInfo,
+            brandingInfo,
             selectedLocale: selectedLocale || defaultLocale,
             defaultLocale,
             customTranslations: params.labelsOverride,

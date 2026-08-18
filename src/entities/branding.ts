@@ -15,3 +15,17 @@ export interface BrandingAppearance {
   shapes: "default" | "rectangle" | "rounded" | "pill";
   show_product_description: boolean;
 }
+
+/** @internal */
+export const DEFAULT_BRANDING_APPEARANCE: BrandingAppearance = {
+  color_buttons_primary: "#576CDB",
+  color_buttons_primary_text: null,
+  color_accent: "#1148B8",
+  color_error: "#B0171F",
+  color_product_info_bg: "#EFF3FA",
+  color_form_bg: "#FFFFFF",
+  color_page_bg: "#EFF3FA",
+  font: "default",
+  shapes: "default",
+  show_product_description: false,
+};

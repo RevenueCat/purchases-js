@@ -1,6 +1,7 @@
 import type { Offering, PurchaseMetadata } from "./offerings";
 import type { PaywallListener } from "./paywall-listener";
 import type { ProductChangeInfo } from "./product-change-params";
+import type { BrandingAppearance } from "./branding";
 import type {
   CompleteWorkflowNavigateArgs,
   CustomVariables,
@@ -44,6 +45,17 @@ export interface PresentPaywallParams {
    * to the RC transaction as metadata.
    */
   readonly metadata?: PurchaseMetadata;
+
+  /**
+   * Overrides the branding appearance for the purchase started from this
+   * paywall. Only the provided values are overridden. These values take
+   * precedence over the override passed to `Purchases.configure()`.
+   *
+   * For Stripe Checkout, this customizes the supported mobile wallet experience.
+   * The Stripe-hosted fallback opened through "Pay another way" remains light and
+   * cannot currently be customized.
+   */
+  readonly brandingAppearanceOverride?: Partial<BrandingAppearance>;
 
   /**
    * @experimental

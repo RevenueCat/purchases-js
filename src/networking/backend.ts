@@ -45,6 +45,7 @@ import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 import type { AttributionMetadata } from "../entities/purchase-params";
+import type { BrandingAppearance } from "../entities/branding";
 
 const MAX_GET_PRODUCTS_URL_PATH_LENGTH = 2000;
 
@@ -69,6 +70,7 @@ interface CheckoutStartRequestParams {
   locale?: string;
 
   attributionMetadata?: AttributionMetadata;
+  appearanceOverride?: Partial<BrandingAppearance>;
 
   /**
    * When set, will attempt a subscription change. Requires
@@ -294,6 +296,7 @@ export class Backend {
     metadata,
     locale,
     attributionMetadata,
+    appearanceOverride,
     productChange,
     subscriberToken,
   }: CheckoutStartRequestParams): Promise<T> {
@@ -320,6 +323,7 @@ export class Backend {
         paywall_session_id?: string;
       };
       attribution_metadata?: AttributionMetadata;
+      appearance_override?: Partial<BrandingAppearance>;
       product_change?: {
         subscription_id?: string;
         from_product_id?: string;
@@ -382,6 +386,10 @@ export class Backend {
 
     if (attributionMetadata) {
       requestBody.attribution_metadata = attributionMetadata;
+    }
+
+    if (appearanceOverride) {
+      requestBody.appearance_override = appearanceOverride;
     }
 
     if (productChange) {
