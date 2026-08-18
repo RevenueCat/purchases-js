@@ -65,11 +65,13 @@ export const ConfigureScreen = ({onConfigured}: ConfigureScreenProps) => {
         <Text style={styles.secondary}>
           Modify these values in constants.ts
         </Text>
-        <Button
-          hasTVPreferredFocus
-          label="Configure"
-          onPress={configurePurchases}
-        />
+        <View style={styles.configureButtonContainer}>
+          <Button
+            hasTVPreferredFocus
+            label="Configure"
+            onPress={configurePurchases}
+          />
+        </View>
         {configureError && (
           <Text style={styles.configureError}>{configureError}</Text>
         )}

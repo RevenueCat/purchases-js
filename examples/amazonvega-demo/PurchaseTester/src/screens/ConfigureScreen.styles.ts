@@ -65,18 +65,8 @@ export const styles = StyleSheet.create({
     lineHeight: 24,
     marginTop: 6,
   },
-  configureButton: {
-    alignItems: 'center',
-    backgroundColor: '#111111',
-    borderRadius: 10,
+  configureButtonContainer: {
     marginTop: 20,
-    paddingHorizontal: 40,
-    paddingVertical: 14,
-  },
-  configureButtonText: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   configureError: {
     color: '#B42318',
