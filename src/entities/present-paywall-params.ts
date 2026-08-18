@@ -1,4 +1,4 @@
-import type { Offering } from "./offerings";
+import type { Offering, PurchaseMetadata } from "./offerings";
 import type { PaywallListener } from "./paywall-listener";
 import type { ProductChangeInfo } from "./product-change-params";
 import type {
@@ -36,6 +36,14 @@ export interface PresentPaywallParams {
    * If passed the checkout flow will not ask for it to the customer.
    */
   readonly customerEmail?: string;
+
+  /**
+   * The purchase metadata to be passed to the backend when a purchase is started
+   * from the paywall.
+   * Any information provided here will be propagated to the payment gateway and
+   * to the RC transaction as metadata.
+   */
+  readonly metadata?: PurchaseMetadata;
 
   /**
    * @experimental
