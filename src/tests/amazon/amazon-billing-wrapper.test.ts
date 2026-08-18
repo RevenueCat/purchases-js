@@ -408,7 +408,7 @@ describe("AmazonBillingWrapper", () => {
 
         expect(getPurchaseUpdates).toHaveBeenCalledTimes(2);
         expect(getPurchaseUpdates).toHaveBeenNthCalledWith(1, { reset: true });
-        expect(getPurchaseUpdates).toHaveBeenNthCalledWith(2, { reset: true });
+        expect(getPurchaseUpdates).toHaveBeenNthCalledWith(2, { reset: false });
         expect(backend.postReceipt).toHaveBeenNthCalledWith(
           1,
           "app-user-id",
