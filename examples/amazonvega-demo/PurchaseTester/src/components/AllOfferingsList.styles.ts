@@ -1,27 +1,10 @@
 import {StyleSheet} from 'react-native';
 
 export const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderColor: 'rgba(60, 60, 67, 0.12)',
-    borderRadius: 20,
-    borderWidth: 1,
-    marginBottom: 16,
-    padding: 24,
-  },
-  cardHeader: {
-    alignItems: 'center',
+  actions: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  cardTitleGroup: {
-    flex: 1,
-    paddingRight: 16,
-  },
-  chevron: {
-    color: '#1479B8',
-    fontSize: 32,
-    lineHeight: 32,
+    gap: 12,
+    marginTop: 20,
   },
   content: {
     paddingBottom: 24,
@@ -36,62 +19,77 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 32,
   },
-  expandedCard: {
-    borderColor: '#9CCFEB',
-  },
-  focusedCard: {
-    borderColor: '#0077B6',
-    borderWidth: 3,
-  },
   identifier: {
     color: 'rgba(60, 60, 67, 0.6)',
     fontSize: 18,
     marginTop: 8,
   },
+  jsonScroll: {
+    flex: 1,
+  },
   list: {
     flex: 1,
   },
-  productIdentifier: {
-    color: 'rgba(60, 60, 67, 0.6)',
-    fontSize: 16,
-    marginTop: 4,
+  offering: {
+    marginBottom: 32,
   },
-  packageIdentifier: {
-    color: 'rgba(32, 84, 122, 0.8)',
-    fontSize: 15,
-    marginTop: 4,
-  },
-  productCount: {
-    color: '#1479B8',
-    fontSize: 17,
-    fontWeight: '600',
-    marginTop: 16,
-  },
-  productDetails: {
-    backgroundColor: '#EAF6FF',
-    borderColor: '#B8DEF5',
-    borderRadius: 14,
+  productCard: {
+    backgroundColor: '#FFFFFF',
+    borderColor: 'rgba(60, 60, 67, 0.12)',
+    borderRadius: 20,
     borderWidth: 1,
     marginTop: 16,
-    padding: 16,
+    padding: 24,
+  },
+  productDuration: {
+    color: 'rgba(60, 60, 67, 0.7)',
+    fontSize: 17,
+    marginTop: 8,
   },
   productFields: {
     color: '#173B55',
     fontFamily: 'monospace',
     fontSize: 14,
     lineHeight: 20,
-    marginTop: 12,
+    paddingBottom: 24,
   },
-  productHeading: {
+  productId: {
+    color: '#111111',
+    fontSize: 21,
+    fontWeight: '700',
+  },
+  productPrice: {
     color: '#0B5F91',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '700',
+    marginTop: 16,
   },
-  productSection: {
-    borderBottomColor: 'rgba(20, 121, 184, 0.2)',
+  sheet: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    height: '80%',
+    padding: 24,
+    width: '84%',
+  },
+  sheetBackdrop: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  sheetHeader: {
+    alignItems: 'center',
+    borderBottomColor: 'rgba(60, 60, 67, 0.12)',
     borderBottomWidth: 1,
-    paddingBottom: 16,
-    paddingTop: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+    paddingBottom: 12,
+  },
+  sheetTitle: {
+    color: '#111111',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   title: {
     color: '#111111',
