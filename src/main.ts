@@ -470,6 +470,13 @@ export class Purchases {
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
+
+    // Vega does not surface console.debug() at its default logging threshold,
+    // so use console.log() for SDK debug messages when using the Amazon store.
+    if (isAmazonApiKey(apiKey)) {
+      Logger.enableConsoleLogForDebugMessages();
+    }
+
     Purchases.instance = new Purchases(
       apiKey,
       appUserId,

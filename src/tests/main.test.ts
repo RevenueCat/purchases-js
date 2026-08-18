@@ -29,6 +29,7 @@ import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { AmazonBillingWrapper } from "../amazon/amazon-billing-wrapper";
+import { Logger } from "../helpers/logger";
 
 const { getAmazonProductData } = vi.hoisted(() => ({
   getAmazonProductData: vi.fn(),
@@ -229,21 +230,31 @@ describe("Purchases.configure()", () => {
   });
 
   test("does not throw error if given valid Amazon API key", () => {
+    const loggerSpy = vi.spyOn(Logger, "enableConsoleLogForDebugMessages");
+
     expect(() =>
       Purchases.configure({
         apiKey: "amzn_valid_key",
         appUserId: testUserId,
       }),
     ).not.toThrow();
+
+    expect(loggerSpy).toHaveBeenCalledOnce();
+    loggerSpy.mockRestore();
   });
 
   test("does not throw error if given valid web billing api key", () => {
+    const loggerSpy = vi.spyOn(Logger, "enableConsoleLogForDebugMessages");
+
     expect(() =>
       Purchases.configure({
         apiKey: testApiKey,
         appUserId: testUserId,
       }),
     ).not.toThrow();
+
+    expect(loggerSpy).not.toHaveBeenCalled();
+    loggerSpy.mockRestore();
   });
 
   test("does not throw error if given valid simulated store api key", () => {
