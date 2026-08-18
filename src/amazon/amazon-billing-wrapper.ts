@@ -325,7 +325,12 @@ export class AmazonBillingWrapper implements BillingWrapper {
 
   private async loadAmazonAppstoreIAPSDK(): Promise<AmazonAppstoreIAPSDK> {
     Logger.debugLog("Loading the Amazon AppStore IAP SDK.");
-    const amazonSdkModule = "@amazon-devices/keplerscript-appstore-iap-lib";
+    // Keep this globalThis.String() call. It prevents minifiers from turning the
+    // runtime-only import below into a static import, which would make web bundlers
+    // require this Vega-only optional dependency even when an Amazon API key is not used.
+    const amazonSdkModule = globalThis.String(
+      "@amazon-devices/keplerscript-appstore-iap-lib",
+    );
 
     try {
       // Keep web bundlers from following this Vega-only dependency into its
