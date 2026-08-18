@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Pressable, ScrollView, Text, View} from 'react-native';
+import {ScrollView, Text, View} from 'react-native';
 import {
   clearAppLogs,
   getAppLogs,
@@ -7,6 +7,7 @@ import {
   subscribeToAppLogs,
   type AppLogEntry,
 } from '../app-logs';
+import {Button} from '../components/Button';
 import {ScreenContainer} from '../ScreenContainer';
 import {styles} from './LogsScreen.styles';
 
@@ -17,17 +18,18 @@ interface LogsScreenProps {
 export const LogsScreen = ({onBack}: LogsScreenProps) => {
   const [logs, setLogs] = useState<readonly AppLogEntry[]>(getAppLogs());
 
-  useEffect(() => subscribeToAppLogs(() => setLogs([...getAppLogs()])), []);
+  useEffect(() => {
+    const unsubscribe = subscribeToAppLogs(() => setLogs([...getAppLogs()]));
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <ScreenContainer subtitle={`App logs (${logs.length}/${maxAppLogEntries})`}>
       <View style={styles.actions}>
-        <Pressable hasTVPreferredFocus style={styles.button} onPress={onBack}>
-          <Text style={styles.buttonText}>Back</Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={clearAppLogs}>
-          <Text style={styles.buttonText}>Clear logs</Text>
-        </Pressable>
+        <Button hasTVPreferredFocus label="Back" onPress={onBack} />
+        <Button label="Clear logs" onPress={clearAppLogs} />
       </View>
       <ScrollView style={styles.list} contentContainerStyle={styles.content}>
         {logs.length === 0 ? (
