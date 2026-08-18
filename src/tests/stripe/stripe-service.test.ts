@@ -22,12 +22,19 @@ import {
   subscriptionOption,
   subscriptionOptionWithDiscount,
   subscriptionOptionWithDiscountOneTime,
+  subscriptionOptionWithIntroPriceRecurring,
+  subscriptionOptionWithSingleMonthIntroPriceRecurring,
+  subscriptionOptionWithTrialAndIntroPriceRecurring,
   trialProduct,
 } from "../../stories/fixtures";
 import type { PriceBreakdown } from "../../ui/ui-types";
 import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discount-breakdown-helper";
-import type { PurchaseOption } from "../../entities/offerings";
-import type { Product } from "../../entities/offerings";
+import type {
+  Product,
+  PurchaseOption,
+  SubscriptionOption,
+} from "../../entities/offerings";
+import { PeriodUnit } from "../../helpers/duration-helper";
 
 vi.mock("@stripe/stripe-js/pure", () => ({
   loadStripe: vi.fn(),
@@ -547,7 +554,7 @@ describe("StripeService", () => {
   describe("buildStripeExpressCheckoutOptionsForSubscription", () => {
     beforeEach(() => {
       vi.useFakeTimers();
-      vi.setSystemTime(new Date("2025-01-01T00:00:00.000Z"));
+      vi.setSystemTime(new Date(2025, 0, 1));
     });
 
     afterEach(() => {
@@ -630,9 +637,241 @@ describe("StripeService", () => {
             regularBilling: {
               amount: 990,
               label: trialProduct.title,
-              recurringPaymentStartDate: new Date("2025-01-08T00:00:00.000Z"),
+              recurringPaymentStartDate: new Date(2025, 0, 8),
               recurringPaymentIntervalUnit: "month",
               recurringPaymentIntervalCount: 1,
+            },
+          },
+        },
+      });
+    });
+
+    test("subscription with a paid-once weekly intro describes both billing phases", () => {
+      const basePrice = {
+        amount: 4_999,
+        amountMicros: 49_990_000,
+        currency: "USD",
+        formattedPrice: "$49.99",
+      };
+      const introPrice = {
+        amount: 499,
+        amountMicros: 4_990_000,
+        currency: "USD",
+        formattedPrice: "$4.99",
+      };
+      const paidIntroOption: SubscriptionOption = {
+        ...subscriptionOption,
+        base: {
+          ...subscriptionOption.base,
+          price: basePrice,
+        },
+        introPrice: {
+          periodDuration: "P1W",
+          period: {
+            number: 1,
+            unit: PeriodUnit.Week,
+          },
+          cycleCount: 1,
+          price: introPrice,
+          pricePerWeek: introPrice,
+          pricePerMonth: null,
+          pricePerYear: null,
+        },
+      };
+      const breakdown = makeBreakdown(4_990_000);
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          paidIntroOption,
+          translator,
+          managementUrl,
+          resolveDiscount(breakdown, product, paidIntroOption),
+        );
+
+      expect(result).toStrictEqual({
+        layout: baseLayout,
+        applePay: {
+          recurringPaymentRequest: {
+            paymentDescription: product.title,
+            managementURL: managementUrl,
+            trialBilling: {
+              amount: 499,
+              label: product.title,
+              recurringPaymentEndDate: new Date(2025, 0, 1),
+              recurringPaymentIntervalUnit: "day",
+              recurringPaymentIntervalCount: 7,
+            },
+            regularBilling: {
+              amount: 4_999,
+              label: product.title,
+              recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
+          },
+        },
+      });
+    });
+
+    test("subscription with a multi-cycle intro delays regular billing until every intro cycle ends", () => {
+      const breakdown = makeBreakdown(3_490_000);
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOptionWithIntroPriceRecurring,
+          translator,
+          managementUrl,
+          resolveDiscount(
+            breakdown,
+            product,
+            subscriptionOptionWithIntroPriceRecurring,
+          ),
+        );
+
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            trialBilling: {
+              amount: 349,
+              recurringPaymentEndDate: new Date(2025, 2, 1),
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
+            regularBilling: {
+              amount: 990,
+              recurringPaymentStartDate: new Date(2025, 3, 1),
+            },
+          },
+        },
+      });
+    });
+
+    test("subscription with a monthly intro uses the last day of the month for the regular billing start", () => {
+      vi.setSystemTime(new Date(2025, 0, 31));
+      const breakdown = makeBreakdown(3_490_000);
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOptionWithSingleMonthIntroPriceRecurring,
+          translator,
+          managementUrl,
+          resolveDiscount(
+            breakdown,
+            product,
+            subscriptionOptionWithSingleMonthIntroPriceRecurring,
+          ),
+        );
+
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            regularBilling: {
+              recurringPaymentStartDate: new Date(2025, 1, 28),
+            },
+          },
+        },
+      });
+    });
+
+    test("subscription with an intro missing its period omits unknown billing dates", () => {
+      const optionWithUnknownIntroPeriod: SubscriptionOption = {
+        ...subscriptionOptionWithIntroPriceRecurring,
+        introPrice: {
+          ...subscriptionOptionWithIntroPriceRecurring.introPrice!,
+          periodDuration: null,
+          period: null,
+        },
+      };
+      const breakdown = makeBreakdown(3_490_000);
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          optionWithUnknownIntroPeriod,
+          translator,
+          managementUrl,
+          resolveDiscount(breakdown, product, optionWithUnknownIntroPeriod),
+        );
+      const recurringRequest = result.applePay?.recurringPaymentRequest;
+      if (!recurringRequest) {
+        throw new Error("Expected an Apple Pay recurring payment request");
+      }
+
+      expect(recurringRequest.trialBilling).toStrictEqual({
+        amount: 349,
+        label: product.title,
+      });
+      expect(recurringRequest.regularBilling).toMatchObject({
+        amount: 990,
+        recurringPaymentStartDate: undefined,
+      });
+    });
+
+    test("subscription with a missing base price falls back to the current amount", () => {
+      const optionWithoutBasePrice: SubscriptionOption = {
+        ...subscriptionOption,
+        base: {
+          ...subscriptionOption.base,
+          price: null,
+        },
+      };
+      const breakdown = makeBreakdown(1_230_000);
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          optionWithoutBasePrice,
+          translator,
+          managementUrl,
+          resolveDiscount(breakdown, product, optionWithoutBasePrice),
+        );
+
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            regularBilling: { amount: 123 },
+          },
+        },
+      });
+    });
+
+    test("subscription with a trial and intro starts the paid intro after the trial and base billing after both", () => {
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          baseBreakdown,
+          subscriptionOptionWithTrialAndIntroPriceRecurring,
+          translator,
+          managementUrl,
+          resolveDiscount(
+            baseBreakdown,
+            product,
+            subscriptionOptionWithTrialAndIntroPriceRecurring,
+          ),
+        );
+
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            trialBilling: {
+              amount: 349,
+              label: product.title,
+              recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentEndDate: new Date(2025, 2, 8),
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
+            regularBilling: {
+              amount: 990,
+              recurringPaymentStartDate: new Date(2025, 3, 8),
             },
           },
         },
@@ -689,6 +928,13 @@ describe("StripeService", () => {
         { name: "One-time Discount to $1 (20% off)", amount: -890 },
       ]);
       expectLineItemsBalance(result.lineItems, 100);
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            regularBilling: { amount: 990 },
+          },
+        },
+      });
     });
 
     test("subscription with time_window discount: line items", () => {
@@ -708,6 +954,13 @@ describe("StripeService", () => {
         { name: "Holiday Sale $7.99 (20% off for 3 months)", amount: -191 },
       ]);
       expectLineItemsBalance(result.lineItems, 799);
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            regularBilling: { amount: 990 },
+          },
+        },
+      });
     });
 
     test("subscription with applied promo code only: line items from appliedDiscounts", () => {
@@ -739,6 +992,13 @@ describe("StripeService", () => {
         { name: "SAVE10 (10% off)", amount: -100 },
       ]);
       expectLineItemsBalance(result.lineItems, 890);
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            regularBilling: { amount: 990 },
+          },
+        },
+      });
     });
 
     test("subscription with applied time_window promo: line items with duration suffix", () => {
