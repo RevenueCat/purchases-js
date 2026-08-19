@@ -309,6 +309,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
         Logger.debugLog(
           `Successfully fulfilled receipt ID ${receiptId} with the Amazon Store.`,
         );
+        this.deviceCache.addSuccessfullyPostedReceiptId(receiptId);
         break;
       case NotifyFulfillmentResponseCode.NOT_SUPPORTED:
         Logger.warnLog(

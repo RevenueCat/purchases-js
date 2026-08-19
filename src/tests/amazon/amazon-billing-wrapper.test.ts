@@ -166,6 +166,10 @@ describe("AmazonBillingWrapper", () => {
     notifyFulfillment.mockReset();
     purchase.mockReset();
     vi.restoreAllMocks();
+    vi.spyOn(
+      VegaDeviceCache.prototype,
+      "addSuccessfullyPostedReceiptId",
+    ).mockResolvedValue();
   });
 
   test("initializes the Vega device cache with its API key", () => {
@@ -655,6 +659,20 @@ describe("AmazonBillingWrapper", () => {
       });
     });
 
+    test("caches a receipt ID after Amazon successfully fulfills it", async () => {
+      const backend = createBackend();
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+
+      await new AmazonBillingWrapper(backend).purchase(
+        { rcPackage: createMonthlyPackageMock() },
+        appUserId,
+      );
+
+      expect(
+        vi.mocked(VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId),
+      ).toHaveBeenCalledExactlyOnceWith("amazon-receipt-id");
+    });
+
     test("uses a non-subscription receipt's SKU when posting and returning the purchase", async () => {
       const backend = createBackend();
       const params = { rcPackage: createMonthlyPackageMock() };
@@ -824,6 +842,9 @@ describe("AmazonBillingWrapper", () => {
         ).resolves.toMatchObject({ operationSessionId: "amazon-receipt-id" });
 
         expect(notifyFulfillment).toHaveBeenCalledOnce();
+        expect(
+          vi.mocked(VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId),
+        ).not.toHaveBeenCalled();
         expect(log).toHaveBeenCalledWith(expectedLog);
       },
     );
