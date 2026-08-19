@@ -14,7 +14,9 @@
  */
 import * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
 import { setAmazonAppstoreIAPSDKLoader } from "./amazon/amazon-appstore-iap-sdk-loader";
+import { activateVegaEntryPoint } from "./vega-entry-point";
 
 setAmazonAppstoreIAPSDKLoader(async () => AmazonVegaSdk);
+activateVegaEntryPoint();
 
 export * from "./main";

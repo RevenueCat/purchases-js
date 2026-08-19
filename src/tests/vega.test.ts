@@ -32,6 +32,26 @@ describe("Vega entry point", () => {
     expect(sdk.PurchasingService).toBe(purchasingService);
   });
 
+  test("configures with an Amazon API key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "amzn_valid_key",
+        appUserId: testUserId,
+      }),
+    ).not.toThrow();
+  });
+
+  test("throws when configured with a non-Amazon API key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "rcb_valid_key",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(
+      "Vega applications must be configured with an Amazon Appstore API key.",
+    );
+  });
+
   test("uses the Amazon IAP SDK for offerings with an Amazon API key", async () => {
     purchasingService.getProductData.mockResolvedValue({
       responseCode: 1,
