@@ -34,7 +34,6 @@ import {
   isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
-import { isVegaEntryPoint } from "./vega-entry-point";
 import {
   type OperationSessionSuccessfulResult,
   type PurchaseFlowError,
@@ -492,12 +491,6 @@ export class Purchases {
 
   private static validateConfig(config: PurchasesConfig) {
     validateApiKey(config.apiKey);
-    if (isVegaEntryPoint() && !isAmazonApiKey(config.apiKey)) {
-      throw new PurchasesError(
-        ErrorCode.ConfigurationError,
-        "Vega applications must be configured with an Amazon Appstore API key.",
-      );
-    }
     validateAppUserId(config.appUserId);
     validateProxyUrl(config.httpConfig?.proxyURL);
     validateAdditionalHeaders(config.httpConfig?.additionalHeaders);
