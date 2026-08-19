@@ -62,6 +62,7 @@ import {
   setAmazonAppstoreIAPSDKLoader,
 } from "../../amazon/amazon-appstore-iap-sdk-loader";
 import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
+import { VegaDeviceCache } from "../../amazon/vega-device-cache";
 import { ErrorCode } from "../../entities/errors";
 import type { PurchasesError } from "../../entities/errors";
 import { Logger } from "../../helpers/logger";
@@ -165,6 +166,24 @@ describe("AmazonBillingWrapper", () => {
     notifyFulfillment.mockReset();
     purchase.mockReset();
     vi.restoreAllMocks();
+  });
+
+  test("initializes the Vega device cache with its API key", () => {
+    const wrapper = new AmazonBillingWrapper(createBackend(), "amazon-api-key");
+
+    const deviceCache = (wrapper as unknown as { deviceCache: VegaDeviceCache })
+      .deviceCache;
+    expect(deviceCache).toBeInstanceOf(VegaDeviceCache);
+    expect(deviceCache as unknown as { apiKey: string }).toMatchObject({
+      apiKey: "amazon-api-key",
+    });
+    expect(
+      (
+        deviceCache as unknown as {
+          tokensCachePath: string;
+        }
+      ).tokensCachePath,
+    ).toBe("/data/com.revenuecat.purchases.amazon-api-key.tokens");
   });
 
   test("fails clearly when the Amazon SDK loader has not been wired up", async () => {

@@ -25,6 +25,7 @@ import {
   loadAmazonAppstoreIAPSDK,
   type AmazonAppstoreIAPSDK,
 } from "./amazon-appstore-iap-sdk-loader";
+import { VegaDeviceCache } from "./vega-device-cache";
 
 /**
  * Amazon billing wrapper. Defers loading the Amazon Appstore IAP SDK until
@@ -32,7 +33,15 @@ import {
  * @internal
  */
 export class AmazonBillingWrapper implements BillingWrapper {
-  constructor(private readonly backend: Backend) {}
+  private readonly deviceCache: VegaDeviceCache;
+
+  constructor(
+    private readonly backend: Backend,
+    apiKey: string,
+  ) {
+    this.deviceCache = new VegaDeviceCache(apiKey);
+    void this.deviceCache;
+  }
 
   private amazonAppstoreIAPSDKPromise:
     | Promise<AmazonAppstoreIAPSDK>
