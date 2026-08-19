@@ -214,6 +214,9 @@ jobs:
           name: Build
           command: pnpm run build
       - run:
+          name: Verify standard and Vega entry point boundaries
+          command: pnpm run verify:entry-point-boundaries
+      - run:
           name: Extract API using api-extractor
           command: pnpm run extract-api
       - run:
