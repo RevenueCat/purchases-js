@@ -15,12 +15,16 @@ export type AmazonAppstoreIAPSDKLoader = () => Promise<AmazonAppstoreIAPSDK>;
 // The default implementation intentionally throws an error. This loader is replaced
 // with a complete implementation as a side effect of
 // importing `@revenuecat/purchases-js/vega`.
-let amazonAppstoreIAPSDKLoader: AmazonAppstoreIAPSDKLoader = async () => {
-  throw new PurchasesError(
-    ErrorCode.ConfigurationError,
-    "Amazon Appstore is supported only by the @revenuecat/purchases-js/vega entry point.",
-  );
-};
+const missingAmazonAppstoreIAPSDKLoader: AmazonAppstoreIAPSDKLoader =
+  async () => {
+    throw new PurchasesError(
+      ErrorCode.ConfigurationError,
+      "Amazon Appstore is supported only by the @revenuecat/purchases-js/vega entry point.",
+    );
+  };
+
+let amazonAppstoreIAPSDKLoader: AmazonAppstoreIAPSDKLoader =
+  missingAmazonAppstoreIAPSDKLoader;
 
 /**
  * Installs the runtime-specific Amazon SDK implementation.
@@ -31,6 +35,18 @@ export function setAmazonAppstoreIAPSDKLoader(
   loader: AmazonAppstoreIAPSDKLoader,
 ): void {
   amazonAppstoreIAPSDKLoader = loader;
+}
+
+/**
+ * Restores the loader used when no Amazon-capable entry point has configured one.
+ *
+ * This is primarily useful for tests that need to verify the standard entry
+ * point's failure mode.
+ *
+ * @internal
+ */
+export function resetAmazonAppstoreIAPSDKLoader(): void {
+  amazonAppstoreIAPSDKLoader = missingAmazonAppstoreIAPSDKLoader;
 }
 
 /**
