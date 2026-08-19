@@ -23,7 +23,10 @@ export default defineConfig({
       fileName: (format) => `Purchases.vega.${format}.js`,
     },
     rollupOptions: {
-      external: ["@amazon-devices/keplerscript-appstore-iap-lib"],
+      external: [
+        "@amazon-devices/kepler-file-system",
+        "@amazon-devices/keplerscript-appstore-iap-lib",
+      ],
     },
   },
   plugins: [svelte({ compilerOptions: { css: "injected" } })],

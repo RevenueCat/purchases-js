@@ -7,6 +7,9 @@ settings:
 importers:
   .:
     devDependencies:
+      "@amazon-devices/kepler-file-system":
+        specifier: 0.0.7
+        version: 0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       "@amazon-devices/keplerscript-appstore-iap-lib":
         specifier: 2.12.16
         version: 2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
@@ -156,11 +159,14 @@ packages:
         integrity: sha512-31Bjn9kaX2ThY7VcezVzEM4+khrLoq2qnEeOs0NkwYZ+VnSMXgTQwdpMlWKxjvKhcBdBD9ZUAPLlrLigNVqQag==,
       }
 
+  "@amazon-devices/kepler-file-system@0.0.7":
+    resolution: {integrity: sha512-rj6f0rtgB17Eg8XcuSH6KhE9QW7pz0aekps/YdkgYTMzlJmAX3Zkiwb+qvzlmFRQ7zr8sT036zfabz/VFrndHw==}
+
+  "@amazon-devices/keplerscript-appstore-iap-lib@2.12.16":
+    resolution: {integrity: sha512-31Bjn9kaX2ThY7VcezVzEM4+khrLoq2qnEeOs0NkwYZ+VnSMXgTQwdpMlWKxjvKhcBdBD9ZUAPLlrLigNVqQag==}
+
   "@amazon-devices/keplerscript-turbomodule-api@1.2.5":
-    resolution:
-      {
-        integrity: sha512-zg4vQ7iZLZkoajyjxYtGs293y3+FfpM5de63Xx6sPdIubNLh6Cjf5o7vxPnJ4+SnXOk4IlcSndnGIpJ7vtgJiw==,
-      }
+    resolution: {integrity: sha512-zg4vQ7iZLZkoajyjxYtGs293y3+FfpM5de63Xx6sPdIubNLh6Cjf5o7vxPnJ4+SnXOk4IlcSndnGIpJ7vtgJiw==}
     hasBin: true
 
   "@amazon-devices/react-native-kepler@2.1.0":
@@ -9296,6 +9302,13 @@ packages:
 
 snapshots:
   "@adobe/css-tools@4.4.1": {}
+
+  "@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))":
+    dependencies:
+      "@amazon-devices/keplerscript-turbomodule-api": 1.2.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
+    transitivePeerDependencies:
+      - '@babel/preset-env'
+      - supports-color
 
   "@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))":
     dependencies:

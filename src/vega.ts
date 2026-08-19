@@ -13,10 +13,13 @@
  * imports or CSP-sensitive runtime code generation.
  */
 import * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
+import { KeplerFileSystem } from "@amazon-devices/kepler-file-system";
 import { setAmazonAppstoreIAPSDKLoader } from "./amazon/amazon-appstore-iap-sdk-loader";
+import { setKeplerFileSystemLoader } from "./amazon/kepler-file-system-loader";
 import { activateVegaEntryPoint } from "./vega-entry-point";
 
 setAmazonAppstoreIAPSDKLoader(async () => AmazonVegaSdk);
+setKeplerFileSystemLoader(async () => KeplerFileSystem);
 activateVegaEntryPoint();
 
 export * from "./main";
