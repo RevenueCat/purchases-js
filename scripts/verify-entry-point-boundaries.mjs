@@ -1,8 +1,9 @@
 /**
- * Verifies the published bundle boundary between the standard and Vega entry
- * points. This deliberately inspects generated artifacts rather than source
- * imports: it catches a bundler change that could otherwise pull the Vega-only
- * Amazon dependency into web, React Native web, or Flutter web consumers.
+ * Makes sure Amazon AppStore support is included only in the Vega entry
+ * point of the SDK.
+ *
+ * This checks the files we publish, so web, React Native web, and Flutter web
+ * apps do not receive Amazon/Vega-specific dependencies.
  */
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -19,11 +20,11 @@ for (const artifact of defaultArtifacts) {
 
   assert.ok(
     !contents.includes(amazonModule),
-    `${artifact} must not reference the Vega-only Amazon IAP module`,
+    `${artifact} should not include Amazon AppStore support`,
   );
   assert.ok(
     !contents.includes("Purchases.vega"),
-    `${artifact} must not reference the Vega entry point`,
+    `${artifact} should not include the Vega code.`,
   );
 }
 
@@ -32,8 +33,10 @@ for (const artifact of vegaArtifacts) {
 
   assert.ok(
     contents.includes(amazonModule),
-    `${artifact} must reference the Amazon IAP module`,
+    `${artifact} should include Amazon AppStore support`,
   );
 }
 
-console.log("Verified standard and Vega entry point bundle boundaries.");
+console.log(
+  "Confirmed that Amazon AppStore support is only in the Vega entry point.",
+);
