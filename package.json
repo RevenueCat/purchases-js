@@ -42,10 +42,10 @@
     "iap"
   ],
   "scripts": {
-    "watch": "vite build --watch",
+    "watch": "vite build --config vite.watch.config.js --watch",
     "build": "tsc && vite build && vite build --config vite.vega.config.js",
-    "build:dev": "tsc && vite build --mode development",
-    "build:dev-watch": "tsc && vite build --mode development --watch",
+    "build:dev": "tsc && vite build --mode development && vite build --config vite.vega.config.js --mode development",
+    "build:dev-watch": "tsc && vite build --mode development --config vite.watch.config.js --watch",
     "preview": "vite preview",
     "lint": "prettier --check . && eslint src/",
     "format": "prettier --write .",

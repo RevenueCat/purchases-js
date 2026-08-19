@@ -47,6 +47,16 @@ pnpm install
 pnpm run build:dev
 ```
 
+For automatic rebuilds of the web entry point during development, run:
+
+```bash
+pnpm run build:dev-watch
+```
+
+`build:dev-watch` is web-only. It preserves the Vega artifacts produced by
+`build:dev`, but does not rebuild them; rerun `pnpm run build:dev` after
+changing code used by the Vega entry point.
+
 To avoid publishing the package you can use pnpm's link feature:
 
 1. In the purchases-js directory, register the package:
