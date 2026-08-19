@@ -29,6 +29,7 @@ import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { AmazonBillingWrapper } from "../amazon/amazon-billing-wrapper";
+import { setAmazonAppstoreIAPSDKLoader } from "../amazon/amazon-appstore-iap-sdk-loader";
 import { Logger } from "../helpers/logger";
 
 const { getAmazonProductData } = vi.hoisted(() => ({
@@ -40,6 +41,12 @@ vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
   ProductType: { CONSUMABLE: 1, ENTITLED: 2, SUBSCRIPTION: 3 },
   PurchasingService: { getProductData: getAmazonProductData },
 }));
+
+import * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
+
+beforeEach(() => {
+  setAmazonAppstoreIAPSDKLoader(async () => AmazonVegaSdk);
+});
 
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {

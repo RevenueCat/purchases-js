@@ -3,7 +3,6 @@ import type {
   ProductDataResponse,
   ProductType as AmazonProductType,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
-import type * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { Logger } from "../helpers/logger";
 import type { BillingWrapper } from "../helpers/billing-wrapper";
@@ -22,8 +21,10 @@ import type { CustomerInfo } from "../entities/customer-info";
 import type { RestorePurchasesResult } from "../entities/restore-purchases-result";
 import type { SubscriberResponse } from "../networking/responses/subscriber-response";
 import type { SyncPurchasesResult } from "../entities/sync-purchases-result";
-
-type AmazonAppstoreIAPSDK = typeof AmazonVegaSdk;
+import {
+  loadAmazonAppstoreIAPSDK,
+  type AmazonAppstoreIAPSDK,
+} from "./amazon-appstore-iap-sdk-loader";
 
 /**
  * Amazon billing wrapper. Defers loading the Amazon Appstore IAP SDK until
@@ -319,25 +320,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
   }
 
   private getAmazonAppstoreIAPSDK(): Promise<AmazonAppstoreIAPSDK> {
-    return (this.amazonAppstoreIAPSDKPromise ??=
-      this.loadAmazonAppstoreIAPSDK());
-  }
-
-  private async loadAmazonAppstoreIAPSDK(): Promise<AmazonAppstoreIAPSDK> {
-    Logger.debugLog("Loading the Amazon AppStore IAP SDK.");
-    const amazonSdkModule = "@amazon-devices/keplerscript-appstore-iap-lib";
-
-    try {
-      // Keep web bundlers from following this Vega-only dependency into its
-      // Flow-based React Native source. Vega resolves it only at runtime.
-      return await import(/* @vite-ignore */ amazonSdkModule);
-    } catch (error) {
-      throw new PurchasesError(
-        ErrorCode.ConfigurationError,
-        "Amazon Vega IAP SDK is unavailable.",
-        error instanceof Error ? error.message : undefined,
-      );
-    }
+    return (this.amazonAppstoreIAPSDKPromise ??= loadAmazonAppstoreIAPSDK());
   }
 
   private async getProductsFromAmazonAppstoreIapLib(

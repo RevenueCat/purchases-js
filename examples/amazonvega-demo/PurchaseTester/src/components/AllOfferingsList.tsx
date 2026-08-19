@@ -5,7 +5,7 @@ import {
   type Offering,
   type Package,
   type Product,
-} from '@revenuecat/purchases-js';
+} from '@revenuecat/purchases-js/vega';
 import {styles} from './AllOfferingsList.styles';
 import {Button} from './Button';
 
