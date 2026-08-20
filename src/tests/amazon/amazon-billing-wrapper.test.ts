@@ -477,6 +477,73 @@ describe("AmazonBillingWrapper", () => {
       );
     });
 
+    test("sync continues when caching a successfully posted receipt fails", async () => {
+      const backend = createBackend();
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      vi.mocked(
+        VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId,
+      ).mockRejectedValueOnce(new Error("disk unavailable"));
+      getPurchaseUpdates.mockResolvedValue(
+        purchaseUpdatesResponse({
+          receiptList: [
+            {
+              ...successfulPurchaseResponse().receipt,
+              receiptId: "first-receipt",
+            },
+            {
+              ...successfulPurchaseResponse().receipt,
+              receiptId: "second-receipt",
+            },
+          ],
+        }),
+      );
+
+      await new AmazonBillingWrapper(backend, amazonApiKey).syncPurchases(
+        "app-user-id",
+      );
+
+      expect(backend.postReceipt).toHaveBeenCalledTimes(2);
+      expect(backend.postReceipt).toHaveBeenNthCalledWith(
+        2,
+        "app-user-id",
+        "monthly",
+        null,
+        "second-receipt",
+        null,
+        "restore",
+        undefined,
+        "amazon-store-user-id",
+        false,
+      );
+      expect(backend.getCustomerInfo).toHaveBeenCalledExactlyOnceWith(
+        "app-user-id",
+      );
+    });
+
+    test("restore logs a cache warning when fulfillment succeeds but caching fails", async () => {
+      const backend = createBackend();
+      const warningLog = vi
+        .spyOn(Logger, "warnLog")
+        .mockImplementation(() => {});
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      notifyFulfillment.mockResolvedValue({
+        responseCode: NotifyFulfillmentResponseCode.SUCCESSFUL,
+      });
+      vi.mocked(
+        VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId,
+      ).mockRejectedValueOnce(new Error("disk unavailable"));
+      getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
+
+      await new AmazonBillingWrapper(backend, amazonApiKey).restorePurchases(
+        "app-user-id",
+      );
+
+      expect(notifyFulfillment).toHaveBeenCalledOnce();
+      expect(warningLog).toHaveBeenCalledWith(
+        "Failed to cache successfully posted receipt ID amazon-receipt-id: Error: disk unavailable",
+      );
+    });
+
     test.each([
       ["syncPurchases", false],
       ["restorePurchases", true],
@@ -808,6 +875,29 @@ describe("AmazonBillingWrapper", () => {
       expect(
         vi.mocked(VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId),
       ).toHaveBeenCalledExactlyOnceWith("amazon-receipt-id");
+    });
+
+    test("logs a cache warning when fulfillment succeeds but caching fails", async () => {
+      const backend = createBackend();
+      const warningLog = vi
+        .spyOn(Logger, "warnLog")
+        .mockImplementation(() => {});
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      vi.mocked(
+        VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId,
+      ).mockRejectedValueOnce(new Error("disk unavailable"));
+
+      await expect(
+        new AmazonBillingWrapper(backend, amazonApiKey).purchase(
+          { rcPackage: createMonthlyPackageMock() },
+          appUserId,
+        ),
+      ).resolves.toMatchObject({ operationSessionId: "amazon-receipt-id" });
+
+      expect(notifyFulfillment).toHaveBeenCalledOnce();
+      expect(warningLog).toHaveBeenCalledWith(
+        "Failed to cache successfully posted receipt ID amazon-receipt-id: Error: disk unavailable",
+      );
     });
 
     test("uses a non-subscription receipt's SKU when posting and returning the purchase", async () => {

@@ -133,17 +133,17 @@ export class AmazonBillingWrapper implements BillingWrapper {
       storeUserId,
     );
 
+    let fulfillmentSucceeded = false;
     try {
-      if (await this.notifyFulfillment(receipt.receiptId)) {
-        await this.deviceCache.addSuccessfullyPostedReceiptId(
-          receipt.receiptId,
-        );
-        Logger.debugLog("Amazon purchase completed successfully.");
-      }
+      fulfillmentSucceeded = await this.notifyFulfillment(receipt.receiptId);
     } catch (error: unknown) {
       Logger.warnLog(
         `Failed to fulfill receipt ID ${receipt.receiptId} with the Amazon Store: ${String(error)}`,
       );
+    }
+    if (fulfillmentSucceeded) {
+      await this.cacheSuccessfullyPostedReceiptId(receipt.receiptId);
+      Logger.debugLog("Amazon purchase completed successfully.");
     }
 
     return {
@@ -285,21 +285,21 @@ export class AmazonBillingWrapper implements BillingWrapper {
       );
 
       if (isRestore) {
+        let fulfillmentSucceeded = false;
         try {
-          if (await this.notifyFulfillment(receipt.receiptId)) {
-            await this.deviceCache.addSuccessfullyPostedReceiptId(
-              receipt.receiptId,
-            );
-          }
+          fulfillmentSucceeded = await this.notifyFulfillment(
+            receipt.receiptId,
+          );
         } catch (error: unknown) {
           Logger.warnLog(
             `Failed to fulfill receipt ID ${receipt.receiptId} with the Amazon Store: ${String(error)}`,
           );
         }
+        if (fulfillmentSucceeded) {
+          await this.cacheSuccessfullyPostedReceiptId(receipt.receiptId);
+        }
       } else {
-        await this.deviceCache.addSuccessfullyPostedReceiptId(
-          receipt.receiptId,
-        );
+        await this.cacheSuccessfullyPostedReceiptId(receipt.receiptId);
       }
     }
 
@@ -343,6 +343,18 @@ export class AmazonBillingWrapper implements BillingWrapper {
           `Received an unexpected response code from Amazon when fulfilling receipt ID ${receiptId}.`,
         );
         return false;
+    }
+  }
+
+  private async cacheSuccessfullyPostedReceiptId(
+    receiptId: string,
+  ): Promise<void> {
+    try {
+      await this.deviceCache.addSuccessfullyPostedReceiptId(receiptId);
+    } catch (error: unknown) {
+      Logger.warnLog(
+        `Failed to cache successfully posted receipt ID ${receiptId}: ${String(error)}`,
+      );
     }
   }
 
