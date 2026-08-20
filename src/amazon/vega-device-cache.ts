@@ -49,11 +49,7 @@ export class VegaDeviceCache {
           JSON.stringify(updatedReceiptIds),
           "UTF-8",
         );
-      } catch (error: unknown) {
-        if (!isAlreadyExistsError(error)) {
-          throw error;
-        }
-
+      } catch {
         const currentReceiptIds = await this.getReceiptIds();
         if (currentReceiptIds.includes(receiptId)) {
           return;
@@ -96,8 +92,4 @@ function isReceiptCache(value: unknown): value is ReceiptCache {
   return (
     Array.isArray(value) && value.every((entry) => typeof entry === "string")
   );
-}
-
-function isAlreadyExistsError(error: unknown): boolean {
-  return String(error).includes("AlreadyExistsError");
 }
