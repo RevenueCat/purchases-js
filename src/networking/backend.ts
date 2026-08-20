@@ -686,4 +686,5 @@ export class Backend {
 export enum PostReceiptInitiationSource {
   PURCHASE = "purchase",
   RESTORE = "restore",
+  UNSYNCED_ACTIVE_PURCHASES = "unsynced_active_purchases",
 }

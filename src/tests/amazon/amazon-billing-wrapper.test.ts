@@ -209,6 +209,75 @@ describe("AmazonBillingWrapper", () => {
     expect(getProductData).not.toHaveBeenCalled();
   });
 
+  test("syncs, fulfills, and caches only previously unsynced receipts in the background", async () => {
+    const backend = createBackend();
+    const debugLog = vi.spyOn(Logger, "debugLog");
+    vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+    getPurchaseUpdates.mockResolvedValue(
+      purchaseUpdatesResponse({
+        receiptList: [
+          {
+            ...successfulPurchaseResponse().receipt,
+            receiptId: "already-synced",
+          },
+          {
+            ...successfulPurchaseResponse().receipt,
+            receiptId: "pending-receipt",
+          },
+        ],
+      }),
+    );
+    notifyFulfillment.mockResolvedValue({
+      responseCode: NotifyFulfillmentResponseCode.SUCCESSFUL,
+    });
+    vi.spyOn(
+      VegaDeviceCache.prototype,
+      "getPreviouslySentReceiptIds",
+    ).mockResolvedValue(new Set(["already-synced"]));
+
+    await new AmazonBillingWrapper(backend, amazonApiKey).syncPendingPurchases(
+      "app-user-id",
+    );
+
+    expect(backend.postReceipt).toHaveBeenCalledExactlyOnceWith(
+      "app-user-id",
+      "monthly",
+      null,
+      "pending-receipt",
+      null,
+      "unsynced_active_purchases",
+      undefined,
+      "amazon-store-user-id",
+      false,
+    );
+    expect(notifyFulfillment).toHaveBeenCalledExactlyOnceWith({
+      receiptId: "pending-receipt",
+      fulfillmentResult: FulfillmentResult.FULFILLED,
+    });
+    expect(
+      vi.mocked(VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId),
+    ).toHaveBeenCalledExactlyOnceWith("pending-receipt");
+    expect(backend.getCustomerInfo).not.toHaveBeenCalled();
+    expect(debugLog).toHaveBeenCalledWith("Found 1 receipts to sync");
+  });
+
+  test("reports when all Amazon receipts have already been synced", async () => {
+    const backend = createBackend();
+    const debugLog = vi.spyOn(Logger, "debugLog");
+    getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
+    vi.spyOn(
+      VegaDeviceCache.prototype,
+      "getPreviouslySentReceiptIds",
+    ).mockResolvedValue(new Set(["amazon-receipt-id"]));
+
+    await new AmazonBillingWrapper(backend, amazonApiKey).syncPendingPurchases(
+      "app-user-id",
+    );
+
+    expect(backend.postReceipt).not.toHaveBeenCalled();
+    expect(debugLog).toHaveBeenCalledWith("Found no receipts to sync");
+  });
+
   describe("product data requests", () => {
     test("loads and maps products from the Amazon IAP SDK", async () => {
       getProductData.mockResolvedValue(
