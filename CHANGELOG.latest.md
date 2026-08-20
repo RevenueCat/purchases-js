@@ -1,7 +1,10 @@
 ## RevenueCat SDK
-### ✨ New Features
-* WEB-4597 Allow runtime purchase appearance overrides (#1054) via Nicola Sacco (@nicfix)
-* Paddle Metadata (#1055) via HaleyRevcat (@HaleyRevcat)
+### 🐞 Bugfixes
+* "No Offering" placement not returning null (#1066) via Guilherme (@GuilhermeMota93)
+
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* WFL-486 | Make sure custom variable overrides are taken into accounts (#1067) via Rosie Watson (@RosieWatson)
 
 ### 🔄 Other Changes
-* chore(deps): bump fastlane from 2.237.0 to 2.238.0 (#1056) via dependabot[bot] (@dependabot[bot])
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `7fbbe66` to `7dd9ab9` (#1064) via dependabot[bot] (@dependabot[bot])
