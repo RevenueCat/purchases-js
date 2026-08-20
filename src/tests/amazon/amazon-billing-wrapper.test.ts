@@ -386,17 +386,24 @@ describe("AmazonBillingWrapper", () => {
       },
     );
 
-    test("does not post a receipt more than once during the wrapper lifetime", async () => {
+    test("sync posts receipts on every invocation, while restore posts them and fulfills them", async () => {
       const backend = createBackend();
       vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
       getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
+      notifyFulfillment.mockResolvedValue({
+        responseCode: NotifyFulfillmentResponseCode.SUCCESSFUL,
+      });
+      const getPreviouslySentReceiptIds = vi
+        .spyOn(VegaDeviceCache.prototype, "getPreviouslySentReceiptIds")
+        .mockResolvedValue(new Set(["amazon-receipt-id"]));
       const wrapper = new AmazonBillingWrapper(backend);
 
       await wrapper.syncPurchases("app-user-id");
       await wrapper.syncPurchases("app-user-id");
       await wrapper.restorePurchases("app-user-id");
 
-      expect(backend.postReceipt).toHaveBeenCalledExactlyOnceWith(
+      expect(backend.postReceipt).toHaveBeenNthCalledWith(
+        1,
         "app-user-id",
         "monthly",
         null,
@@ -407,9 +414,59 @@ describe("AmazonBillingWrapper", () => {
         "amazon-store-user-id",
         false,
       );
+      expect(backend.postReceipt).toHaveBeenNthCalledWith(
+        2,
+        "app-user-id",
+        "monthly",
+        null,
+        "amazon-receipt-id",
+        null,
+        "restore",
+        undefined,
+        "amazon-store-user-id",
+        false,
+      );
+      expect(backend.postReceipt).toHaveBeenNthCalledWith(
+        3,
+        "app-user-id",
+        "monthly",
+        null,
+        "amazon-receipt-id",
+        null,
+        "restore",
+        undefined,
+        "amazon-store-user-id",
+        true,
+      );
+      expect(notifyFulfillment).toHaveBeenCalledExactlyOnceWith({
+        receiptId: "amazon-receipt-id",
+        fulfillmentResult: FulfillmentResult.FULFILLED,
+      });
+      expect(
+        vi.mocked(VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId),
+      ).toHaveBeenNthCalledWith(1, "amazon-receipt-id");
+      expect(
+        vi.mocked(VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId),
+      ).toHaveBeenNthCalledWith(2, "amazon-receipt-id");
       expect(backend.getCustomerInfo).toHaveBeenCalledTimes(2);
       expect(backend.getCustomerInfo).toHaveBeenNthCalledWith(1, "app-user-id");
       expect(backend.getCustomerInfo).toHaveBeenNthCalledWith(2, "app-user-id");
+      expect(getPreviouslySentReceiptIds).not.toHaveBeenCalled();
+    });
+
+    test("sync fetches customer info after posting receipts", async () => {
+      const backend = createBackend();
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
+
+      await new AmazonBillingWrapper(backend).syncPurchases("app-user-id");
+
+      expect(backend.postReceipt).toHaveBeenCalledBefore(
+        backend.getCustomerInfo as ReturnType<typeof vi.fn>,
+      );
+      expect(backend.getCustomerInfo).toHaveBeenCalledExactlyOnceWith(
+        "app-user-id",
+      );
     });
 
     test.each([
@@ -477,6 +534,66 @@ describe("AmazonBillingWrapper", () => {
           undefined,
           "amazon-store-user-id",
           isRestore,
+        );
+      },
+    );
+
+    test.each(["syncPurchases", "restorePurchases"] as const)(
+      "%s posts receipts in purchase-date order across pages",
+      async (method) => {
+        const backend = createBackend();
+        vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+        getPurchaseUpdates
+          .mockResolvedValueOnce(
+            purchaseUpdatesResponse({
+              hasMore: true,
+              receiptList: [
+                {
+                  ...successfulPurchaseResponse().receipt,
+                  receiptId: "later-receipt",
+                  purchaseDate: new Date("2026-08-14T17:00:00Z"),
+                },
+              ],
+            }),
+          )
+          .mockResolvedValueOnce(
+            purchaseUpdatesResponse({
+              hasMore: false,
+              receiptList: [
+                {
+                  ...successfulPurchaseResponse().receipt,
+                  receiptId: "earlier-receipt",
+                  purchaseDate: new Date("2026-08-10T17:00:00Z"),
+                },
+              ],
+            }),
+          );
+
+        await new AmazonBillingWrapper(backend)[method]("app-user-id");
+
+        expect(backend.postReceipt).toHaveBeenNthCalledWith(
+          1,
+          "app-user-id",
+          "monthly",
+          null,
+          "earlier-receipt",
+          null,
+          "restore",
+          undefined,
+          "amazon-store-user-id",
+          method === "restorePurchases",
+        );
+        expect(backend.postReceipt).toHaveBeenNthCalledWith(
+          2,
+          "app-user-id",
+          "monthly",
+          null,
+          "later-receipt",
+          null,
+          "restore",
+          undefined,
+          "amazon-store-user-id",
+          method === "restorePurchases",
         );
       },
     );

@@ -2,6 +2,7 @@ import type {
   Product,
   ProductDataResponse,
   ProductType as AmazonProductType,
+  Receipt,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { Logger } from "../helpers/logger";
@@ -19,13 +20,17 @@ import { PostReceiptInitiationSource } from "../networking/backend";
 import { toCustomerInfo } from "../entities/customer-info";
 import type { CustomerInfo } from "../entities/customer-info";
 import type { RestorePurchasesResult } from "../entities/restore-purchases-result";
-import type { SubscriberResponse } from "../networking/responses/subscriber-response";
 import type { SyncPurchasesResult } from "../entities/sync-purchases-result";
 import {
   loadAmazonAppstoreIAPSDK,
   type AmazonAppstoreIAPSDK,
 } from "./amazon-appstore-iap-sdk-loader";
 import { VegaDeviceCache } from "./vega-device-cache";
+
+type ReceiptWithStoreUserId = {
+  receipt: Receipt;
+  storeUserId: string;
+};
 
 /**
  * Amazon billing wrapper. Defers loading the Amazon Appstore IAP SDK until
@@ -46,13 +51,6 @@ export class AmazonBillingWrapper implements BillingWrapper {
   private amazonAppstoreIAPSDKPromise:
     | Promise<AmazonAppstoreIAPSDK>
     | undefined;
-
-  /**
-   * Receipt IDs successfully posted by syncPurchases or restorePurchases during
-   * this wrapper's lifetime. We avoid caching this persistently on-device to avoid
-   * adding another dependency for Vega OS apps.
-   */
-  private readonly syncedReceiptIds = new Set<string>();
 
   public async getProducts(
     _appUserId: string,
@@ -136,13 +134,17 @@ export class AmazonBillingWrapper implements BillingWrapper {
     );
 
     try {
-      await this.notifyFulfillment(receipt.receiptId);
+      if (await this.notifyFulfillment(receipt.receiptId)) {
+        await this.deviceCache.addSuccessfullyPostedReceiptId(
+          receipt.receiptId,
+        );
+        Logger.debugLog("Amazon purchase completed successfully.");
+      }
     } catch (error: unknown) {
       Logger.warnLog(
         `Failed to fulfill receipt ID ${receipt.receiptId} with the Amazon Store: ${String(error)}`,
       );
     }
-    Logger.debugLog("Amazon purchase completed successfully.");
 
     return {
       customerInfo: toCustomerInfo(subscriberResponse),
@@ -180,9 +182,9 @@ export class AmazonBillingWrapper implements BillingWrapper {
       PurchaseUpdatesResponseCode,
       ProductType: AmazonProductType,
     } = amazonAppstoreIAPSDK;
+    const receiptsToPost: ReceiptWithStoreUserId[] = [];
 
     let doneFetching = false;
-    let mostRecentSubscriberResponse: SubscriberResponse | null = null;
     let executedGetPurchaseUpdatesRequests = 0;
     while (!doneFetching) {
       let response: Awaited<
@@ -236,34 +238,12 @@ export class AmazonBillingWrapper implements BillingWrapper {
           );
       }
 
-      for (const receipt of response.receiptList) {
-        if (this.syncedReceiptIds.has(receipt.receiptId)) {
-          Logger.verboseLog(
-            `Skipping posting Amazon receipt ${receipt.receiptId} because it has already been synced during this session.`,
-          );
-          continue;
-        }
-
-        let productId: string;
-        if (receipt.productType == AmazonProductType.SUBSCRIPTION) {
-          productId = receipt.termSku;
-        } else {
-          productId = receipt.sku;
-        }
-
-        mostRecentSubscriberResponse = await this.backend.postReceipt(
-          appUserId,
-          productId,
-          null,
-          receipt.receiptId,
-          null,
-          PostReceiptInitiationSource.RESTORE,
-          undefined,
-          response.userData.userId,
-          isRestore,
-        );
-        this.syncedReceiptIds.add(receipt.receiptId);
-      }
+      receiptsToPost.push(
+        ...response.receiptList.map((receipt) => ({
+          receipt,
+          storeUserId: response.userData.userId,
+        })),
+      );
 
       if (response.hasMore && response.receiptList.length === 0) {
         Logger.verboseLog(
@@ -280,15 +260,53 @@ export class AmazonBillingWrapper implements BillingWrapper {
       }
     }
 
-    if (mostRecentSubscriberResponse == null) {
-      mostRecentSubscriberResponse =
-        await this.backend.getCustomerInfo(appUserId);
+    receiptsToPost.sort(
+      (first, second) =>
+        first.receipt.purchaseDate.getTime() -
+        second.receipt.purchaseDate.getTime(),
+    );
+
+    for (const { receipt, storeUserId } of receiptsToPost) {
+      const productId =
+        receipt.productType == AmazonProductType.SUBSCRIPTION
+          ? receipt.termSku
+          : receipt.sku;
+
+      await this.backend.postReceipt(
+        appUserId,
+        productId,
+        null,
+        receipt.receiptId,
+        null,
+        PostReceiptInitiationSource.RESTORE,
+        undefined,
+        storeUserId,
+        isRestore,
+      );
+
+      if (isRestore) {
+        try {
+          if (await this.notifyFulfillment(receipt.receiptId)) {
+            await this.deviceCache.addSuccessfullyPostedReceiptId(
+              receipt.receiptId,
+            );
+          }
+        } catch (error: unknown) {
+          Logger.warnLog(
+            `Failed to fulfill receipt ID ${receipt.receiptId} with the Amazon Store: ${String(error)}`,
+          );
+        }
+      } else {
+        await this.deviceCache.addSuccessfullyPostedReceiptId(
+          receipt.receiptId,
+        );
+      }
     }
 
-    return toCustomerInfo(mostRecentSubscriberResponse);
+    return toCustomerInfo(await this.backend.getCustomerInfo(appUserId));
   }
 
-  private async notifyFulfillment(receiptId: string) {
+  private async notifyFulfillment(receiptId: string): Promise<boolean> {
     const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
     const {
       PurchasingService,
@@ -309,23 +327,22 @@ export class AmazonBillingWrapper implements BillingWrapper {
         Logger.debugLog(
           `Successfully fulfilled receipt ID ${receiptId} with the Amazon Store.`,
         );
-        this.deviceCache.addSuccessfullyPostedReceiptId(receiptId);
-        break;
+        return true;
       case NotifyFulfillmentResponseCode.NOT_SUPPORTED:
         Logger.warnLog(
           `Failed to fulfill receipt ID ${receiptId} with the Amazon Store: fulfillment is not supported.`,
         );
-        break;
+        return false;
       case NotifyFulfillmentResponseCode.FAILED:
         Logger.errorLog(
           `Failed to fulfill receipt ID ${receiptId} with the Amazon Store.`,
         );
-        break;
+        return false;
       default:
         Logger.warnLog(
           `Received an unexpected response code from Amazon when fulfilling receipt ID ${receiptId}.`,
         );
-        break;
+        return false;
     }
   }
 
