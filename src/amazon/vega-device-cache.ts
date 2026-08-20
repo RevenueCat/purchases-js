@@ -20,7 +20,7 @@ export class VegaDeviceCache {
     private readonly apiKey: string,
     private readonly fileSystemLoader: KeplerFileSystemLoader = loadKeplerFileSystem,
   ) {
-    this.tokensCachePath = `/data/revenuecat/${this.sharedPreferencesPrefix}${this.apiKey}.${this.tokensCacheKey}`;
+    this.tokensCachePath = `/data/${this.sharedPreferencesPrefix}${this.apiKey}.${this.tokensCacheKey}`;
   }
 
   public async getPreviouslySentReceiptIds(): Promise<Set<string>> {
