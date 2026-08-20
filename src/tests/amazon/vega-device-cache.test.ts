@@ -8,6 +8,9 @@ function createCache() {
   const files = new Map<string, string>();
   const fileSystem = {
     exists: vi.fn(async (path: string) => files.has(path)),
+    removeFile: vi.fn(async (path: string) => {
+      files.delete(path);
+    }),
     readFileAsString: vi.fn(async (path: string) => {
       const content = files.get(path);
       if (content === undefined) {
@@ -64,13 +67,34 @@ describe("VegaDeviceCache", () => {
   });
 
   test("stores multiple receipt IDs", async () => {
-    const { cache } = createCache();
+    const { cache, fileSystem } = createCache();
 
     await cache.addSuccessfullyPostedReceiptId("receipt-id-1");
     await cache.addSuccessfullyPostedReceiptId("receipt-id-2");
 
+    expect(fileSystem.removeFile).toHaveBeenCalledExactlyOnceWith(cachePath);
     await expect(cache.getPreviouslySentReceiptIds()).resolves.toEqual(
       new Set(["receipt-id-1", "receipt-id-2"]),
+    );
+  });
+
+  test("retries an existing-file error with the current cache contents", async () => {
+    const { cache, fileSystem, files } = createCache();
+    fileSystem.writeStringToFile
+      .mockImplementationOnce(async () => {
+        files.set(cachePath, JSON.stringify(["first-receipt-id"]));
+        throw new Error("[com.amazon.kepler.file_system.AlreadyExistsError]");
+      })
+      .mockImplementationOnce(async (path: string, content: string) => {
+        files.set(path, content);
+        return content.length;
+      });
+
+    await cache.addSuccessfullyPostedReceiptId("second-receipt-id");
+
+    expect(fileSystem.removeFile).toHaveBeenCalledExactlyOnceWith(cachePath);
+    await expect(cache.getPreviouslySentReceiptIds()).resolves.toEqual(
+      new Set(["first-receipt-id", "second-receipt-id"]),
     );
   });
 

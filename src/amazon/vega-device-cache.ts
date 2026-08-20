@@ -39,11 +39,33 @@ export class VegaDeviceCache {
       }
 
       const fileSystem = await this.fileSystemLoader();
-      await fileSystem.writeStringToFile(
-        this.tokensCachePath,
-        JSON.stringify([...receiptIds, receiptId]),
-        "UTF-8",
-      );
+      const updatedReceiptIds = [...receiptIds, receiptId];
+      if (await fileSystem.exists(this.tokensCachePath)) {
+        await fileSystem.removeFile(this.tokensCachePath);
+      }
+      try {
+        await fileSystem.writeStringToFile(
+          this.tokensCachePath,
+          JSON.stringify(updatedReceiptIds),
+          "UTF-8",
+        );
+      } catch (error: unknown) {
+        if (!isAlreadyExistsError(error)) {
+          throw error;
+        }
+
+        const currentReceiptIds = await this.getReceiptIds();
+        if (currentReceiptIds.includes(receiptId)) {
+          return;
+        }
+
+        await fileSystem.removeFile(this.tokensCachePath);
+        await fileSystem.writeStringToFile(
+          this.tokensCachePath,
+          JSON.stringify([...currentReceiptIds, receiptId]),
+          "UTF-8",
+        );
+      }
     });
 
     this.writeQueue = operation.catch(() => undefined);
@@ -74,4 +96,8 @@ function isReceiptCache(value: unknown): value is ReceiptCache {
   return (
     Array.isArray(value) && value.every((entry) => typeof entry === "string")
   );
+}
+
+function isAlreadyExistsError(error: unknown): boolean {
+  return String(error).includes("AlreadyExistsError");
 }

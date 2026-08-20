@@ -482,7 +482,10 @@ describe("AmazonBillingWrapper", () => {
       vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
       vi.mocked(
         VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId,
-      ).mockRejectedValueOnce(new Error("disk unavailable"));
+      ).mockRejectedValueOnce({
+        code: "EIO",
+        message: "disk unavailable",
+      });
       getPurchaseUpdates.mockResolvedValue(
         purchaseUpdatesResponse({
           receiptList: [
@@ -531,7 +534,10 @@ describe("AmazonBillingWrapper", () => {
       });
       vi.mocked(
         VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId,
-      ).mockRejectedValueOnce(new Error("disk unavailable"));
+      ).mockRejectedValueOnce({
+        code: "EIO",
+        message: "disk unavailable",
+      });
       getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
 
       await new AmazonBillingWrapper(backend, amazonApiKey).restorePurchases(
@@ -540,7 +546,7 @@ describe("AmazonBillingWrapper", () => {
 
       expect(notifyFulfillment).toHaveBeenCalledOnce();
       expect(warningLog).toHaveBeenCalledWith(
-        "Failed to cache successfully posted receipt ID amazon-receipt-id: Error: disk unavailable",
+        "Failed to cache successfully posted receipt ID amazon-receipt-id: EIO: disk unavailable",
       );
     });
 

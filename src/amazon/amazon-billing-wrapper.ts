@@ -353,7 +353,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
       await this.deviceCache.addSuccessfullyPostedReceiptId(receiptId);
     } catch (error: unknown) {
       Logger.warnLog(
-        `Failed to cache successfully posted receipt ID ${receiptId}: ${String(error)}`,
+        `Failed to cache successfully posted receipt ID ${receiptId}: ${formatCacheError(error)}`,
       );
     }
   }
@@ -572,4 +572,30 @@ export class AmazonBillingWrapper implements BillingWrapper {
 
     return { product_details: productDetails };
   }
+}
+
+function formatCacheError(error: unknown): string {
+  if (error instanceof Error) {
+    return String(error);
+  }
+
+  if (typeof error === "object" && error !== null) {
+    const { code, message } = error as {
+      code?: unknown;
+      message?: unknown;
+    };
+    if (typeof message === "string") {
+      return typeof code === "string" || typeof code === "number"
+        ? `${code}: ${message}`
+        : message;
+    }
+
+    try {
+      return JSON.stringify(error);
+    } catch {
+      // Fall through to the string representation below.
+    }
+  }
+
+  return String(error);
 }
