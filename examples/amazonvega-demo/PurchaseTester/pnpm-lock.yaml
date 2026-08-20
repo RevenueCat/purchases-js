@@ -7,6 +7,9 @@ settings:
 importers:
   .:
     dependencies:
+      '@amazon-devices/kepler-file-system':
+        specifier: 0.0.7
+        version: 0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       '@amazon-devices/keplerscript-appstore-iap-lib':
         specifier: 2.12.16
         version: 2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
@@ -104,6 +107,12 @@ packages:
       '@react-native/js-polyfills': '*'
       '@react-native/metro-config': '*'
       react-native: '*'
+
+  '@amazon-devices/kepler-file-system@0.0.7':
+    resolution:
+      {
+        integrity: sha512-rj6f0rtgB17Eg8XcuSH6KhE9QW7pz0aekps/YdkgYTMzlJmAX3Zkiwb+qvzlmFRQ7zr8sT036zfabz/VFrndHw==,
+      }
 
   '@amazon-devices/kepler-compatibility-metro-config@0.0.7':
     resolution:
@@ -7050,6 +7059,13 @@ snapshots:
       yargs: 17.7.3
     optionalDependencies:
       '@amazon-devices/js-bundle-system-allow-list': 0.0.22
+
+  '@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))':
+    dependencies:
+      '@amazon-devices/keplerscript-turbomodule-api': 1.2.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
+    transitivePeerDependencies:
+      - '@babel/preset-env'
+      - supports-color
 
   '@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))':
     dependencies:

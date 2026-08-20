@@ -19,6 +19,7 @@
     "release": "npm-run-all lint test build:app"
   },
   "dependencies": {
+    "@amazon-devices/kepler-file-system": "0.0.7",
     "@amazon-devices/react-native-kepler": "^2.0.0",
     "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
     "@revenuecat/purchases-js": "file:../../..",
