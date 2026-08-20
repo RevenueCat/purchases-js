@@ -454,6 +454,25 @@ describe("getProducts request", () => {
     ).toEqual(productsResponse);
   });
 
+  test("sends the supports_price_id capability", async () => {
+    let supportsPriceId: string | null = null;
+    server.use(
+      http.get(
+        "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products",
+        ({ request }) => {
+          supportsPriceId = new URL(request.url).searchParams.get(
+            "supports_price_id",
+          );
+          return HttpResponse.json(productsResponse, { status: 200 });
+        },
+      ),
+    );
+
+    await backend.getProducts("someAppUserId", ["monthly", "monthly_2"]);
+
+    expect(supportsPriceId).toBe("true");
+  });
+
   test("requests each product only once", async () => {
     const requestedProductIds: string[] = [];
     server.use(
