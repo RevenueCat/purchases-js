@@ -5,6 +5,12 @@ import type {
   Receipt,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
 import { ErrorCode, PurchasesError } from "../entities/errors";
+import {
+  ProductType as RevenueCatProductType,
+  type NonSubscriptionOption,
+  type Price,
+  type SubscriptionOption,
+} from "../entities/offerings";
 import { Logger } from "../helpers/logger";
 import type { BillingWrapper } from "../helpers/billing-wrapper";
 import type {
@@ -129,15 +135,19 @@ export class AmazonBillingWrapper implements BillingWrapper {
         ? receipt.termSku
         : receipt.sku;
 
+    const price = priceForPurchaseParams(params);
+
     const subscriberResponse = await this.backend.postReceipt(
       appUserId,
       productIdentifier,
-      rcPackage.webBillingProduct.price.currency,
+      price?.currency ?? null,
       receipt.receiptId,
       rcPackage.webBillingProduct.presentedOfferingContext,
       PostReceiptInitiationSource.PURCHASE,
       undefined,
       storeUserId,
+      false,
+      price ? price.amountMicros / 1_000_000 : undefined,
     );
 
     let fulfillmentSucceeded = false;
@@ -642,6 +652,15 @@ export class AmazonBillingWrapper implements BillingWrapper {
 
     return { product_details: productDetails };
   }
+}
+
+function priceForPurchaseParams(params: PurchaseParams): Price | null {
+  const product = params.rcPackage.webBillingProduct;
+  const purchaseOption = params.purchaseOption ?? product.defaultPurchaseOption;
+
+  return product.productType === RevenueCatProductType.Subscription
+    ? (purchaseOption as SubscriptionOption).base.price
+    : (purchaseOption as NonSubscriptionOption).basePrice;
 }
 
 function formatCacheError(error: unknown): string {

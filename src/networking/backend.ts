@@ -556,6 +556,7 @@ export class Backend {
     paywallId?: string,
     storeUserId?: string,
     is_restore?: boolean,
+    price?: number,
   ): Promise<SubscriberResponse> {
     type PostReceiptTargetingRule = {
       rule_id: string;
@@ -576,6 +577,7 @@ export class Backend {
       };
       store_user_id?: string;
       is_restore?: boolean;
+      price: number | null;
     };
 
     let targetingInfo: PostReceiptTargetingRule | null = null;
@@ -601,6 +603,7 @@ export class Backend {
       initiation_source: initiationSource,
       store_user_id: storeUserId,
       is_restore: is_restore,
+      price: price ?? null,
     };
 
     if (paywallId) {

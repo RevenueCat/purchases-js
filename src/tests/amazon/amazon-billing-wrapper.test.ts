@@ -102,12 +102,15 @@ const responseForProducts = (products: Product[]): ProductDataResponse => ({
   unavailableSkus: [],
 });
 
-async function getProducts(response: ProductDataResponse) {
+async function getProducts(
+  response: ProductDataResponse,
+  productIds = ["product-id"],
+) {
   getProductData.mockResolvedValue(response);
   return await new AmazonBillingWrapper(
     {} as Backend,
     amazonApiKey,
-  ).getProducts("app-user-id", ["product-id"]);
+  ).getProducts("app-user-id", productIds);
 }
 
 const successfulPurchaseResponse = (): PurchaseResponse => ({
@@ -899,6 +902,7 @@ describe("AmazonBillingWrapper", () => {
       notifyFulfillment.mockResolvedValue({
         responseCode: NotifyFulfillmentResponseCode.SUCCESSFUL,
       });
+      getProductData.mockResolvedValue(responseForProducts([]));
     });
 
     test("uses a subscription receipt's term SKU when posting and returning the purchase", async () => {
@@ -922,6 +926,8 @@ describe("AmazonBillingWrapper", () => {
         "purchase",
         undefined,
         "amazon-store-user-id",
+        false,
+        3,
       );
       expect(notifyFulfillment).toHaveBeenCalledExactlyOnceWith({
         receiptId: "amazon-receipt-id",
@@ -936,6 +942,67 @@ describe("AmazonBillingWrapper", () => {
           storeTransactionId: "amazon-receipt-id",
         },
       });
+    });
+
+    test("posts the price from the package in the purchase params", async () => {
+      const backend = createBackend();
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      const wrapper = new AmazonBillingWrapper(backend, amazonApiKey);
+
+      await wrapper.purchase(
+        { rcPackage: createMonthlyPackageMock() },
+        appUserId,
+      );
+
+      expect(getProductData).not.toHaveBeenCalled();
+      expect(backend.postReceipt).toHaveBeenCalledWith(
+        appUserId,
+        "monthly",
+        "USD",
+        "amazon-receipt-id",
+        expect.anything(),
+        "purchase",
+        undefined,
+        "amazon-store-user-id",
+        false,
+        3,
+      );
+    });
+
+    test("posts the selected purchase option's price and currency", async () => {
+      const backend = createBackend();
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      const rcPackage = createMonthlyPackageMock();
+      const selectedPurchaseOption = {
+        ...rcPackage.webBillingProduct.defaultSubscriptionOption!,
+        base: {
+          ...rcPackage.webBillingProduct.defaultSubscriptionOption!.base,
+          price: {
+            amount: 499,
+            amountMicros: 4_990_000,
+            currency: "EUR",
+            formattedPrice: "€4.99",
+          },
+        },
+      };
+
+      await new AmazonBillingWrapper(backend, amazonApiKey).purchase(
+        { rcPackage, purchaseOption: selectedPurchaseOption },
+        appUserId,
+      );
+
+      expect(backend.postReceipt).toHaveBeenCalledWith(
+        appUserId,
+        "monthly",
+        "EUR",
+        "amazon-receipt-id",
+        expect.anything(),
+        "purchase",
+        undefined,
+        "amazon-store-user-id",
+        false,
+        4.99,
+      );
     });
 
     test("caches a receipt ID after Amazon successfully fulfills it", async () => {
@@ -1003,6 +1070,8 @@ describe("AmazonBillingWrapper", () => {
         "purchase",
         undefined,
         "amazon-store-user-id",
+        false,
+        3,
       );
       expect(result.storeTransaction.productIdentifier).toBe("coin-pack");
     });
@@ -1307,6 +1376,7 @@ describe("AmazonBillingWrapper", () => {
           product({ price: null as unknown as Product["price"] }),
           product({ sku: "available-product" }),
         ]),
+        ["product-id", "available-product"],
       );
 
       expect(warningLog).toHaveBeenCalledWith(
