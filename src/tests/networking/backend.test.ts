@@ -1636,6 +1636,7 @@ describe("postReceipt request", () => {
       fetch_token: "test_fetch_token",
       product_id: "monthly",
       currency: "EUR",
+      price: null,
       app_user_id: "someAppUserId",
       presented_offering_identifier: "offering_1",
       presented_placement_identifier: null,
@@ -1666,6 +1667,48 @@ describe("postReceipt request", () => {
     expect(requestBody.currency).toBeNull();
   });
 
+  test("posts a null price when not provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "USD",
+      "test_fetch_token",
+      null,
+      PostReceiptInitiationSource.PURCHASE,
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.price).toBeNull();
+  });
+
+  test("posts a price when provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "USD",
+      "test_fetch_token",
+      null,
+      PostReceiptInitiationSource.PURCHASE,
+      undefined,
+      undefined,
+      undefined,
+      4.99,
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.price).toBe(4.99);
+  });
+
   test("includes targeting context when provided", async () => {
     setPostReceiptResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
@@ -1694,6 +1737,7 @@ describe("postReceipt request", () => {
       fetch_token: "test_fetch_token",
       product_id: "monthly",
       currency: "EUR",
+      price: null,
       app_user_id: "someAppUserId",
       presented_offering_identifier: "offering_1",
       presented_placement_identifier: "placement_1",

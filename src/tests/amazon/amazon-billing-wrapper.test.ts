@@ -102,12 +102,15 @@ const responseForProducts = (products: Product[]): ProductDataResponse => ({
   unavailableSkus: [],
 });
 
-async function getProducts(response: ProductDataResponse) {
+async function getProducts(
+  response: ProductDataResponse,
+  productIds = ["product-id"],
+) {
   getProductData.mockResolvedValue(response);
   return await new AmazonBillingWrapper(
     {} as Backend,
     amazonApiKey,
-  ).getProducts("app-user-id", ["product-id"]);
+  ).getProducts("app-user-id", productIds);
 }
 
 const successfulPurchaseResponse = (): PurchaseResponse => ({
@@ -408,6 +411,22 @@ describe("AmazonBillingWrapper", () => {
         skus: ["product-100"],
       });
     });
+  });
+
+  test("returns cached products without requesting Amazon product data again", async () => {
+    const wrapper = new AmazonBillingWrapper(createBackend(), amazonApiKey);
+    getProductData.mockResolvedValue(
+      responseForProducts([product({ sku: "monthly" })]),
+    );
+
+    await wrapper.getProducts("user", ["monthly"]);
+    const result = await wrapper.getProducts("user", ["monthly"]);
+
+    expect(getProductData).toHaveBeenCalledExactlyOnceWith({
+      skus: ["monthly"],
+    });
+    expect(result.product_details).toHaveLength(1);
+    expect(result.product_details[0].identifier).toBe("monthly");
   });
 
   describe("product data response errors", () => {
@@ -899,6 +918,7 @@ describe("AmazonBillingWrapper", () => {
       notifyFulfillment.mockResolvedValue({
         responseCode: NotifyFulfillmentResponseCode.SUCCESSFUL,
       });
+      getProductData.mockResolvedValue(responseForProducts([]));
     });
 
     test("uses a subscription receipt's term SKU when posting and returning the purchase", async () => {
@@ -922,6 +942,8 @@ describe("AmazonBillingWrapper", () => {
         "purchase",
         undefined,
         "amazon-store-user-id",
+        undefined,
+        undefined,
       );
       expect(notifyFulfillment).toHaveBeenCalledExactlyOnceWith({
         receiptId: "amazon-receipt-id",
@@ -936,6 +958,75 @@ describe("AmazonBillingWrapper", () => {
           storeTransactionId: "amazon-receipt-id",
         },
       });
+    });
+
+    test("fetches and posts the Amazon product price when purchasing", async () => {
+      const backend = createBackend();
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      getProductData.mockResolvedValue(
+        responseForProducts([
+          product({
+            sku: "monthly",
+            price: {
+              priceStr: "$4.99",
+              priceCurrencyCode: "USD",
+              valueInMicros: 4_990_000n,
+            },
+          }),
+        ]),
+      );
+      const wrapper = new AmazonBillingWrapper(backend, amazonApiKey);
+
+      await wrapper.purchase(
+        { rcPackage: createMonthlyPackageMock() },
+        appUserId,
+      );
+
+      expect(getProductData).toHaveBeenCalledExactlyOnceWith({
+        skus: ["monthly"],
+      });
+      expect(backend.postReceipt).toHaveBeenCalledWith(
+        appUserId,
+        "monthly",
+        "USD",
+        "amazon-receipt-id",
+        expect.anything(),
+        "purchase",
+        undefined,
+        "amazon-store-user-id",
+        undefined,
+        4.99,
+      );
+    });
+
+    test("posts without a price when fetching the product fails", async () => {
+      const backend = createBackend();
+      const warningLog = vi
+        .spyOn(Logger, "warnLog")
+        .mockImplementation(() => {});
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      getProductData.mockRejectedValue(new Error("Amazon IAP unavailable"));
+
+      await new AmazonBillingWrapper(backend, amazonApiKey).purchase(
+        { rcPackage: createMonthlyPackageMock() },
+        appUserId,
+      );
+
+      expect(warningLog).toHaveBeenCalledWith(
+        "Failed to fetch Amazon product data for monthly before posting its receipt: Error: Amazon IAP unavailable",
+      );
+      expect(backend.postReceipt).toHaveBeenCalledWith(
+        appUserId,
+        "monthly",
+        "USD",
+        "amazon-receipt-id",
+        expect.anything(),
+        "purchase",
+        undefined,
+        "amazon-store-user-id",
+        undefined,
+        undefined,
+      );
     });
 
     test("caches a receipt ID after Amazon successfully fulfills it", async () => {
@@ -1003,6 +1094,8 @@ describe("AmazonBillingWrapper", () => {
         "purchase",
         undefined,
         "amazon-store-user-id",
+        undefined,
+        undefined,
       );
       expect(result.storeTransaction.productIdentifier).toBe("coin-pack");
     });

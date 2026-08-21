@@ -39,6 +39,7 @@ type ReceiptWithStoreUserId = {
  */
 export class AmazonBillingWrapper implements BillingWrapper {
   private readonly deviceCache: VegaDeviceCache;
+  private readonly productsById = new Map<string, Product>();
 
   constructor(
     private readonly backend: Backend,
@@ -129,6 +130,23 @@ export class AmazonBillingWrapper implements BillingWrapper {
         ? receipt.termSku
         : receipt.sku;
 
+    let price: number | undefined = undefined;
+    try {
+      const { product_details: products } = await this.getProducts(appUserId, [
+        productIdentifier,
+      ]);
+      const productPrice = getBasePrice(
+        products.find((product) => product.identifier === productIdentifier),
+      );
+      if (productPrice) {
+        price = productPrice.amount_micros / 1_000_000;
+      }
+    } catch (error: unknown) {
+      Logger.warnLog(
+        `Failed to fetch Amazon product data for ${productIdentifier} before posting its receipt: ${String(error)}`,
+      );
+    }
+
     const subscriberResponse = await this.backend.postReceipt(
       appUserId,
       productIdentifier,
@@ -138,6 +156,8 @@ export class AmazonBillingWrapper implements BillingWrapper {
       PostReceiptInitiationSource.PURCHASE,
       undefined,
       storeUserId,
+      false,
+      price,
     );
 
     let fulfillmentSucceeded = false;
@@ -598,23 +618,18 @@ export class AmazonBillingWrapper implements BillingWrapper {
       };
     };
 
-    const productsForProductDataResponse = (
-      productDataResponse: ProductDataResponse,
-    ): ProductResponse[] =>
-      Array.from(productDataResponse.productData.values())
-        .map(productForAmazonProduct)
-        .filter((product): product is ProductResponse => product !== null);
-
     const uniqueProductIds = [...new Set(productIds)];
-    const productDetails: ProductResponse[] = [];
+    const missingProductIds = uniqueProductIds.filter(
+      (productId) => !this.productsById.has(productId),
+    );
     const maximumProductsPerRequest = 100;
 
     for (
       let startIndex = 0;
-      startIndex < uniqueProductIds.length;
+      startIndex < missingProductIds.length;
       startIndex += maximumProductsPerRequest
     ) {
-      const skus = uniqueProductIds.slice(
+      const skus = missingProductIds.slice(
         startIndex,
         startIndex + maximumProductsPerRequest,
       );
@@ -637,11 +652,31 @@ export class AmazonBillingWrapper implements BillingWrapper {
         throw purchasesError;
       }
 
-      productDetails.push(...productsForProductDataResponse(response));
+      for (const [productId, product] of response.productData) {
+        this.productsById.set(productId, product);
+      }
     }
 
-    return { product_details: productDetails };
+    return {
+      product_details: uniqueProductIds
+        .map((productId) => this.productsById.get(productId))
+        .map((product) => (product ? productForAmazonProduct(product) : null))
+        .filter((product): product is ProductResponse => product !== null),
+    };
   }
+}
+
+function getBasePrice(
+  product: ProductResponse | undefined,
+): PriceResponse | null {
+  const purchaseOption = product?.purchase_options.base_option;
+  if (purchaseOption == null) {
+    return null;
+  }
+
+  return "base_price" in purchaseOption
+    ? purchaseOption.base_price
+    : (purchaseOption.base?.price ?? null);
 }
 
 function formatCacheError(error: unknown): string {
