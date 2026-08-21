@@ -7,6 +7,7 @@ import {
   isStripeApiKey,
   isWebBillingApiKey,
 } from "./api-key-helper";
+import { isVegaEntryPoint } from "../vega-entry-point";
 
 export function validateApiKey(apiKey: string) {
   const isValidApiKey =
@@ -20,6 +21,13 @@ export function validateApiKey(apiKey: string) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,
       "Invalid API key. Use a valid API key obtained from the RevenueCat Dashboard.",
+    );
+  }
+
+  if (isVegaEntryPoint() && !isAmazonApiKey(apiKey)) {
+    throw new PurchasesError(
+      ErrorCode.ConfigurationError,
+      "Vega applications must be configured with an Amazon Appstore API key.",
     );
   }
 }

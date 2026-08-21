@@ -5,7 +5,8 @@
   "version": "1.53.1",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "vega.js"
   ],
   "main": "./dist/Purchases.umd.js",
   "module": "./dist/Purchases.es.js",
@@ -14,6 +15,11 @@
     ".": {
       "import": "./dist/Purchases.es.js",
       "require": "./dist/Purchases.umd.js"
+    },
+    "./vega": {
+      "types": "./dist/Purchases.es.d.ts",
+      "import": "./dist/Purchases.vega.es.js",
+      "require": "./dist/Purchases.vega.umd.js"
     },
     "./styles": {
       "import": "./dist/style.css",
@@ -36,15 +42,16 @@
     "iap"
   ],
   "scripts": {
-    "watch": "vite build --watch",
-    "build": "tsc && vite build",
-    "build:dev": "tsc && vite build --mode development",
-    "build:dev-watch": "tsc && vite build --mode development --watch",
+    "watch": "vite build --config vite.watch.config.js --watch",
+    "build": "tsc && vite build && vite build --config vite.vega.config.js",
+    "build:dev": "tsc && vite build --mode development && vite build --config vite.vega.config.js --mode development",
+    "build:dev-watch": "tsc && vite build --mode development --config vite.watch.config.js --watch",
     "preview": "vite preview",
     "lint": "prettier --check . && eslint src/",
     "format": "prettier --write .",
     "pack-build": "npm run build && npm pack",
     "test": "vitest run",
+    "verify:entry-point-boundaries": "node scripts/verify-entry-point-boundaries.mjs",
     "test:watch": "vitest watch",
     "test:typecheck": "tsc --project tsconfig.test.json",
     "typecheck": "tsc --noEmit",

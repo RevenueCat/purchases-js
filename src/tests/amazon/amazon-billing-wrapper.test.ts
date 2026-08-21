@@ -56,6 +56,11 @@ import {
   PurchaseUpdatesResponseCode,
   ProductType,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
+import * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
+import {
+  resetAmazonAppstoreIAPSDKLoader,
+  setAmazonAppstoreIAPSDKLoader,
+} from "../../amazon/amazon-appstore-iap-sdk-loader";
 import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
 import { ErrorCode } from "../../entities/errors";
 import type { PurchasesError } from "../../entities/errors";
@@ -154,11 +159,28 @@ const createBackend = () =>
 
 describe("AmazonBillingWrapper", () => {
   beforeEach(() => {
+    setAmazonAppstoreIAPSDKLoader(async () => AmazonVegaSdk);
     getProductData.mockReset();
     getPurchaseUpdates.mockReset();
     notifyFulfillment.mockReset();
     purchase.mockReset();
     vi.restoreAllMocks();
+  });
+
+  test("fails clearly when the Amazon SDK loader has not been wired up", async () => {
+    resetAmazonAppstoreIAPSDKLoader();
+
+    await expect(
+      new AmazonBillingWrapper(createBackend()).getProducts("user", [
+        "monthly",
+      ]),
+    ).rejects.toMatchObject({
+      errorCode: ErrorCode.ConfigurationError,
+      message:
+        "Amazon Appstore is supported only by the @revenuecat/purchases-js/vega entry point.",
+    });
+
+    expect(getProductData).not.toHaveBeenCalled();
   });
 
   describe("product data requests", () => {
