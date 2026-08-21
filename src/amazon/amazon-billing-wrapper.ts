@@ -608,8 +608,15 @@ export class AmazonBillingWrapper implements BillingWrapper {
       };
     };
 
+    const productsForProductDataResponse = (
+      productDataResponse: ProductDataResponse,
+    ): ProductResponse[] =>
+      Array.from(productDataResponse.productData.values())
+        .map(productForAmazonProduct)
+        .filter((product): product is ProductResponse => product !== null);
+
     const uniqueProductIds = [...new Set(productIds)];
-    const productsById = new Map<string, Product>();
+    const productDetails: ProductResponse[] = [];
     const maximumProductsPerRequest = 100;
 
     for (
@@ -640,17 +647,10 @@ export class AmazonBillingWrapper implements BillingWrapper {
         throw purchasesError;
       }
 
-      for (const [productId, product] of response.productData) {
-        productsById.set(productId, product);
-      }
+      productDetails.push(...productsForProductDataResponse(response));
     }
 
-    return {
-      product_details: uniqueProductIds
-        .map((productId) => productsById.get(productId))
-        .map((product) => (product ? productForAmazonProduct(product) : null))
-        .filter((product): product is ProductResponse => product !== null),
-    };
+    return { product_details: productDetails };
   }
 }
 
