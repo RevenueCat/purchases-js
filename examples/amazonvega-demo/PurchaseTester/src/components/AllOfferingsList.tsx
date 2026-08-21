@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Modal, ScrollView, Text, View} from 'react-native';
+import {ScrollView, Text, View} from 'react-native';
 import {
   Purchases,
   type Offering,
@@ -8,13 +8,12 @@ import {
 } from '@revenuecat/purchases-js/vega';
 import {styles} from './AllOfferingsList.styles';
 import {Button} from './Button';
+import {formatJsonData, DataModal} from './DataModal';
 
-const formatProduct = (product: Product): string =>
-  JSON.stringify(
-    product,
-    (_key, value) => (typeof value === 'bigint' ? value.toString() : value),
-    2,
-  );
+type ModalData = {
+  formattedData: string;
+  title: string;
+};
 
 const formatDuration = (product: Product): string => {
   if (product.period === null) {
@@ -27,7 +26,7 @@ const formatDuration = (product: Product): string => {
 
 export const AllOfferingsList = () => {
   const [offerings, setOfferings] = useState<Offering[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [modalData, setModalData] = useState<ModalData | null>(null);
   const [purchasingPackageId, setPurchasingPackageId] = useState<string | null>(
     null,
   );
@@ -63,7 +62,13 @@ export const AllOfferingsList = () => {
     console.log(`Purchasing ${pkg.webBillingProduct.identifier}...`);
 
     try {
-      await Purchases.getSharedInstance().purchase({rcPackage: pkg});
+      const result = await Purchases.getSharedInstance().purchase({
+        rcPackage: pkg,
+      });
+      setModalData({
+        formattedData: formatJsonData(result),
+        title: 'Purchase result',
+      });
       console.log(
         `Successfully purchased ${pkg.webBillingProduct.identifier}.`,
       );
@@ -72,6 +77,10 @@ export const AllOfferingsList = () => {
         `Failed to purchase ${pkg.webBillingProduct.identifier}:`,
         purchaseError,
       );
+      setModalData({
+        formattedData: String(purchaseError),
+        title: 'Purchase failed',
+      });
     } finally {
       setPurchasingPackageId(null);
     }
@@ -112,7 +121,12 @@ export const AllOfferingsList = () => {
                     />
                     <Button
                       label="View details"
-                      onPress={() => setSelectedProduct(product)}
+                      onPress={() =>
+                        setModalData({
+                          formattedData: formatJsonData(product),
+                          title: 'Product details',
+                        })
+                      }
                       variant="secondary"
                     />
                   </View>
@@ -126,30 +140,11 @@ export const AllOfferingsList = () => {
         )}
       </ScrollView>
 
-      <Modal
-        animationType="slide"
-        onRequestClose={() => setSelectedProduct(null)}
-        transparent
-        visible={selectedProduct !== null}>
-        <View style={styles.sheetBackdrop}>
-          <View style={styles.sheet}>
-            <View style={styles.sheetHeader}>
-              <Text style={styles.sheetTitle}>Product details</Text>
-              <Button
-                hasTVPreferredFocus
-                label="Close"
-                onPress={() => setSelectedProduct(null)}
-                variant="secondary"
-              />
-            </View>
-            <ScrollView style={styles.jsonScroll}>
-              <Text style={styles.productFields}>
-                {selectedProduct === null ? '' : formatProduct(selectedProduct)}
-              </Text>
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
+      <DataModal
+        formattedData={modalData?.formattedData ?? null}
+        onClose={() => setModalData(null)}
+        title={modalData?.title ?? ''}
+      />
     </>
   );
 };
