@@ -62,7 +62,7 @@ commands:
 
 jobs:
   build-vega-purchase-tester:
-    # Vega SDK CI requirements: https://developer.amazon.com/docs/vega/0.24/continuous-integration.html
+    # Vega SDK CI requirements: https://developer.amazon.com/docs/vega/0.23/continuous-integration.html
     machine:
       image: ubuntu-2404:current
     steps:
@@ -73,7 +73,7 @@ jobs:
           command: |
             export NONINTERACTIVE=true
             export SKIP_VVD_INSTALL=true
-            export VEGA_SDK_VERSION=0.24.9914
+            export VEGA_SDK_VERSION=0.23.9221
             curl -fsSL https://sdk-installer.vega.labcollab.net/get_vvm.sh | bash
             echo 'export PATH="$HOME/vega/bin:$PATH"' >> "$BASH_ENV"
             source "$BASH_ENV"
