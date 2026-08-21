@@ -5,6 +5,12 @@ import type {
   Receipt,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
 import { ErrorCode, PurchasesError } from "../entities/errors";
+import type {
+  NonSubscriptionOption,
+  Price,
+  PurchaseOption,
+  SubscriptionOption,
+} from "../entities/offerings";
 import { Logger } from "../helpers/logger";
 import type { BillingWrapper } from "../helpers/billing-wrapper";
 import type {
@@ -39,7 +45,6 @@ type ReceiptWithStoreUserId = {
  */
 export class AmazonBillingWrapper implements BillingWrapper {
   private readonly deviceCache: VegaDeviceCache;
-  private readonly productsById = new Map<string, Product>();
 
   constructor(
     private readonly backend: Backend,
@@ -130,34 +135,19 @@ export class AmazonBillingWrapper implements BillingWrapper {
         ? receipt.termSku
         : receipt.sku;
 
-    let price: number | undefined = undefined;
-    try {
-      const { product_details: products } = await this.getProducts(appUserId, [
-        productIdentifier,
-      ]);
-      const productPrice = getBasePrice(
-        products.find((product) => product.identifier === productIdentifier),
-      );
-      if (productPrice) {
-        price = productPrice.amount_micros / 1_000_000;
-      }
-    } catch (error: unknown) {
-      Logger.warnLog(
-        `Failed to fetch Amazon product data for ${productIdentifier} before posting its receipt: ${String(error)}`,
-      );
-    }
+    const price = priceForPurchaseParams(params);
 
     const subscriberResponse = await this.backend.postReceipt(
       appUserId,
       productIdentifier,
-      rcPackage.webBillingProduct.price.currency,
+      price?.currency ?? null,
       receipt.receiptId,
       rcPackage.webBillingProduct.presentedOfferingContext,
       PostReceiptInitiationSource.PURCHASE,
       undefined,
       storeUserId,
       false,
-      price,
+      price ? price.amountMicros / 1_000_000 : undefined,
     );
 
     let fulfillmentSucceeded = false;
@@ -619,17 +609,15 @@ export class AmazonBillingWrapper implements BillingWrapper {
     };
 
     const uniqueProductIds = [...new Set(productIds)];
-    const missingProductIds = uniqueProductIds.filter(
-      (productId) => !this.productsById.has(productId),
-    );
+    const productsById = new Map<string, Product>();
     const maximumProductsPerRequest = 100;
 
     for (
       let startIndex = 0;
-      startIndex < missingProductIds.length;
+      startIndex < uniqueProductIds.length;
       startIndex += maximumProductsPerRequest
     ) {
-      const skus = missingProductIds.slice(
+      const skus = uniqueProductIds.slice(
         startIndex,
         startIndex + maximumProductsPerRequest,
       );
@@ -653,30 +641,43 @@ export class AmazonBillingWrapper implements BillingWrapper {
       }
 
       for (const [productId, product] of response.productData) {
-        this.productsById.set(productId, product);
+        productsById.set(productId, product);
       }
     }
 
     return {
       product_details: uniqueProductIds
-        .map((productId) => this.productsById.get(productId))
+        .map((productId) => productsById.get(productId))
         .map((product) => (product ? productForAmazonProduct(product) : null))
         .filter((product): product is ProductResponse => product !== null),
     };
   }
 }
 
-function getBasePrice(
-  product: ProductResponse | undefined,
-): PriceResponse | null {
-  const purchaseOption = product?.purchase_options.base_option;
-  if (purchaseOption == null) {
-    return null;
+function priceForPurchaseParams(params: PurchaseParams): Price | null {
+  const purchaseOption =
+    params.purchaseOption ??
+    params.rcPackage.webBillingProduct.defaultPurchaseOption;
+
+  if (isNonSubscriptionOption(purchaseOption)) {
+    return purchaseOption.basePrice;
   }
 
-  return "base_price" in purchaseOption
-    ? purchaseOption.base_price
-    : (purchaseOption.base?.price ?? null);
+  return isSubscriptionOption(purchaseOption)
+    ? purchaseOption.base.price
+    : null;
+}
+
+function isNonSubscriptionOption(
+  purchaseOption: PurchaseOption,
+): purchaseOption is NonSubscriptionOption {
+  return "basePrice" in purchaseOption;
+}
+
+function isSubscriptionOption(
+  purchaseOption: PurchaseOption,
+): purchaseOption is SubscriptionOption {
+  return "base" in purchaseOption;
 }
 
 function formatCacheError(error: unknown): string {
