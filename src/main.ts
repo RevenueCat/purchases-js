@@ -621,6 +621,7 @@ export class Purchases {
       this.amazonBillingWrapper = new AmazonBillingWrapper(
         this.backend,
         this._API_KEY,
+        this._appUserId,
       );
     }
   }
