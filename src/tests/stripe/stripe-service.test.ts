@@ -646,7 +646,7 @@ describe("StripeService", () => {
       });
     });
 
-    test("subscription with a paid-once weekly intro describes both billing phases", () => {
+    test("subscription with a paid-once weekly intro omits its non-future end date", () => {
       const basePrice = {
         amount: 4_999,
         amountMicros: 49_990_000,
@@ -699,7 +699,6 @@ describe("StripeService", () => {
             trialBilling: {
               amount: 499,
               label: product.title,
-              recurringPaymentEndDate: new Date(2025, 0, 1),
               recurringPaymentIntervalUnit: "day",
               recurringPaymentIntervalCount: 7,
             },
