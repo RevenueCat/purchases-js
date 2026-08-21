@@ -208,6 +208,24 @@ describe("Purchases.configure()", () => {
     ).not.toThrow();
   });
 
+  test("throws error if given invalid Amazon API key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "amzn_test invalidchar",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("does not throw error if given valid Amazon API key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "amzn_valid_key",
+        appUserId: testUserId,
+      }),
+    ).not.toThrow();
+  });
+
   test("does not throw error if given valid web billing api key", () => {
     expect(() =>
       Purchases.configure({
