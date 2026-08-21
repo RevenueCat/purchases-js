@@ -42,4 +42,17 @@ export default [
       "no-restricted-globals": "off",
     },
   },
+  // React Native loads these build configs through CommonJS, unlike the browser/ESM defaults above.
+  {
+    files: [
+      "examples/amazonvega-demo/PurchaseTester/babel.config.js",
+      "examples/amazonvega-demo/PurchaseTester/metro.config.js",
+    ],
+    languageOptions: {
+      globals: globals.node,
+    },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
 ];
