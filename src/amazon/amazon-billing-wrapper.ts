@@ -16,7 +16,12 @@ import type {
 } from "../networking/responses/products-response";
 import type { PurchaseParams, PurchaseResult } from "../main";
 import type { Backend } from "../networking/backend";
+import { PostReceiptInitiationSource } from "../networking/backend";
 import { toCustomerInfo } from "../entities/customer-info";
+import type { CustomerInfo } from "../entities/customer-info";
+import type { RestorePurchasesResult } from "../entities/restore-purchases-result";
+import type { SubscriberResponse } from "../networking/responses/subscriber-response";
+import type { SyncPurchasesResult } from "../entities/sync-purchases-result";
 
 type AmazonAppstoreIAPSDK = typeof AmazonVegaSdk;
 
@@ -31,6 +36,13 @@ export class AmazonBillingWrapper implements BillingWrapper {
   private amazonAppstoreIAPSDKPromise:
     | Promise<AmazonAppstoreIAPSDK>
     | undefined;
+
+  /**
+   * Receipt IDs successfully posted by syncPurchases or restorePurchases during
+   * this wrapper's lifetime. We avoid caching this persistently on-device to avoid
+   * adding another dependency for Vega OS apps.
+   */
+  private readonly syncedReceiptIds = new Set<string>();
 
   public async getProducts(
     _appUserId: string,
@@ -102,14 +114,13 @@ export class AmazonBillingWrapper implements BillingWrapper {
         ? receipt.termSku
         : receipt.sku;
 
-    // Post receipt to RevenueCat backend
     const subscriberResponse = await this.backend.postReceipt(
       appUserId,
       productIdentifier,
       rcPackage.webBillingProduct.price.currency,
       receipt.receiptId,
       rcPackage.webBillingProduct.presentedOfferingContext,
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
       undefined,
       storeUserId,
     );
@@ -133,6 +144,138 @@ export class AmazonBillingWrapper implements BillingWrapper {
         purchaseDate: receipt.purchaseDate,
       },
     };
+  }
+
+  async syncPurchases(appUserId: string): Promise<SyncPurchasesResult> {
+    Logger.debugLog("Syncing purchases with the Amazon Store.");
+    return {
+      customerInfo: await this.fetchAndPostReceipts(appUserId, false),
+    };
+  }
+
+  async restorePurchases(appUserId: string): Promise<RestorePurchasesResult> {
+    Logger.debugLog("Restoring purchases for the Amazon Store.");
+    return {
+      customerInfo: await this.fetchAndPostReceipts(appUserId, true),
+    };
+  }
+
+  private async fetchAndPostReceipts(
+    appUserId: string,
+    isRestore: boolean,
+  ): Promise<CustomerInfo> {
+    const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
+    const {
+      PurchasingService,
+      PurchaseUpdatesResponseCode,
+      ProductType: AmazonProductType,
+    } = amazonAppstoreIAPSDK;
+
+    let doneFetching = false;
+    let mostRecentSubscriberResponse: SubscriberResponse | null = null;
+    let executedGetPurchaseUpdatesRequests = 0;
+    while (!doneFetching) {
+      let response: Awaited<
+        ReturnType<typeof PurchasingService.getPurchaseUpdates>
+      >;
+      try {
+        response = await PurchasingService.getPurchaseUpdates({
+          reset: executedGetPurchaseUpdatesRequests == 0 ? true : false,
+        });
+      } catch (error) {
+        Logger.errorLog(
+          `Failed to ${isRestore ? "restore" : "sync"} purchases from the Amazon Store: getPurchaseUpdates() threw an error.`,
+        );
+        throw new PurchasesError(
+          ErrorCode.StoreProblemError,
+          `${isRestore ? "Restoring" : "Syncing"} purchases with the Amazon Store failed.`,
+          error instanceof Error ? error.message : undefined,
+        );
+      }
+      executedGetPurchaseUpdatesRequests += 1;
+
+      switch (response.responseCode) {
+        case PurchaseUpdatesResponseCode.SUCCESSFUL:
+          Logger.verboseLog(
+            `Successfully completed getPurchaseUpdates() call: fetchedReceipts=${response.receiptList.length}, hasMore=${response.hasMore}`,
+          );
+          break;
+        case PurchaseUpdatesResponseCode.NOT_SUPPORTED:
+          Logger.warnLog(
+            `Failed to ${isRestore ? "restore" : "sync"} purchases from the Amazon Store: getPurchaseUpdates() is not supported.`,
+          );
+          throw new PurchasesError(
+            ErrorCode.UnsupportedError,
+            `${isRestore ? "Restoring" : "Syncing"} purchases is not supported.`,
+          );
+        case PurchaseUpdatesResponseCode.FAILED:
+          Logger.errorLog(
+            `Failed to ${isRestore ? "restore" : "sync"} purchases from the Amazon Store: getPurchaseUpdates() failed.`,
+          );
+          throw new PurchasesError(
+            ErrorCode.StoreProblemError,
+            `${isRestore ? "Restoring" : "Syncing"} purchases with the Amazon Store failed.`,
+          );
+        default:
+          Logger.warnLog(
+            `Failed to ${isRestore ? "restore" : "sync"} purchases from the Amazon Store: received an unexpected repsonse ${response.responseCode} from getPurchaseUpdates().`,
+          );
+          throw new PurchasesError(
+            ErrorCode.StoreProblemError,
+            `Received an unexpected response code from the Amazon Store while ${isRestore ? "restoring" : "syncing"} purchases.`,
+          );
+      }
+
+      for (const receipt of response.receiptList) {
+        if (this.syncedReceiptIds.has(receipt.receiptId)) {
+          Logger.verboseLog(
+            `Skipping posting Amazon receipt ${receipt.receiptId} because it has already been synced during this session.`,
+          );
+          continue;
+        }
+
+        let productId: string;
+        if (receipt.productType == AmazonProductType.SUBSCRIPTION) {
+          productId = receipt.termSku;
+        } else {
+          productId = receipt.sku;
+        }
+
+        mostRecentSubscriberResponse = await this.backend.postReceipt(
+          appUserId,
+          productId,
+          null,
+          receipt.receiptId,
+          null,
+          PostReceiptInitiationSource.RESTORE,
+          undefined,
+          response.userData.userId,
+          isRestore,
+        );
+        this.syncedReceiptIds.add(receipt.receiptId);
+      }
+
+      if (response.hasMore && response.receiptList.length === 0) {
+        Logger.verboseLog(
+          "getPurchaseUpdates() returned hasMore=true, but also returned 0 receipts. Will not call getPurchaseUpdates() again. This is likely an issue with the Amazon Store.",
+        );
+        doneFetching = true;
+      } else if (!response.hasMore) {
+        doneFetching = true;
+      } else if (executedGetPurchaseUpdatesRequests > 100) {
+        Logger.debugLog(
+          `We have already called getPurchaseUpdates() ${executedGetPurchaseUpdatesRequests} times. Will stop calling it to avoid calling it excessively.`,
+        );
+        doneFetching = true;
+      }
+    }
+
+    if (mostRecentSubscriberResponse == null) {
+      mostRecentSubscriberResponse =
+        await this.backend.getCustomerInfo(appUserId);
+    }
+
+    return toCustomerInfo(mostRecentSubscriberResponse);
   }
 
   private async notifyFulfillment(receiptId: string) {
@@ -163,7 +306,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
         );
         break;
       case NotifyFulfillmentResponseCode.FAILED:
-        Logger.warnLog(
+        Logger.errorLog(
           `Failed to fulfill receipt ID ${receiptId} with the Amazon Store.`,
         );
         break;
