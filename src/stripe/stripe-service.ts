@@ -15,12 +15,20 @@ import type { BrandingInfoResponse } from "../networking/responses/branding-resp
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
 import type { StripeElementsConfiguration } from "../networking/responses/stripe-elements";
-import { type Product, type SubscriptionOption } from "../entities/offerings";
+import {
+  type PricingPhase,
+  type Product,
+  type SubscriptionOption,
+} from "../entities/offerings";
 import type { Translator } from "../ui/localization/translator";
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist/stripe-js/elements/index";
 import type { LineItem } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
-import { type Period, PeriodUnit } from "../helpers/duration-helper";
+import {
+  getNextRenewalDate,
+  type Period,
+  PeriodUnit,
+} from "../helpers/duration-helper";
 import type { ResolvedDiscountBreakdown } from "../helpers/discount-breakdown-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
 import type { PriceBreakdown } from "../ui/ui-types";
@@ -454,27 +462,7 @@ export class StripeService {
   }
 
   static nextDateForPeriod(period: Period, startDate: Date) {
-    if (period.unit === PeriodUnit.Year) {
-      startDate.setFullYear(startDate.getFullYear() + period.number);
-      return startDate;
-    }
-
-    if (period.unit === PeriodUnit.Month) {
-      startDate.setMonth(startDate.getMonth() + period.number);
-      return startDate;
-    }
-
-    if (period.unit === PeriodUnit.Week) {
-      startDate.setDate(startDate.getDate() + period.number * 7);
-      return startDate;
-    }
-
-    if (period.unit === PeriodUnit.Day) {
-      startDate.setDate(startDate.getDate() + period.number);
-      return startDate;
-    }
-
-    return startDate;
+    return getNextRenewalDate(startDate, period, true) ?? startDate;
   }
 
   static applePayPeriod(period: Period): {
@@ -491,6 +479,28 @@ export class StripeService {
       recurringPaymentIntervalUnit: period.unit,
       recurringPaymentIntervalCount: period.number,
     };
+  }
+
+  private static nextDateAfterPricingPhases(
+    phases: PricingPhase[],
+    startDate: Date,
+  ): Date | undefined {
+    let date = startDate;
+    for (const phase of phases) {
+      const period = phase.period;
+      if (!period) {
+        return undefined;
+      }
+      const cycleCount = Math.max(phase.cycleCount, 1);
+      date = StripeService.nextDateForPeriod(
+        {
+          ...period,
+          number: period.number * cycleCount,
+        },
+        date,
+      );
+    }
+    return date;
   }
 
   // https://docs.stripe.com/js/elements_object/create_without_intent#stripe_elements_no_intent-options-amount
@@ -570,23 +580,84 @@ export class StripeService {
           )
         : undefined;
 
-    const priceMinimumAmount = StripeService.microsToMinimumAmountPrice(
-      priceBreakdown.totalAmountInMicros,
-      priceBreakdown.currency,
+    const trialPhase = subscriptionOption.trial;
+    const introPricePhase = subscriptionOption.introPrice;
+    const basePeriod = subscriptionOption.base.period;
+    const currentDate = new Date();
+    const initialPhases = [trialPhase, introPricePhase].filter(
+      (phase): phase is PricingPhase => phase !== null,
     );
 
-    const hasTrial = subscriptionOption.trial;
-    const trialPeriod = subscriptionOption.trial?.period;
-    const basePeriod = subscriptionOption.base.period;
-
     const recurringPaymentStartDate =
-      hasTrial && trialPeriod
-        ? StripeService.nextDateForPeriod(trialPeriod, new Date())
+      initialPhases.length > 0
+        ? StripeService.nextDateAfterPricingPhases(
+            initialPhases,
+            new Date(currentDate),
+          )
         : undefined;
 
     const recurringPeriod = basePeriod
       ? StripeService.applePayPeriod(basePeriod)
       : {};
+
+    const basePrice = subscriptionOption.base.price;
+    const regularBillingAmount = StripeService.microsToMinimumAmountPrice(
+      basePrice?.amountMicros ?? priceBreakdown.totalAmountInMicros,
+      basePrice?.currency ?? priceBreakdown.currency,
+    );
+
+    const trialBilling = (() => {
+      if (introPricePhase?.price) {
+        const introBillingStartDate = trialPhase
+          ? StripeService.nextDateAfterPricingPhases(
+              [trialPhase],
+              new Date(currentDate),
+            )
+          : undefined;
+        const canCalculateIntroDates = !trialPhase || introBillingStartDate;
+        const introCycleCount = Math.max(introPricePhase.cycleCount, 1);
+
+        // Apple calls this field trialBilling, but it is the only initial
+        // recurring summary item available for a paid introductory phase.
+        return {
+          label: productDetails.title,
+          amount: StripeService.microsToMinimumAmountPrice(
+            introPricePhase.price.amountMicros,
+            introPricePhase.price.currency,
+          ),
+          ...(introPricePhase.period && canCalculateIntroDates
+            ? {
+                ...(introBillingStartDate
+                  ? { recurringPaymentStartDate: introBillingStartDate }
+                  : {}),
+                ...(introCycleCount > 1
+                  ? {
+                      recurringPaymentEndDate: StripeService.nextDateForPeriod(
+                        {
+                          ...introPricePhase.period,
+                          number:
+                            introPricePhase.period.number *
+                            (introCycleCount - 1),
+                        },
+                        new Date(introBillingStartDate ?? currentDate),
+                      ),
+                    }
+                  : {}),
+                ...StripeService.applePayPeriod(introPricePhase.period),
+              }
+            : {}),
+        };
+      }
+
+      if (trialPhase) {
+        return {
+          label: translator.translate(LocalizationKeys.ApplePayFreeTrial),
+          amount: 0,
+        };
+      }
+
+      return undefined;
+    })();
 
     return {
       layout,
@@ -595,19 +666,10 @@ export class StripeService {
         recurringPaymentRequest: {
           paymentDescription: productDetails.title,
           managementURL: managementUrl,
-          ...(hasTrial
-            ? {
-                trialBilling: {
-                  label: translator.translate(
-                    LocalizationKeys.ApplePayFreeTrial,
-                  ),
-                  amount: 0,
-                },
-              }
-            : {}),
+          ...(trialBilling ? { trialBilling } : {}),
           regularBilling: {
             label: productDetails.title,
-            amount: priceMinimumAmount,
+            amount: regularBillingAmount,
             recurringPaymentStartDate: recurringPaymentStartDate,
             ...recurringPeriod,
           },
