@@ -239,7 +239,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
     appUserId: string,
     isRestore: boolean,
   ): Promise<CustomerInfo> {
-    const receiptsToPost = await this.fetchReceipts(true);
+    const receiptsToPost = await this.fetchReceipts(isRestore);
 
     for (const { receipt, storeUserId } of receiptsToPost) {
       const productId = await this.productIdForReceipt(receipt);
@@ -279,7 +279,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
   }
 
   private async fetchReceipts(
-    resetFirstRequest?: boolean,
+    isRestore: boolean,
   ): Promise<ReceiptWithStoreUserId[]> {
     const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
     const { PurchasingService, PurchaseUpdatesResponseCode } =
@@ -294,18 +294,15 @@ export class AmazonBillingWrapper implements BillingWrapper {
       >;
       try {
         response = await PurchasingService.getPurchaseUpdates({
-          reset:
-            executedGetPurchaseUpdatesRequests == 0
-              ? (resetFirstRequest ?? true)
-              : false,
+          reset: executedGetPurchaseUpdatesRequests == 0 ? true : false,
         });
       } catch (error) {
         Logger.errorLog(
-          `Failed to fetch receipts from the Amazon Store: getPurchaseUpdates() threw an error.`,
+          `Failed to ${isRestore ? "restore" : "sync"} purchases from the Amazon Store: getPurchaseUpdates() threw an error.`,
         );
         throw new PurchasesError(
           ErrorCode.StoreProblemError,
-          "Fetching purchases from the Amazon Store failed.",
+          `${isRestore ? "Restoring" : "Syncing"} purchases with the Amazon Store failed.`,
           error instanceof Error ? error.message : undefined,
         );
       }
@@ -319,27 +316,27 @@ export class AmazonBillingWrapper implements BillingWrapper {
           break;
         case PurchaseUpdatesResponseCode.NOT_SUPPORTED:
           Logger.warnLog(
-            "Failed to fetch purchases from the Amazon Store: getPurchaseUpdates() is not supported.",
+            `Failed to ${isRestore ? "restore" : "sync"} purchases from the Amazon Store: getPurchaseUpdates() is not supported.`,
           );
           throw new PurchasesError(
             ErrorCode.UnsupportedError,
-            "Fetching purchases is not supported.",
+            `${isRestore ? "Restoring" : "Syncing"} purchases is not supported.`,
           );
         case PurchaseUpdatesResponseCode.FAILED:
           Logger.errorLog(
-            "Failed to fetch purchases from the Amazon Store: getPurchaseUpdates() failed.",
+            `Failed to ${isRestore ? "restore" : "sync"} purchases from the Amazon Store: getPurchaseUpdates() failed.`,
           );
           throw new PurchasesError(
             ErrorCode.StoreProblemError,
-            "Fetching purchases with the Amazon Store failed.",
+            `${isRestore ? "Restoring" : "Syncing"} purchases with the Amazon Store failed.`,
           );
         default:
           Logger.warnLog(
-            `Failed to fetch purchases from the Amazon Store: received an unexpected repsonse ${response.responseCode} from getPurchaseUpdates().`,
+            `Failed to ${isRestore ? "restore" : "sync"} purchases from the Amazon Store: received an unexpected repsonse ${response.responseCode} from getPurchaseUpdates().`,
           );
           throw new PurchasesError(
             ErrorCode.StoreProblemError,
-            `Received an unexpected response code ${response.responseCode} from the Amazon Store while fetching purchases.`,
+            `Received an unexpected response code from the Amazon Store while ${isRestore ? "restoring" : "syncing"} purchases.`,
           );
       }
 
