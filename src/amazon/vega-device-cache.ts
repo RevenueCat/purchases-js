@@ -11,7 +11,7 @@ type ReceiptCache = string[];
  * @internal
  */
 export class VegaDeviceCache {
-  private readonly sharedPreferencesPrefix = "com.revenuecat.purchases.";
+  private readonly rcStoragePrefix = "com.revenuecat.purchases.";
   private readonly tokensCacheKey = "tokens";
   private readonly tokensCachePath: string;
   private writeQueue: Promise<void> = Promise.resolve();
@@ -20,7 +20,7 @@ export class VegaDeviceCache {
     private readonly apiKey: string,
     private readonly fileSystemLoader: KeplerFileSystemLoader = loadKeplerFileSystem,
   ) {
-    this.tokensCachePath = `/data/${this.sharedPreferencesPrefix}${this.apiKey}.${this.tokensCacheKey}`;
+    this.tokensCachePath = `/data/${this.rcStoragePrefix}${this.apiKey}.${this.tokensCacheKey}`;
   }
 
   public async getPreviouslySentReceiptIds(): Promise<Set<string>> {
