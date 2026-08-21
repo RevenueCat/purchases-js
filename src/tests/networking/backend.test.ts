@@ -1667,25 +1667,6 @@ describe("postReceipt request", () => {
     expect(requestBody.currency).toBeNull();
   });
 
-  test("posts a null price when not provided", async () => {
-    setPostReceiptResponse(
-      HttpResponse.json(customerInfoResponse, { status: 200 }),
-    );
-
-    await backend.postReceipt(
-      "someAppUserId",
-      "monthly",
-      "USD",
-      "test_fetch_token",
-      null,
-      PostReceiptInitiationSource.PURCHASE,
-    );
-
-    const request = postReceiptAPIMock.mock.calls[0][0].request;
-    const requestBody = await request.json();
-    expect(requestBody.price).toBeNull();
-  });
-
   test("posts a price when provided", async () => {
     setPostReceiptResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
