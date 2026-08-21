@@ -158,7 +158,6 @@ import {
 } from "./helpers/branding-appearance-helper";
 import type { BillingWrapper } from "./helpers/billing-wrapper";
 import { AmazonBillingWrapper } from "./amazon/amazon-billing-wrapper";
-import { WebBillingWrapper } from "./helpers/web-billing-wrapper";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -304,7 +303,7 @@ export class Purchases {
   private readonly inMemoryCache: InMemoryCache;
 
   /** @internal */
-  private readonly billingWrapper: BillingWrapper;
+  private readonly amazonBillingWrapper: BillingWrapper | null = null;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -602,14 +601,8 @@ export class Purchases {
     this.eventsTracker.trackSDKEvent({
       eventName: SDKEventName.SDKInitialized,
     });
-    this.billingWrapper = this.buildBillingWrapper(this._API_KEY);
-  }
-
-  private buildBillingWrapper(apiKey: string): BillingWrapper {
-    if (isAmazonApiKey(apiKey)) {
-      return new AmazonBillingWrapper();
-    } else {
-      return new WebBillingWrapper(this.backend);
+    if (isAmazonApiKey(this._API_KEY)) {
+      this.amazonBillingWrapper = new AmazonBillingWrapper(this.backend);
     }
   }
 
@@ -1451,12 +1444,22 @@ export class Purchases {
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
-    const productsResponse = await this.billingWrapper.getProducts(
-      appUserId,
-      productIds,
-      params?.currency,
-      params?.discountCode,
-    );
+    let productsResponse: ProductsResponse;
+    if (isAmazonApiKey(this._API_KEY)) {
+      productsResponse = await this.unwrappedAmazonBillingWrapper().getProducts(
+        appUserId,
+        productIds,
+        params?.currency,
+        params?.discountCode,
+      );
+    } else {
+      productsResponse = await this.backend.getProducts(
+        appUserId,
+        productIds,
+        params?.currency,
+        params?.discountCode,
+      );
+    }
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
     return productsResponse;
@@ -1722,6 +1725,17 @@ export class Purchases {
         effectiveParams,
         effectiveBrandingInfo,
       );
+    }
+
+    const isAmazon = isAmazonApiKey(this._API_KEY);
+    if (isAmazon) {
+      const purchaseResult =
+        await this.unwrappedAmazonBillingWrapper().purchase(
+          params,
+          this._appUserId,
+        );
+      this.inMemoryCache.invalidateAllCaches();
+      return purchaseResult;
     }
 
     return await this.performWebBillingPurchase(
@@ -2566,5 +2580,16 @@ export class Purchases {
    */
   public _flushAllEvents(): Promise<void> {
     return this.eventsTracker.flushAllEvents();
+  }
+
+  private unwrappedAmazonBillingWrapper(): BillingWrapper {
+    if (this.amazonBillingWrapper === null) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Ensure that you have configured the SDK using an Amazon API key.",
+      );
+    }
+
+    return this.amazonBillingWrapper;
   }
 }

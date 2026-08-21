@@ -1622,6 +1622,8 @@ describe("postReceipt request", () => {
         placementIdentifier: null,
       },
       "restore",
+      undefined,
+      "amazon_store_user_id",
     );
 
     expect(postReceiptAPIMock).toHaveBeenCalledTimes(1);
@@ -1639,6 +1641,7 @@ describe("postReceipt request", () => {
       presented_placement_identifier: null,
       applied_targeting_rule: null,
       initiation_source: "restore",
+      store_user_id: "amazon_store_user_id",
     });
 
     expect(result).toEqual(customerInfoResponse);
