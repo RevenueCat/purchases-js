@@ -278,6 +278,37 @@ describe("AmazonBillingWrapper", () => {
     expect(debugLog).toHaveBeenCalledWith("Found no receipts to sync");
   });
 
+  test("does not reset purchase updates while syncing pending purchases", async () => {
+    const backend = createBackend();
+    vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+    getPurchaseUpdates
+      .mockResolvedValueOnce(
+        purchaseUpdatesResponse({
+          hasMore: true,
+        }),
+      )
+      .mockResolvedValueOnce(
+        purchaseUpdatesResponse({
+          hasMore: false,
+          receiptList: [],
+        }),
+      );
+    vi.spyOn(
+      VegaDeviceCache.prototype,
+      "getPreviouslySentReceiptIds",
+    ).mockResolvedValue(new Set());
+    notifyFulfillment.mockResolvedValue({
+      responseCode: NotifyFulfillmentResponseCode.SUCCESSFUL,
+    });
+
+    await new AmazonBillingWrapper(backend, amazonApiKey).syncPendingPurchases(
+      "app-user-id",
+    );
+
+    expect(getPurchaseUpdates).toHaveBeenNthCalledWith(1, { reset: false });
+    expect(getPurchaseUpdates).toHaveBeenNthCalledWith(2, { reset: false });
+  });
+
   describe("product data requests", () => {
     test("loads and maps products from the Amazon IAP SDK", async () => {
       getProductData.mockResolvedValue(
@@ -817,37 +848,37 @@ describe("AmazonBillingWrapper", () => {
         "syncPurchases",
         PurchaseUpdatesResponseCode.NOT_SUPPORTED,
         ErrorCode.UnsupportedError,
-        "Syncing purchases is not supported.",
+        "Fetching purchases is not supported.",
       ],
       [
         "restorePurchases",
         PurchaseUpdatesResponseCode.NOT_SUPPORTED,
         ErrorCode.UnsupportedError,
-        "Restoring purchases is not supported.",
+        "Fetching purchases is not supported.",
       ],
       [
         "syncPurchases",
         PurchaseUpdatesResponseCode.FAILED,
         ErrorCode.StoreProblemError,
-        "Syncing purchases with the Amazon Store failed.",
+        "Fetching purchases with the Amazon Store failed.",
       ],
       [
         "restorePurchases",
         PurchaseUpdatesResponseCode.FAILED,
         ErrorCode.StoreProblemError,
-        "Restoring purchases with the Amazon Store failed.",
+        "Fetching purchases with the Amazon Store failed.",
       ],
       [
         "syncPurchases",
         999 as PurchaseUpdatesResponseCode,
         ErrorCode.StoreProblemError,
-        "Received an unexpected response code from the Amazon Store while syncing purchases.",
+        "Received an unexpected response code 999 from the Amazon Store while fetching purchases.",
       ],
       [
         "restorePurchases",
         999 as PurchaseUpdatesResponseCode,
         ErrorCode.StoreProblemError,
-        "Received an unexpected response code from the Amazon Store while restoring purchases.",
+        "Received an unexpected response code 999 from the Amazon Store while fetching purchases.",
       ],
     ] as const)(
       "%s maps response code %s to an error",
@@ -881,7 +912,7 @@ describe("AmazonBillingWrapper", () => {
           ),
         ).rejects.toMatchObject({
           errorCode: ErrorCode.StoreProblemError,
-          message: `${method === "restorePurchases" ? "Restoring" : "Syncing"} purchases with the Amazon Store failed.`,
+          message: "Fetching purchases from the Amazon Store failed.",
           underlyingErrorMessage: "Amazon IAP unavailable",
         });
 
