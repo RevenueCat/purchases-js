@@ -4,13 +4,22 @@ const { purchasingService } = vi.hoisted(() => ({
   purchasingService: { getProductData: vi.fn() },
 }));
 
+const { keplerFileSystem } = vi.hoisted(() => ({
+  keplerFileSystem: { readFileAsString: vi.fn(), writeStringToFile: vi.fn() },
+}));
+
 vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
   ProductDataResponseCode: { SUCCESSFUL: 1, NOT_SUPPORTED: 2, FAILED: 3 },
   ProductType: { CONSUMABLE: 1, ENTITLED: 2, SUBSCRIPTION: 3 },
   PurchasingService: purchasingService,
 }));
 
+vi.mock("@amazon-devices/kepler-file-system", () => ({
+  KeplerFileSystem: keplerFileSystem,
+}));
+
 import { loadAmazonAppstoreIAPSDK } from "../amazon/amazon-appstore-iap-sdk-loader";
+import { loadKeplerFileSystem } from "../amazon/kepler-file-system-loader";
 import { defaultHttpConfig } from "../entities/http-config";
 import { Purchases } from "../vega";
 import { testUserId } from "./base.purchases_test";
@@ -30,6 +39,10 @@ describe("Vega entry point", () => {
     const sdk = await loadAmazonAppstoreIAPSDK();
 
     expect(sdk.PurchasingService).toBe(purchasingService);
+  });
+
+  test("wires the Kepler File System loader", async () => {
+    expect(await loadKeplerFileSystem()).toBe(keplerFileSystem);
   });
 
   test("configures with an Amazon API key", () => {

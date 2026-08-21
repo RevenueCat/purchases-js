@@ -618,7 +618,10 @@ export class Purchases {
       eventName: SDKEventName.SDKInitialized,
     });
     if (isAmazonApiKey(this._API_KEY)) {
-      this.amazonBillingWrapper = new AmazonBillingWrapper(this.backend);
+      this.amazonBillingWrapper = new AmazonBillingWrapper(
+        this.backend,
+        this._API_KEY,
+      );
     }
   }
 
