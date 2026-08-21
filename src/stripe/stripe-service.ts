@@ -615,6 +615,7 @@ export class StripeService {
             )
           : undefined;
         const canCalculateIntroDates = !trialPhase || introBillingStartDate;
+        const introCycleCount = Math.max(introPricePhase.cycleCount, 1);
 
         // Apple calls this field trialBilling, but it is the only initial
         // recurring summary item available for a paid introductory phase.
@@ -629,15 +630,19 @@ export class StripeService {
                 ...(introBillingStartDate
                   ? { recurringPaymentStartDate: introBillingStartDate }
                   : {}),
-                recurringPaymentEndDate: StripeService.nextDateForPeriod(
-                  {
-                    ...introPricePhase.period,
-                    number:
-                      introPricePhase.period.number *
-                      Math.max(introPricePhase.cycleCount - 1, 0),
-                  },
-                  new Date(introBillingStartDate ?? currentDate),
-                ),
+                ...(introCycleCount > 1
+                  ? {
+                      recurringPaymentEndDate: StripeService.nextDateForPeriod(
+                        {
+                          ...introPricePhase.period,
+                          number:
+                            introPricePhase.period.number *
+                            (introCycleCount - 1),
+                        },
+                        new Date(introBillingStartDate ?? currentDate),
+                      ),
+                    }
+                  : {}),
                 ...StripeService.applePayPeriod(introPricePhase.period),
               }
             : {}),
