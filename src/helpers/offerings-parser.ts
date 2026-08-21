@@ -51,11 +51,24 @@ export const getOfferingIdForPlacement = (
   offeringIdForPlacement: string | null;
   fallbackOfferingId: string | null;
 } => {
-  const placementOfferingId =
-    placementsData.offering_ids_by_placement?.[placementId] ?? null;
+  const offeringIdsByPlacement = placementsData.offering_ids_by_placement ?? {};
+
+  if (placementId in offeringIdsByPlacement) {
+    const placementOfferingId = offeringIdsByPlacement[placementId] ?? null;
+    return {
+      offeringIdForPlacement: placementOfferingId,
+      // An explicit null means "No Offering" was selected in the dashboard,
+      // so the fallback must not apply. The fallback only exists for
+      // placements that are missing from the map entirely.
+      fallbackOfferingId:
+        placementOfferingId === null
+          ? null
+          : placementsData.fallback_offering_id,
+    };
+  }
 
   return {
-    offeringIdForPlacement: placementOfferingId,
+    offeringIdForPlacement: null,
     fallbackOfferingId: placementsData.fallback_offering_id,
   };
 };
