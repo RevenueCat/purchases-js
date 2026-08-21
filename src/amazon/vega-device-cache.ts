@@ -11,8 +11,16 @@ type ReceiptCache = string[];
  * @internal
  */
 export class VegaDeviceCache {
-  private readonly rcStoragePrefix = "com.revenuecat.purchases.";
-  private readonly tokensCacheKey = "tokens";
+  // Apps operate in a sandboxed environment with a restricted view of the device file system.
+  // Vega makes the following app-specific directories available in the sandbox.
+  //
+  // The /data directory is a writable location for app data. It is persistent across
+  // device reboots and package upgrades, and is not shared between apps or services.
+  // The directory isn't persistent on app uninstall.
+  //
+  // More info: https://developer.amazon.com/docs/vega-api/0.24/README.amazon-devices_kepler-file-system.html
+  private readonly dataDirectory = "data";
+  private readonly rcStoragePrefix = "com.revenuecat.purchases";
   private readonly tokensCachePath: string;
   private writeQueue: Promise<void> = Promise.resolve();
 
@@ -20,7 +28,10 @@ export class VegaDeviceCache {
     private readonly apiKey: string,
     private readonly fileSystemLoader: KeplerFileSystemLoader = loadKeplerFileSystem,
   ) {
-    this.tokensCachePath = `/data/${this.rcStoragePrefix}${this.apiKey}.${this.tokensCacheKey}`;
+    // As of KeplerFileSystem SDK version 0.24, there is no way to create a directory, and any attempts
+    // to write to one throw a com.amazon.kepler.file_system.NotFoundError error. Therefore, we write
+    // our cache files to the /data directory.
+    this.tokensCachePath = `/${this.dataDirectory}/${this.rcStoragePrefix}.${this.apiKey}.tokens`;
   }
 
   public async getPreviouslySentReceiptIds(): Promise<Set<string>> {
