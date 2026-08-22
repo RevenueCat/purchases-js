@@ -33,6 +33,7 @@ import { toRedemptionInfo } from "../entities/redemption-info";
 import type { OperationSessionSuccessfulResult } from "../helpers/purchase-operation-helper";
 import { handleCheckoutSessionFailed } from "../helpers/checkout-error-handler";
 import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import type { PaddleCheckoutSettings } from "../networking/responses/paddle-checkout-settings";
 import type { IEventsTracker } from "../behavioural-events/events-tracker";
 
 interface PaddlePurchaseParams {
@@ -89,7 +90,7 @@ interface BuildPaddleCheckoutOptionsParams {
   transactionId: string;
   locale: string;
   customerEmail?: string;
-  checkoutSettings?: Record<string, boolean>;
+  checkoutSettings?: PaddleCheckoutSettings;
   displayMode?: PaddleCheckoutDisplayMode;
   theme?: PaddleCheckoutTheme;
 }
@@ -146,7 +147,7 @@ interface PaddlePurchase {
   onCheckoutLoaded: () => void;
   params: PaddlePurchaseParams;
   onClose: () => void;
-  checkoutSettings?: Record<string, boolean>;
+  checkoutSettings?: PaddleCheckoutSettings;
   displayMode?: PaddleCheckoutDisplayMode;
   theme?: PaddleCheckoutTheme;
   /**
