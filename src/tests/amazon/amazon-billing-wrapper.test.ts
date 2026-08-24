@@ -62,12 +62,15 @@ import {
   setAmazonAppstoreIAPSDKLoader,
 } from "../../amazon/amazon-appstore-iap-sdk-loader";
 import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
+import { VegaDeviceCache } from "../../amazon/vega-device-cache";
 import { ErrorCode } from "../../entities/errors";
 import type { PurchasesError } from "../../entities/errors";
 import { Logger } from "../../helpers/logger";
 import type { Backend } from "../../networking/backend";
 import { customerInfoResponse } from "../test-responses";
 import { createMonthlyPackageMock } from "../mocks/offering-mock-provider";
+
+const amazonApiKey = "amazon-api-key";
 
 const responseForCode = (
   responseCode: ProductDataResponseCode,
@@ -101,10 +104,10 @@ const responseForProducts = (products: Product[]): ProductDataResponse => ({
 
 async function getProducts(response: ProductDataResponse) {
   getProductData.mockResolvedValue(response);
-  return await new AmazonBillingWrapper({} as Backend).getProducts(
-    "app-user-id",
-    ["product-id"],
-  );
+  return await new AmazonBillingWrapper(
+    {} as Backend,
+    amazonApiKey,
+  ).getProducts("app-user-id", ["product-id"]);
 }
 
 const successfulPurchaseResponse = (): PurchaseResponse => ({
@@ -165,15 +168,38 @@ describe("AmazonBillingWrapper", () => {
     notifyFulfillment.mockReset();
     purchase.mockReset();
     vi.restoreAllMocks();
+    vi.spyOn(
+      VegaDeviceCache.prototype,
+      "addSuccessfullyPostedReceiptId",
+    ).mockResolvedValue();
+  });
+
+  test("initializes the Vega device cache with its API key", () => {
+    const wrapper = new AmazonBillingWrapper(createBackend(), "amazon-api-key");
+
+    const deviceCache = (wrapper as unknown as { deviceCache: VegaDeviceCache })
+      .deviceCache;
+    expect(deviceCache).toBeInstanceOf(VegaDeviceCache);
+    expect(deviceCache as unknown as { apiKey: string }).toMatchObject({
+      apiKey: "amazon-api-key",
+    });
+    expect(
+      (
+        deviceCache as unknown as {
+          tokensCachePath: string;
+        }
+      ).tokensCachePath,
+    ).toBe("/data/com.revenuecat.purchases.amazon-api-key.tokens");
   });
 
   test("fails clearly when the Amazon SDK loader has not been wired up", async () => {
     resetAmazonAppstoreIAPSDKLoader();
 
     await expect(
-      new AmazonBillingWrapper(createBackend()).getProducts("user", [
-        "monthly",
-      ]),
+      new AmazonBillingWrapper(createBackend(), amazonApiKey).getProducts(
+        "user",
+        ["monthly"],
+      ),
     ).rejects.toMatchObject({
       errorCode: ErrorCode.ConfigurationError,
       message:
@@ -200,6 +226,7 @@ describe("AmazonBillingWrapper", () => {
 
       const result = await new AmazonBillingWrapper(
         createBackend(),
+        amazonApiKey,
       ).getProducts("user", ["monthly"]);
 
       expect(getProductData).toHaveBeenCalledExactlyOnceWith({
@@ -222,12 +249,10 @@ describe("AmazonBillingWrapper", () => {
         responseForProducts([product({ sku: "monthly" })]),
       );
 
-      await new AmazonBillingWrapper(createBackend()).getProducts("user", [
-        "monthly",
-        "yearly",
-        "monthly",
-        "yearly",
-      ]);
+      await new AmazonBillingWrapper(createBackend(), amazonApiKey).getProducts(
+        "user",
+        ["monthly", "yearly", "monthly", "yearly"],
+      );
 
       expect(getProductData).toHaveBeenCalledExactlyOnceWith({
         skus: ["monthly", "yearly"],
@@ -241,7 +266,7 @@ describe("AmazonBillingWrapper", () => {
       );
       getProductData.mockResolvedValue(responseForProducts([]));
 
-      await new AmazonBillingWrapper(createBackend()).getProducts(
+      await new AmazonBillingWrapper(createBackend(), amazonApiKey).getProducts(
         "user",
         productIds,
       );
@@ -269,6 +294,7 @@ describe("AmazonBillingWrapper", () => {
 
       const result = await new AmazonBillingWrapper(
         createBackend(),
+        amazonApiKey,
       ).getProducts("user", productIds);
 
       expect(getProductData).toHaveBeenNthCalledWith(1, {
@@ -300,7 +326,7 @@ describe("AmazonBillingWrapper", () => {
         .mockResolvedValueOnce(responseForProducts([]))
         .mockResolvedValueOnce(responseForProducts([]));
 
-      await new AmazonBillingWrapper(createBackend()).getProducts(
+      await new AmazonBillingWrapper(createBackend(), amazonApiKey).getProducts(
         "user",
         requestedProductIds,
       );
@@ -355,7 +381,9 @@ describe("AmazonBillingWrapper", () => {
           successfulPurchaseUpdatesResponse(),
         );
 
-        await new AmazonBillingWrapper(backend)[method]("app-user-id");
+        await new AmazonBillingWrapper(backend, amazonApiKey)[method](
+          "app-user-id",
+        );
 
         expect(getPurchaseUpdates).toHaveBeenCalledExactlyOnceWith({
           reset: true,
@@ -363,17 +391,24 @@ describe("AmazonBillingWrapper", () => {
       },
     );
 
-    test("does not post a receipt more than once during the wrapper lifetime", async () => {
+    test("sync posts receipts on every invocation, while restore posts them and fulfills them", async () => {
       const backend = createBackend();
       vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
       getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
-      const wrapper = new AmazonBillingWrapper(backend);
+      notifyFulfillment.mockResolvedValue({
+        responseCode: NotifyFulfillmentResponseCode.SUCCESSFUL,
+      });
+      const getPreviouslySentReceiptIds = vi
+        .spyOn(VegaDeviceCache.prototype, "getPreviouslySentReceiptIds")
+        .mockResolvedValue(new Set(["amazon-receipt-id"]));
+      const wrapper = new AmazonBillingWrapper(backend, amazonApiKey);
 
       await wrapper.syncPurchases("app-user-id");
       await wrapper.syncPurchases("app-user-id");
       await wrapper.restorePurchases("app-user-id");
 
-      expect(backend.postReceipt).toHaveBeenCalledExactlyOnceWith(
+      expect(backend.postReceipt).toHaveBeenNthCalledWith(
+        1,
         "app-user-id",
         "monthly",
         null,
@@ -384,9 +419,135 @@ describe("AmazonBillingWrapper", () => {
         "amazon-store-user-id",
         false,
       );
-      expect(backend.getCustomerInfo).toHaveBeenCalledTimes(2);
+      expect(backend.postReceipt).toHaveBeenNthCalledWith(
+        2,
+        "app-user-id",
+        "monthly",
+        null,
+        "amazon-receipt-id",
+        null,
+        "restore",
+        undefined,
+        "amazon-store-user-id",
+        false,
+      );
+      expect(backend.postReceipt).toHaveBeenNthCalledWith(
+        3,
+        "app-user-id",
+        "monthly",
+        null,
+        "amazon-receipt-id",
+        null,
+        "restore",
+        undefined,
+        "amazon-store-user-id",
+        true,
+      );
+      expect(notifyFulfillment).toHaveBeenCalledExactlyOnceWith({
+        receiptId: "amazon-receipt-id",
+        fulfillmentResult: FulfillmentResult.FULFILLED,
+      });
+      expect(
+        vi.mocked(VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId),
+      ).toHaveBeenNthCalledWith(1, "amazon-receipt-id");
+      expect(
+        vi.mocked(VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId),
+      ).toHaveBeenNthCalledWith(2, "amazon-receipt-id");
+      expect(backend.getCustomerInfo).toHaveBeenCalledTimes(3);
       expect(backend.getCustomerInfo).toHaveBeenNthCalledWith(1, "app-user-id");
       expect(backend.getCustomerInfo).toHaveBeenNthCalledWith(2, "app-user-id");
+      expect(backend.getCustomerInfo).toHaveBeenNthCalledWith(3, "app-user-id");
+      expect(getPreviouslySentReceiptIds).not.toHaveBeenCalled();
+    });
+
+    test("sync fetches customer info after posting receipts", async () => {
+      const backend = createBackend();
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
+
+      await new AmazonBillingWrapper(backend, amazonApiKey).syncPurchases(
+        "app-user-id",
+      );
+
+      expect(backend.postReceipt).toHaveBeenCalledBefore(
+        backend.getCustomerInfo as ReturnType<typeof vi.fn>,
+      );
+      expect(backend.getCustomerInfo).toHaveBeenCalledExactlyOnceWith(
+        "app-user-id",
+      );
+    });
+
+    test("sync continues when caching a successfully posted receipt fails", async () => {
+      const backend = createBackend();
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      vi.mocked(
+        VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId,
+      ).mockRejectedValueOnce({
+        code: "EIO",
+        message: "disk unavailable",
+      });
+      getPurchaseUpdates.mockResolvedValue(
+        purchaseUpdatesResponse({
+          receiptList: [
+            {
+              ...successfulPurchaseResponse().receipt,
+              receiptId: "first-receipt",
+            },
+            {
+              ...successfulPurchaseResponse().receipt,
+              receiptId: "second-receipt",
+            },
+          ],
+        }),
+      );
+
+      await new AmazonBillingWrapper(backend, amazonApiKey).syncPurchases(
+        "app-user-id",
+      );
+
+      expect(backend.postReceipt).toHaveBeenCalledTimes(2);
+      expect(backend.postReceipt).toHaveBeenNthCalledWith(
+        2,
+        "app-user-id",
+        "monthly",
+        null,
+        "second-receipt",
+        null,
+        "restore",
+        undefined,
+        "amazon-store-user-id",
+        false,
+      );
+      expect(backend.getCustomerInfo).toHaveBeenCalledExactlyOnceWith(
+        "app-user-id",
+      );
+    });
+
+    test("restore logs a cache warning when fulfillment succeeds but caching fails", async () => {
+      const backend = createBackend();
+      const warningLog = vi
+        .spyOn(Logger, "warnLog")
+        .mockImplementation(() => {});
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      notifyFulfillment.mockResolvedValue({
+        responseCode: NotifyFulfillmentResponseCode.SUCCESSFUL,
+      });
+      vi.mocked(
+        VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId,
+      ).mockRejectedValueOnce({
+        code: "EIO",
+        message: "disk unavailable",
+      });
+      getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
+
+      await new AmazonBillingWrapper(backend, amazonApiKey).restorePurchases(
+        "app-user-id",
+      );
+
+      expect(notifyFulfillment).toHaveBeenCalledOnce();
+      expect(warningLog).toHaveBeenCalledWith(
+        "Failed to cache successfully posted receipt ID amazon-receipt-id: EIO: disk unavailable",
+      );
     });
 
     test.each([
@@ -426,7 +587,9 @@ describe("AmazonBillingWrapper", () => {
             }),
           );
 
-        await new AmazonBillingWrapper(backend)[method]("app-user-id");
+        await new AmazonBillingWrapper(backend, amazonApiKey)[method](
+          "app-user-id",
+        );
 
         expect(getPurchaseUpdates).toHaveBeenCalledTimes(2);
         expect(getPurchaseUpdates).toHaveBeenNthCalledWith(1, { reset: true });
@@ -458,6 +621,68 @@ describe("AmazonBillingWrapper", () => {
       },
     );
 
+    test.each(["syncPurchases", "restorePurchases"] as const)(
+      "%s posts receipts in purchase-date order across pages",
+      async (method) => {
+        const backend = createBackend();
+        vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+        getPurchaseUpdates
+          .mockResolvedValueOnce(
+            purchaseUpdatesResponse({
+              hasMore: true,
+              receiptList: [
+                {
+                  ...successfulPurchaseResponse().receipt,
+                  receiptId: "later-receipt",
+                  purchaseDate: new Date("2026-08-14T17:00:00Z"),
+                },
+              ],
+            }),
+          )
+          .mockResolvedValueOnce(
+            purchaseUpdatesResponse({
+              hasMore: false,
+              receiptList: [
+                {
+                  ...successfulPurchaseResponse().receipt,
+                  receiptId: "earlier-receipt",
+                  purchaseDate: new Date("2026-08-10T17:00:00Z"),
+                },
+              ],
+            }),
+          );
+
+        await new AmazonBillingWrapper(backend, amazonApiKey)[method](
+          "app-user-id",
+        );
+
+        expect(backend.postReceipt).toHaveBeenNthCalledWith(
+          1,
+          "app-user-id",
+          "monthly",
+          null,
+          "earlier-receipt",
+          null,
+          "restore",
+          undefined,
+          "amazon-store-user-id",
+          method === "restorePurchases",
+        );
+        expect(backend.postReceipt).toHaveBeenNthCalledWith(
+          2,
+          "app-user-id",
+          "monthly",
+          null,
+          "later-receipt",
+          null,
+          "restore",
+          undefined,
+          "amazon-store-user-id",
+          method === "restorePurchases",
+        );
+      },
+    );
+
     test.each([["syncPurchases"], ["restorePurchases"]] as const)(
       "%s fetches customer info when no receipts are returned",
       async (method) => {
@@ -466,7 +691,9 @@ describe("AmazonBillingWrapper", () => {
           purchaseUpdatesResponse({ receiptList: [] }),
         );
 
-        await new AmazonBillingWrapper(backend)[method]("app-user-id");
+        await new AmazonBillingWrapper(backend, amazonApiKey)[method](
+          "app-user-id",
+        );
 
         expect(backend.postReceipt).not.toHaveBeenCalled();
         expect(backend.getCustomerInfo).toHaveBeenCalledExactlyOnceWith(
@@ -483,7 +710,9 @@ describe("AmazonBillingWrapper", () => {
           purchaseUpdatesResponse({ hasMore: true, receiptList: [] }),
         );
 
-        await new AmazonBillingWrapper(backend)[method]("app-user-id");
+        await new AmazonBillingWrapper(backend, amazonApiKey)[method](
+          "app-user-id",
+        );
 
         expect(getPurchaseUpdates).toHaveBeenCalledExactlyOnceWith({
           reset: true,
@@ -505,7 +734,7 @@ describe("AmazonBillingWrapper", () => {
         getPurchaseUpdates.mockResolvedValue(
           successfulPurchaseUpdatesResponse(),
         );
-        const wrapper = new AmazonBillingWrapper(backend);
+        const wrapper = new AmazonBillingWrapper(backend, amazonApiKey);
 
         await expect(wrapper[method]("app-user-id")).rejects.toBe(error);
         await wrapper[method]("app-user-id");
@@ -560,7 +789,9 @@ describe("AmazonBillingWrapper", () => {
         );
 
         await expect(
-          new AmazonBillingWrapper(backend)[method]("app-user-id"),
+          new AmazonBillingWrapper(backend, amazonApiKey)[method](
+            "app-user-id",
+          ),
         ).rejects.toMatchObject({ errorCode, message });
 
         expect(backend.postReceipt).not.toHaveBeenCalled();
@@ -576,7 +807,9 @@ describe("AmazonBillingWrapper", () => {
         getPurchaseUpdates.mockRejectedValue(error);
 
         await expect(
-          new AmazonBillingWrapper(backend)[method]("app-user-id"),
+          new AmazonBillingWrapper(backend, amazonApiKey)[method](
+            "app-user-id",
+          ),
         ).rejects.toMatchObject({
           errorCode: ErrorCode.StoreProblemError,
           message: `${method === "restorePurchases" ? "Restoring" : "Syncing"} purchases with the Amazon Store failed.`,
@@ -605,10 +838,10 @@ describe("AmazonBillingWrapper", () => {
       postReceipt.mockResolvedValue(customerInfoResponse);
       const params = { rcPackage: createMonthlyPackageMock() };
 
-      const result = await new AmazonBillingWrapper(backend).purchase(
-        params,
-        appUserId,
-      );
+      const result = await new AmazonBillingWrapper(
+        backend,
+        amazonApiKey,
+      ).purchase(params, appUserId);
 
       expect(purchase).toHaveBeenCalledExactlyOnceWith({ sku: "monthly" });
       expect(postReceipt).toHaveBeenCalledExactlyOnceWith(
@@ -636,6 +869,43 @@ describe("AmazonBillingWrapper", () => {
       });
     });
 
+    test("caches a receipt ID after Amazon successfully fulfills it", async () => {
+      const backend = createBackend();
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+
+      await new AmazonBillingWrapper(backend, amazonApiKey).purchase(
+        { rcPackage: createMonthlyPackageMock() },
+        appUserId,
+      );
+
+      expect(
+        vi.mocked(VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId),
+      ).toHaveBeenCalledExactlyOnceWith("amazon-receipt-id");
+    });
+
+    test("logs a cache warning when fulfillment succeeds but caching fails", async () => {
+      const backend = createBackend();
+      const warningLog = vi
+        .spyOn(Logger, "warnLog")
+        .mockImplementation(() => {});
+      vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+      vi.mocked(
+        VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId,
+      ).mockRejectedValueOnce(new Error("disk unavailable"));
+
+      await expect(
+        new AmazonBillingWrapper(backend, amazonApiKey).purchase(
+          { rcPackage: createMonthlyPackageMock() },
+          appUserId,
+        ),
+      ).resolves.toMatchObject({ operationSessionId: "amazon-receipt-id" });
+
+      expect(notifyFulfillment).toHaveBeenCalledOnce();
+      expect(warningLog).toHaveBeenCalledWith(
+        "Failed to cache successfully posted receipt ID amazon-receipt-id: Error: disk unavailable",
+      );
+    });
+
     test("uses a non-subscription receipt's SKU when posting and returning the purchase", async () => {
       const backend = createBackend();
       const params = { rcPackage: createMonthlyPackageMock() };
@@ -650,10 +920,10 @@ describe("AmazonBillingWrapper", () => {
         },
       });
 
-      const result = await new AmazonBillingWrapper(backend).purchase(
-        params,
-        appUserId,
-      );
+      const result = await new AmazonBillingWrapper(
+        backend,
+        amazonApiKey,
+      ).purchase(params, appUserId);
 
       expect(backend.postReceipt).toHaveBeenCalledWith(
         appUserId,
@@ -699,7 +969,7 @@ describe("AmazonBillingWrapper", () => {
         });
 
         await expect(
-          new AmazonBillingWrapper(backend).purchase(
+          new AmazonBillingWrapper(backend, amazonApiKey).purchase(
             { rcPackage: createMonthlyPackageMock() },
             appUserId,
           ),
@@ -721,7 +991,7 @@ describe("AmazonBillingWrapper", () => {
       });
 
       await expect(
-        new AmazonBillingWrapper(backend).purchase(
+        new AmazonBillingWrapper(backend, amazonApiKey).purchase(
           { rcPackage: createMonthlyPackageMock() },
           appUserId,
         ),
@@ -744,7 +1014,7 @@ describe("AmazonBillingWrapper", () => {
       vi.mocked(backend.postReceipt).mockRejectedValue(postReceiptError);
 
       await expect(
-        new AmazonBillingWrapper(backend).purchase(
+        new AmazonBillingWrapper(backend, amazonApiKey).purchase(
           { rcPackage: createMonthlyPackageMock() },
           appUserId,
         ),
@@ -759,7 +1029,7 @@ describe("AmazonBillingWrapper", () => {
       purchase.mockRejectedValue(amazonError);
 
       await expect(
-        new AmazonBillingWrapper(backend).purchase(
+        new AmazonBillingWrapper(backend, amazonApiKey).purchase(
           { rcPackage: createMonthlyPackageMock() },
           appUserId,
         ),
@@ -798,13 +1068,16 @@ describe("AmazonBillingWrapper", () => {
         notifyFulfillment.mockResolvedValue({ responseCode });
 
         await expect(
-          new AmazonBillingWrapper(backend).purchase(
+          new AmazonBillingWrapper(backend, amazonApiKey).purchase(
             { rcPackage: createMonthlyPackageMock() },
             appUserId,
           ),
         ).resolves.toMatchObject({ operationSessionId: "amazon-receipt-id" });
 
         expect(notifyFulfillment).toHaveBeenCalledOnce();
+        expect(
+          vi.mocked(VegaDeviceCache.prototype.addSuccessfullyPostedReceiptId),
+        ).not.toHaveBeenCalled();
         expect(log).toHaveBeenCalledWith(expectedLog);
       },
     );
@@ -819,7 +1092,7 @@ describe("AmazonBillingWrapper", () => {
       notifyFulfillment.mockRejectedValue(fulfillmentError);
 
       await expect(
-        new AmazonBillingWrapper(backend).purchase(
+        new AmazonBillingWrapper(backend, amazonApiKey).purchase(
           { rcPackage: createMonthlyPackageMock() },
           appUserId,
         ),

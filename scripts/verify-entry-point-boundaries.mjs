@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const amazonModule = "@amazon-devices/keplerscript-appstore-iap-lib";
+const fileSystemModule = "@amazon-devices/kepler-file-system";
 const defaultArtifacts = ["dist/Purchases.es.js", "dist/Purchases.umd.js"];
 const vegaArtifacts = [
   "dist/Purchases.vega.es.js",
@@ -23,6 +24,10 @@ for (const artifact of defaultArtifacts) {
     `${artifact} should not include Amazon AppStore support`,
   );
   assert.ok(
+    !contents.includes(fileSystemModule),
+    `${artifact} should not include Vega File System support`,
+  );
+  assert.ok(
     !contents.includes("Purchases.vega"),
     `${artifact} should not include the Vega code.`,
   );
@@ -34,6 +39,10 @@ for (const artifact of vegaArtifacts) {
   assert.ok(
     contents.includes(amazonModule),
     `${artifact} should include Amazon AppStore support`,
+  );
+  assert.ok(
+    contents.includes(fileSystemModule),
+    `${artifact} should include Vega File System support`,
   );
 }
 
