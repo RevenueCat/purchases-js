@@ -8,6 +8,10 @@ const { keplerFileSystem } = vi.hoisted(() => ({
   keplerFileSystem: { readFileAsString: vi.fn(), writeStringToFile: vi.fn() },
 }));
 
+const { isPresentOnOS } = vi.hoisted(() => ({
+  isPresentOnOS: vi.fn(() => true),
+}));
+
 vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
   ProductDataResponseCode: { SUCCESSFUL: 1, NOT_SUPPORTED: 2, FAILED: 3 },
   ProductType: { CONSUMABLE: 1, ENTITLED: 2, SUBSCRIPTION: 3 },
@@ -16,6 +20,10 @@ vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
 
 vi.mock("@amazon-devices/kepler-file-system", () => ({
   KeplerFileSystem: keplerFileSystem,
+}));
+
+vi.mock("@amazon-devices/kepler-compatibility", () => ({
+  isPresentOnOS,
 }));
 
 import { loadAmazonAppstoreIAPSDK } from "../amazon/amazon-appstore-iap-sdk-loader";
