@@ -65,6 +65,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@amazon-devices/kepler-compatibility": "1.0.5",
     "@amazon-devices/kepler-file-system": "0.0.7",
     "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
     "@eslint/js": "^9.16.0",
@@ -113,10 +114,14 @@
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
+    "@amazon-devices/kepler-compatibility": "1.0.5",
     "@amazon-devices/kepler-file-system": "0.0.7",
     "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16"
   },
   "peerDependenciesMeta": {
+    "@amazon-devices/kepler-compatibility": {
+      "optional": true
+    },
     "@amazon-devices/kepler-file-system": {
       "optional": true
     },

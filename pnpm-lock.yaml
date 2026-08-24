@@ -7,6 +7,9 @@ settings:
 importers:
   .:
     devDependencies:
+      "@amazon-devices/kepler-compatibility":
+        specifier: 1.0.5
+        version: 1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       "@amazon-devices/kepler-file-system":
         specifier: 0.0.7
         version: 0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))

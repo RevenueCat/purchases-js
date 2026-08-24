@@ -24,6 +24,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
+        "@amazon-devices/kepler-compatibility",
         "@amazon-devices/kepler-file-system",
         "@amazon-devices/keplerscript-appstore-iap-lib",
       ],
