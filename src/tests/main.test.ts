@@ -332,12 +332,12 @@ describe("Purchases.configure()", () => {
 
 describe("billing wrapper selection", () => {
   test("syncs pending Amazon purchases at initialization", async () => {
-    const triggerSyncPendingPurchases = vi
+    const syncPendingPurchasesInBackground = vi
       .spyOn(
         AmazonBillingWrapper.prototype as unknown as {
-          triggerSyncPendingPurchases: () => Promise<void>;
+          syncPendingPurchasesInBackground: () => Promise<void>;
         },
-        "triggerSyncPendingPurchases",
+        "syncPendingPurchasesInBackground",
       )
       .mockResolvedValue();
     const purchases = configurePurchases(
@@ -347,7 +347,7 @@ describe("billing wrapper selection", () => {
     );
 
     await vi.waitFor(() => {
-      expect(triggerSyncPendingPurchases).toHaveBeenCalledOnce();
+      expect(syncPendingPurchasesInBackground).toHaveBeenCalledOnce();
     });
 
     purchases.close();

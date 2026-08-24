@@ -285,6 +285,83 @@ describe("AmazonBillingWrapper", () => {
     wrapper.close();
   });
 
+  test("handles failures from a coalesced pending-purchase sync once", async () => {
+    let onAppStateChange: ((state: string) => void) | undefined;
+    setReactNativeAppStateLoader(async () => ({
+      currentState: "background",
+      addEventListener: vi.fn(
+        (_type: "change", listener: (state: string) => void) => {
+          onAppStateChange = listener;
+          return { remove: vi.fn() };
+        },
+      ),
+    }));
+    let rejectPurchaseUpdates: ((reason?: unknown) => void) | undefined;
+    getPurchaseUpdates.mockReturnValue(
+      new Promise((_, reject) => {
+        rejectPurchaseUpdates = reject;
+      }),
+    );
+    vi.spyOn(
+      VegaDeviceCache.prototype,
+      "getPreviouslySentReceiptIds",
+    ).mockResolvedValue(new Set());
+    const warnLog = vi.spyOn(Logger, "warnLog");
+
+    const wrapper = new AmazonBillingWrapper(
+      createBackend(),
+      amazonApiKey,
+      () => "app-user-id",
+    );
+
+    await vi.waitFor(() => {
+      expect(getPurchaseUpdates).toHaveBeenCalledOnce();
+    });
+
+    onAppStateChange?.("active");
+    rejectPurchaseUpdates?.(new Error("fetch failed"));
+
+    await vi.waitFor(() => {
+      expect(warnLog).toHaveBeenCalledExactlyOnceWith(
+        "Failed to sync pending Amazon purchases in the background: PurchasesError(code: StoreProblemError, message: Syncing purchases with the Amazon Store failed.)",
+      );
+    });
+    wrapper.close();
+  });
+
+  test("does not throw when a pending-purchase sync fails", async () => {
+    let rejectPurchaseUpdates: ((reason?: unknown) => void) | undefined;
+    getPurchaseUpdates.mockReturnValue(
+      new Promise((_, reject) => {
+        rejectPurchaseUpdates = reject;
+      }),
+    );
+    vi.spyOn(
+      VegaDeviceCache.prototype,
+      "getPreviouslySentReceiptIds",
+    ).mockResolvedValue(new Set());
+
+    const wrapper = new AmazonBillingWrapper(
+      createBackend(),
+      amazonApiKey,
+      () => "app-user-id",
+    );
+
+    await vi.waitFor(() => {
+      expect(getPurchaseUpdates).toHaveBeenCalledOnce();
+    });
+
+    const pendingSync = (
+      wrapper as unknown as { pendingSync: Promise<void> | undefined }
+    ).pendingSync;
+    expect(pendingSync).toBeDefined();
+
+    rejectPurchaseUpdates?.(new Error("fetch failed"));
+
+    await expect(pendingSync).resolves.toBeUndefined();
+    wrapper.close();
+  });
+
   test("fails clearly when the Amazon SDK loader has not been wired up", async () => {
     resetAmazonAppstoreIAPSDKLoader();
 

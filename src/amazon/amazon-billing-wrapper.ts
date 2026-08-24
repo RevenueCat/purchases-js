@@ -59,7 +59,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
     private readonly getAppUserId: () => string | undefined,
   ) {
     this.deviceCache = new VegaDeviceCache(apiKey);
-    void this.triggerSyncPendingPurchases();
+    void this.syncPendingPurchasesInBackground();
     void this.observeAppState();
   }
 
@@ -197,7 +197,10 @@ export class AmazonBillingWrapper implements BillingWrapper {
     };
   }
 
-  private async triggerSyncPendingPurchases(): Promise<void> {
+  // Starts the automatic pending-purchase sync used on initialization and
+  // foregrounding. Calls coalesce onto a handled in-flight promise, so
+  // fire-and-forget callers do not surface unhandled rejections.
+  private async syncPendingPurchasesInBackground(): Promise<void> {
     if (this.pendingSync !== undefined) {
       await this.pendingSync;
       return;
@@ -208,21 +211,23 @@ export class AmazonBillingWrapper implements BillingWrapper {
       return;
     }
 
-    const pendingSync = this.syncPendingPurchases(appUserId);
-    this.pendingSync = pendingSync;
-    try {
-      await pendingSync;
-    } catch (error: unknown) {
-      Logger.warnLog(
-        `Failed to sync pending Amazon purchases in the background: ${String(error)}`,
-      );
-    } finally {
-      if (this.pendingSync === pendingSync) {
+    const pendingSync = (async () => {
+      try {
+        await this.syncPendingPurchases(appUserId);
+      } catch (error: unknown) {
+        Logger.warnLog(
+          `Failed to sync pending Amazon purchases in the background: ${String(error)}`,
+        );
+      } finally {
         this.pendingSync = undefined;
       }
-    }
+    })();
+    this.pendingSync = pendingSync;
+    await pendingSync;
   }
 
+  // Performs the actual automatic sync work: fetch Amazon receipts, post only
+  // receipt IDs not present in the device cache, then fulfill and cache them.
   private async syncPendingPurchases(appUserId: string): Promise<void> {
     Logger.debugLog("Syncing pending purchases with the Amazon Store.");
 
@@ -699,7 +704,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
             Logger.debugLog(
               "App has entered the foreground. Will sync any pending purchases.",
             );
-            void this.triggerSyncPendingPurchases();
+            void this.syncPendingPurchasesInBackground();
           }
         },
       );
