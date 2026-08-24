@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Text, View} from 'react-native';
-import {LogLevel, Purchases} from '@revenuecat/purchases-js';
+import {LogLevel, Purchases} from '@revenuecat/purchases-js/vega';
 import {Button} from '../components/Button';
 import {API_KEY, APP_USER_ID} from '../constants';
 import {ScreenContainer} from '../ScreenContainer';

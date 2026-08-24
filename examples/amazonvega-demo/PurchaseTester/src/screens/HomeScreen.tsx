@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {View} from 'react-native';
-import {Purchases} from '@revenuecat/purchases-js';
+import {Purchases} from '@revenuecat/purchases-js/vega';
 import {AllOfferingsList} from '../components/AllOfferingsList';
 import {Button} from '../components/Button';
 import {ScreenContainer} from '../ScreenContainer';
