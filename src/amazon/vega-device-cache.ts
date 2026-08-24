@@ -95,6 +95,7 @@ export class VegaDeviceCache {
     }
 
     try {
+      // Throws if the file isn't found
       await fileSystem.readFileAsString(this.tokensCachePath, "UTF-8");
       return true;
     } catch {
