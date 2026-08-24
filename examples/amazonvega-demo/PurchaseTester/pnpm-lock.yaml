@@ -117,6 +117,12 @@ packages:
         integrity: sha512-SKdbd/Hv+mWgjhxj56y4U4Zmnq1krPOJMob5rL9kb0vxPhwCcweES0moC0NFjpauNxF5dy5FEjOouJ0JIkI1YA==,
       }
 
+  '@amazon-devices/kepler-compatibility@1.0.5':
+    resolution:
+      {
+        integrity: sha512-51JGeFW5W0J8vTz6XF1OBA+yNKz/N8NxH0OX89AulgPOLeZKnz4jjn2wSaISvoQIDqzrHe2dKapNK2NBcSD4Jg==,
+      }
+
   '@amazon-devices/kepler-file-system@0.0.7':
     resolution:
       {
@@ -7056,6 +7062,13 @@ snapshots:
       '@amazon-devices/keplerscript-commonmodules': 1.0.9000000000
 
   '@amazon-devices/kepler-compatibility-metro-config@0.0.7': {}
+
+  '@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))':
+    dependencies:
+      '@amazon-devices/keplerscript-turbomodule-api': 1.2.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
+    transitivePeerDependencies:
+      - '@babel/preset-env'
+      - supports-color
 
   '@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))':
     dependencies:
