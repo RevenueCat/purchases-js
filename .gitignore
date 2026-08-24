@@ -159,3 +159,7 @@ yarn.lock
 
 # AI Agents
 .claude/settings.local.json
+
+# Vega Purchase Tester App
+examples/amazonvega-demo/PurchaseTester/buildinfo.json
+/examples/amazonvega-demo/PurchaseTester/build
