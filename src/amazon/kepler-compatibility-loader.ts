@@ -1,41 +1,41 @@
-import type { isPresentOnOS as amazonIsPresentOnOS } from "@amazon-devices/kepler-compatibility";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 
 /**
- * Shared Kepler compatibility API contract used by VegaDeviceCache.
+ * Shared Kepler File System compatibility contract used by VegaDeviceCache.
  *
- * Keeping this as an injected dependency lets the default purchases-js module
- * avoid importing the Vega-only compatibility package. The Vega entry point
- * installs the native implementation before re-exporting the public SDK API.
+ * The Vega entry point installs the OS-specific version check. Keeping the
+ * package name and version there prevents the default entry point from
+ * including Vega-only File System support.
  */
-export type IsPresentOnOS = typeof amazonIsPresentOnOS;
+export type KeplerFileSystemExistsSupportCheck = () => boolean;
 
-const missingIsPresentOnOS: IsPresentOnOS = () => {
-  throw new PurchasesError(
-    ErrorCode.ConfigurationError,
-    "Kepler compatibility APIs are supported only by the @revenuecat/purchases-js/vega entry point.",
-  );
-};
+const missingKeplerFileSystemExistsSupportCheck: KeplerFileSystemExistsSupportCheck =
+  () => {
+    throw new PurchasesError(
+      ErrorCode.ConfigurationError,
+      "Kepler compatibility APIs are supported only by the @revenuecat/purchases-js/vega entry point.",
+    );
+  };
 
-let isPresentOnOS: IsPresentOnOS = missingIsPresentOnOS;
+let keplerFileSystemExistsSupportCheck: KeplerFileSystemExistsSupportCheck =
+  missingKeplerFileSystemExistsSupportCheck;
 
 /**
- * Installs the runtime-specific Kepler compatibility implementation.
+ * Installs the Vega OS version check for Kepler File System's `exists` API.
  *
  * @internal
  */
-export function setIsPresentOnOS(implementation: IsPresentOnOS): void {
-  isPresentOnOS = implementation;
+export function setKeplerFileSystemExistsSupportCheck(
+  supportCheck: KeplerFileSystemExistsSupportCheck,
+): void {
+  keplerFileSystemExistsSupportCheck = supportCheck;
 }
 
 /**
- * Checks whether the running Vega OS provides a library version.
+ * Checks whether the running Vega OS provides Kepler File System's `exists` API.
  *
  * @internal
  */
-export function isKeplerLibraryPresentOnOS(
-  libraryName: string,
-  version: string,
-): boolean {
-  return isPresentOnOS(libraryName, version);
+export function isKeplerFileSystemExistsSupported(): boolean {
+  return keplerFileSystemExistsSupportCheck();
 }
