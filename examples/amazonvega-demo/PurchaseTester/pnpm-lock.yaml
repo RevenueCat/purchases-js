@@ -8783,6 +8783,7 @@ snapshots:
 
   '@revenuecat/purchases-js@file:../../..(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))':
     optionalDependencies:
+      '@amazon-devices/kepler-compatibility': 1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       '@amazon-devices/kepler-file-system': 0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       '@amazon-devices/keplerscript-appstore-iap-lib': 2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
 
