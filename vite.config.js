@@ -9,15 +9,6 @@ const __dirname = dirname(__filename);
 
 export default defineConfig({
   build: {
-    // Metro transforms `await of(...)` into `yield of(...)`, which the Vega
-    // Hermes compiler cannot parse. Keep identifier mangling enabled, but do
-    // not let it rename an async helper to the contextual `of` identifier.
-    minify: "terser",
-    terserOptions: {
-      mangle: {
-        reserved: ["of"],
-      },
-    },
     lib: {
       entry: resolve(__dirname, "src/main.ts"),
       name: "Purchases",
