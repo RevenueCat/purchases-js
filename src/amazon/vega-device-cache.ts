@@ -81,7 +81,8 @@ export class VegaDeviceCache {
 
   private async getReceiptIds(): Promise<ReceiptCache> {
     const fileSystem = await this.fileSystemLoader();
-    if (!(await fileSystem.exists(this.tokensCachePath))) {
+    const cacheExists = await fileSystem.exists(this.tokensCachePath);
+    if (!cacheExists) {
       return [];
     }
 

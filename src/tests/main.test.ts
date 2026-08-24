@@ -331,6 +331,23 @@ describe("Purchases.configure()", () => {
 });
 
 describe("billing wrapper selection", () => {
+  test("syncs pending Amazon purchases at initialization", async () => {
+    const syncPendingPurchases = vi
+      .spyOn(AmazonBillingWrapper.prototype, "syncPendingPurchases")
+      .mockResolvedValue();
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "amzn_valid_key",
+    );
+
+    await vi.waitFor(() => {
+      expect(syncPendingPurchases).toHaveBeenCalledExactlyOnceWith(testUserId);
+    });
+
+    purchases.close();
+  });
+
   test("requires the Vega entry point for offerings with an Amazon API key", async () => {
     const purchases = configurePurchases(
       testUserId,

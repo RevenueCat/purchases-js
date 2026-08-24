@@ -43,9 +43,16 @@ export class AmazonBillingWrapper implements BillingWrapper {
   constructor(
     private readonly backend: Backend,
     apiKey: string,
+    appUserId?: string,
   ) {
     this.deviceCache = new VegaDeviceCache(apiKey);
-    void this.deviceCache;
+    if (appUserId !== undefined) {
+      void this.syncPendingPurchases(appUserId).catch((error: unknown) => {
+        Logger.warnLog(
+          `Failed to sync pending Amazon purchases in the background: ${String(error)}`,
+        );
+      });
+    }
   }
 
   private amazonAppstoreIAPSDKPromise:
@@ -172,17 +179,112 @@ export class AmazonBillingWrapper implements BillingWrapper {
     };
   }
 
+  /**
+   * Posts and fulfills receipts which have not been successfully handled on
+   * this device. This is intended for the background automatic sync performed
+   * when the app starts or returns to the foreground.
+   * @internal
+   */
+  public async syncPendingPurchases(appUserId: string): Promise<void> {
+    Logger.debugLog("Syncing pending purchases with the Amazon Store.");
+
+    let previouslySentReceiptIds: Set<string>;
+    try {
+      previouslySentReceiptIds =
+        await this.deviceCache.getPreviouslySentReceiptIds();
+    } catch (error: unknown) {
+      Logger.warnLog(
+        `Failed to read the cache of successfully posted Amazon receipts: ${formatCacheError(error)}`,
+      );
+      previouslySentReceiptIds = new Set();
+    }
+
+    const receiptsToSync = (await this.fetchReceipts(false)).filter(
+      ({ receipt }) => !previouslySentReceiptIds.has(receipt.receiptId),
+    );
+    Logger.debugLog(
+      receiptsToSync.length === 0
+        ? "Found no receipts to sync"
+        : `Found ${receiptsToSync.length} receipts to sync`,
+    );
+
+    for (const { receipt, storeUserId } of receiptsToSync) {
+      const productId = await this.productIdForReceipt(receipt);
+      try {
+        await this.backend.postReceipt(
+          appUserId,
+          productId,
+          null,
+          receipt.receiptId,
+          null,
+          PostReceiptInitiationSource.UNSYNCED_ACTIVE_PURCHASES,
+          undefined,
+          storeUserId,
+          false,
+        );
+
+        if (await this.notifyFulfillment(receipt.receiptId)) {
+          await this.cacheSuccessfullyPostedReceiptId(receipt.receiptId);
+          previouslySentReceiptIds.add(receipt.receiptId);
+        }
+      } catch (error: unknown) {
+        Logger.warnLog(
+          `Failed to sync pending Amazon receipt ID ${receipt.receiptId}: ${String(error)}`,
+        );
+      }
+    }
+  }
+
   private async fetchAndPostReceipts(
     appUserId: string,
     isRestore: boolean,
   ): Promise<CustomerInfo> {
+    const receiptsToPost = await this.fetchReceipts(isRestore);
+
+    for (const { receipt, storeUserId } of receiptsToPost) {
+      const productId = await this.productIdForReceipt(receipt);
+
+      await this.backend.postReceipt(
+        appUserId,
+        productId,
+        null,
+        receipt.receiptId,
+        null,
+        PostReceiptInitiationSource.RESTORE,
+        undefined,
+        storeUserId,
+        isRestore,
+      );
+
+      if (isRestore) {
+        let fulfillmentSucceeded = false;
+        try {
+          fulfillmentSucceeded = await this.notifyFulfillment(
+            receipt.receiptId,
+          );
+        } catch (error: unknown) {
+          Logger.warnLog(
+            `Failed to fulfill receipt ID ${receipt.receiptId} with the Amazon Store: ${String(error)}`,
+          );
+        }
+        if (fulfillmentSucceeded) {
+          await this.cacheSuccessfullyPostedReceiptId(receipt.receiptId);
+        }
+      } else {
+        await this.cacheSuccessfullyPostedReceiptId(receipt.receiptId);
+      }
+    }
+
+    return toCustomerInfo(await this.backend.getCustomerInfo(appUserId));
+  }
+
+  private async fetchReceipts(
+    isRestore: boolean,
+  ): Promise<ReceiptWithStoreUserId[]> {
     const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
-    const {
-      PurchasingService,
-      PurchaseUpdatesResponseCode,
-      ProductType: AmazonProductType,
-    } = amazonAppstoreIAPSDK;
-    const receiptsToPost: ReceiptWithStoreUserId[] = [];
+    const { PurchasingService, PurchaseUpdatesResponseCode } =
+      amazonAppstoreIAPSDK;
+    const receipts: ReceiptWithStoreUserId[] = [];
 
     let doneFetching = false;
     let executedGetPurchaseUpdatesRequests = 0;
@@ -238,7 +340,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
           );
       }
 
-      receiptsToPost.push(
+      receipts.push(
         ...response.receiptList.map((receipt) => ({
           receipt,
           storeUserId: response.userData.userId,
@@ -260,50 +362,18 @@ export class AmazonBillingWrapper implements BillingWrapper {
       }
     }
 
-    receiptsToPost.sort(
+    return receipts.sort(
       (first, second) =>
         first.receipt.purchaseDate.getTime() -
         second.receipt.purchaseDate.getTime(),
     );
+  }
 
-    for (const { receipt, storeUserId } of receiptsToPost) {
-      const productId =
-        receipt.productType == AmazonProductType.SUBSCRIPTION
-          ? receipt.termSku
-          : receipt.sku;
-
-      await this.backend.postReceipt(
-        appUserId,
-        productId,
-        null,
-        receipt.receiptId,
-        null,
-        PostReceiptInitiationSource.RESTORE,
-        undefined,
-        storeUserId,
-        isRestore,
-      );
-
-      if (isRestore) {
-        let fulfillmentSucceeded = false;
-        try {
-          fulfillmentSucceeded = await this.notifyFulfillment(
-            receipt.receiptId,
-          );
-        } catch (error: unknown) {
-          Logger.warnLog(
-            `Failed to fulfill receipt ID ${receipt.receiptId} with the Amazon Store: ${String(error)}`,
-          );
-        }
-        if (fulfillmentSucceeded) {
-          await this.cacheSuccessfullyPostedReceiptId(receipt.receiptId);
-        }
-      } else {
-        await this.cacheSuccessfullyPostedReceiptId(receipt.receiptId);
-      }
-    }
-
-    return toCustomerInfo(await this.backend.getCustomerInfo(appUserId));
+  private async productIdForReceipt(receipt: Receipt): Promise<string> {
+    const { ProductType } = await this.getAmazonAppstoreIAPSDK();
+    return receipt.productType == ProductType.SUBSCRIPTION
+      ? receipt.termSku
+      : receipt.sku;
   }
 
   private async notifyFulfillment(receiptId: string): Promise<boolean> {
