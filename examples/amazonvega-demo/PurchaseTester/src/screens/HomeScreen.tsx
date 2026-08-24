@@ -1,17 +1,28 @@
-import React from 'react';
-import {Text, View} from 'react-native';
+import React, {useState} from 'react';
+import {Pressable, Text, View} from 'react-native';
+import {AllOfferingsList} from '../components/AllOfferingsList';
 import {ScreenContainer} from '../ScreenContainer';
-import {styles} from './HomeScreen.styles';
+import {LogsScreen} from './LogsScreen';
+import {styles} from './LogsScreen.styles';
 
-export const HomeScreen = () => (
-  <ScreenContainer subtitle="Home">
-    <View style={styles.content}>
-      <View style={styles.statusCard}>
-        <Text style={styles.statusTitle}>RevenueCat SDK configured</Text>
-        <Text style={styles.statusDescription}>
-          The Purchase Tester app is ready to go!
-        </Text>
+export const HomeScreen = () => {
+  const [isShowingLogs, setIsShowingLogs] = useState(false);
+
+  if (isShowingLogs) {
+    return <LogsScreen onBack={() => setIsShowingLogs(false)} />;
+  }
+
+  return (
+    <ScreenContainer subtitle="Home">
+      <View style={styles.actions}>
+        <Pressable
+          hasTVPreferredFocus
+          style={styles.button}
+          onPress={() => setIsShowingLogs(true)}>
+          <Text style={styles.buttonText}>View app logs</Text>
+        </Pressable>
       </View>
-    </View>
-  </ScreenContainer>
-);
+      <AllOfferingsList />
+    </ScreenContainer>
+  );
+};
