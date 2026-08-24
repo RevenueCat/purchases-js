@@ -11,7 +11,7 @@ import {
   getVirtualCurrenciesResponseWith3Currencies,
   getVirtualCurrenciesResponseWithNoCurrencies,
 } from "../test-responses";
-import { Backend } from "../../networking/backend";
+import { Backend, PostReceiptInitiationSource } from "../../networking/backend";
 import { StatusCodes } from "http-status-codes";
 import {
   BackendErrorCode,
@@ -1621,7 +1621,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      "restore",
+      PostReceiptInitiationSource.RESTORE,
       undefined,
       "amazon_store_user_id",
     );
@@ -1647,6 +1647,25 @@ describe("postReceipt request", () => {
     expect(result).toEqual(customerInfoResponse);
   });
 
+  test("posts a null currency when provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      null,
+      "test_fetch_token",
+      null,
+      PostReceiptInitiationSource.RESTORE,
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.currency).toBeNull();
+  });
+
   test("includes targeting context when provided", async () => {
     setPostReceiptResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
@@ -1665,7 +1684,7 @@ describe("postReceipt request", () => {
         },
         placementIdentifier: "placement_1",
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     expect(postReceiptAPIMock).toHaveBeenCalledTimes(1);
@@ -1688,6 +1707,35 @@ describe("postReceipt request", () => {
     expect(result).toEqual(customerInfoResponse);
   });
 
+  test("uses null offering context fields when no offering context is provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "EUR",
+      "test_fetch_token",
+      null,
+      PostReceiptInitiationSource.RESTORE,
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).toMatchObject({
+      fetch_token: "test_fetch_token",
+      product_id: "monthly",
+      currency: "EUR",
+      app_user_id: "someAppUserId",
+      presented_offering_identifier: null,
+      presented_placement_identifier: null,
+      applied_targeting_rule: null,
+      initiation_source: "restore",
+    });
+    expect(requestBody).not.toHaveProperty("presented_workflow_id");
+  });
+
   test("handles placement identifier correctly", async () => {
     setPostReceiptResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
@@ -1703,7 +1751,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: "home_screen",
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1730,7 +1778,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1753,7 +1801,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1776,7 +1824,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
@@ -1807,7 +1855,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,
@@ -1830,7 +1878,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.NetworkError,
@@ -1861,7 +1909,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.InvalidReceiptError,

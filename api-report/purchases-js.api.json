@@ -7879,6 +7879,51 @@
             },
             {
               "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#restorePurchases:member(1)",
+              "docComment": "/**\n * Restores purchases made with the current store account for the current user. This method posts all purchases associated with the current Amazon Appstore account to RevenueCat and associates them with the current `appUserId`. If a receipt is already used by an existing user, the current `appUserId` may be aliased with that user's `appUserId` depending on your app's Restore Behavior. For more information, refer to https://www.revenuecat.com/docs/projects/restore-behavior\n *\n * This method also sends expired subscriptions and consumed one-time purchases to RevenueCat.\n *\n * You shouldn't use this method if you have your own account system. In that case, restoration is provided by your app passing the same `appUserId` that was used for the original purchase.\n *\n * Currently only supported on the Amazon Store when configured with an Amazon API key.\n *\n * @warning This operation can take a relatively long time when the user has many purchases.\n *\n * @returns The {@link CustomerInfo} with restored purchases.\n *\n * @throws\n *\n * {@link PurchasesError} if the SDK is not configured with an Amazon Appstore API key or restoration fails.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "restorePurchases(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "RestorePurchasesResult",
+                  "canonicalReference": "@revenuecat/purchases-js!RestorePurchasesResult:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "restorePurchases"
+            },
+            {
+              "kind": "Method",
               "canonicalReference": "@revenuecat/purchases-js!Purchases#setAttributes:member(1)",
               "docComment": "/**\n * Sets attributes for the current user. Attributes are useful for storing additional, structured information on a customer that can be used elsewhere in the system. For example, you could store your customer's email address or additional system identifiers through the applicable reserved attributes, or store arbitrary facts like onboarding survey responses, feature usage, or other dimensions as custom attributes.\n *\n * Note: Unlike our mobile SDKs, the web SDK does not cache or retry sending attributes if the request fails. If the request fails, the attributes will not be saved and you will need to retry the operation.\n *\n * @param attributes - A dictionary of attributes to set for the current user.\n *\n * @throws\n *\n * {@link PurchasesError} if there is an error while setting the attributes or if the customer doesn't exist.\n */\n",
               "excerptTokens": [
@@ -8089,6 +8134,51 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "setPlatformInfo"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "@revenuecat/purchases-js!Purchases#syncPurchases:member(1)",
+              "docComment": "/**\n * Sends purchases made with the current store account to the RevenueCat backend. Call this when using your own purchase implementation whenever a sync is needed, such as while migrating existing users to RevenueCat. It resolves when all purchases have been synced successfully or when there are no purchases to sync; otherwise it throws with the first error encountered.\n *\n * This method also sends expired subscriptions and consumed one-time purchases to RevenueCat.\n *\n * Currently only supported on the Amazon Store when configured with an Amazon API key.\n *\n * @warning This operation can take a relatively long time when the user has many purchases.\n *\n * @returns The {@link CustomerInfo} after purchases have been synced.\n *\n * @throws\n *\n * {@link PurchasesError} if the SDK is not configured with an Amazon Appstore API key or syncing fails.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "syncPurchases(): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Promise",
+                  "canonicalReference": "!Promise:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "SyncPurchasesResult",
+                  "canonicalReference": "@revenuecat/purchases-js!SyncPurchasesResult:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "syncPurchases"
             }
           ],
           "implementsTokenRanges": []
@@ -9655,6 +9745,52 @@
           ]
         },
         {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!RestorePurchasesResult:interface",
+          "docComment": "/**\n * The result of restoring purchases.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface RestorePurchasesResult "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "RestorePurchasesResult",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!RestorePurchasesResult#customerInfo:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "customerInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomerInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "customerInfo",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
           "kind": "TypeAlias",
           "canonicalReference": "@revenuecat/purchases-js!Store:type",
           "docComment": "/**\n * The store where the user originally subscribed.\n *\n * @public\n */\n",
@@ -10531,6 +10667,52 @@
               "endIndex": 2
             }
           ]
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "@revenuecat/purchases-js!SyncPurchasesResult:interface",
+          "docComment": "/**\n * The result of syncing purchases.\n *\n * @public\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare interface SyncPurchasesResult "
+            }
+          ],
+          "fileUrlPath": "dist/Purchases.es.d.ts",
+          "releaseTag": "Public",
+          "name": "SyncPurchasesResult",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "@revenuecat/purchases-js!SyncPurchasesResult#customerInfo:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "customerInfo: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomerInfo",
+                  "canonicalReference": "@revenuecat/purchases-js!CustomerInfo:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "customerInfo",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
         },
         {
           "kind": "Interface",
