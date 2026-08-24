@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
-import {Pressable, Text, View} from 'react-native';
-import {Purchases} from '@revenuecat/purchases-js';
+import {Text, View} from 'react-native';
+import {LogLevel, Purchases} from '@revenuecat/purchases-js';
+import {Button} from '../components/Button';
 import {API_KEY, APP_USER_ID} from '../constants';
 import {ScreenContainer} from '../ScreenContainer';
 import {styles} from './ConfigureScreen.styles';
@@ -18,6 +19,7 @@ export const ConfigureScreen = ({onConfigured}: ConfigureScreenProps) => {
   const configurePurchases = () => {
     console.log('Configuring the RevenueCat SDK...');
     try {
+      Purchases.setLogLevel(LogLevel.Verbose);
       Purchases.configure({
         apiKey: API_KEY,
         appUserId,
@@ -63,12 +65,13 @@ export const ConfigureScreen = ({onConfigured}: ConfigureScreenProps) => {
         <Text style={styles.secondary}>
           Modify these values in constants.ts
         </Text>
-        <Pressable
-          hasTVPreferredFocus
-          style={styles.configureButton}
-          onPress={configurePurchases}>
-          <Text style={styles.configureButtonText}>Configure</Text>
-        </Pressable>
+        <View style={styles.configureButtonContainer}>
+          <Button
+            hasTVPreferredFocus
+            label="Configure"
+            onPress={configurePurchases}
+          />
+        </View>
         {configureError && (
           <Text style={styles.configureError}>{configureError}</Text>
         )}
