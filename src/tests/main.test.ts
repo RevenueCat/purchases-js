@@ -353,6 +353,23 @@ describe("billing wrapper selection", () => {
     purchases.close();
   });
 
+  test("closes the existing Amazon billing wrapper when reconfiguring", () => {
+    vi.spyOn(
+      AmazonBillingWrapper.prototype as unknown as {
+        syncPendingPurchasesInBackground: () => Promise<void>;
+      },
+      "syncPendingPurchasesInBackground",
+    ).mockResolvedValue();
+    const close = vi.spyOn(AmazonBillingWrapper.prototype, "close");
+
+    configurePurchases(testUserId, "rcSource", "amzn_valid_key");
+    const purchases = configurePurchases(testUserId, "rcSource", testApiKey);
+
+    expect(close).toHaveBeenCalledOnce();
+
+    purchases.close();
+  });
+
   test("requires the Vega entry point for offerings with an Amazon API key", async () => {
     const purchases = configurePurchases(
       testUserId,
