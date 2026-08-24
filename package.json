@@ -58,6 +58,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
     "@eslint/js": "^9.16.0",
     "@microsoft/api-extractor": "^7.48.0",
     "@paddle/paddle-js": "^1.6.4",
@@ -102,6 +103,14 @@
     "vite": "^6.4.1",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16"
+  },
+  "peerDependenciesMeta": {
+    "@amazon-devices/keplerscript-appstore-iap-lib": {
+      "optional": true
+    }
   },
   "lint-staged": {
     "**/*": [
