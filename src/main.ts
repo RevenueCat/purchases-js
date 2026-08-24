@@ -621,7 +621,7 @@ export class Purchases {
       this.amazonBillingWrapper = new AmazonBillingWrapper(
         this.backend,
         this._API_KEY,
-        this._appUserId,
+        () => this._appUserId,
       );
     }
   }
@@ -2570,6 +2570,7 @@ export class Purchases {
       if (this.eventsTracker) {
         this.eventsTracker.dispose();
       }
+      this.amazonBillingWrapper?.close();
       if (this._flags.applePayBrandingLogoEnabled) {
         const doc = getNullableDocument();
         if (doc) {
