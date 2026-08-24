@@ -64,6 +64,7 @@ import {
 import {
   resetReactNativeAppStateLoader,
   setReactNativeAppStateLoader,
+  type ReactNativeAppState,
 } from "../../amazon/react-native-app-state-loader";
 import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
 import { VegaDeviceCache } from "../../amazon/vega-device-cache";
@@ -209,7 +210,7 @@ describe("AmazonBillingWrapper", () => {
   test("syncs pending receipts when the Vega app returns to the foreground", async () => {
     let onAppStateChange: ((state: string) => void) | undefined;
     const subscription = { remove: vi.fn() };
-    const appState = {
+    const appState: ReactNativeAppState = {
       currentState: "background",
       addEventListener: vi.fn(
         (_type: "change", listener: (state: string) => void) => {
