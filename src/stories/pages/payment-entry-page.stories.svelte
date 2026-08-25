@@ -161,7 +161,7 @@
       originalAmountInMicros: 9900000,
       totalAmountInMicros: 8900000,
       totalExcludingTaxInMicros: 8900000,
-      taxCalculationStatus: "unavailable",
+      taxCalculationStatus: "disabled",
       taxAmountInMicros: 0,
       taxBreakdown: null,
       appliedDiscounts: [
