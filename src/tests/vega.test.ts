@@ -1,38 +1,38 @@
-// import { beforeEach, describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
-// const { purchasingService } = vi.hoisted(() => ({
-//   purchasingService: { getProductData: vi.fn() },
-// }));
+const { purchasingService } = vi.hoisted(() => ({
+  purchasingService: { getProductData: vi.fn() },
+}));
 
-// const { keplerFileSystem } = vi.hoisted(() => ({
-//   keplerFileSystem: { readFileAsString: vi.fn(), writeStringToFile: vi.fn() },
-// }));
+const { keplerFileSystem } = vi.hoisted(() => ({
+  keplerFileSystem: { readFileAsString: vi.fn(), writeStringToFile: vi.fn() },
+}));
 
-// const { isPresentOnOS } = vi.hoisted(() => ({
-//   isPresentOnOS: vi.fn(() => true),
-// }));
+const { isPresentOnOS } = vi.hoisted(() => ({
+  isPresentOnOS: vi.fn(() => true),
+}));
 
-// const { appState } = vi.hoisted(() => ({
-//   appState: { currentState: "active", addEventListener: vi.fn() },
-// }));
+const { appState } = vi.hoisted(() => ({
+  appState: { currentState: "active", addEventListener: vi.fn() },
+}));
 
-// vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
-//   ProductDataResponseCode: { SUCCESSFUL: 1, NOT_SUPPORTED: 2, FAILED: 3 },
-//   ProductType: { CONSUMABLE: 1, ENTITLED: 2, SUBSCRIPTION: 3 },
-//   PurchasingService: purchasingService,
-// }));
+vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
+  ProductDataResponseCode: { SUCCESSFUL: 1, NOT_SUPPORTED: 2, FAILED: 3 },
+  ProductType: { CONSUMABLE: 1, ENTITLED: 2, SUBSCRIPTION: 3 },
+  PurchasingService: purchasingService,
+}));
 
-// vi.mock("@amazon-devices/kepler-file-system", () => ({
-//   KeplerFileSystem: keplerFileSystem,
-// }));
+vi.mock("@amazon-devices/kepler-file-system", () => ({
+  KeplerFileSystem: keplerFileSystem,
+}));
 
-// vi.mock("@amazon-devices/kepler-compatibility", () => ({
-//   isPresentOnOS,
-// }));
+vi.mock("@amazon-devices/kepler-compatibility", () => ({
+  isPresentOnOS,
+}));
 
-// vi.mock("react-native", () => ({
-//   AppState: appState,
-// }));
+vi.mock("react-native", () => ({
+  AppState: appState,
+}));
 
 import { loadAmazonAppstoreIAPSDK } from "../amazon/amazon-appstore-iap-sdk-loader";
 import { loadKeplerFileSystem } from "../amazon/kepler-file-system-loader";
