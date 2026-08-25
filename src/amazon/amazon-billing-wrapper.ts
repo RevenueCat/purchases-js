@@ -57,6 +57,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
     private readonly backend: Backend,
     apiKey: string,
     private readonly getAppUserId: () => string | undefined,
+    private readonly getIsAnonymous: () => boolean,
   ) {
     this.deviceCache = new VegaDeviceCache(apiKey);
     void this.syncPendingPurchasesInBackground();
@@ -230,6 +231,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
   // receipt IDs not present in the device cache, then fulfill and cache them.
   private async syncPendingPurchases(appUserId: string): Promise<void> {
     Logger.debugLog("Syncing pending purchases with the Amazon Store.");
+    const isRestore = this.getIsAnonymous();
 
     let previouslySentReceiptIds: Set<string>;
     try {
@@ -263,7 +265,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
           PostReceiptInitiationSource.UNSYNCED_ACTIVE_PURCHASES,
           undefined,
           storeUserId,
-          false,
+          isRestore,
         );
 
         if (await this.notifyFulfillment(receipt.receiptId)) {

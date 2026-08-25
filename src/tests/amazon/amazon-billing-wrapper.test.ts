@@ -77,6 +77,7 @@ import { createMonthlyPackageMock } from "../mocks/offering-mock-provider";
 
 const amazonApiKey = "amazon-api-key";
 const getNoAppUserId = () => undefined;
+const getIsNotAnonymous = () => false;
 
 const responseForCode = (
   responseCode: ProductDataResponseCode,
@@ -117,6 +118,7 @@ async function getProducts(
     {} as Backend,
     amazonApiKey,
     getNoAppUserId,
+    getIsNotAnonymous,
   ).getProducts("app-user-id", productIds);
 }
 
@@ -190,6 +192,7 @@ describe("AmazonBillingWrapper", () => {
       createBackend(),
       "amazon-api-key",
       getNoAppUserId,
+      getIsNotAnonymous,
     );
 
     const deviceCache = (wrapper as unknown as { deviceCache: VegaDeviceCache })
@@ -228,6 +231,7 @@ describe("AmazonBillingWrapper", () => {
       createBackend(),
       amazonApiKey,
       () => "app-user-id",
+      getIsNotAnonymous,
     );
 
     await vi.waitFor(() => {
@@ -269,6 +273,7 @@ describe("AmazonBillingWrapper", () => {
       createBackend(),
       amazonApiKey,
       () => "app-user-id",
+      getIsNotAnonymous,
     );
 
     await vi.waitFor(() => {
@@ -312,6 +317,7 @@ describe("AmazonBillingWrapper", () => {
       createBackend(),
       amazonApiKey,
       () => "app-user-id",
+      getIsNotAnonymous,
     );
 
     await vi.waitFor(() => {
@@ -345,6 +351,7 @@ describe("AmazonBillingWrapper", () => {
       createBackend(),
       amazonApiKey,
       () => "app-user-id",
+      getIsNotAnonymous,
     );
 
     await vi.waitFor(() => {
@@ -370,6 +377,7 @@ describe("AmazonBillingWrapper", () => {
         createBackend(),
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).getProducts("user", ["monthly"]),
     ).rejects.toMatchObject({
       errorCode: ErrorCode.ConfigurationError,
@@ -406,7 +414,12 @@ describe("AmazonBillingWrapper", () => {
       "getPreviouslySentReceiptIds",
     ).mockResolvedValue(new Set(["already-synced"]));
 
-    new AmazonBillingWrapper(backend, amazonApiKey, () => "app-user-id");
+    new AmazonBillingWrapper(
+      backend,
+      amazonApiKey,
+      () => "app-user-id",
+      getIsNotAnonymous,
+    );
 
     await vi.waitFor(() => {
       expect(backend.postReceipt).toHaveBeenCalledOnce();
@@ -434,6 +447,70 @@ describe("AmazonBillingWrapper", () => {
     expect(debugLog).toHaveBeenCalledWith("Found 1 receipts to sync");
   });
 
+  test("marks automatic receipt sync as a restore for anonymous RevenueCat users", async () => {
+    const backend = createBackend();
+    vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+    getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
+    notifyFulfillment.mockResolvedValue({
+      responseCode: NotifyFulfillmentResponseCode.SUCCESSFUL,
+    });
+
+    new AmazonBillingWrapper(
+      backend,
+      amazonApiKey,
+      () => "$RCAnonymousID:123e4567e89b12d3a456426614174000",
+      () => true,
+    );
+
+    await vi.waitFor(() => {
+      expect(backend.postReceipt).toHaveBeenCalledOnce();
+    });
+
+    expect(backend.postReceipt).toHaveBeenLastCalledWith(
+      "$RCAnonymousID:123e4567e89b12d3a456426614174000",
+      "monthly",
+      null,
+      "amazon-receipt-id",
+      null,
+      "unsynced_active_purchases",
+      undefined,
+      "amazon-store-user-id",
+      true,
+    );
+  });
+
+  test("does not mark automatic receipt sync as a restore for identified users", async () => {
+    const backend = createBackend();
+    vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
+    getPurchaseUpdates.mockResolvedValue(successfulPurchaseUpdatesResponse());
+    notifyFulfillment.mockResolvedValue({
+      responseCode: NotifyFulfillmentResponseCode.SUCCESSFUL,
+    });
+
+    new AmazonBillingWrapper(
+      backend,
+      amazonApiKey,
+      () => "identified-user-id",
+      () => false,
+    );
+
+    await vi.waitFor(() => {
+      expect(backend.postReceipt).toHaveBeenCalledOnce();
+    });
+
+    expect(backend.postReceipt).toHaveBeenLastCalledWith(
+      "identified-user-id",
+      "monthly",
+      null,
+      "amazon-receipt-id",
+      null,
+      "unsynced_active_purchases",
+      undefined,
+      "amazon-store-user-id",
+      false,
+    );
+  });
+
   test("reports when all Amazon receipts have already been synced", async () => {
     const backend = createBackend();
     const debugLog = vi.spyOn(Logger, "debugLog");
@@ -443,7 +520,12 @@ describe("AmazonBillingWrapper", () => {
       "getPreviouslySentReceiptIds",
     ).mockResolvedValue(new Set(["amazon-receipt-id"]));
 
-    new AmazonBillingWrapper(backend, amazonApiKey, () => "app-user-id");
+    new AmazonBillingWrapper(
+      backend,
+      amazonApiKey,
+      () => "app-user-id",
+      getIsNotAnonymous,
+    );
 
     await vi.waitFor(() => {
       expect(debugLog).toHaveBeenCalledWith("Found no receipts to sync");
@@ -472,6 +554,7 @@ describe("AmazonBillingWrapper", () => {
         createBackend(),
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).getProducts("user", ["monthly"]);
 
       expect(getProductData).toHaveBeenCalledExactlyOnceWith({
@@ -498,6 +581,7 @@ describe("AmazonBillingWrapper", () => {
         createBackend(),
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).getProducts("user", ["monthly", "yearly", "monthly", "yearly"]);
 
       expect(getProductData).toHaveBeenCalledExactlyOnceWith({
@@ -516,6 +600,7 @@ describe("AmazonBillingWrapper", () => {
         createBackend(),
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).getProducts("user", productIds);
 
       expect(getProductData).toHaveBeenCalledExactlyOnceWith({
@@ -543,6 +628,7 @@ describe("AmazonBillingWrapper", () => {
         createBackend(),
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).getProducts("user", productIds);
 
       expect(getProductData).toHaveBeenNthCalledWith(1, {
@@ -578,6 +664,7 @@ describe("AmazonBillingWrapper", () => {
         createBackend(),
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).getProducts("user", requestedProductIds);
 
       expect(getProductData).toHaveBeenCalledTimes(2);
@@ -630,9 +717,12 @@ describe("AmazonBillingWrapper", () => {
           successfulPurchaseUpdatesResponse(),
         );
 
-        await new AmazonBillingWrapper(backend, amazonApiKey, getNoAppUserId)[
-          method
-        ]("app-user-id");
+        await new AmazonBillingWrapper(
+          backend,
+          amazonApiKey,
+          getNoAppUserId,
+          getIsNotAnonymous,
+        )[method]("app-user-id");
 
         expect(getPurchaseUpdates).toHaveBeenCalledExactlyOnceWith({
           reset: true,
@@ -654,6 +744,7 @@ describe("AmazonBillingWrapper", () => {
         backend,
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       );
 
       await wrapper.syncPurchases("app-user-id");
@@ -722,6 +813,7 @@ describe("AmazonBillingWrapper", () => {
         backend,
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).syncPurchases("app-user-id");
 
       expect(backend.postReceipt).toHaveBeenCalledBefore(
@@ -760,6 +852,7 @@ describe("AmazonBillingWrapper", () => {
         backend,
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).syncPurchases("app-user-id");
 
       expect(backend.postReceipt).toHaveBeenCalledTimes(2);
@@ -801,6 +894,7 @@ describe("AmazonBillingWrapper", () => {
         backend,
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).restorePurchases("app-user-id");
 
       expect(notifyFulfillment).toHaveBeenCalledOnce();
@@ -846,9 +940,12 @@ describe("AmazonBillingWrapper", () => {
             }),
           );
 
-        await new AmazonBillingWrapper(backend, amazonApiKey, getNoAppUserId)[
-          method
-        ]("app-user-id");
+        await new AmazonBillingWrapper(
+          backend,
+          amazonApiKey,
+          getNoAppUserId,
+          getIsNotAnonymous,
+        )[method]("app-user-id");
 
         expect(getPurchaseUpdates).toHaveBeenCalledTimes(2);
         expect(getPurchaseUpdates).toHaveBeenNthCalledWith(1, { reset: true });
@@ -911,9 +1008,12 @@ describe("AmazonBillingWrapper", () => {
             }),
           );
 
-        await new AmazonBillingWrapper(backend, amazonApiKey, getNoAppUserId)[
-          method
-        ]("app-user-id");
+        await new AmazonBillingWrapper(
+          backend,
+          amazonApiKey,
+          getNoAppUserId,
+          getIsNotAnonymous,
+        )[method]("app-user-id");
 
         expect(backend.postReceipt).toHaveBeenNthCalledWith(
           1,
@@ -950,9 +1050,12 @@ describe("AmazonBillingWrapper", () => {
           purchaseUpdatesResponse({ receiptList: [] }),
         );
 
-        await new AmazonBillingWrapper(backend, amazonApiKey, getNoAppUserId)[
-          method
-        ]("app-user-id");
+        await new AmazonBillingWrapper(
+          backend,
+          amazonApiKey,
+          getNoAppUserId,
+          getIsNotAnonymous,
+        )[method]("app-user-id");
 
         expect(backend.postReceipt).not.toHaveBeenCalled();
         expect(backend.getCustomerInfo).toHaveBeenCalledExactlyOnceWith(
@@ -969,9 +1072,12 @@ describe("AmazonBillingWrapper", () => {
           purchaseUpdatesResponse({ hasMore: true, receiptList: [] }),
         );
 
-        await new AmazonBillingWrapper(backend, amazonApiKey, getNoAppUserId)[
-          method
-        ]("app-user-id");
+        await new AmazonBillingWrapper(
+          backend,
+          amazonApiKey,
+          getNoAppUserId,
+          getIsNotAnonymous,
+        )[method]("app-user-id");
 
         expect(getPurchaseUpdates).toHaveBeenCalledExactlyOnceWith({
           reset: true,
@@ -997,6 +1103,7 @@ describe("AmazonBillingWrapper", () => {
           backend,
           amazonApiKey,
           getNoAppUserId,
+          getIsNotAnonymous,
         );
 
         await expect(wrapper[method]("app-user-id")).rejects.toBe(error);
@@ -1052,9 +1159,12 @@ describe("AmazonBillingWrapper", () => {
         );
 
         await expect(
-          new AmazonBillingWrapper(backend, amazonApiKey, getNoAppUserId)[
-            method
-          ]("app-user-id"),
+          new AmazonBillingWrapper(
+            backend,
+            amazonApiKey,
+            getNoAppUserId,
+            getIsNotAnonymous,
+          )[method]("app-user-id"),
         ).rejects.toMatchObject({ errorCode, message });
 
         expect(backend.postReceipt).not.toHaveBeenCalled();
@@ -1070,9 +1180,12 @@ describe("AmazonBillingWrapper", () => {
         getPurchaseUpdates.mockRejectedValue(error);
 
         await expect(
-          new AmazonBillingWrapper(backend, amazonApiKey, getNoAppUserId)[
-            method
-          ]("app-user-id"),
+          new AmazonBillingWrapper(
+            backend,
+            amazonApiKey,
+            getNoAppUserId,
+            getIsNotAnonymous,
+          )[method]("app-user-id"),
         ).rejects.toMatchObject({
           errorCode: ErrorCode.StoreProblemError,
           message: `${method === "restorePurchases" ? "Restoring" : "Syncing"} purchases with the Amazon Store failed.`,
@@ -1106,6 +1219,7 @@ describe("AmazonBillingWrapper", () => {
         backend,
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).purchase(params, appUserId);
 
       expect(purchase).toHaveBeenCalledExactlyOnceWith({ sku: "monthly" });
@@ -1143,6 +1257,7 @@ describe("AmazonBillingWrapper", () => {
         backend,
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       );
 
       await wrapper.purchase(
@@ -1186,6 +1301,7 @@ describe("AmazonBillingWrapper", () => {
         backend,
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).purchase(
         { rcPackage, purchaseOption: selectedPurchaseOption },
         appUserId,
@@ -1213,6 +1329,7 @@ describe("AmazonBillingWrapper", () => {
         backend,
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId);
 
       expect(
@@ -1235,6 +1352,7 @@ describe("AmazonBillingWrapper", () => {
           backend,
           amazonApiKey,
           getNoAppUserId,
+          getIsNotAnonymous,
         ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId),
       ).resolves.toMatchObject({ operationSessionId: "amazon-receipt-id" });
 
@@ -1262,6 +1380,7 @@ describe("AmazonBillingWrapper", () => {
         backend,
         amazonApiKey,
         getNoAppUserId,
+        getIsNotAnonymous,
       ).purchase(params, appUserId);
 
       expect(backend.postReceipt).toHaveBeenCalledWith(
@@ -1314,6 +1433,7 @@ describe("AmazonBillingWrapper", () => {
             backend,
             amazonApiKey,
             getNoAppUserId,
+            getIsNotAnonymous,
           ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId),
         ).rejects.toMatchObject({ errorCode, message });
 
@@ -1337,6 +1457,7 @@ describe("AmazonBillingWrapper", () => {
           backend,
           amazonApiKey,
           getNoAppUserId,
+          getIsNotAnonymous,
         ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId),
       ).rejects.toMatchObject({
         errorCode: ErrorCode.StoreProblemError,
@@ -1361,6 +1482,7 @@ describe("AmazonBillingWrapper", () => {
           backend,
           amazonApiKey,
           getNoAppUserId,
+          getIsNotAnonymous,
         ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId),
       ).rejects.toBe(postReceiptError);
 
@@ -1377,6 +1499,7 @@ describe("AmazonBillingWrapper", () => {
           backend,
           amazonApiKey,
           getNoAppUserId,
+          getIsNotAnonymous,
         ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId),
       ).rejects.toBe(amazonError);
 
@@ -1417,6 +1540,7 @@ describe("AmazonBillingWrapper", () => {
             backend,
             amazonApiKey,
             getNoAppUserId,
+            getIsNotAnonymous,
           ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId),
         ).resolves.toMatchObject({ operationSessionId: "amazon-receipt-id" });
 
@@ -1442,6 +1566,7 @@ describe("AmazonBillingWrapper", () => {
           backend,
           amazonApiKey,
           getNoAppUserId,
+          getIsNotAnonymous,
         ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId),
       ).resolves.toMatchObject({ operationSessionId: "amazon-receipt-id" });
 
