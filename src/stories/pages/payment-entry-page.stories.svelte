@@ -1,5 +1,6 @@
 <script module lang="ts">
   import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
+  import { expect, waitFor, within } from "@storybook/test";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
@@ -47,6 +48,16 @@
         modes: brandingLanguageViewportModes,
         diffThreshold: 0.49,
       },
+    },
+    play: async ({ canvasElement }) => {
+      const canvas = within(canvasElement);
+
+      await waitFor(
+        async () => {
+          await expect(canvas.getByTestId("PayButton")).toBeVisible();
+        },
+        { timeout: 10_000 },
+      );
     },
     // @ts-ignore ignore importing before initializing
     render: template,
@@ -101,15 +112,7 @@
   />
 {/snippet}
 
-<Story
-  name="Default"
-  args={{ ...defaultArgs, currentPage: "payment-entry" }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
-/>
+<Story name="Default" args={{ ...defaultArgs, currentPage: "payment-entry" }} />
 
 <Story
   name="With Checkout Consent"
@@ -119,21 +122,11 @@
     requireCheckoutConsent: true,
     termsAndConditionsUrl: "https://example.com/terms",
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
   name="With Sandbox Banner"
   args={{ ...defaultArgs, currentPage: "payment-entry", isSandbox: true }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
@@ -143,11 +136,6 @@
     currentPage: "payment-entry",
     showDiscountCodeField: true,
     isDiscountCodeControlsEnabled: true,
-  }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
   }}
 />
 
@@ -160,11 +148,6 @@
     draftDiscountCode: "BADCODE",
     discountCodeError: "Invalid discount code.",
     isDiscountCodeControlsEnabled: true,
-  }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
   }}
 />
 
@@ -206,11 +189,6 @@
     appliedDiscountCode: "SAVE10",
     isDiscountCodeControlsEnabled: true,
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
@@ -220,11 +198,6 @@
     currentPage: "payment-entry",
     isSandbox: true,
     customerEmail: "test@test.com",
-  }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
   }}
 />
 
@@ -242,11 +215,6 @@
     },
     purchaseOptionToUse: subscriptionOptionWithTrial,
     defaultPurchaseOption: subscriptionOptionWithTrial,
-  }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
   }}
 />
 
@@ -269,11 +237,6 @@
     purchaseOptionToUse: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     defaultPurchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
@@ -287,11 +250,6 @@
     purchaseOptionToUse: nonSubscriptionOption,
     defaultPurchaseOption: nonSubscriptionOption,
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
@@ -301,11 +259,6 @@
     currentPage: "payment-entry",
     withTaxes: true,
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
@@ -314,11 +267,6 @@
     ...defaultArgs,
     currentPage: "payment-entry",
     fullAddressCollectionMode: "always",
-  }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
   }}
 />
 
@@ -337,11 +285,6 @@
     purchaseOptionToUse: subscriptionOptionWithTrial,
     defaultPurchaseOption: subscriptionOptionWithTrial,
     withTaxes: true,
-  }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
   }}
 />
 
@@ -364,11 +307,6 @@
     defaultPurchaseOption: subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     withTaxes: true,
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
@@ -389,11 +327,6 @@
     purchaseOptionToUse: subscriptionOptionWithTrialAndIntroPriceRecurring,
     defaultPurchaseOption: subscriptionOptionWithTrialAndIntroPriceRecurring,
     withTaxes: true,
-  }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
   }}
 />
 
@@ -416,11 +349,6 @@
     defaultPurchaseOption: subscriptionOptionWithIntroPricePaidUpfront,
     withTaxes: true,
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
@@ -442,11 +370,6 @@
     defaultPurchaseOption: subscriptionOptionWithIntroPriceRecurring,
     withTaxes: true,
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
@@ -460,11 +383,6 @@
       taxCalculationStatus: "miss-match",
     },
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
@@ -474,11 +392,6 @@
     currentPage: "payment-entry",
     termsAndConditionsUrl: "https://www.revenuecat.com/terms",
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
-  }}
 />
 
 <Story
@@ -487,10 +400,5 @@
     ...defaultArgs,
     currentPage: "payment-entry",
     forceEnableWalletMethods: true,
-  }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
   }}
 />
