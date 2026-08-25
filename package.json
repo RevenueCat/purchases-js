@@ -68,6 +68,7 @@
     "@amazon-devices/kepler-compatibility": "1.0.5",
     "@amazon-devices/kepler-file-system": "0.0.7",
     "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
+    "react-native": "0.72.0",
     "@eslint/js": "^9.16.0",
     "@microsoft/api-extractor": "^7.48.0",
     "@paddle/paddle-js": "^1.6.4",
@@ -116,7 +117,8 @@
   "peerDependencies": {
     "@amazon-devices/kepler-compatibility": "1.0.5",
     "@amazon-devices/kepler-file-system": "0.0.7",
-    "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16"
+    "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
+    "react-native": ">=0.72.0"
   },
   "peerDependenciesMeta": {
     "@amazon-devices/kepler-compatibility": {
@@ -126,6 +128,9 @@
       "optional": true
     },
     "@amazon-devices/keplerscript-appstore-iap-lib": {
+      "optional": true
+    },
+    "react-native": {
       "optional": true
     }
   },

@@ -1,33 +1,42 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+// import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { purchasingService } = vi.hoisted(() => ({
-  purchasingService: { getProductData: vi.fn() },
-}));
+// const { purchasingService } = vi.hoisted(() => ({
+//   purchasingService: { getProductData: vi.fn() },
+// }));
 
-const { keplerFileSystem } = vi.hoisted(() => ({
-  keplerFileSystem: { readFileAsString: vi.fn(), writeStringToFile: vi.fn() },
-}));
+// const { keplerFileSystem } = vi.hoisted(() => ({
+//   keplerFileSystem: { readFileAsString: vi.fn(), writeStringToFile: vi.fn() },
+// }));
 
-const { isPresentOnOS } = vi.hoisted(() => ({
-  isPresentOnOS: vi.fn(() => true),
-}));
+// const { isPresentOnOS } = vi.hoisted(() => ({
+//   isPresentOnOS: vi.fn(() => true),
+// }));
 
-vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
-  ProductDataResponseCode: { SUCCESSFUL: 1, NOT_SUPPORTED: 2, FAILED: 3 },
-  ProductType: { CONSUMABLE: 1, ENTITLED: 2, SUBSCRIPTION: 3 },
-  PurchasingService: purchasingService,
-}));
+// const { appState } = vi.hoisted(() => ({
+//   appState: { currentState: "active", addEventListener: vi.fn() },
+// }));
 
-vi.mock("@amazon-devices/kepler-file-system", () => ({
-  KeplerFileSystem: keplerFileSystem,
-}));
+// vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
+//   ProductDataResponseCode: { SUCCESSFUL: 1, NOT_SUPPORTED: 2, FAILED: 3 },
+//   ProductType: { CONSUMABLE: 1, ENTITLED: 2, SUBSCRIPTION: 3 },
+//   PurchasingService: purchasingService,
+// }));
 
-vi.mock("@amazon-devices/kepler-compatibility", () => ({
-  isPresentOnOS,
-}));
+// vi.mock("@amazon-devices/kepler-file-system", () => ({
+//   KeplerFileSystem: keplerFileSystem,
+// }));
+
+// vi.mock("@amazon-devices/kepler-compatibility", () => ({
+//   isPresentOnOS,
+// }));
+
+// vi.mock("react-native", () => ({
+//   AppState: appState,
+// }));
 
 import { loadAmazonAppstoreIAPSDK } from "../amazon/amazon-appstore-iap-sdk-loader";
 import { loadKeplerFileSystem } from "../amazon/kepler-file-system-loader";
+import { loadReactNativeAppState } from "../amazon/react-native-app-state-loader";
 import { defaultHttpConfig } from "../entities/http-config";
 import { Purchases } from "../vega";
 import { testUserId } from "./base.purchases_test";
@@ -51,6 +60,10 @@ describe("Vega entry point", () => {
 
   test("wires the Kepler File System loader", async () => {
     expect(await loadKeplerFileSystem()).toBe(keplerFileSystem);
+  });
+
+  test("wires the React Native AppState loader", async () => {
+    expect(await loadReactNativeAppState()).toBe(appState);
   });
 
   test("configures with an Amazon API key", () => {

@@ -32,6 +32,10 @@ import {
   type AmazonAppstoreIAPSDK,
 } from "./amazon-appstore-iap-sdk-loader";
 import { VegaDeviceCache } from "./vega-device-cache";
+import {
+  loadReactNativeAppState,
+  type AppStateSubscription,
+} from "./react-native-app-state-loader";
 
 type ReceiptWithStoreUserId = {
   receipt: Receipt;
@@ -45,25 +49,29 @@ type ReceiptWithStoreUserId = {
  */
 export class AmazonBillingWrapper implements BillingWrapper {
   private readonly deviceCache: VegaDeviceCache;
+  private appStateSubscription: AppStateSubscription | undefined;
+  private pendingSync: Promise<void> | undefined;
+  private closed = false;
 
   constructor(
     private readonly backend: Backend,
     apiKey: string,
-    appUserId?: string,
+    private readonly getAppUserId: () => string | undefined,
   ) {
     this.deviceCache = new VegaDeviceCache(apiKey);
-    if (appUserId !== undefined) {
-      void this.syncPendingPurchases(appUserId).catch((error: unknown) => {
-        Logger.warnLog(
-          `Failed to sync pending Amazon purchases in the background: ${String(error)}`,
-        );
-      });
-    }
+    void this.syncPendingPurchasesInBackground();
+    void this.observeAppState();
   }
 
   private amazonAppstoreIAPSDKPromise:
     | Promise<AmazonAppstoreIAPSDK>
     | undefined;
+
+  public close(): void {
+    this.closed = true;
+    this.appStateSubscription?.remove();
+    this.appStateSubscription = undefined;
+  }
 
   public async getProducts(
     _appUserId: string,
@@ -189,13 +197,38 @@ export class AmazonBillingWrapper implements BillingWrapper {
     };
   }
 
-  /**
-   * Posts and fulfills receipts which have not been successfully handled on
-   * this device. This is intended for the background automatic sync performed
-   * when the app starts or returns to the foreground.
-   * @internal
-   */
-  public async syncPendingPurchases(appUserId: string): Promise<void> {
+  // Starts the automatic pending-purchase sync used on initialization and
+  // foregrounding. Calls coalesce onto a handled in-flight promise, so
+  // fire-and-forget callers do not surface unhandled rejections.
+  private async syncPendingPurchasesInBackground(): Promise<void> {
+    if (this.pendingSync !== undefined) {
+      await this.pendingSync;
+      return;
+    }
+
+    const appUserId = this.getAppUserId();
+    if (appUserId === undefined) {
+      return;
+    }
+
+    const pendingSync = (async () => {
+      try {
+        await this.syncPendingPurchases(appUserId);
+      } catch (error: unknown) {
+        Logger.warnLog(
+          `Failed to sync pending Amazon purchases in the background: ${String(error)}`,
+        );
+      } finally {
+        this.pendingSync = undefined;
+      }
+    })();
+    this.pendingSync = pendingSync;
+    await pendingSync;
+  }
+
+  // Performs the actual automatic sync work: fetch Amazon receipts, post only
+  // receipt IDs not present in the device cache, then fulfill and cache them.
+  private async syncPendingPurchases(appUserId: string): Promise<void> {
     Logger.debugLog("Syncing pending purchases with the Amazon Store.");
 
     let previouslySentReceiptIds: Set<string>;
@@ -651,6 +684,35 @@ export class AmazonBillingWrapper implements BillingWrapper {
     }
 
     return { product_details: productDetails };
+  }
+
+  private async observeAppState(): Promise<void> {
+    try {
+      const appState = await loadReactNativeAppState();
+      if (this.closed) return;
+
+      let previousState = appState.currentState;
+      this.appStateSubscription = appState.addEventListener(
+        "change",
+        (nextState) => {
+          const enteredForeground =
+            (previousState === "background" || previousState === "inactive") &&
+            nextState === "active";
+          previousState = nextState;
+
+          if (enteredForeground) {
+            Logger.debugLog(
+              "App has entered the foreground. Will sync any pending purchases.",
+            );
+            void this.syncPendingPurchasesInBackground();
+          }
+        },
+      );
+    } catch (error: unknown) {
+      Logger.warnLog(
+        `Failed to observe Vega app state for Amazon purchase syncing: ${String(error)}`,
+      );
+    }
   }
 }
 

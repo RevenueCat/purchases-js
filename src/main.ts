@@ -477,6 +477,10 @@ export class Purchases {
       Logger.enableConsoleLogForDebugMessages();
     }
 
+    // Reconfiguring replaces the singleton instance. Close the old Amazon
+    // wrapper first so its AppState listener does not keep syncing in the
+    // background after it is no longer reachable.
+    Purchases.instance?.amazonBillingWrapper?.close();
     Purchases.instance = new Purchases(
       apiKey,
       appUserId,
@@ -621,7 +625,7 @@ export class Purchases {
       this.amazonBillingWrapper = new AmazonBillingWrapper(
         this.backend,
         this._API_KEY,
-        this._appUserId,
+        () => this._appUserId,
       );
     }
   }
@@ -2570,6 +2574,7 @@ export class Purchases {
       if (this.eventsTracker) {
         this.eventsTracker.dispose();
       }
+      this.amazonBillingWrapper?.close();
       if (this._flags.applePayBrandingLogoEnabled) {
         const doc = getNullableDocument();
         if (doc) {

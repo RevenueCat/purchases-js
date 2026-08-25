@@ -27,6 +27,7 @@ export default defineConfig({
         "@amazon-devices/kepler-compatibility",
         "@amazon-devices/kepler-file-system",
         "@amazon-devices/keplerscript-appstore-iap-lib",
+        "react-native",
       ],
     },
   },
