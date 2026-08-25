@@ -57,7 +57,7 @@ export class VegaDeviceCache {
 
       const fileSystem = await this.fileSystemLoader();
       const updatedReceiptIds = [...receiptIds, receiptId];
-      if (await this.safeExists(fileSystem)) {
+      if (await this.doesCacheFileExist(fileSystem)) {
         await fileSystem.removeFile(this.tokensCachePath);
       }
       try {
@@ -85,11 +85,11 @@ export class VegaDeviceCache {
     await operation;
   }
 
-  /**
-   * `exists` arrived in Kepler File System 0.0.7. On older Vega OS versions,
-   * use a read attempt to determine whether the cache file is present.
-   */
-  private async safeExists(fileSystem: KeplerFileSystem): Promise<boolean> {
+  private async doesCacheFileExist(
+    fileSystem: KeplerFileSystem,
+  ): Promise<boolean> {
+    // `exists` arrived in Kepler File System 0.0.7. On older Vega OS versions,
+    // use a read attempt to determine whether the cache file is present.
     if (this.isKeplerFileSystemExistsSupported()) {
       return await fileSystem.exists(this.tokensCachePath);
     }
@@ -105,7 +105,7 @@ export class VegaDeviceCache {
 
   private async getReceiptIds(): Promise<ReceiptCache> {
     const fileSystem = await this.fileSystemLoader();
-    if (!(await this.safeExists(fileSystem))) {
+    if (!(await this.doesCacheFileExist(fileSystem))) {
       return [];
     }
 
