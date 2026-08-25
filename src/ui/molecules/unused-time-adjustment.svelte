@@ -8,22 +8,34 @@
 
   interface Props {
     previousProductName: string;
+    variant?: "refund" | "credit";
   }
 
-  const { previousProductName }: Props = $props();
+  const { previousProductName, variant = "refund" }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
+
+  const titleKey = $derived(
+    variant === "credit"
+      ? LocalizationKeys.CreditForUnusedTimeTitle
+      : LocalizationKeys.RefundForUnusedTimeTitle,
+  );
+  const messageKey = $derived(
+    variant === "credit"
+      ? LocalizationKeys.CreditForUnusedTimeMessage
+      : LocalizationKeys.RefundForUnusedTimeMessage,
+  );
 </script>
 
-<div class="rcb-refund-for-unused-time">
-  <div class="rcb-refund-for-unused-time-title">
+<div class="rcb-unused-time-adjustment">
+  <div class="rcb-unused-time-adjustment-title">
     <Typography size="body-small">
-      {$translator.translate(LocalizationKeys.RefundForUnusedTimeTitle)}
+      {$translator.translate(titleKey)}
     </Typography>
   </div>
-  <div class="rcb-refund-for-unused-time-message">
+  <div class="rcb-unused-time-adjustment-message">
     <Typography size="caption-default">
-      {$translator.translate(LocalizationKeys.RefundForUnusedTimeMessage, {
+      {$translator.translate(messageKey, {
         previousProductName,
       })}
     </Typography>
@@ -31,7 +43,7 @@
 </div>
 
 <style>
-  .rcb-refund-for-unused-time {
+  .rcb-unused-time-adjustment {
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapSmall-mobile);
@@ -41,16 +53,16 @@
     background-color: transparent;
   }
 
-  .rcb-refund-for-unused-time-title {
+  .rcb-unused-time-adjustment-title {
     color: var(--rc-color-grey-text-dark);
   }
 
-  .rcb-refund-for-unused-time-message {
+  .rcb-unused-time-adjustment-message {
     color: var(--rc-color-grey-text-light);
   }
 
   @container layout-query-container (width >= 768px) {
-    .rcb-refund-for-unused-time {
+    .rcb-unused-time-adjustment {
       gap: var(--rc-spacing-gapSmall-desktop);
       padding: var(--rc-spacing-gapLarge-desktop);
     }

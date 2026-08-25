@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "MVA (estimert)",
   "upgrade_confirm_page.subtitle_deferred": "Gå gjennom betalingsdetaljene dine og planlegg endring",
   "upgrade_confirm_page.confirm_schedule": "Bekreft plan",
-  "upgrade_confirm_page.on_file": "Lagret"
+  "upgrade_confirm_page.on_file": "Lagret",
+  "credit_for_unused_time.title": "Tilgodehavende for ubrukt tid",
+  "credit_for_unused_time.message": "Betalingsmåten din vil bli belastet for differansen mellom abonnementene, med et tilgodehavende for ubrukt tid på ditt {{previousProductName}}-abonnement."
 }

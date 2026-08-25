@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Imposta (stimata)",
   "upgrade_confirm_page.subtitle_deferred": "Rivedi i dettagli del pagamento e la modifica della pianificazione",
   "upgrade_confirm_page.confirm_schedule": "Conferma pianificazione",
-  "upgrade_confirm_page.on_file": "In archivio"
+  "upgrade_confirm_page.on_file": "In archivio",
+  "credit_for_unused_time.title": "Credito per il tempo inutilizzato",
+  "credit_for_unused_time.message": "Il tuo metodo di pagamento verrà addebitato per la differenza tra gli abbonamenti, con un credito per il tempo inutilizzato sul tuo abbonamento {{previousProductName}}."
 }

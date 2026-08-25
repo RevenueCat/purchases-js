@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Φόρος (εκτιμώμενος)",
   "upgrade_confirm_page.subtitle_deferred": "Ελέγξτε τα στοιχεία πληρωμής σας και προγραμματίστε την αλλαγή",
   "upgrade_confirm_page.confirm_schedule": "Επιβεβαίωση προγράμματος",
-  "upgrade_confirm_page.on_file": "Καταχωρημένο"
+  "upgrade_confirm_page.on_file": "Καταχωρημένο",
+  "credit_for_unused_time.title": "Πίστωση για αχρησιμοποίητο χρόνο",
+  "credit_for_unused_time.message": "Η μέθοδος πληρωμής σας θα χρεωθεί για τη διαφορά μεταξύ των συνδρομών, με πίστωση για τον αχρησιμοποίητο χρόνο της συνδρομής σας {{previousProductName}}."
 }
