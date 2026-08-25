@@ -626,6 +626,7 @@ export class Purchases {
         this.backend,
         this._API_KEY,
         () => this._appUserId,
+        () => this.isAnonymous(),
       );
     }
   }
