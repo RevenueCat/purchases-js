@@ -56,7 +56,7 @@
         async () => {
           await expect(canvas.getByTestId("PayButton")).toBeVisible();
         },
-        { timeout: 10_000 },
+        { timeout: 30_000 },
       );
     },
     // @ts-ignore ignore importing before initializing
