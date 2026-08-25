@@ -12,6 +12,11 @@ import type { SyncPurchasesResult } from "src/entities/sync-purchases-result";
  */
 export interface BillingWrapper {
   /**
+   * Releases resources held by the billing implementation.
+   */
+  close(): void;
+
+  /**
    * Fetches product details (prices) for the given product IDs from the store.
    * @param appUserId - The app user ID.
    * @param productIds - The product IDs to fetch.

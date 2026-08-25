@@ -14,12 +14,15 @@
  */
 import * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
 import { KeplerFileSystem } from "@amazon-devices/kepler-file-system";
+import { AppState } from "react-native";
 import { setAmazonAppstoreIAPSDKLoader } from "./amazon/amazon-appstore-iap-sdk-loader";
 import { setKeplerFileSystemLoader } from "./amazon/kepler-file-system-loader";
+import { setReactNativeAppStateLoader } from "./amazon/react-native-app-state-loader";
 import { activateVegaEntryPoint } from "./vega-entry-point";
 
 setAmazonAppstoreIAPSDKLoader(async () => AmazonVegaSdk);
 setKeplerFileSystemLoader(async () => KeplerFileSystem);
+setReactNativeAppStateLoader(async () => AppState);
 activateVegaEntryPoint();
 
 export * from "./main";

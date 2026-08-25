@@ -332,8 +332,13 @@ describe("Purchases.configure()", () => {
 
 describe("billing wrapper selection", () => {
   test("syncs pending Amazon purchases at initialization", async () => {
-    const syncPendingPurchases = vi
-      .spyOn(AmazonBillingWrapper.prototype, "syncPendingPurchases")
+    const syncPendingPurchasesInBackground = vi
+      .spyOn(
+        AmazonBillingWrapper.prototype as unknown as {
+          syncPendingPurchasesInBackground: () => Promise<void>;
+        },
+        "syncPendingPurchasesInBackground",
+      )
       .mockResolvedValue();
     const purchases = configurePurchases(
       testUserId,
@@ -342,8 +347,25 @@ describe("billing wrapper selection", () => {
     );
 
     await vi.waitFor(() => {
-      expect(syncPendingPurchases).toHaveBeenCalledExactlyOnceWith(testUserId);
+      expect(syncPendingPurchasesInBackground).toHaveBeenCalledOnce();
     });
+
+    purchases.close();
+  });
+
+  test("closes the existing Amazon billing wrapper when reconfiguring", () => {
+    vi.spyOn(
+      AmazonBillingWrapper.prototype as unknown as {
+        syncPendingPurchasesInBackground: () => Promise<void>;
+      },
+      "syncPendingPurchasesInBackground",
+    ).mockResolvedValue();
+    const close = vi.spyOn(AmazonBillingWrapper.prototype, "close");
+
+    configurePurchases(testUserId, "rcSource", "amzn_valid_key");
+    const purchases = configurePurchases(testUserId, "rcSource", testApiKey);
+
+    expect(close).toHaveBeenCalledOnce();
 
     purchases.close();
   });
