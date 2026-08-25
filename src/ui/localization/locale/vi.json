@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Thuế (ước tính)",
   "upgrade_confirm_page.subtitle_deferred": "Xem lại chi tiết thanh toán của bạn và lên lịch thay đổi",
   "upgrade_confirm_page.confirm_schedule": "Xác nhận lịch trình",
-  "upgrade_confirm_page.on_file": "Đã lưu"
+  "upgrade_confirm_page.on_file": "Đã lưu",
+  "credit_for_unused_time.title": "Hoàn tiền cho thời gian chưa sử dụng",
+  "credit_for_unused_time.message": "Phương thức thanh toán của bạn sẽ bị tính phí cho khoản chênh lệch giữa các gói đăng ký, với khoản hoàn tiền cho thời gian chưa sử dụng trên gói đăng ký {{previousProductName}} của bạn."
 }

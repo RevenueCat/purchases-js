@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Pajak (perkiraan)",
   "upgrade_confirm_page.subtitle_deferred": "Tinjau detail pembayaran Anda dan jadwalkan perubahan",
   "upgrade_confirm_page.confirm_schedule": "Konfirmasi jadwal",
-  "upgrade_confirm_page.on_file": "Tersimpan"
+  "upgrade_confirm_page.on_file": "Tersimpan",
+  "credit_for_unused_time.title": "Kredit Waktu Tidak Terpakai",
+  "credit_for_unused_time.message": "Metode pembayaran Anda akan ditagih untuk selisih antara langganan, dengan kredit untuk waktu yang tidak terpakai pada langganan {{previousProductName}} Anda."
 }

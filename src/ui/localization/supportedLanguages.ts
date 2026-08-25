@@ -148,6 +148,8 @@ export enum LocalizationKeys {
   PlanCardNew = "plan_card.new",
   RefundForUnusedTimeTitle = "refund_for_unused_time.title",
   RefundForUnusedTimeMessage = "refund_for_unused_time.message",
+  CreditForUnusedTimeTitle = "credit_for_unused_time.title",
+  CreditForUnusedTimeMessage = "credit_for_unused_time.message",
   UpgradeConfirmPageTitle = "upgrade_confirm_page.title",
   UpgradeConfirmPageSubtitleImmediate = "upgrade_confirm_page.subtitle_immediate",
   UpgradeConfirmPageSubtitleDeferred = "upgrade_confirm_page.subtitle_deferred",

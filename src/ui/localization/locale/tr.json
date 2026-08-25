@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Vergi (tahmini)",
   "upgrade_confirm_page.subtitle_deferred": "Ödeme detaylarınızı inceleyin ve plan değişikliğini onaylayın",
   "upgrade_confirm_page.confirm_schedule": "Planı onayla",
-  "upgrade_confirm_page.on_file": "Kayıtlı"
+  "upgrade_confirm_page.on_file": "Kayıtlı",
+  "credit_for_unused_time.title": "Kullanılmayan süre için kredi",
+  "credit_for_unused_time.message": "Ödeme yönteminizden, abonelikler arasındaki fark tahsil edilecek, {{previousProductName}} aboneliğinizdeki kullanılmayan süre için ise bir kredi uygulanacaktır."
 }

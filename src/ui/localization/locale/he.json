@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "מס (הערכה)",
   "upgrade_confirm_page.subtitle_deferred": "בדוק את פרטי התשלום שלך ושינוי מועד",
   "upgrade_confirm_page.confirm_schedule": "אשר שינוי מועד",
-  "upgrade_confirm_page.on_file": "שמור"
+  "upgrade_confirm_page.on_file": "שמור",
+  "credit_for_unused_time.title": "זיכוי על זמן שלא נוצל",
+  "credit_for_unused_time.message": "אמצעי התשלום שלך יחויב על ההפרש בין המנויים, תוך התחשבות בזיכוי על זמן שלא נוצל במנוי ה-{{previousProductName}} שלך."
 }
