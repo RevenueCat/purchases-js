@@ -1,4 +1,5 @@
 import type { GatewayParams } from "./stripe-elements";
+import type { PaddleCheckoutSettings } from "./paddle-checkout-settings";
 
 export interface StripeBillingParams {
   client_secret: string;
@@ -26,7 +27,7 @@ export interface PaddleCheckoutStartResponse {
     client_side_token: string;
     is_sandbox: boolean;
     transaction_id: string;
-    checkout_settings?: Record<string, boolean>;
+    checkout_settings?: PaddleCheckoutSettings;
     /**
      * Per-project gate for the Paddle inline checkout rollout. When `true`,
      * present Paddle's checkout inline (embedded in our own container); when
