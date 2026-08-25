@@ -26,6 +26,7 @@ export class VegaDeviceCache {
   // More info: https://developer.amazon.com/docs/vega-api/0.24/README.amazon-devices_kepler-file-system.html
   private readonly dataDirectory = "data";
   private readonly rcStoragePrefix = "com.revenuecat.purchases";
+  private readonly cacheFileEncoding = "UTF-8";
   private readonly tokensCachePath: string;
   private writeQueue: Promise<void> = Promise.resolve();
 
@@ -64,7 +65,7 @@ export class VegaDeviceCache {
         await fileSystem.writeStringToFile(
           this.tokensCachePath,
           JSON.stringify(updatedReceiptIds),
-          "UTF-8",
+          this.cacheFileEncoding,
         );
       } catch {
         const currentReceiptIds = await this.getReceiptIds();
@@ -76,7 +77,7 @@ export class VegaDeviceCache {
         await fileSystem.writeStringToFile(
           this.tokensCachePath,
           JSON.stringify([...currentReceiptIds, receiptId]),
-          "UTF-8",
+          this.cacheFileEncoding,
         );
       }
     });
@@ -96,7 +97,10 @@ export class VegaDeviceCache {
 
     try {
       // Throws if the file isn't found
-      await fileSystem.readFileAsString(this.tokensCachePath, "UTF-8");
+      await fileSystem.readFileAsString(
+        this.tokensCachePath,
+        this.cacheFileEncoding,
+      );
       return true;
     } catch {
       return false;
@@ -112,7 +116,7 @@ export class VegaDeviceCache {
     try {
       const serializedReceiptIds = await fileSystem.readFileAsString(
         this.tokensCachePath,
-        "UTF-8",
+        this.cacheFileEncoding,
       );
       const receiptIds: unknown = JSON.parse(serializedReceiptIds);
 
