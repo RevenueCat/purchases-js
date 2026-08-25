@@ -33,6 +33,7 @@ import type { ResolvedDiscountBreakdown } from "../helpers/discount-breakdown-he
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
 import type { PriceBreakdown } from "../ui/ui-types";
 import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
+import type { ApplePayRegularBilling } from "@stripe/stripe-js/dist/stripe-js/elements/apple-pay";
 
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
@@ -617,35 +618,49 @@ export class StripeService {
         const canCalculateIntroDates = !trialPhase || introBillingStartDate;
         const introCycleCount = Math.max(introPricePhase.cycleCount, 1);
 
-        // Apple calls this field trialBilling, but it is the only initial
-        // recurring summary item available for a paid introductory phase.
-        return {
+        const baseBillingInfo: ApplePayRegularBilling = {
           label: productDetails.title,
           amount: StripeService.microsToMinimumAmountPrice(
             introPricePhase.price.amountMicros,
             introPricePhase.price.currency,
           ),
-          ...(introPricePhase.period && canCalculateIntroDates
+        };
+
+        if (!canCalculateIntroDates || !introPricePhase.period) {
+          return baseBillingInfo;
+        }
+
+        // Cycle length and number of cycles for the introductory period.
+        const recurringPaymentIntervalUnitAndCount =
+          StripeService.applePayPeriod(introPricePhase.period);
+
+        // Start date of the introductory period. In case of an initial trial it will be at the end of that trial.
+        const recurringPaymentStartDate = introBillingStartDate
+          ? { recurringPaymentStartDate: introBillingStartDate }
+          : {};
+
+        // Date where the sequence of introductory cycles ends. I.e. weekly, 4 cycles, ending one month from now.
+        const recurrentPaymentEndDate =
+          introCycleCount > 1
             ? {
-                ...(introBillingStartDate
-                  ? { recurringPaymentStartDate: introBillingStartDate }
-                  : {}),
-                ...(introCycleCount > 1
-                  ? {
-                      recurringPaymentEndDate: StripeService.nextDateForPeriod(
-                        {
-                          ...introPricePhase.period,
-                          number:
-                            introPricePhase.period.number *
-                            (introCycleCount - 1),
-                        },
-                        new Date(introBillingStartDate ?? currentDate),
-                      ),
-                    }
-                  : {}),
-                ...StripeService.applePayPeriod(introPricePhase.period),
+                recurringPaymentEndDate: StripeService.nextDateForPeriod(
+                  {
+                    ...introPricePhase.period,
+                    number:
+                      introPricePhase.period.number * (introCycleCount - 1),
+                  },
+                  new Date(introBillingStartDate ?? currentDate),
+                ),
               }
-            : {}),
+            : {};
+
+        // Apple calls this field trialBilling, but it is the only initial
+        // recurring summary item available for a paid introductory phase.
+        return {
+          ...baseBillingInfo,
+          ...recurringPaymentIntervalUnitAndCount,
+          ...recurringPaymentStartDate,
+          ...recurrentPaymentEndDate,
         };
       }
 
