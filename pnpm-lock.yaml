@@ -7,6 +7,9 @@ settings:
 importers:
   .:
     devDependencies:
+      "@amazon-devices/kepler-compatibility":
+        specifier: 1.0.5
+        version: 1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       "@amazon-devices/kepler-file-system":
         specifier: 0.0.7
         version: 0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))
@@ -154,6 +157,12 @@ packages:
     resolution:
       {
         integrity: sha512-12WGKBQzjUAI4ayyF4IAtfw2QR/IDoqk6jTddXDhtYTJF9ASmoE1zst7cVtP0aL/F1jUJL5r+JxKXKEgHNbEUQ==,
+      }
+
+  "@amazon-devices/kepler-compatibility@1.0.5":
+    resolution:
+      {
+        integrity: sha512-51JGeFW5W0J8vTz6XF1OBA+yNKz/N8NxH0OX89AulgPOLeZKnz4jjn2wSaISvoQIDqzrHe2dKapNK2NBcSD4Jg==,
       }
 
   "@amazon-devices/keplerscript-appstore-iap-lib@2.12.16":
@@ -9308,6 +9317,13 @@ packages:
 
 snapshots:
   "@adobe/css-tools@4.4.1": {}
+
+  "@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))":
+    dependencies:
+      "@amazon-devices/keplerscript-turbomodule-api": 1.2.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
+    transitivePeerDependencies:
+      - "@babel/preset-env"
+      - supports-color
 
   "@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))":
     dependencies:

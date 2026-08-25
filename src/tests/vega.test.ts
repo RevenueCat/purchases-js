@@ -8,6 +8,10 @@ const { keplerFileSystem } = vi.hoisted(() => ({
   keplerFileSystem: { readFileAsString: vi.fn(), writeStringToFile: vi.fn() },
 }));
 
+const { isPresentOnOS } = vi.hoisted(() => ({
+  isPresentOnOS: vi.fn(() => true),
+}));
+
 const { appState } = vi.hoisted(() => ({
   appState: { currentState: "active", addEventListener: vi.fn() },
 }));
@@ -20,6 +24,10 @@ vi.mock("@amazon-devices/keplerscript-appstore-iap-lib", () => ({
 
 vi.mock("@amazon-devices/kepler-file-system", () => ({
   KeplerFileSystem: keplerFileSystem,
+}));
+
+vi.mock("@amazon-devices/kepler-compatibility", () => ({
+  isPresentOnOS,
 }));
 
 vi.mock("react-native", () => ({

@@ -4,7 +4,7 @@ import type { KeplerFileSystem } from "../../amazon/kepler-file-system-loader";
 
 const cachePath = "/data/com.revenuecat.purchases.amzn_api_key.tokens";
 
-function createCache() {
+function createCache(supportsFileSystemExists = true) {
   const files = new Map<string, string>();
   const fileSystem = {
     exists: vi.fn(async (path: string) => files.has(path)),
@@ -26,6 +26,7 @@ function createCache() {
   const cache = new VegaDeviceCache(
     "amzn_api_key",
     async () => fileSystem as unknown as KeplerFileSystem,
+    vi.fn(() => supportsFileSystemExists),
   );
 
   return { cache, fileSystem, files };
@@ -40,6 +41,20 @@ describe("VegaDeviceCache", () => {
     );
     expect(fileSystem.exists).toHaveBeenCalledExactlyOnceWith(cachePath);
     expect(fileSystem.readFileAsString).not.toHaveBeenCalled();
+  });
+
+  test("reads the cache directly when the OS lacks exists", async () => {
+    const { cache, fileSystem, files } = createCache(false);
+    files.set(cachePath, JSON.stringify(["receipt-id"]));
+
+    await expect(cache.getPreviouslySentReceiptIds()).resolves.toEqual(
+      new Set(["receipt-id"]),
+    );
+    expect(fileSystem.readFileAsString).toHaveBeenCalledTimes(2);
+    expect(fileSystem.readFileAsString).toHaveBeenCalledWith(
+      cachePath,
+      "UTF-8",
+    );
   });
 
   test("stores raw receipt IDs", async () => {
