@@ -590,6 +590,7 @@ export enum ReservedCustomerAttribute {
     PhoneNumber = "$phoneNumber",
     PosthogUserId = "$posthogUserId",
     SegmentId = "$segmentId",
+    SingularDeviceId = "$singularDeviceId",
     TelemetryDeckAppId = "$telemetryDeckAppId",
     TelemetryDeckUserId = "$telemetryDeckUserId",
     TenjinId = "$tenjinId"

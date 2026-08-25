@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Imposto (estimado)",
   "upgrade_confirm_page.subtitle_deferred": "Revise seus detalhes de pagamento e agende a alteração",
   "upgrade_confirm_page.confirm_schedule": "Confirmar agendamento",
-  "upgrade_confirm_page.on_file": "Em arquivo"
+  "upgrade_confirm_page.on_file": "Em arquivo",
+  "credit_for_unused_time.title": "Crédito por tempo não utilizado",
+  "credit_for_unused_time.message": "Seu método de pagamento será cobrado pela diferença entre as assinaturas, com um crédito por tempo não utilizado em sua assinatura {{previousProductName}}."
 }

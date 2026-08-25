@@ -10,10 +10,7 @@
     "includeForgottenExports": true
   },
   "docModel": {
-    "enabled": true,
-    "apiJsonFilePath": "<projectFolder>/api-report/<unscopedPackageName>.api.json",
-    "includeForgottenExports": true,
-    "projectFolderUrl": "http://github.com/RevenueCat/purchases-js/src"
+    "enabled": false
   },
   "dtsRollup": {
     "enabled": false

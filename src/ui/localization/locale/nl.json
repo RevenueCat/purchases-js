@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Btw (geschat)",
   "upgrade_confirm_page.subtitle_deferred": "Controleer je betaalgegevens en planwijziging",
   "upgrade_confirm_page.confirm_schedule": "Planning bevestigen",
-  "upgrade_confirm_page.on_file": "Geregistreerd"
+  "upgrade_confirm_page.on_file": "Geregistreerd",
+  "credit_for_unused_time.title": "Tegoed voor ongebruikte tijd",
+  "credit_for_unused_time.message": "Uw betaalmethode wordt belast voor het verschil tussen abonnementen, met een tegoed voor ongebruikte tijd van uw {{previousProductName}}-abonnement."
 }

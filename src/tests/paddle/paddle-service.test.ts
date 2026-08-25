@@ -163,6 +163,36 @@ describe("buildPaddleCheckoutOptions", () => {
     );
   });
 
+  test("lets checkout settings override the default variant", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: { variant: "express" },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({ variant: "express" }),
+    );
+  });
+
+  test("forwards unknown checkout settings to Paddle untouched", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: {
+        variant: "express",
+        showNonExpressPaymentMethods: false,
+      },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({
+        variant: "express",
+        showNonExpressPaymentMethods: false,
+      }),
+    );
+  });
+
   test("keeps SDK-controlled layout settings", () => {
     const options = buildPaddleCheckoutOptions({
       transactionId,
@@ -636,6 +666,31 @@ describe("PaddleService", () => {
         purchasePromise.catch(() => {});
       },
     );
+
+    test("passes the express checkout settings to Paddle", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+        checkoutSettings: {
+          variant: "express",
+          showNonExpressPaymentMethods: false,
+        },
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: expect.objectContaining({
+            variant: "express",
+            showNonExpressPaymentMethods: false,
+          }),
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
 
     test("forwards order totals on checkout.loaded and checkout.updated", async () => {
       const onCheckoutTotals = vi.fn();

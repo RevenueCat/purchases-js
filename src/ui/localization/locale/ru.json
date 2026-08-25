@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Налог (предполагаемый)",
   "upgrade_confirm_page.subtitle_deferred": "Проверьте данные платежа и запланируйте изменение",
   "upgrade_confirm_page.confirm_schedule": "Подтвердить расписание",
-  "upgrade_confirm_page.on_file": "Сохранено"
+  "upgrade_confirm_page.on_file": "Сохранено",
+  "credit_for_unused_time.title": "Зачет за неиспользованное время",
+  "credit_for_unused_time.message": "С вашего способа оплаты будет списана сумма за разницу между подписками, с зачетом неиспользованного времени по вашей подписке {{previousProductName}}."
 }

@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Moms (estimeret)",
   "upgrade_confirm_page.subtitle_deferred": "Gennemgå dine betalingsoplysninger og planlæg ændring",
   "upgrade_confirm_page.confirm_schedule": "Bekræft tidsplan",
-  "upgrade_confirm_page.on_file": "Registreret"
+  "upgrade_confirm_page.on_file": "Registreret",
+  "credit_for_unused_time.title": "Tilgodehavende for ubrugt tid",
+  "credit_for_unused_time.message": "Din betalingsmetode vil blive opkrævet for forskellen mellem abonnementerne, med et tilgodehavende for ubrugt tid på dit {{previousProductName}}-abonnement."
 }
