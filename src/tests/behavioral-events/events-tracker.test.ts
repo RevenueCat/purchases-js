@@ -136,6 +136,43 @@ describe("EventsTracker", (test) => {
     });
   });
 
+  test<EventsTrackerFixtures>("sends a custom paywall impression with the app session", async ({
+    eventsTracker,
+  }) => {
+    eventsTracker.trackCustomPaywallImpression({
+      paywallId: "custom-paywall",
+      offeringId: "offering-789",
+      placementIdentifier: "home_banner",
+      targetingRevision: 3,
+      targetingRuleId: "rule_abc123",
+    });
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith({
+      url: eventsURL,
+      json: {
+        events: [
+          {
+            id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            version: 1,
+            type: "custom_paywall_impression",
+            app_user_id: "someAppUserId",
+            app_session_id: "c1365463-ce59-4b83-b61b-ef0d883e9047",
+            timestamp: date.getTime(),
+            paywall_id: "custom-paywall",
+            offering_id: "offering-789",
+            presented_offering_context: {
+              placement_identifier: "home_banner",
+              targeting_revision: 3,
+              targeting_rule_id: "rule_abc123",
+            },
+          },
+        ],
+      },
+      keepalive: true,
+    });
+  });
+
   test<EventsTrackerFixtures>("passes the checkout trace id to the event", async ({
     eventsTracker,
   }) => {
