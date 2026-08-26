@@ -132,6 +132,26 @@ describe("Purchases.trackCustomPaywallImpression", () => {
     });
   });
 
+  test("preserves the cached current offering after a filtered fetch excludes it", async () => {
+    const purchases = configurePurchases();
+    await purchases.getOfferings();
+    await purchases.getOfferings({ offeringIdentifier: "offering_2" });
+    const trackEvent = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackCustomPaywallImpression",
+    );
+
+    purchases.trackCustomPaywallImpression({ paywallId: "custom-paywall" });
+
+    expect(trackEvent).toHaveBeenCalledExactlyOnceWith({
+      paywallId: "custom-paywall",
+      offeringId: "offering_1",
+      placementIdentifier: undefined,
+      targetingRevision: 123,
+      targetingRuleId: "test_rule_id",
+    });
+  });
+
   test("tracks an unattributed event when no offering is available", () => {
     const purchases = configurePurchases();
     const trackEvent = vi.spyOn(

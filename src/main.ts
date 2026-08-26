@@ -1333,7 +1333,13 @@ export class Purchases {
       appUserId,
       params,
     );
-    if (appUserId === this._appUserId) {
+    // A filtered response may intentionally omit the current offering. Preserve
+    // the current-offering cache in that case so implicit impression tracking
+    // remains attributed to the last fetched current offering.
+    if (
+      appUserId === this._appUserId &&
+      (!offeringIdFilter || offerings.current !== null)
+    ) {
       this.cachedCurrentOffering = offerings.current;
     }
     return offerings;
