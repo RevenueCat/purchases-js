@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Impostos (estimats)",
   "upgrade_confirm_page.subtitle_deferred": "Reviseu les vostres dades de pagament i programeu el canvi",
   "upgrade_confirm_page.confirm_schedule": "Confirmar programació",
-  "upgrade_confirm_page.on_file": "Registrat"
+  "upgrade_confirm_page.on_file": "Registrat",
+  "credit_for_unused_time.title": "Crèdit pel temps no utilitzat",
+  "credit_for_unused_time.message": "El vostre mètode de pagament es carregarà amb la diferència entre les subscripcions, amb un crèdit pel temps no utilitzat de la vostra subscripció a {{previousProductName}}."
 }

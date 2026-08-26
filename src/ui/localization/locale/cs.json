@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Daň (odhadovaná)",
   "upgrade_confirm_page.subtitle_deferred": "Zkontrolujte své platební údaje a naplánujte změnu",
   "upgrade_confirm_page.confirm_schedule": "Potvrdit plán",
-  "upgrade_confirm_page.on_file": "Uloženo"
+  "upgrade_confirm_page.on_file": "Uloženo",
+  "credit_for_unused_time.title": "Kredit za nevyužitý čas",
+  "credit_for_unused_time.message": "Vaše platební metoda bude naúčtována za rozdíl mezi předplatnými, s kreditem za nevyužitý čas z vašeho předplatného {{previousProductName}}."
 }

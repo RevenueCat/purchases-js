@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Adó (becsült)",
   "upgrade_confirm_page.subtitle_deferred": "Tekintse át fizetési adatait és ütemezze a módosítást",
   "upgrade_confirm_page.confirm_schedule": "Ütemezés megerősítése",
-  "upgrade_confirm_page.on_file": "Rögzítve"
+  "upgrade_confirm_page.on_file": "Rögzítve",
+  "credit_for_unused_time.title": "Jóváírás fel nem használt időre",
+  "credit_for_unused_time.message": "Fizetési módját az előfizetések közötti különbséggel terheljük meg, jóváírással a(z) {{previousProductName}} előfizetésén fel nem használt időért."
 }

@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Podatek (szacowany)",
   "upgrade_confirm_page.subtitle_deferred": "Sprawdź szczegóły płatności i zaplanuj zmianę",
   "upgrade_confirm_page.confirm_schedule": "Potwierdź harmonogram",
-  "upgrade_confirm_page.on_file": "Zapisane"
+  "upgrade_confirm_page.on_file": "Zapisane",
+  "credit_for_unused_time.title": "Uznanie za niewykorzystany czas",
+  "credit_for_unused_time.message": "Twoja metoda płatności zostanie obciążona za różnicę między subskrypcjami, z uwzględnieniem niewykorzystanego czasu z Twojej subskrypcji {{previousProductName}}."
 }

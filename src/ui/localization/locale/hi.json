@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "कर (अनुमानित)",
   "upgrade_confirm_page.subtitle_deferred": "अपने भुगतान विवरण की समीक्षा करें और शेड्यूल परिवर्तन करें",
   "upgrade_confirm_page.confirm_schedule": "शेड्यूल की पुष्टि करें",
-  "upgrade_confirm_page.on_file": "फाइल पर"
+  "upgrade_confirm_page.on_file": "फाइल पर",
+  "credit_for_unused_time.title": "अप्रयुक्त समय का क्रेडिट",
+  "credit_for_unused_time.message": "आपकी भुगतान विधि से सब्सक्रिप्शन के बीच के अंतर के लिए शुल्क लिया जाएगा, जिसमें आपकी {{previousProductName}} सब्सक्रिप्शन के अप्रयुक्त समय का क्रेडिट शामिल होगा।"
 }

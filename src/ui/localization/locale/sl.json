@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Davek (ocenjeno)",
   "upgrade_confirm_page.subtitle_deferred": "Preglejte podrobnosti plačila in spremembo urnika",
   "upgrade_confirm_page.confirm_schedule": "Potrdi urnik",
-  "upgrade_confirm_page.on_file": "V evidenci"
+  "upgrade_confirm_page.on_file": "V evidenci",
+  "credit_for_unused_time.title": "Dobroimetje za neizkoriščen čas",
+  "credit_for_unused_time.message": "Vašemu plačilnemu sredstvu bo zaračunana razlika med naročninami, z dobroimetjem za neizkoriščen čas vaše naročnine {{previousProductName}}."
 }

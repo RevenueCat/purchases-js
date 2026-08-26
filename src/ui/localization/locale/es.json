@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Impuestos (estimados)",
   "upgrade_confirm_page.subtitle_deferred": "Revisa tus detalles de pago y programa el cambio",
   "upgrade_confirm_page.confirm_schedule": "Confirmar programación",
-  "upgrade_confirm_page.on_file": "Registrado"
+  "upgrade_confirm_page.on_file": "Registrado",
+  "credit_for_unused_time.title": "Crédito por tiempo no utilizado",
+  "credit_for_unused_time.message": "Se cargará a tu método de pago la diferencia entre suscripciones, con un crédito por el tiempo no utilizado de tu suscripción a {{previousProductName}}."
 }

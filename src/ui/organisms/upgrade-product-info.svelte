@@ -14,14 +14,15 @@
   import { formatPriceWithPeriod } from "../../helpers/price-labels";
   import PricingTable from "../molecules/pricing-table.svelte";
   import PlanCard from "../molecules/plan-card.svelte";
-  import RefundForUnusedTime from "../molecules/refund-for-unused-time.svelte";
+  import UnusedTimeAdjustment from "../molecules/unused-time-adjustment.svelte";
   import Typography from "../atoms/typography.svelte";
 
   interface Props {
     startData: SubscriptionChangeCheckoutStartResponse;
+    unusedTimeAdjustmentVariant?: "refund" | "credit";
   }
 
-  let { startData }: Props = $props();
+  let { startData, unusedTimeAdjustmentVariant = "refund" }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
@@ -152,7 +153,10 @@
 
   {#if showRefundBlock}
     <div class="rcb-upgrade-refund">
-      <RefundForUnusedTime previousProductName={fromTitle} />
+      <UnusedTimeAdjustment
+        previousProductName={fromTitle}
+        variant={unusedTimeAdjustmentVariant}
+      />
     </div>
   {/if}
 </div>
