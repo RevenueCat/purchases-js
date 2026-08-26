@@ -8,25 +8,36 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const amazonModule = "@amazon-devices/keplerscript-appstore-iap-lib";
-const fileSystemModule = "@amazon-devices/kepler-file-system";
+const vegaOnlyModules = [
+  "@amazon-devices/kepler-compatibility",
+  "@amazon-devices/kepler-file-system",
+  "@amazon-devices/keplerscript-appstore-iap-lib",
+  "react-native",
+];
 const defaultArtifacts = ["dist/Purchases.es.js", "dist/Purchases.umd.js"];
 const vegaArtifacts = [
   "dist/Purchases.vega.es.js",
   "dist/Purchases.vega.umd.js",
 ];
 
+function hasModuleReference(contents, module) {
+  const escapedModule = module.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const moduleReference = new RegExp(
+    `\\b(?:from|import)\\s*\\(?\\s*["']${escapedModule}["']|\\brequire\\s*\\(\\s*["']${escapedModule}["']`,
+  );
+
+  return moduleReference.test(contents);
+}
+
 for (const artifact of defaultArtifacts) {
   const contents = readFileSync(artifact, "utf8");
 
-  assert.ok(
-    !contents.includes(amazonModule),
-    `${artifact} should not include Amazon AppStore support`,
-  );
-  assert.ok(
-    !contents.includes(fileSystemModule),
-    `${artifact} should not include Vega File System support`,
-  );
+  for (const module of vegaOnlyModules) {
+    assert.ok(
+      !hasModuleReference(contents, module),
+      `${artifact} should not include ${module}`,
+    );
+  }
   assert.ok(
     !contents.includes("Purchases.vega"),
     `${artifact} should not include the Vega code.`,
@@ -36,16 +47,14 @@ for (const artifact of defaultArtifacts) {
 for (const artifact of vegaArtifacts) {
   const contents = readFileSync(artifact, "utf8");
 
-  assert.ok(
-    contents.includes(amazonModule),
-    `${artifact} should include Amazon AppStore support`,
-  );
-  assert.ok(
-    contents.includes(fileSystemModule),
-    `${artifact} should include Vega File System support`,
-  );
+  for (const module of vegaOnlyModules) {
+    assert.ok(
+      hasModuleReference(contents, module),
+      `${artifact} should include ${module}`,
+    );
+  }
 }
 
 console.log(
-  "Confirmed that Amazon AppStore support is only in the Vega entry point.",
+  "Confirmed that Vega-only dependencies are only in the Vega entry point.",
 );
