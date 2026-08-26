@@ -47,6 +47,40 @@ describe("Purchases.trackCustomPaywallImpression", () => {
     });
   });
 
+  test("uses an offering without a paywall ID", () => {
+    const purchases = configurePurchases();
+    const trackEvent = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackCustomPaywallImpression",
+    );
+    const offering = buildOffering([createMonthlyPackageMock()]);
+    const offeringWithContext = {
+      ...offering,
+      identifier: "placement-offering",
+      availablePackages: offering.availablePackages.map((pkg) => ({
+        ...pkg,
+        webBillingProduct: {
+          ...pkg.webBillingProduct,
+          presentedOfferingContext: {
+            offeringIdentifier: "placement-offering",
+            placementIdentifier: "home_banner",
+            targetingContext: { revision: 3, ruleId: "rule_abc123" },
+          },
+        },
+      })),
+    };
+
+    purchases.trackCustomPaywallImpression({ offering: offeringWithContext });
+
+    expect(trackEvent).toHaveBeenCalledExactlyOnceWith({
+      paywallId: undefined,
+      offeringId: "placement-offering",
+      placementIdentifier: "home_banner",
+      targetingRevision: 3,
+      targetingRuleId: "rule_abc123",
+    });
+  });
+
   test("sends a custom paywall impression from the public API", async () => {
     const purchases = configurePurchases();
     const offering = buildOffering([createMonthlyPackageMock()]);
@@ -109,6 +143,24 @@ describe("Purchases.trackCustomPaywallImpression", () => {
 
     expect(trackEvent).toHaveBeenCalledExactlyOnceWith({
       paywallId: "custom-paywall",
+      offeringId: undefined,
+      placementIdentifier: undefined,
+      targetingRevision: undefined,
+      targetingRuleId: undefined,
+    });
+  });
+
+  test("tracks an unattributed event when called without parameters", () => {
+    const purchases = configurePurchases();
+    const trackEvent = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackCustomPaywallImpression",
+    );
+
+    purchases.trackCustomPaywallImpression();
+
+    expect(trackEvent).toHaveBeenCalledExactlyOnceWith({
+      paywallId: undefined,
       offeringId: undefined,
       placementIdentifier: undefined,
       targetingRevision: undefined,
