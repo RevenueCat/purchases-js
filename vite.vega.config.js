@@ -1,7 +1,11 @@
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import {
+  vegaOnlyModules,
+  verifyEntryPointBoundaries,
+} from "./vite.entry-point-boundaries.plugin.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,22 +18,28 @@ const __dirname = dirname(__filename);
  * different dependency boundaries. The Amazon package stays external here so
  * the Vega bundle keeps a static module import that the Vega runtime resolves.
  */
-export default defineConfig({
-  build: {
-    emptyOutDir: false,
-    lib: {
-      entry: resolve(__dirname, "src/vega.ts"),
-      name: "Purchases",
-      fileName: (format) => `Purchases.vega.${format}.js`,
+export default defineConfig(({ mode }) => {
+  const shouldVerifyEntryPointBoundaries =
+    loadEnv(mode, __dirname, "VERIFY_ENTRY_POINT_BOUNDARIES")
+      .VERIFY_ENTRY_POINT_BOUNDARIES === "true";
+
+  return {
+    build: {
+      emptyOutDir: false,
+      lib: {
+        entry: resolve(__dirname, "src/vega.ts"),
+        name: "Purchases",
+        fileName: (format) => `Purchases.vega.${format}.js`,
+      },
+      rollupOptions: {
+        external: vegaOnlyModules,
+      },
     },
-    rollupOptions: {
-      external: [
-        "@amazon-devices/kepler-compatibility",
-        "@amazon-devices/kepler-file-system",
-        "@amazon-devices/keplerscript-appstore-iap-lib",
-        "react-native",
-      ],
-    },
-  },
-  plugins: [svelte({ compilerOptions: { css: "injected" } })],
+    plugins: [
+      svelte({ compilerOptions: { css: "injected" } }),
+      ...(shouldVerifyEntryPointBoundaries
+        ? [verifyEntryPointBoundaries({ isVegaBuild: true })]
+        : []),
+    ],
+  };
 });
