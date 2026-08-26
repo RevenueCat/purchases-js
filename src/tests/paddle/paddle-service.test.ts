@@ -248,6 +248,7 @@ describe("PaddleService", () => {
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       trackPaywallEvent: () => {},
+      trackCustomPaywallImpression: () => {},
       dispose: () => {},
       flushAllEvents: () => Promise.resolve(),
     };
@@ -930,6 +931,7 @@ describe("PaddleService", () => {
         trackSDKEvent: () => {},
         trackExternalEvent: () => {},
         trackPaywallEvent: () => {},
+        trackCustomPaywallImpression: () => {},
         dispose: () => {},
         flushAllEvents: () => Promise.resolve(),
       });
