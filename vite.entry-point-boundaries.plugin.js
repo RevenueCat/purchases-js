@@ -56,6 +56,8 @@ export function verifyEntryPointBoundaries({ isVegaBuild }) {
       );
 
       for (const module of vegaOnlyModules) {
+        // The Vega bundle keeps this package as an import for the Vega runtime
+        // to provide, rather than including the package's code in the bundle.
         const isExternalized = chunks.some((chunk) =>
           chunkReferencesModule(chunk, module),
         );
