@@ -61,6 +61,35 @@ describe("CustomPaywallImpressionEvent", () => {
     });
   });
 
+  test.each([
+    {
+      name: "placement only",
+      data: { placementIdentifier: "home_banner" },
+      presentedOfferingContext: { placement_identifier: "home_banner" },
+    },
+    {
+      name: "targeting only",
+      data: { targetingRevision: 3, targetingRuleId: "rule_abc123" },
+      presentedOfferingContext: {
+        targeting_revision: 3,
+        targeting_rule_id: "rule_abc123",
+      },
+    },
+  ])(
+    "serializes partial presentation context: $name",
+    ({ data, presentedOfferingContext }) => {
+      const event = new CustomPaywallImpressionEvent(
+        { ...baseData, ...data },
+        "user-123",
+        "session-456",
+      );
+
+      expect(event.toJSON()).toMatchObject({
+        presented_offering_context: presentedOfferingContext,
+      });
+    },
+  );
+
   test("omits empty presentation context", () => {
     const event = new CustomPaywallImpressionEvent(
       baseData,

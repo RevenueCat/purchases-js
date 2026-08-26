@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { Purchases } from "../main";
 import { configurePurchases } from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
+import { APIPostRequest, eventsURL } from "./test-responses";
 import { buildOffering } from "./utils/fixtures-utils";
 
 describe("Purchases.trackCustomPaywallImpression", () => {
@@ -44,6 +45,38 @@ describe("Purchases.trackCustomPaywallImpression", () => {
       targetingRevision: 3,
       targetingRuleId: "rule_abc123",
     });
+  });
+
+  test("sends a custom paywall impression from the public API", async () => {
+    const purchases = configurePurchases();
+    const offering = buildOffering([createMonthlyPackageMock()]);
+
+    purchases.trackCustomPaywallImpression({
+      paywallId: "custom-paywall",
+      offering: {
+        ...offering,
+        identifier: "placement-offering",
+      },
+    });
+    await purchases["eventsTracker"].flushAllEvents();
+
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: eventsURL,
+        keepalive: true,
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({
+              version: 1,
+              type: "custom_paywall_impression",
+              app_user_id: "someAppUserId",
+              paywall_id: "custom-paywall",
+              offering_id: "placement-offering",
+            }),
+          ]),
+        }),
+      }),
+    );
   });
 
   test("uses the current offering cached by getOfferings when none is passed", async () => {
