@@ -139,6 +139,7 @@ import type {
   ExpressPurchaseButtonUpdater,
   PresentExpressPurchaseButtonParams,
 } from "./entities/present-express-purchase-button-params";
+import type { CustomPaywallImpressionParams } from "./entities/custom-paywall-impression-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
 import {
   getDocument,
@@ -244,6 +245,7 @@ export type {
 export type { BrandingAppearance } from "./entities/branding";
 export type { PlatformInfo } from "./entities/platform-info";
 export type { PurchasesConfig } from "./entities/purchases-config";
+export type { CustomPaywallImpressionParams } from "./entities/custom-paywall-impression-params";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
@@ -308,6 +310,7 @@ export class Purchases {
 
   /** @internal */
   private readonly amazonBillingWrapper: BillingWrapper | null = null;
+  private cachedCurrentOffering: Offering | null = null;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -1357,7 +1360,54 @@ export class Purchases {
       );
     }
 
-    return await this.getAllOfferings(offeringsResponse, appUserId, params);
+    const offerings = await this.getAllOfferings(
+      offeringsResponse,
+      appUserId,
+      params,
+    );
+    // A filtered response may intentionally omit the current offering. Preserve
+    // the current-offering cache in that case so implicit impression tracking
+    // remains attributed to the last fetched current offering.
+    if (
+      appUserId === this._appUserId &&
+      (!offeringIdFilter || offerings.current !== null)
+    ) {
+      this.cachedCurrentOffering = offerings.current;
+    }
+    return offerings;
+  }
+
+  /**
+   * Tracks an impression for a custom paywall.
+   *
+   * Pass the offering used to render the paywall to preserve placement and
+   * targeting attribution. When no offering is passed, the most recently
+   * fetched current offering is used if available.
+   *
+   * Each call creates a separate impression event. Call this once per
+   * paywall presentation and avoid lifecycle callbacks that may run
+   * multiple times for the same display.
+   *
+   * @param params Parameters for the custom paywall impression event.
+   */
+  public trackCustomPaywallImpression(
+    params: CustomPaywallImpressionParams = {},
+  ): void {
+    const offering = params.offering ?? this.cachedCurrentOffering;
+    const presentedOfferingContext =
+      offering?.availablePackages[0]?.webBillingProduct
+        .presentedOfferingContext;
+
+    this.eventsTracker.trackCustomPaywallImpression({
+      paywallId: params.paywallId,
+      offeringId: offering?.identifier,
+      placementIdentifier:
+        presentedOfferingContext?.placementIdentifier ?? undefined,
+      targetingRevision:
+        presentedOfferingContext?.targetingContext?.revision ?? undefined,
+      targetingRuleId:
+        presentedOfferingContext?.targetingContext?.ruleId ?? undefined,
+    });
   }
 
   /**
@@ -2492,6 +2542,7 @@ export class Purchases {
     this._appUserId = newAppUserId;
     await this.eventsTracker.updateUser(newAppUserId);
     this.inMemoryCache.invalidateAllCaches();
+    this.cachedCurrentOffering = null;
   }
 
   /** @internal */
