@@ -70,7 +70,7 @@ describe("Purchases.configure()", () => {
     });
   });
 
-  test("does not track SDKInitialized when configured with an Amazon API key", async () => {
+  test("does not track sdk_initialized event when configured with an Amazon API key", async () => {
     Purchases.getSharedInstance().close();
     APIPostRequest.mockReset();
 
