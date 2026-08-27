@@ -136,6 +136,28 @@ describe("EventsTracker", (test) => {
     });
   });
 
+  test("uses the Amazon platform header for events when configured with an Amazon API key", async () => {
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    const eventsTracker = new EventsTracker({
+      apiKey: "amzn_valid_key",
+      appUserId: "someAppUserId",
+      rcSource: "rcSource",
+    });
+
+    eventsTracker.trackExternalEvent({
+      eventName: "external",
+      source: "sdk",
+    });
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(requestPerformed?.headers.get("X-Platform")).toEqual("amazon");
+
+    eventsTracker.dispose();
+  });
+
   test<EventsTrackerFixtures>("passes the checkout trace id to the event", async ({
     eventsTracker,
   }) => {

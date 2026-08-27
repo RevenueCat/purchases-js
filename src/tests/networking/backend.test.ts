@@ -131,6 +131,22 @@ describe("httpConfig is setup correctly", () => {
     expect(headers.get("X-Platform-Flavor")).toEqual("flutter");
     expect(headers.get("X-Platform-Flavor-Version")).toEqual("1.2.3");
   });
+
+  test("uses the Amazon platform header when configured with an Amazon API key", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend("amzn_valid_key");
+
+    await backend.getCustomerInfo("someAppUserId");
+
+    expect(requestPerformed?.headers.get("X-Platform")).toEqual("amazon");
+  });
 });
 
 describe("getCustomerInfo request", () => {

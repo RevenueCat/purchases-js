@@ -3,7 +3,10 @@ import type { BackendErrorCode } from "../entities/errors";
 import { ErrorCode, ErrorCodeUtils, PurchasesError } from "../entities/errors";
 import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
-import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
+import {
+  isAmazonApiKey,
+  isWebBillingSandboxApiKey,
+} from "../helpers/api-key-helper";
 import type { HttpConfig } from "../entities/http-config";
 import { Purchases } from "../main";
 
@@ -152,7 +155,7 @@ export function getHeaders(
     [AUTHORIZATION_HEADER]: `Bearer ${apiKey}`,
     [CONTENT_TYPE_HEADER]: "application/json",
     [ACCEPT_HEADER]: "application/json",
-    [PLATFORM_HEADER]: "web",
+    [PLATFORM_HEADER]: isAmazonApiKey(apiKey) ? "amazon" : "web",
     [VERSION_HEADER]: VERSION,
     [IS_SANDBOX_HEADER]: `${isWebBillingSandboxApiKey(apiKey)}`,
   };
