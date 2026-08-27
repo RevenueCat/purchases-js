@@ -20,8 +20,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       "@revenuecat/purchases-ui-js":
-        specifier: 4.8.15
-        version: 4.8.15(svelte@5.46.4)
+        specifier: file:../../purchases-ui-js/franco-pweng-229-webview-paywall-context
+        version: file:../../purchases-ui-js/franco-pweng-229-webview-paywall-context(svelte@5.46.4)
       "@storybook/addon-essentials":
         specifier: ^8.6.15
         version: 8.6.15(@types/react@19.0.10)(storybook@8.6.15(prettier@3.4.2))
@@ -722,19 +722,20 @@ packages:
       }
     engines: { node: ^12.20.0 || ^14.18.0 || >=16.0.0 }
 
-  "@revenuecat/purchases-ui-js@4.8.15":
+  "@revenuecat/purchases-ui-js@file:../../purchases-ui-js/franco-pweng-229-webview-paywall-context":
     resolution:
       {
-        integrity: sha512-Og2MLTZ5Zz0PlVaDVQl8Um5rREH6j7K9ft0x2eqLNDX1aQRnx75g3ToJs0Tfp6aRfBQ25WQZPap4MdrTobXpOQ==,
+        directory: ../../purchases-ui-js/franco-pweng-229-webview-paywall-context,
+        type: directory,
       }
     engines: { node: ^22.18 || ^24.11 }
     peerDependencies:
       svelte: ^5.46.4
 
-  "@revenuecat/workflow-web-components-sdk@0.1.4":
+  "@revenuecat/workflow-web-components-sdk@0.1.7":
     resolution:
       {
-        integrity: sha512-8LGZkqNNE7MgziVSnH6s6yjVkK32g6Rzi92UYy9o5bhtBuYwtz5+qRVh+QG5cU+AVfaUCAMjm2Ep7iBwHNW7mw==,
+        integrity: sha512-lg8Ysk9aBV5O7Cwn4GUlrnquUC+KJAhf2/kzfDLXs9MiGOJIFuooYdIp/V32Q4WnhngtbKlazFhVVzKd2w8nJQ==,
       }
     engines: { node: ">=18" }
 
@@ -6164,13 +6165,13 @@ snapshots:
 
   "@pkgr/core@0.1.1": {}
 
-  "@revenuecat/purchases-ui-js@4.8.15(svelte@5.46.4)":
+  "@revenuecat/purchases-ui-js@file:../../purchases-ui-js/franco-pweng-229-webview-paywall-context(svelte@5.46.4)":
     dependencies:
-      "@revenuecat/workflow-web-components-sdk": 0.1.4
+      "@revenuecat/workflow-web-components-sdk": 0.1.7
       qrcode: 1.5.4
       svelte: 5.46.4
 
-  "@revenuecat/workflow-web-components-sdk@0.1.4": {}
+  "@revenuecat/workflow-web-components-sdk@0.1.7": {}
 
   "@rollup/pluginutils@5.1.4(rollup@4.41.1)":
     dependencies:
