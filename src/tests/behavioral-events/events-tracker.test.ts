@@ -89,6 +89,22 @@ describe("EventsTracker", (test) => {
     expect(APIPostRequest).not.toBeCalled();
   });
 
+  test("does not track a custom paywall impression if silent", async () => {
+    const eventsTracker = new EventsTracker({
+      apiKey: testApiKey,
+      appUserId: "someAppUserId",
+      silent: true,
+      rcSource: "rcSource",
+    });
+    eventsTracker.trackCustomPaywallImpression({
+      paywallId: "custom-paywall",
+      offeringId: "offering-789",
+    });
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).not.toBeCalled();
+  });
+
   test<EventsTrackerFixtures>("sends the serialized event", async ({
     eventsTracker,
   }) => {
