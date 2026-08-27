@@ -70,6 +70,19 @@ describe("Purchases.configure()", () => {
     });
   });
 
+  test("does not track sdk_initialized event when configured with an Amazon API key", async () => {
+    Purchases.getSharedInstance().close();
+    APIPostRequest.mockReset();
+
+    Purchases.configure({
+      apiKey: "amzn_valid_key",
+      appUserId: testUserId,
+    });
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).not.toHaveBeenCalled();
+  });
+
   test("tracks the CheckoutSessionStarted event upon starting a purchase", async () => {
     const purchases = Purchases.getSharedInstance();
     const offerings = await purchases.getOfferings();

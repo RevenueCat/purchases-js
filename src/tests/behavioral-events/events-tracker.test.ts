@@ -152,11 +152,7 @@ describe("EventsTracker", (test) => {
     });
   });
 
-  test("uses the Amazon platform header for events when configured with an Amazon API key", async () => {
-    let requestPerformed: Request | undefined;
-    server.events.on("request:start", (req) => {
-      requestPerformed = req.request;
-    });
+  test("does not track generic web billing events with an Amazon API key", async () => {
     const eventsTracker = new EventsTracker({
       apiKey: "amzn_valid_key",
       appUserId: "someAppUserId",
@@ -169,7 +165,68 @@ describe("EventsTracker", (test) => {
     });
     await vi.advanceTimersToNextTimerAsync();
 
-    expect(requestPerformed?.headers.get("X-Platform")).toEqual("amazon");
+    expect(APIPostRequest).not.toHaveBeenCalled();
+
+    eventsTracker.dispose();
+  });
+
+  test("tracks custom paywall impressions with an Amazon API key", async () => {
+    const eventsTracker = new EventsTracker({
+      apiKey: "amzn_valid_key",
+      appUserId: "someAppUserId",
+      rcSource: "rcSource",
+    });
+
+    eventsTracker.trackCustomPaywallImpression({
+      offeringId: "offering-789",
+    });
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({
+              type: "custom_paywall_impression",
+              offering_id: "offering-789",
+            }),
+          ]),
+        }),
+      }),
+    );
+
+    eventsTracker.dispose();
+  });
+
+  test("tracks standard paywall events with an Amazon API key", async () => {
+    const eventsTracker = new EventsTracker({
+      apiKey: "amzn_valid_key",
+      appUserId: "someAppUserId",
+      rcSource: "rcSource",
+    });
+
+    eventsTracker.trackPaywallEvent({
+      type: "paywall_impression",
+      appUserId: "someAppUserId",
+      sessionId: "paywall-session",
+      offeringId: "offering-789",
+      paywallRevision: 1,
+      paywallRcPublicId: "pw-123",
+    });
+    await vi.advanceTimersToNextTimerAsync();
+
+    expect(APIPostRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({
+          events: expect.arrayContaining([
+            expect.objectContaining({
+              type: "paywall_impression",
+              offering_id: "offering-789",
+            }),
+          ]),
+        }),
+      }),
+    );
 
     eventsTracker.dispose();
   });

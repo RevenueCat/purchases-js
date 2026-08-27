@@ -2,6 +2,7 @@ import { generateUUID } from "../helpers/uuid-helper";
 import { RC_ANALYTICS_ENDPOINT } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
+import { isAmazonApiKey } from "../helpers/api-key-helper";
 import { FlushManager, type FlushOptions } from "./flush-manager";
 import { Logger } from "../helpers/logger";
 import { defaultPurchaseMode, Event, type EventProperties } from "./event";
@@ -70,6 +71,7 @@ export default class EventsTracker implements IEventsTracker {
   private readonly traceId: string;
   private appUserId: string;
   private readonly isSilent: boolean;
+  private readonly suppressGenericEvents: boolean;
   private rcSource: string | null;
   private readonly workflowContext?: WorkflowContext;
   private isDisposed: boolean = false;
@@ -81,6 +83,7 @@ export default class EventsTracker implements IEventsTracker {
     this.eventsUrl = `${props.httpConfig?.eventsURL ?? RC_ANALYTICS_ENDPOINT}/v1/events`;
     this.appUserId = props.appUserId;
     this.isSilent = props.silent || false;
+    this.suppressGenericEvents = isAmazonApiKey(props.apiKey);
     this.rcSource = props.rcSource;
     this.workflowContext = props.workflowContext;
     this.traceId = props.trace_id || generateUUID();
@@ -163,6 +166,9 @@ export default class EventsTracker implements IEventsTracker {
   private trackEvent(props: TrackEventProps) {
     if (this.isSilent) {
       Logger.verboseLog("Skipping event tracking, the EventsTracker is silent");
+      return;
+    }
+    if (this.suppressGenericEvents) {
       return;
     }
     try {
