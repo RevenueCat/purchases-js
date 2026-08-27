@@ -1352,6 +1352,10 @@ export class Purchases {
    * targeting attribution. When no offering is passed, the most recently
    * fetched current offering is used if available.
    *
+   * Each call creates a separate impression event. Call this once per
+   * paywall presentation and avoid lifecycle callbacks that may run
+   * multiple times for the same display.
+   *
    * @param params Parameters for the custom paywall impression event.
    */
   public trackCustomPaywallImpression(
