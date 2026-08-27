@@ -109,6 +109,36 @@ describe("httpConfig is setup correctly", () => {
     expect(headers.get("X-Is-Sandbox")).toEqual("false");
   });
 
+  test("includes the sandbox header for non-Amazon API key types", async () => {
+    server.use(
+      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () =>
+        HttpResponse.json(customerInfoResponse, { status: 200 }),
+      ),
+    );
+
+    const requests: Request[] = [];
+    server.events.on("request:start", (req) => {
+      requests.push(req.request);
+    });
+    const apiKeys = [
+      { apiKey: "rcb_valid_key", isSandbox: false },
+      { apiKey: "rcb_sb_valid_key", isSandbox: true },
+      { apiKey: "pdl_valid_key", isSandbox: false },
+      { apiKey: "strp_valid_key", isSandbox: false },
+      { apiKey: "test_valid_key", isSandbox: false },
+    ];
+
+    for (const { apiKey, isSandbox } of apiKeys) {
+      backend = new Backend(apiKey);
+      await backend.getCustomerInfo("someAppUserId");
+
+      const latestRequest = requests.at(-1);
+      expect(latestRequest?.headers.get("X-Is-Sandbox")).toEqual(
+        `${isSandbox}`,
+      );
+    }
+  });
+
   test("expected platformInfo headers are sent", async () => {
     setCustomerInfoResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
@@ -146,6 +176,26 @@ describe("httpConfig is setup correctly", () => {
     await backend.getCustomerInfo("someAppUserId");
 
     expect(requestPerformed?.headers.get("X-Platform")).toEqual("amazon");
+  });
+
+  test("omits the sandbox header when configured with an Amazon API key", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend("amzn_valid_key", {
+      additionalHeaders: {
+        "X-Is-Sandbox": "false",
+      },
+    });
+
+    await backend.getCustomerInfo("someAppUserId");
+
+    expect(requestPerformed?.headers.get("X-Is-Sandbox")).toBeNull();
   });
 });
 

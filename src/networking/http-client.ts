@@ -151,13 +151,16 @@ export function getHeaders(
   headers?: { [key: string]: string },
   additionalHeaders?: { [key: string]: string },
 ): { [key: string]: string } {
+  const isAmazon = isAmazonApiKey(apiKey);
   let all_headers = {
     [AUTHORIZATION_HEADER]: `Bearer ${apiKey}`,
     [CONTENT_TYPE_HEADER]: "application/json",
     [ACCEPT_HEADER]: "application/json",
-    [PLATFORM_HEADER]: isAmazonApiKey(apiKey) ? "amazon" : "web",
+    [PLATFORM_HEADER]: isAmazon ? "amazon" : "web",
     [VERSION_HEADER]: VERSION,
-    [IS_SANDBOX_HEADER]: `${isWebBillingSandboxApiKey(apiKey)}`,
+    ...(!isAmazon && {
+      [IS_SANDBOX_HEADER]: `${isWebBillingSandboxApiKey(apiKey)}`,
+    }),
   };
   const platformInfo = Purchases.getPlatformInfo();
   if (platformInfo) {
@@ -174,6 +177,11 @@ export function getHeaders(
     // The order here is intentional, so we don't allow overriding the SDK
     // headers with additional headers.
     all_headers = { ...additionalHeaders, ...all_headers };
+  }
+  if (isAmazon) {
+    // Amazon does not expose whether the app is running in a sandbox environment.
+    // Do not allow caller-provided headers to send an inaccurate value either.
+    delete all_headers[IS_SANDBOX_HEADER];
   }
   return all_headers;
 }
