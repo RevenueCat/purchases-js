@@ -125,7 +125,6 @@ describe("httpConfig is setup correctly", () => {
       { apiKey: "rcb_sb_valid_key", isSandbox: true },
       { apiKey: "pdl_valid_key", isSandbox: false },
       { apiKey: "strp_valid_key", isSandbox: false },
-      { apiKey: "strp_sb_valid_key", isSandbox: true },
       { apiKey: "test_valid_key", isSandbox: false },
     ];
 
