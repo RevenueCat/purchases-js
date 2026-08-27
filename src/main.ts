@@ -310,6 +310,8 @@ export class Purchases {
 
   /** @internal */
   private readonly amazonBillingWrapper: BillingWrapper | null = null;
+
+  /** @internal */
   private cachedCurrentOffering: Offering | null = null;
 
   /** @internal */
