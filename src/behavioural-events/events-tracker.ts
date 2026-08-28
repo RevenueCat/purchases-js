@@ -6,6 +6,10 @@ import { FlushManager, type FlushOptions } from "./flush-manager";
 import { Logger } from "../helpers/logger";
 import { defaultPurchaseMode, Event, type EventProperties } from "./event";
 import { PaywallEvent, type PaywallEventData } from "./paywall-event";
+import {
+  CustomPaywallImpressionEvent,
+  type CustomPaywallImpressionEventData,
+} from "./custom-paywall-impression-event";
 import type { SDKEvent } from "./sdk-events";
 import {
   buildEventContext,
@@ -24,6 +28,9 @@ export interface TrackEventProps {
   source: SDKEventContextSource;
   properties?: EventProperties;
 }
+
+export type TrackCustomPaywallImpressionProps =
+  CustomPaywallImpressionEventData;
 
 export interface EventsTrackerProps {
   apiKey: string;
@@ -46,6 +53,8 @@ export interface IEventsTracker {
 
   trackPaywallEvent(data: PaywallEventData): void;
 
+  trackCustomPaywallImpression(props: TrackCustomPaywallImpressionProps): void;
+
   dispose(): void;
 
   flushAllEvents(): Promise<void>;
@@ -53,7 +62,9 @@ export interface IEventsTracker {
 
 export default class EventsTracker implements IEventsTracker {
   private readonly apiKey: string;
-  private readonly eventsQueue: Array<Event | PaywallEvent> = [];
+  private readonly eventsQueue: Array<
+    Event | PaywallEvent | CustomPaywallImpressionEvent
+  > = [];
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
   private readonly traceId: string;
@@ -62,6 +73,8 @@ export default class EventsTracker implements IEventsTracker {
   private rcSource: string | null;
   private readonly workflowContext?: WorkflowContext;
   private isDisposed: boolean = false;
+
+  private static readonly appSessionId = generateUUID();
 
   constructor(props: EventsTrackerProps) {
     this.apiKey = props.apiKey;
@@ -113,6 +126,36 @@ export default class EventsTracker implements IEventsTracker {
     } catch (error) {
       Logger.errorLog(
         `Error while tracking paywall event ${data.type}: ${error}`,
+      );
+    }
+  }
+
+  public trackCustomPaywallImpression(
+    props: TrackCustomPaywallImpressionProps,
+  ): void {
+    if (this.isSilent) {
+      Logger.verboseLog("Skipping event tracking, the EventsTracker is silent");
+      return;
+    }
+    try {
+      const event = new CustomPaywallImpressionEvent(
+        {
+          ...props,
+        },
+        this.appUserId,
+        EventsTracker.appSessionId,
+      );
+      Logger.debugLog(
+        `[CustomPaywallImpressionEvent] Queuing event (queue size: ${this.eventsQueue.length + 1}, url: ${this.eventsUrl})`,
+      );
+      Logger.debugLog(
+        `[CustomPaywallImpressionEvent] Payload: ${JSON.stringify(event.toJSON())}`,
+      );
+      this.eventsQueue.push(event);
+      this.flushManager.tryFlush();
+    } catch (error) {
+      Logger.errorLog(
+        `Error while tracking custom paywall impression: ${error}`,
       );
     }
   }
@@ -172,7 +215,9 @@ export default class EventsTracker implements IEventsTracker {
     }
   }
 
-  private estimateSingleEventSize(event: Event | PaywallEvent): number {
+  private estimateSingleEventSize(
+    event: Event | PaywallEvent | CustomPaywallImpressionEvent,
+  ): number {
     try {
       return JSON.stringify(event).length;
     } catch {
@@ -186,8 +231,12 @@ export default class EventsTracker implements IEventsTracker {
    * https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#keepalive
    * Returns null if the first event exceeds the limit (and removes it from queue).
    */
-  private batchEventsForKeepalive(): Array<Event | PaywallEvent> | null {
-    const eventsToFlush: Array<Event | PaywallEvent> = [];
+  private batchEventsForKeepalive(): Array<
+    Event | PaywallEvent | CustomPaywallImpressionEvent
+  > | null {
+    const eventsToFlush: Array<
+      Event | PaywallEvent | CustomPaywallImpressionEvent
+    > = [];
     let batchSize = 16; // Account for {"events":[]} wrapper overhead
 
     for (const event of this.eventsQueue) {
@@ -201,9 +250,11 @@ export default class EventsTracker implements IEventsTracker {
       } else if (eventsToFlush.length === 0) {
         // First event exceeds limit - remove it to unblock queue
         const eventLabel =
-          event instanceof PaywallEvent
-            ? event.data.type
-            : event.data.eventName;
+          event instanceof CustomPaywallImpressionEvent
+            ? "custom_paywall_impression"
+            : event instanceof PaywallEvent
+              ? event.data.type
+              : event.data.eventName;
         Logger.warnLog(
           `Event exceeds keepalive size limit (${eventSize} bytes): ${eventLabel}`,
         );

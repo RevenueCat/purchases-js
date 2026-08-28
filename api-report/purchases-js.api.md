@@ -53,6 +53,12 @@ export interface CustomerInfo {
     };
 }
 
+// @public
+export interface CustomPaywallImpressionParams {
+    offering?: Offering;
+    paywallId?: string;
+}
+
 export { CustomVariables }
 
 export { CustomVariableValue }
@@ -465,6 +471,7 @@ export class Purchases {
     /* Excluded from this release type: eventsTracker */
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
+    /* Excluded from this release type: cachedCurrentOffering */
     /* Excluded from this release type: instance */
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
@@ -499,6 +506,7 @@ export class Purchases {
     static setLogHandler(handler: LogHandler | null): void;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
+    trackCustomPaywallImpression(params?: CustomPaywallImpressionParams): void;
     /* Excluded from this release type: _trackEvent */
     /* Excluded from this release type: _flushAllEvents */
 }

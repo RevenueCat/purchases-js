@@ -48,6 +48,7 @@ describe("PurchaseOperationHelper", () => {
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       trackPaywallEvent: () => {},
+      trackCustomPaywallImpression: () => {},
       dispose: () => {},
       flushAllEvents: () => Promise.resolve(),
     };
