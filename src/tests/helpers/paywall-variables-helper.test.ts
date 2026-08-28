@@ -830,3 +830,325 @@ describe("getPaywallVariables", () => {
     });
   });
 });
+
+describe("discount variables", () => {
+  test("absolute_discount is expressed over the package's own period", () => {
+    /**
+     * Monthly €10.00/mo is the anchor. Annual €60.00/yr is €5.00/mo, so the
+     * per-month gap is €5.00 — but the annual buyer's actual saving over the
+     * year they're buying is (€10.00 × 12) − €60.00 = €60.00.
+     */
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 10000000,
+      },
+      {
+        packageIdentifier: "$rc_annual",
+        identifier: "annual_bingo",
+        title: "Annual",
+        period: { unit: PeriodUnit.Year, number: 1 },
+        basePriceMicros: 60000000,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_annual["product.absolute_discount"]).toBe("€60.00");
+    expect(variables.$rc_annual["product.relative_discount"]).toBe("50%");
+  });
+
+  test("absolute_discount is empty for the anchor package itself", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 10000000,
+      },
+      {
+        packageIdentifier: "$rc_annual",
+        identifier: "annual_bingo",
+        title: "Annual",
+        period: { unit: PeriodUnit.Year, number: 1 },
+        basePriceMicros: 60000000,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_monthly["product.absolute_discount"]).toBe("");
+    expect(variables.$rc_monthly["product.relative_discount"]).toBe("");
+  });
+
+  test("absolute_discount normalizes a weekly anchor to the package's period", () => {
+    /**
+     * Weekly €6.00/wk ≈ €26.07/mo is the anchor; the monthly package's own
+     * period is 1 month, so it saves ≈ €23.07 per month.
+     */
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 3000000,
+      },
+      {
+        packageIdentifier: "$rc_weekly",
+        identifier: "weekly_bingo",
+        title: "Weekly",
+        period: { unit: PeriodUnit.Week, number: 1 },
+        basePriceMicros: 6000000,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_monthly["product.absolute_discount"]).toBe("€23.07");
+    expect(variables.$rc_monthly["product.relative_discount"]).toBe("88%");
+  });
+
+  test("absolute_discount is empty for non-subscription packages", () => {
+    const off = toNonSubscriptionOffering([
+      {
+        packageIdentifier: "lifetime",
+        identifier: "lifetime_basic",
+        title: "Lifetime Basic",
+        basePriceMicros: 100000000,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.lifetime["product.absolute_discount"]).toBe("");
+  });
+
+  test("offer discounts compare the offer price to the standard renewal price", () => {
+    // €9.00/mo base with a €1.99/mo intro for 3 cycles: saves €7.01, 78% off.
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 9000000,
+        introPrice: {
+          periodDuration: "P1M",
+          period: { number: 1, unit: PeriodUnit.Month },
+          cycleCount: 3,
+          price: toPrice(1990000, "EUR"),
+          pricePerWeek: null,
+          pricePerMonth: null,
+          pricePerYear: null,
+        },
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_monthly["product.offer_absolute_discount"]).toBe(
+      "€7.01",
+    );
+    expect(variables.$rc_monthly["product.offer_relative_discount"]).toBe(
+      "78%",
+    );
+  });
+
+  test("offer discounts are empty when the offer period differs from the base period", () => {
+    // €15.00 for the first 3 months isn't comparable to a €9.00 monthly price.
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 9000000,
+        introPrice: {
+          periodDuration: "P3M",
+          period: { number: 3, unit: PeriodUnit.Month },
+          cycleCount: 1,
+          price: toPrice(15000000, "EUR"),
+          pricePerWeek: null,
+          pricePerMonth: null,
+          pricePerYear: null,
+        },
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_monthly["product.offer_absolute_discount"]).toBe("");
+    expect(variables.$rc_monthly["product.offer_relative_discount"]).toBe("");
+  });
+
+  test("offer discounts are empty for a free offer", () => {
+    // A free month would otherwise render "100%" / the full price as a saving.
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 9000000,
+        introPrice: {
+          periodDuration: "P1M",
+          period: { number: 1, unit: PeriodUnit.Month },
+          cycleCount: 1,
+          price: toPrice(0, "EUR"),
+          pricePerWeek: null,
+          pricePerMonth: null,
+          pricePerYear: null,
+        },
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_monthly["product.offer_absolute_discount"]).toBe("");
+    expect(variables.$rc_monthly["product.offer_relative_discount"]).toBe("");
+  });
+
+  test("offer discounts are empty when the package has no offer", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 9000000,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_monthly["product.offer_absolute_discount"]).toBe("");
+    expect(variables.$rc_monthly["product.offer_relative_discount"]).toBe("");
+  });
+});
+
+describe("discount variables - offer sources beyond introPrice", () => {
+  test("a time_window discount populates the offer discounts", () => {
+    // discountPhaseTimeWindow is $12.00 against a $14.99 monthly base: saves $2.99, 20% off.
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        currency: "USD",
+        basePriceMicros: 14990000,
+        discount: discountPhaseTimeWindow,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_monthly["product.offer_absolute_discount"]).toBe(
+      "$2.99",
+    );
+    expect(variables.$rc_monthly["product.offer_relative_discount"]).toBe(
+      "20%",
+    );
+  });
+
+  test("a one_time discount on a multi-month base still compares against the base price", () => {
+    /**
+     * Regression: `toDiscountPhase` normalizes a discount's period to a single unit and
+     * moves the count into `cycleCount`, so a discount on a 3-month plan carries
+     * `{number: 1, unit: Month}`. Comparing that to the base period raw would wrongly
+     * suppress a discount that does apply to the base plan's own renewal.
+     */
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_three_month",
+        identifier: "quarterly_bingo",
+        title: "Quarterly",
+        currency: "USD",
+        period: { unit: PeriodUnit.Month, number: 3 },
+        basePriceMicros: 27000000,
+        discount: {
+          ...discountPhaseOneTime,
+          periodDuration: "P3M",
+          price: toPrice(15000000, "USD"),
+          period: { number: 1, unit: PeriodUnit.Month },
+          cycleCount: 3,
+        },
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_three_month["product.offer_absolute_discount"]).toBe(
+      "$12.00",
+    );
+    expect(variables.$rc_three_month["product.offer_relative_discount"]).toBe(
+      "44%",
+    );
+  });
+
+  test("a free trial phase leaves the offer discounts empty", () => {
+    // trialPhaseP2W carries `price: null`, a different guard branch from `price: 0`.
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 9000000,
+        trial: trialPhaseP2W,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_monthly["product.offer_absolute_discount"]).toBe("");
+    expect(variables.$rc_monthly["product.offer_relative_discount"]).toBe("");
+  });
+
+  test("absolute_discount is empty when every package is free", () => {
+    // A zero anchor makes the ratio NaN; the guard must not fall through to "€0".
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 0,
+      },
+      {
+        packageIdentifier: "$rc_annual",
+        identifier: "annual_bingo",
+        title: "Annual",
+        period: { unit: PeriodUnit.Year, number: 1 },
+        basePriceMicros: 0,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_monthly["product.absolute_discount"]).toBe("");
+    expect(variables.$rc_annual["product.absolute_discount"]).toBe("");
+    expect(variables.$rc_monthly["product.relative_discount"]).toBe("");
+    expect(variables.$rc_annual["product.relative_discount"]).toBe("");
+  });
+
+  test("absolute_discount normalizes onto a multi-month package period", () => {
+    // €10.00/mo anchor vs. a €21.00 quarterly package: saves (€10.00 x 3) - €21.00 = €9.00.
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 10000000,
+      },
+      {
+        packageIdentifier: "$rc_three_month",
+        identifier: "quarterly_bingo",
+        title: "Quarterly",
+        period: { unit: PeriodUnit.Month, number: 3 },
+        basePriceMicros: 21000000,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_three_month["product.absolute_discount"]).toBe(
+      "€9.00",
+    );
+  });
+});

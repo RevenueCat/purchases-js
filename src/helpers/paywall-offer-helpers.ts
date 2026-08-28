@@ -6,6 +6,7 @@ import type {
   SubscriptionOption,
 } from "../entities/offerings";
 import { type Translator } from "../ui/localization/translator";
+import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import { getNextRenewalDate, type Period } from "./duration-helper";
 import { getPeriodVariables } from "./paywall-period-helpers";
 import { getPriceVariables } from "./paywall-price-helpers";
@@ -57,6 +58,82 @@ function getOfferEndDate(period: Period, translator: Translator): string {
     : "";
 }
 
+function isDiscountPhase(offer: OfferPhase): offer is DiscountPhase {
+  return "durationMode" in offer;
+}
+
+/**
+ * The offer's price, but only when it can be compared like-for-like against the
+ * standard renewal price: same billing period, and not free. Returns null otherwise
+ * so the discount variables render empty rather than a misleading number.
+ */
+function comparableOfferPriceMicros(
+  product: SubscriptionOption,
+  offer: OfferPhase,
+): number | null {
+  if (offer.price === null || offer.price.amountMicros <= 0) {
+    return null;
+  }
+
+  // A discount always replaces the base plan's own renewal price, so it is comparable by
+  // construction. Its `period` can't be compared directly: `toDiscountPhase` normalizes it
+  // to a single unit and moves the count into `cycleCount`, so a discount on a 3-month base
+  // plan carries `{number: 1, unit: Month}` and a raw comparison would wrongly reject it.
+  if (isDiscountPhase(offer)) {
+    return offer.price.amountMicros;
+  }
+
+  // Trials and intro prices bill on their own period, which only lines up with the standard
+  // price when it matches the base period exactly.
+  const basePeriod = product.base.period;
+  const offerPeriod = offer.period;
+
+  if (
+    basePeriod === null ||
+    offerPeriod === null ||
+    offerPeriod.number !== basePeriod.number ||
+    offerPeriod.unit !== basePeriod.unit
+  ) {
+    return null;
+  }
+
+  return offer.price.amountMicros;
+}
+
+function setOfferDiscountVariables(
+  product: SubscriptionOption,
+  offer: OfferPhase,
+  translator: Translator,
+  variables: VariableDictionary,
+) {
+  const standardPrice = product.base.price;
+  const offerPriceMicros = comparableOfferPriceMicros(product, offer);
+
+  if (
+    standardPrice === null ||
+    standardPrice.amountMicros <= 0 ||
+    offerPriceMicros === null
+  ) {
+    return;
+  }
+
+  const savingMicros = standardPrice.amountMicros - offerPriceMicros;
+  if (savingMicros <= 0) {
+    return;
+  }
+
+  variables["product.offer_absolute_discount"] = translator.formatPrice(
+    savingMicros,
+    standardPrice.currency,
+  );
+  variables["product.offer_relative_discount"] = translator.translate(
+    LocalizationKeys.PaywallVariablesSubRelativeDiscount,
+    {
+      discount: ((savingMicros * 100) / standardPrice.amountMicros).toFixed(0),
+    },
+  );
+}
+
 export function setOfferVariables(
   product: SubscriptionOption,
   translator: Translator,
@@ -69,6 +146,8 @@ export function setOfferVariables(
   if (primaryOffer === null) {
     return;
   }
+
+  setOfferDiscountVariables(product, primaryOffer, translator, variables);
 
   const offerDuration = getOfferDuration(primaryOffer);
   const offerPricingPeriod = getOfferPricingPeriod(product, primaryOffer);

@@ -14,6 +14,7 @@ import {
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import { getPeriodVariables } from "./paywall-period-helpers";
 import { getPricePerPeriodFactors } from "./price-conversion-helper";
+import { floorMicrosToCurrencyUnit } from "./price-labels";
 import { getPriceVariables } from "./paywall-price-helpers";
 import {
   setNonSubscriptionOfferVariables,
@@ -200,6 +201,9 @@ function parsePackageIntoVariables(
     "product.secondary_offer_period": "",
     "product.secondary_offer_period_abbreviated": "",
     "product.relative_discount": "",
+    "product.absolute_discount": "",
+    "product.offer_relative_discount": "",
+    "product.offer_absolute_discount": "",
   };
 
   if (productIsSubscription(productType, purchaseOption)) {
@@ -247,9 +251,14 @@ function parsePackageIntoVariables(
     }
 
     // Calculate discount based on monthly equivalent prices
-    if (highestPricePackage) {
+    const highestMonthlyPrice = highestPricePackage
+      ? getPackageMonthlyPrice(highestPricePackage)
+      : 0;
+
+    // A zero-priced anchor makes the ratio NaN, and `NaN < 1` is false, so the
+    // suppression below would fail open and render "NaN%".
+    if (highestMonthlyPrice > 0) {
       const packageMonthlyPrice = getPackageMonthlyPrice(pkg);
-      const highestMonthlyPrice = getPackageMonthlyPrice(highestPricePackage);
       const discount =
         ((highestMonthlyPrice - packageMonthlyPrice) * 100) /
         highestMonthlyPrice;
@@ -262,6 +271,28 @@ function parsePackageIntoVariables(
               {
                 discount: discount.toFixed(0),
               },
+            );
+
+      // The absolute saving is expressed over this package's own period rather than
+      // per month. A ratio is period-invariant so `relative_discount` can normalize
+      // on any unit, but a currency amount changes with whatever unit it's quoted in,
+      // so it's anchored to the term actually being purchased. `perMonth` converts a
+      // period total into a monthly price, so dividing by it converts the monthly
+      // delta back into this package's period.
+      const perMonth = basePeriod
+        ? getPricePerPeriodFactors(basePeriod).perMonth
+        : 0;
+      baseObject["product.absolute_discount"] =
+        discount < 1 || perMonth <= 0
+          ? ""
+          : translator.formatPrice(
+              // Floor rather than round, so a derived saving never overstates what the
+              // customer saves. Matches `getPriceVariables` and `toPricingPhase`.
+              floorMicrosToCurrencyUnit(
+                (highestMonthlyPrice - packageMonthlyPrice) / perMonth,
+                productPrice.currency,
+              ),
+              productPrice.currency,
             );
     }
 
