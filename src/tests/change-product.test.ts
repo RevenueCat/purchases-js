@@ -555,6 +555,7 @@ describe("product change checkout networking", () => {
     trackSDKEvent: () => {},
     trackExternalEvent: () => {},
     trackPaywallEvent: () => {},
+    trackCustomPaywallImpression: () => {},
     dispose: () => {},
     flushAllEvents: () => Promise.resolve(),
   } as unknown as IEventsTracker;
