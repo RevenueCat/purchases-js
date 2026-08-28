@@ -1592,6 +1592,7 @@ export class Purchases {
           redemptionInfo: operationResult.redemptionInfo,
           operationSessionId: operationResult.operationSessionId,
           attributionMetadata: operationResult.attributionMetadata,
+          customerEmail: operationResult.customerEmail,
           storeTransaction: {
             storeTransactionId: operationResult.storeTransactionIdentifier,
             productIdentifier: operationResult.productIdentifier,
@@ -2226,6 +2227,7 @@ export class Purchases {
         redemptionInfo: operationResult.redemptionInfo,
         operationSessionId: operationResult.operationSessionId,
         attributionMetadata: operationResult.attributionMetadata,
+        customerEmail: operationResult.customerEmail,
         storeTransaction: {
           storeTransactionId: operationResult.storeTransactionIdentifier,
           productIdentifier: rcPackage.webBillingProduct.identifier,

@@ -448,6 +448,7 @@ export interface PurchaseParams {
 
 // @public
 export interface PurchaseResult {
+    readonly customerEmail?: string;
     readonly customerInfo: CustomerInfo;
     readonly operationSessionId: string;
     readonly redemptionInfo: RedemptionInfo | null;

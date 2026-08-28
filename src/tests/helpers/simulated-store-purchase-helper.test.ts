@@ -145,6 +145,22 @@ describe("purchaseSimulatedStoreProduct", () => {
     });
   });
 
+  test("includes customerEmail from PurchaseParams when present", async () => {
+    const promise = purchaseSimulatedStoreProduct(
+      { ...mockPurchaseParams, customerEmail: "test@example.com" },
+      mockBackend,
+      "test-user-id",
+    );
+
+    const mountCall = vi.mocked(mount).mock.calls[0];
+    const props = mountCall[1].props;
+
+    await props?.onValidPurchase();
+    const result = await promise;
+
+    expect(result.customerEmail).toEqual("test@example.com");
+  });
+
   test("rejects with error on failed purchase", async () => {
     const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,
