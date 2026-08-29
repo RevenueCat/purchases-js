@@ -43,6 +43,7 @@ interface PaddlePurchaseParams {
   presentedOfferingIdentifier: string;
   customerEmail?: string;
   locale?: string;
+  discountCode?: string;
 }
 
 /**
@@ -90,6 +91,7 @@ interface BuildPaddleCheckoutOptionsParams {
   transactionId: string;
   locale: string;
   customerEmail?: string;
+  discountCode?: string;
   checkoutSettings?: PaddleCheckoutSettings;
   displayMode?: PaddleCheckoutDisplayMode;
   theme?: PaddleCheckoutTheme;
@@ -105,6 +107,7 @@ export function buildPaddleCheckoutOptions({
   transactionId,
   locale,
   customerEmail,
+  discountCode,
   checkoutSettings = {},
   displayMode = "overlay",
   theme = "light",
@@ -138,6 +141,7 @@ export function buildPaddleCheckoutOptions({
     transactionId,
     settings,
     ...(customerEmail && { customer: { email: customerEmail } }),
+    ...(discountCode && { discountCode }),
   };
 }
 
@@ -316,7 +320,7 @@ export class PaddleService {
     onCheckoutCompleted,
   }: PaddlePurchase): Promise<OperationSessionSuccessfulResult> {
     const paddleInstance = this.getPaddleInstance();
-    const { customerEmail, locale = "en" } = params;
+    const { customerEmail, locale = "en", discountCode } = params;
 
     const forwardTotals = (data: PaddleEventData["data"]) => {
       if (onCheckoutTotals && data?.totals) {
@@ -393,6 +397,7 @@ export class PaddleService {
         transactionId,
         locale,
         customerEmail,
+        discountCode,
         checkoutSettings,
         displayMode,
         theme,
