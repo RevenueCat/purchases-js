@@ -233,6 +233,21 @@ describe("buildPaddleCheckoutOptions", () => {
     });
     expect(withoutEmail).not.toHaveProperty("customer");
   });
+
+  test("includes discountCode when provided and omits it otherwise", () => {
+    const withDiscount = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      discountCode: "SAVE10",
+    });
+    expect(withDiscount.discountCode).toBe("SAVE10");
+
+    const withoutDiscount = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+    });
+    expect(withoutDiscount).not.toHaveProperty("discountCode");
+  });
 });
 
 describe("PaddleService", () => {
@@ -603,6 +618,41 @@ describe("PaddleService", () => {
       expect(onCheckoutLoaded).toHaveBeenCalled();
 
       // Ignore errors - this test only verifies CHECKOUT_LOADED behavior
+      purchasePromise.catch(() => {});
+    });
+
+    test("passes discountCode to Paddle when provided", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: { ...purchaseParams, discountCode: "SAVE10" },
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          transactionId: "test-transaction-id",
+          discountCode: "SAVE10",
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test("omits discountCode from Paddle when not provided", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+      });
+
+      const openOptions = vi.mocked(mockPaddleInstance.Checkout!.open).mock
+        .calls[0][0];
+      expect(openOptions).not.toHaveProperty("discountCode");
+
       purchasePromise.catch(() => {});
     });
 
