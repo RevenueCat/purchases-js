@@ -63,6 +63,20 @@ describe("preload", () => {
     expect(APIGetRequest).not.toHaveBeenCalledWith(expectedRequest);
   });
 
+  test("does not load branding info if using Amazon Store api key", async () => {
+    const purchases = configurePurchases(
+      "test-app-user-id",
+      "test-rc-source",
+      "amzn_store_api_key",
+    );
+    const expectedRequest: GetRequest = {
+      url: "http://localhost:8000/rcbilling/v1/branding",
+    };
+    expect(APIGetRequest).not.toHaveBeenCalledWith(expectedRequest);
+    await purchases.preload();
+    expect(APIGetRequest).not.toHaveBeenCalledWith(expectedRequest);
+  });
+
   test("does not inject an apple-touch-icon when the flag is disabled", async () => {
     server.use(
       http.get("http://localhost:8000/rcbilling/v1/branding", ({ request }) => {

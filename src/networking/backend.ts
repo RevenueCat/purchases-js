@@ -549,11 +549,14 @@ export class Backend {
   async postReceipt(
     appUserId: string,
     productId: string,
-    currency: string,
+    currency: string | null,
     fetchToken: string,
-    presentedOfferingContext: PresentedOfferingContext,
-    initiationSource: string,
+    presentedOfferingContext: PresentedOfferingContext | null,
+    initiationSource: PostReceiptInitiationSource,
     paywallId?: string,
+    storeUserId?: string,
+    is_restore?: boolean,
+    price?: number,
   ): Promise<SubscriberResponse> {
     type PostReceiptTargetingRule = {
       rule_id: string;
@@ -562,9 +565,9 @@ export class Backend {
     type PostReceiptRequestBody = {
       fetch_token: string;
       product_id: string;
-      currency: string;
+      currency: string | null;
       app_user_id: string;
-      presented_offering_identifier: string;
+      presented_offering_identifier: string | null;
       presented_placement_identifier: string | null;
       presented_workflow_id?: string | null;
       applied_targeting_rule?: PostReceiptTargetingRule | null;
@@ -572,10 +575,13 @@ export class Backend {
       paywall?: {
         paywall_id: string;
       };
+      store_user_id?: string;
+      is_restore?: boolean;
+      price: number | null;
     };
 
     let targetingInfo: PostReceiptTargetingRule | null = null;
-    if (presentedOfferingContext.targetingContext) {
+    if (presentedOfferingContext?.targetingContext) {
       targetingInfo = {
         rule_id: presentedOfferingContext.targetingContext.ruleId,
         revision: presentedOfferingContext.targetingContext.revision,
@@ -588,13 +594,16 @@ export class Backend {
       currency: currency,
       app_user_id: appUserId,
       presented_offering_identifier:
-        presentedOfferingContext.offeringIdentifier,
+        presentedOfferingContext?.offeringIdentifier ?? null,
       presented_placement_identifier:
-        presentedOfferingContext.placementIdentifier,
+        presentedOfferingContext?.placementIdentifier ?? null,
       presented_workflow_id:
         this.purchasesContext?.workflowContext?.workflowIdentifier,
       applied_targeting_rule: targetingInfo,
       initiation_source: initiationSource,
+      store_user_id: storeUserId,
+      is_restore: is_restore,
+      price: price ?? null,
     };
 
     if (paywallId) {
@@ -670,4 +679,15 @@ export class Backend {
     }
     return (await cdnResponse.json()) as WorkflowDataResponse;
   }
+}
+
+/**
+ * The different intiation sources for a receipt posted to the backend.
+ *
+ * @internal
+ */
+export enum PostReceiptInitiationSource {
+  PURCHASE = "purchase",
+  RESTORE = "restore",
+  UNSYNCED_ACTIVE_PURCHASES = "unsynced_active_purchases",
 }

@@ -5,7 +5,8 @@
   "version": "1.55.0",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "vega.js"
   ],
   "main": "./dist/Purchases.umd.js",
   "module": "./dist/Purchases.es.js",
@@ -14,6 +15,11 @@
     ".": {
       "import": "./dist/Purchases.es.js",
       "require": "./dist/Purchases.umd.js"
+    },
+    "./vega": {
+      "types": "./dist/Purchases.es.d.ts",
+      "import": "./dist/Purchases.vega.es.js",
+      "require": "./dist/Purchases.vega.umd.js"
     },
     "./styles": {
       "import": "./dist/style.css",
@@ -36,15 +42,16 @@
     "iap"
   ],
   "scripts": {
-    "watch": "vite build --watch",
-    "build": "tsc && vite build",
-    "build:dev": "tsc && vite build --mode development",
-    "build:dev-watch": "tsc && vite build --mode development --watch",
+    "watch": "vite build --config vite.watch.config.js --watch",
+    "build": "tsc && vite build && vite build --config vite.vega.config.js",
+    "build:dev": "tsc && vite build --mode development && vite build --config vite.vega.config.js --mode development",
+    "build:dev-watch": "tsc && vite build --mode development --config vite.watch.config.js --watch",
     "preview": "vite preview",
     "lint": "prettier --check . && eslint src/",
     "format": "prettier --write .",
     "pack-build": "npm run build && npm pack",
     "test": "vitest run",
+    "verify:entry-point-boundaries": "node scripts/verify-entry-point-boundaries.mjs",
     "test:watch": "vitest watch",
     "test:typecheck": "tsc --project tsconfig.test.json",
     "typecheck": "tsc --noEmit",
@@ -58,6 +65,10 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@amazon-devices/kepler-compatibility": "1.0.5",
+    "@amazon-devices/kepler-file-system": "0.0.7",
+    "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
+    "react-native": "0.72.0",
     "@eslint/js": "^9.16.0",
     "@microsoft/api-extractor": "^7.48.0",
     "@paddle/paddle-js": "^1.6.4",
@@ -102,6 +113,26 @@
     "vite": "^6.4.1",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "@amazon-devices/kepler-compatibility": "1.0.5",
+    "@amazon-devices/kepler-file-system": "0.0.7",
+    "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
+    "react-native": ">=0.72.0"
+  },
+  "peerDependenciesMeta": {
+    "@amazon-devices/kepler-compatibility": {
+      "optional": true
+    },
+    "@amazon-devices/kepler-file-system": {
+      "optional": true
+    },
+    "@amazon-devices/keplerscript-appstore-iap-lib": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
   },
   "lint-staged": {
     "**/*": [

@@ -471,6 +471,7 @@ export class Purchases {
     /* Excluded from this release type: eventsTracker */
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
+    /* Excluded from this release type: amazonBillingWrapper */
     /* Excluded from this release type: cachedCurrentOffering */
     /* Excluded from this release type: instance */
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
@@ -500,12 +501,14 @@ export class Purchases {
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
+    restorePurchases(): Promise<RestorePurchasesResult>;
     setAttributes(attributes: {
         [key: string | ReservedCustomerAttribute]: string | null;
     }): Promise<void>;
     static setLogHandler(handler: LogHandler | null): void;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
+    syncPurchases(): Promise<SyncPurchasesResult>;
     trackCustomPaywallImpression(params?: CustomPaywallImpressionParams): void;
     /* Excluded from this release type: _trackEvent */
     /* Excluded from this release type: _flushAllEvents */
@@ -602,6 +605,12 @@ export enum ReservedCustomerAttribute {
 }
 
 // @public
+export interface RestorePurchasesResult {
+    // (undocumented)
+    customerInfo: CustomerInfo;
+}
+
+// @public
 export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "galaxy" | "unknown";
 
 // @public @deprecated
@@ -644,6 +653,12 @@ export interface SubscriptionOption extends PurchaseOption {
     readonly introPrice: PricingPhase | null;
     readonly trial: PricingPhase | null;
     /* Excluded from this release type: discount */
+}
+
+// @public
+export interface SyncPurchasesResult {
+    // (undocumented)
+    customerInfo: CustomerInfo;
 }
 
 // @public

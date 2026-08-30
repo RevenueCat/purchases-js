@@ -1,23 +1,33 @@
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { SDK_HEADERS } from "../networking/http-client";
 import {
+  isAmazonApiKey,
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
   isWebBillingApiKey,
 } from "./api-key-helper";
+import { isVegaEntryPoint } from "../vega-entry-point";
 
 export function validateApiKey(apiKey: string) {
   const isValidApiKey =
     isWebBillingApiKey(apiKey) ||
     isSimulatedStoreApiKey(apiKey) ||
     isPaddleApiKey(apiKey) ||
-    isStripeApiKey(apiKey);
+    isStripeApiKey(apiKey) ||
+    isAmazonApiKey(apiKey);
 
   if (!isValidApiKey) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,
-      "Invalid API key. Use your Web Billing API key.",
+      "Invalid API key. Use a valid API key obtained from the RevenueCat Dashboard.",
+    );
+  }
+
+  if (isVegaEntryPoint() && !isAmazonApiKey(apiKey)) {
+    throw new PurchasesError(
+      ErrorCode.ConfigurationError,
+      "Vega applications must be configured with an Amazon Appstore API key.",
     );
   }
 }

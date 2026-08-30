@@ -1,5 +1,8 @@
 import type { Product } from "../entities/offerings";
-import type { Backend } from "../networking/backend";
+import {
+  PostReceiptInitiationSource,
+  type Backend,
+} from "../networking/backend";
 import type { PurchaseResult } from "../entities/purchase-result";
 import { generateUUID } from "./uuid-helper";
 import type { StoreTransaction } from "../entities/store-transaction";
@@ -28,7 +31,7 @@ export async function postSimulatedStoreReceipt(
     product.price.currency,
     fetchToken,
     product.presentedOfferingContext,
-    "purchase",
+    PostReceiptInitiationSource.PURCHASE,
     paywallId,
   );
 

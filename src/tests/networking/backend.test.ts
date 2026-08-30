@@ -11,7 +11,7 @@ import {
   getVirtualCurrenciesResponseWith3Currencies,
   getVirtualCurrenciesResponseWithNoCurrencies,
 } from "../test-responses";
-import { Backend } from "../../networking/backend";
+import { Backend, PostReceiptInitiationSource } from "../../networking/backend";
 import { StatusCodes } from "http-status-codes";
 import {
   BackendErrorCode,
@@ -109,6 +109,36 @@ describe("httpConfig is setup correctly", () => {
     expect(headers.get("X-Is-Sandbox")).toEqual("false");
   });
 
+  test("includes the sandbox header for non-Amazon API key types", async () => {
+    server.use(
+      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () =>
+        HttpResponse.json(customerInfoResponse, { status: 200 }),
+      ),
+    );
+
+    const requests: Request[] = [];
+    server.events.on("request:start", (req) => {
+      requests.push(req.request);
+    });
+    const apiKeys = [
+      { apiKey: "rcb_valid_key", isSandbox: false },
+      { apiKey: "rcb_sb_valid_key", isSandbox: true },
+      { apiKey: "pdl_valid_key", isSandbox: false },
+      { apiKey: "strp_valid_key", isSandbox: false },
+      { apiKey: "test_valid_key", isSandbox: false },
+    ];
+
+    for (const { apiKey, isSandbox } of apiKeys) {
+      backend = new Backend(apiKey);
+      await backend.getCustomerInfo("someAppUserId");
+
+      const latestRequest = requests.at(-1);
+      expect(latestRequest?.headers.get("X-Is-Sandbox")).toEqual(
+        `${isSandbox}`,
+      );
+    }
+  });
+
   test("expected platformInfo headers are sent", async () => {
     setCustomerInfoResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
@@ -130,6 +160,42 @@ describe("httpConfig is setup correctly", () => {
     if (!headers) return;
     expect(headers.get("X-Platform-Flavor")).toEqual("flutter");
     expect(headers.get("X-Platform-Flavor-Version")).toEqual("1.2.3");
+  });
+
+  test("uses the Amazon platform header when configured with an Amazon API key", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend("amzn_valid_key");
+
+    await backend.getCustomerInfo("someAppUserId");
+
+    expect(requestPerformed?.headers.get("X-Platform")).toEqual("amazon");
+  });
+
+  test("omits the sandbox header when configured with an Amazon API key", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend("amzn_valid_key", {
+      additionalHeaders: {
+        "X-Is-Sandbox": "false",
+      },
+    });
+
+    await backend.getCustomerInfo("someAppUserId");
+
+    expect(requestPerformed?.headers.get("X-Is-Sandbox")).toBeNull();
   });
 });
 
@@ -1621,7 +1687,9 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      "restore",
+      PostReceiptInitiationSource.RESTORE,
+      undefined,
+      "amazon_store_user_id",
     );
 
     expect(postReceiptAPIMock).toHaveBeenCalledTimes(1);
@@ -1634,14 +1702,58 @@ describe("postReceipt request", () => {
       fetch_token: "test_fetch_token",
       product_id: "monthly",
       currency: "EUR",
+      price: null,
       app_user_id: "someAppUserId",
       presented_offering_identifier: "offering_1",
       presented_placement_identifier: null,
       applied_targeting_rule: null,
       initiation_source: "restore",
+      store_user_id: "amazon_store_user_id",
     });
 
     expect(result).toEqual(customerInfoResponse);
+  });
+
+  test("posts a null currency when provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      null,
+      "test_fetch_token",
+      null,
+      PostReceiptInitiationSource.RESTORE,
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.currency).toBeNull();
+  });
+
+  test("posts a price when provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "USD",
+      "test_fetch_token",
+      null,
+      PostReceiptInitiationSource.PURCHASE,
+      undefined,
+      undefined,
+      undefined,
+      4.99,
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.price).toBe(4.99);
   });
 
   test("includes targeting context when provided", async () => {
@@ -1662,7 +1774,7 @@ describe("postReceipt request", () => {
         },
         placementIdentifier: "placement_1",
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     expect(postReceiptAPIMock).toHaveBeenCalledTimes(1);
@@ -1672,6 +1784,7 @@ describe("postReceipt request", () => {
       fetch_token: "test_fetch_token",
       product_id: "monthly",
       currency: "EUR",
+      price: null,
       app_user_id: "someAppUserId",
       presented_offering_identifier: "offering_1",
       presented_placement_identifier: "placement_1",
@@ -1683,6 +1796,35 @@ describe("postReceipt request", () => {
     });
 
     expect(result).toEqual(customerInfoResponse);
+  });
+
+  test("uses null offering context fields when no offering context is provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "EUR",
+      "test_fetch_token",
+      null,
+      PostReceiptInitiationSource.RESTORE,
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).toMatchObject({
+      fetch_token: "test_fetch_token",
+      product_id: "monthly",
+      currency: "EUR",
+      app_user_id: "someAppUserId",
+      presented_offering_identifier: null,
+      presented_placement_identifier: null,
+      applied_targeting_rule: null,
+      initiation_source: "restore",
+    });
+    expect(requestBody).not.toHaveProperty("presented_workflow_id");
   });
 
   test("handles placement identifier correctly", async () => {
@@ -1700,7 +1842,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: "home_screen",
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1727,7 +1869,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1750,7 +1892,7 @@ describe("postReceipt request", () => {
         targetingContext: null,
         placementIdentifier: null,
       },
-      "purchase",
+      PostReceiptInitiationSource.PURCHASE,
     );
 
     const request = postReceiptAPIMock.mock.calls[0][0].request;
@@ -1773,7 +1915,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
@@ -1804,7 +1946,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,
@@ -1827,7 +1969,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.NetworkError,
@@ -1858,7 +2000,7 @@ describe("postReceipt request", () => {
           targetingContext: null,
           placementIdentifier: null,
         },
-        "restore",
+        PostReceiptInitiationSource.RESTORE,
       ),
       new PurchasesError(
         ErrorCode.InvalidReceiptError,
