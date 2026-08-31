@@ -24,6 +24,7 @@ import {
 import { type IEventsTracker } from "../../behavioural-events/events-tracker";
 import {
   checkoutPrepareResponse,
+  quickPurchasesPrepareResponse,
   checkoutStartResponse,
 } from "../test-responses";
 import { BackendErrorCode, ErrorCode } from "../../entities/errors";
@@ -360,6 +361,18 @@ describe("PurchaseOperationHelper", () => {
       { id: "base_option", priceId: "test-price-id" },
     );
     expect(response).toEqual(checkoutPrepareResponse);
+  });
+
+  test("prepareForQuickPurchases returns the backend response", async () => {
+    setCheckoutPrepareResponse(
+      HttpResponse.json(quickPurchasesPrepareResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+
+    const response = await purchaseOperationHelper.prepareForQuickPurchases();
+
+    expect(response).toEqual(quickPurchasesPrepareResponse);
   });
 
   test("prepareCheckout fails if /checkout/prepare fails", async () => {

@@ -446,6 +446,7 @@ export interface PurchaseParams {
     showDiscountCodeField?: boolean;
     skipSuccessPage?: boolean;
     termsAndConditionsUrl?: string;
+    tryWithApplePay?: boolean;
     /* Excluded from this release type: productChangeInfo */
 }
 
@@ -475,6 +476,8 @@ export class Purchases {
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
     /* Excluded from this release type: cachedCurrentOffering */
+    /* Excluded from this release type: preparedQuickPurchaseConfiguration */
+    /* Excluded from this release type: quickPurchasePreparationPromise */
     /* Excluded from this release type: instance */
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
@@ -498,6 +501,7 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
+    prepareForQuickPurchases(): Promise<void>;
     presentExpressPurchaseButton(params: PresentExpressPurchaseButtonParams): Promise<PurchaseResult>;
     presentPaywall(paywallParams: PresentPaywallParams): Promise<PaywallPurchaseResult>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;

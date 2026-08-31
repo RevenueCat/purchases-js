@@ -37,6 +37,7 @@ import {
 import {
   type OperationSessionSuccessfulResult,
   type PurchaseFlowError,
+  PurchaseFlowErrorCode,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
@@ -59,7 +60,10 @@ import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
 import type { BrandingAppearance } from "./entities/branding";
 import { requiresLoadedResources } from "./helpers/decorators";
-import { resolveTermsAndConditionsUrl } from "./helpers/checkout-consent-helper";
+import {
+  isCheckoutConsentRequired,
+  resolveTermsAndConditionsUrl,
+} from "./helpers/checkout-consent-helper";
 import {
   enrichPackagesWithPlacementContext,
   getOfferingIdForPlacement,
@@ -158,6 +162,15 @@ import {
   applyBrandingAppearanceOverride,
   mergeBrandingAppearanceOverrides,
 } from "./helpers/branding-appearance-helper";
+import { getInitialPriceFromPurchaseOption } from "./helpers/purchase-option-price-helper";
+import {
+  type PreparedApplePayConfiguration,
+  type PreparedApplePayPurchase,
+  prepareApplePayConfiguration,
+  prepareApplePayPurchaseForLater,
+  presentPreparedApplePayPurchase,
+  updatePreparedApplePayPurchase,
+} from "./stripe/apple-pay-purchase";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -305,6 +318,13 @@ export class Purchases {
 
   /** @internal */
   private cachedCurrentOffering: Offering | null = null;
+
+  /** @internal */
+  private preparedQuickPurchaseConfiguration: PreparedApplePayPurchase | null =
+    null;
+
+  /** @internal */
+  private quickPurchasePreparationPromise: Promise<void> | null = null;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -1538,6 +1558,296 @@ export class Purchases {
   }
 
   /**
+   * Prepares the SDK to present Apple Pay synchronously from a later
+   * {@link Purchases.purchase} call.
+   *
+   * Call this before the customer interacts with a purchase button. The method
+   * is idempotent and concurrent calls share the same preparation.
+   */
+  @requiresLoadedResources
+  public async prepareForQuickPurchases(): Promise<void> {
+    if (!isWebBillingApiKey(this._API_KEY)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Quick purchases are only available with Web Billing API keys.",
+      );
+    }
+
+    if (this.preparedQuickPurchaseConfiguration) {
+      return;
+    }
+
+    if (!this.quickPurchasePreparationPromise) {
+      this.quickPurchasePreparationPromise =
+        this.prepareQuickPurchaseConfiguration()
+          .catch((error) => {
+            this.preparedQuickPurchaseConfiguration = null;
+            throw error;
+          })
+          .finally(() => {
+            this.quickPurchasePreparationPromise = null;
+          });
+    }
+
+    return await this.quickPurchasePreparationPromise;
+  }
+
+  /** @internal */
+  private async prepareQuickPurchaseConfiguration(): Promise<void> {
+    Logger.debugLog("Preparing quick purchases with /prepare");
+    const response =
+      await this.purchaseOperationHelper.prepareForQuickPurchases();
+    const configuration: PreparedApplePayConfiguration =
+      await prepareApplePayConfiguration({
+        gatewayParams: response.stripe_gateway_params,
+        managementUrl: response.management_url,
+      });
+    this.preparedQuickPurchaseConfiguration =
+      await prepareApplePayPurchaseForLater(configuration);
+    if (!this.preparedQuickPurchaseConfiguration) {
+      Logger.debugLog(
+        "Apple Pay is unavailable; quick purchases will use checkout",
+      );
+      return;
+    }
+    Logger.debugLog("Quick purchases are ready");
+  }
+
+  /** @internal */
+  private tryPreparedQuickPurchase(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> | null {
+    if (!isWebBillingApiKey(this._API_KEY)) {
+      return null;
+    }
+
+    const preparedPurchase = this.preparedQuickPurchaseConfiguration;
+    if (!preparedPurchase) {
+      Logger.debugLog(
+        "Apple Pay first requested without prepared quick-purchase state; using checkout",
+      );
+      return null;
+    }
+
+    const appearanceOverride = mergeBrandingAppearanceOverrides(
+      this._brandingAppearanceOverride,
+      params.brandingAppearanceOverride,
+    );
+    const effectiveParams = appearanceOverride
+      ? { ...params, brandingAppearanceOverride: appearanceOverride }
+      : params;
+    const brandingInfo = applyBrandingAppearanceOverride(
+      this._brandingInfo,
+      appearanceOverride,
+    );
+    const product = effectiveParams.rcPackage.webBillingProduct;
+    const purchaseOption =
+      effectiveParams.purchaseOption ?? product.defaultPurchaseOption;
+    const termsAndConditionsUrl = resolveTermsAndConditionsUrl({
+      brandingInfo,
+      termsAndConditionsUrl: effectiveParams.termsAndConditionsUrl,
+    });
+    const skipReasons: string[] = [];
+    if (this.resolveProductChange(effectiveParams)) {
+      skipReasons.push("product change requested");
+    }
+    if (effectiveParams.discountCode) {
+      skipReasons.push("discount code requested");
+    }
+    if (
+      isCheckoutConsentRequired({
+        brandingInfo,
+        termsAndConditionsUrl,
+        productDetails: product,
+      })
+    ) {
+      skipReasons.push("checkout consent required");
+    }
+    if (skipReasons.length > 0) {
+      Logger.debugLog(
+        `Apple Pay first skipped: ${skipReasons.join(", ")}; using checkout`,
+      );
+      return null;
+    }
+
+    const selectedLocale =
+      effectiveParams.selectedLocale ??
+      effectiveParams.defaultLocale ??
+      englishLocale;
+    const defaultLocale = effectiveParams.defaultLocale ?? englishLocale;
+    const translator = new Translator(
+      effectiveParams.labelsOverride ?? {},
+      selectedLocale,
+      defaultLocale,
+    );
+    const initialPrice = getInitialPriceFromPurchaseOption(
+      product,
+      purchaseOption,
+    );
+
+    let preparedApplePay: PreparedApplePayPurchase;
+    try {
+      preparedApplePay = updatePreparedApplePayPurchase({
+        preparedPurchase,
+        product,
+        purchaseOption,
+        priceBreakdown: {
+          currency: initialPrice.currency,
+          totalAmountInMicros: initialPrice.amountMicros,
+          totalExcludingTaxInMicros: initialPrice.amountMicros,
+          taxCalculationStatus: brandingInfo?.gateway_tax_collection_enabled
+            ? "unavailable"
+            : "disabled",
+          taxAmountInMicros: null,
+          taxBreakdown: null,
+        },
+        brandingInfo,
+        translator,
+      });
+    } catch (error) {
+      Logger.debugLog(
+        `Apple Pay setup failed, using checkout: ${String(error)}`,
+      );
+      return null;
+    }
+
+    Logger.debugLog(
+      "Apple Pay first is ready; calling paymentRequest.show() before /start",
+    );
+    const appUserId = this._appUserId;
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = {
+      ...utmParamsMetadata,
+      ...(effectiveParams.metadata || {}),
+    };
+    const applePayAttempt = presentPreparedApplePayPurchase({
+      preparedPurchase: preparedApplePay,
+      customerEmail: effectiveParams.customerEmail,
+      brandingInfo,
+      translator,
+      purchaseOperationHelper: this.purchaseOperationHelper,
+      eventsTracker: this.eventsTracker,
+      onPresented: async () => {
+        Logger.debugLog("Apple Pay presented; starting checkout with /start");
+        this.eventsTracker.trackSDKEvent(
+          createCheckoutSessionStartEvent({
+            appearance: brandingInfo?.appearance,
+            rcPackage: effectiveParams.rcPackage,
+            purchaseOptionToUse: purchaseOption,
+            customerEmail: effectiveParams.customerEmail,
+          }),
+        );
+
+        const startParams = {
+          appUserId,
+          productId: product.identifier,
+          purchaseOption,
+          presentedOfferingContext: product.presentedOfferingContext,
+          customerEmail: effectiveParams.customerEmail,
+          metadata,
+          workflowPurchaseContext: effectiveParams.workflowPurchaseContext,
+          attributionMetadata: effectiveParams.attributionMetadata,
+          paywallId: effectiveParams.paywallId,
+          paywallSessionId: effectiveParams.paywallSessionId,
+          locale: selectedLocale,
+          ...(appearanceOverride ? { appearanceOverride } : {}),
+        };
+
+        try {
+          await this.purchaseOperationHelper.checkoutStart(startParams);
+        } catch (error) {
+          if (
+            (error as PurchaseFlowError).errorCode !==
+            PurchaseFlowErrorCode.MissingEmailError
+          ) {
+            throw error;
+          }
+          await this.purchaseOperationHelper.checkoutStart({
+            ...startParams,
+            customerEmail: undefined,
+          });
+        }
+      },
+    });
+
+    return applePayAttempt
+      .then(async (result) => {
+        if (result.status === "unavailable") {
+          Logger.debugLog(
+            "Apple Pay could not be presented; using the normal checkout",
+          );
+          return await this.purchaseAfterLoadingResources({
+            ...effectiveParams,
+            tryWithApplePay: false,
+          });
+        }
+        if (result.status === "cancelled") {
+          this.eventsTracker.trackSDKEvent(
+            createCheckoutSessionEndClosedEvent(),
+          );
+          throw new PurchasesError(ErrorCode.UserCancelledError);
+        }
+
+        this.eventsTracker.trackSDKEvent(
+          createCheckoutSessionEndFinishedEvent({
+            redemptionInfo: result.operationResult.redemptionInfo,
+          }),
+        );
+        this.inMemoryCache.invalidateAllCaches();
+        Logger.debugLog("Purchase finished");
+        return {
+          customerInfo: await this._getCustomerInfoForUserId(appUserId),
+          redemptionInfo: result.operationResult.redemptionInfo,
+          operationSessionId: result.operationResult.operationSessionId,
+          attributionMetadata: result.operationResult.attributionMetadata,
+          storeTransaction: {
+            storeTransactionId:
+              result.operationResult.storeTransactionIdentifier,
+            productIdentifier: product.identifier,
+            purchaseDate: result.operationResult.purchaseDate,
+          },
+        };
+      })
+      .catch((error: unknown) => {
+        if (error instanceof PurchasesError) {
+          throw error;
+        }
+        const purchaseFlowError = error as PurchaseFlowError;
+        this.eventsTracker.trackSDKEvent(
+          createCheckoutSessionEndErroredEvent({
+            errorCode: purchaseFlowError.errorCode?.toString(),
+            errorMessage: purchaseFlowError.message,
+          }),
+        );
+        throw PurchasesError.getForPurchasesFlowError(purchaseFlowError);
+      });
+  }
+
+  /**
+   * Method to perform a purchase for a given package. This method preserves
+   * browser user activation by presenting a prepared Apple Pay request before
+   * awaiting any asynchronous work.
+   *
+   * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
+   * @returns a Promise for the customer and redemption info after the purchase is completed successfully.
+   */
+  public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
+    if (params.tryWithApplePay) {
+      const quickPurchase = this.tryPreparedQuickPurchase(params);
+      if (quickPurchase) {
+        return quickPurchase;
+      }
+    }
+
+    return this.purchaseAfterLoadingResources({
+      ...params,
+      tryWithApplePay: false,
+    });
+  }
+
+  /**
    * Method to perform a purchase for a given package. You can obtain the
    * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
@@ -1752,7 +2062,9 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   @requiresLoadedResources
-  public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
+  private async purchaseAfterLoadingResources(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> {
     const appearanceOverride = mergeBrandingAppearanceOverrides(
       this._brandingAppearanceOverride,
       params.brandingAppearanceOverride,

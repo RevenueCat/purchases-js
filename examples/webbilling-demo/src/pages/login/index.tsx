@@ -16,7 +16,7 @@ const LoginPage: React.FC = () => {
 
   const navigateToAppUserIDPaywall = (
     appUserId?: string,
-    destination: "paywall" | "rc_paywall" = "paywall",
+    destination: "apple_pay" | "paywall" | "rc_paywall" = "paywall",
   ) => {
     if (appUserId) {
       const params = new URLSearchParams();
@@ -111,6 +111,12 @@ const LoginPage: React.FC = () => {
             caption="Continue (RC Paywall)"
             onClick={() => {
               navigateToAppUserIDPaywall(appUserId, "rc_paywall");
+            }}
+          />
+          <Button
+            caption="Continue (Apple Pay first)"
+            onClick={() => {
+              navigateToAppUserIDPaywall(appUserId, "apple_pay");
             }}
           />
           <Button

@@ -94,6 +94,14 @@ export interface PurchaseParams {
   externalPurchaseTokenId?: string;
 
   /**
+   * If set to true after {@link Purchases.prepareForQuickPurchases} completes,
+   * Web Billing will try to present Apple Pay before showing the regular
+   * checkout. If preparation is unavailable or Apple Pay cannot be presented,
+   * the regular checkout is shown instead. Defaults to `false`.
+   */
+  tryWithApplePay?: boolean;
+
+  /**
    * Workflow-specific context for this purchase.
    * @internal
    */

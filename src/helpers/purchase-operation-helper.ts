@@ -32,7 +32,10 @@ import {
   type CheckoutPricingResponse,
 } from "../networking/responses/checkout-pricing-response";
 import { handleCheckoutSessionFailed } from "./checkout-error-handler";
-import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
+import type {
+  CheckoutPrepareResponse,
+  QuickPurchasesPrepareResponse,
+} from "../networking/responses/checkout-prepare-response";
 import {
   isSubscriptionChangeCompleteResponse,
   type SubscriptionChangeCheckoutStartResponse,
@@ -263,6 +266,27 @@ export class PurchaseOperationHelper {
           errorMessage,
         );
       }
+    }
+  }
+
+  async prepareForQuickPurchases(): Promise<QuickPurchasesPrepareResponse> {
+    try {
+      return await this.backend.postCheckoutPrepare();
+    } catch (error) {
+      if (error instanceof PurchasesError) {
+        throw PurchaseFlowError.fromPurchasesError(
+          error,
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        );
+      }
+
+      const errorMessage =
+        "Unknown error preparing quick purchases: " + String(error);
+      Logger.errorLog(errorMessage);
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        errorMessage,
+      );
     }
   }
 

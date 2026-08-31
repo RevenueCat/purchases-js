@@ -19,5 +19,6 @@ export interface StripeElementsConfiguration {
 export interface GatewayParams {
   stripe_account_id?: string;
   publishable_api_key?: string;
+  account_country?: string | null;
   elements_configuration?: StripeElementsConfiguration;
 }

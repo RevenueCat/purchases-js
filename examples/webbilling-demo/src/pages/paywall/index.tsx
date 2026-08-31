@@ -8,7 +8,7 @@ import {
   PurchasesError,
   ReservedCustomerAttribute,
 } from "@revenuecat/purchases-js";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   usePurchasesLoaderData,
@@ -24,6 +24,10 @@ interface IPackageCardProps {
   pkg: Package;
   offering: Offering;
   onClick: () => void;
+}
+
+interface PaywallPageProps {
+  tryWithApplePay?: boolean;
 }
 
 const shortPeriodLabels: Record<string, string> = {
@@ -162,7 +166,9 @@ const PackageCard: React.FC<IPackageCardProps> = ({
   );
 };
 
-const PaywallPage: React.FC = () => {
+const PaywallPage: React.FC<PaywallPageProps> = ({
+  tryWithApplePay = false,
+}) => {
   const navigate = useNavigate();
   const { purchases, offering } = usePurchasesLoaderData();
   const [searchParams] = useSearchParams();
@@ -175,6 +181,9 @@ const PaywallPage: React.FC = () => {
   const showDiscountCodeField =
     searchParams.get("showDiscountCodeField") === "true";
   const attributesSetRef = useRef(false);
+  const [isPreparingApplePay, setIsPreparingApplePay] = useState(false);
+  const [isApplePayPrepared, setIsApplePayPrepared] = useState(false);
+  const packages: Package[] = offering?.availablePackages || [];
 
   useEffect(() => {
     const setAttributes = async () => {
@@ -202,11 +211,41 @@ const PaywallPage: React.FC = () => {
     setAttributes();
   }, [purchases, displayName, nickname]);
 
+  useEffect(() => {
+    if (!tryWithApplePay || !offering) {
+      setIsPreparingApplePay(false);
+      setIsApplePayPrepared(false);
+      return;
+    }
+
+    let cancelled = false;
+    setIsPreparingApplePay(true);
+    setIsApplePayPrepared(false);
+    void purchases
+      .prepareForQuickPurchases()
+      .then(() => {
+        if (!cancelled) {
+          setIsApplePayPrepared(true);
+        }
+      })
+      .catch((error) => {
+        console.error("Error preparing quick purchases:", error);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsPreparingApplePay(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [purchases, offering, tryWithApplePay]);
+
   if (!offering) {
     console.error("No offering found");
     return <>No offering found!</>;
   }
-  const packages: Package[] = offering?.availablePackages || [];
   if (packages.length == 0) {
     console.error("No packages found in current offering.");
   }
@@ -233,6 +272,11 @@ const PaywallPage: React.FC = () => {
 
     // How do we complete the purchase?
     try {
+      if (tryWithApplePay && isPreparingApplePay) {
+        console.log("Apple Pay is still preparing; try again in a moment");
+        return;
+      }
+
       const { customerInfo, redemptionInfo, storeTransaction } =
         await purchases.purchase({
           rcPackage: pkg,
@@ -242,6 +286,7 @@ const PaywallPage: React.FC = () => {
           customerEmail: email || undefined,
           externalPurchaseTokenId,
           skipSuccessPage: skipSuccessPage,
+          tryWithApplePay,
           // @ts-expect-error This method is marked as internal for now but it's public.'
           labelsOverride: {
             en: {
@@ -291,16 +336,27 @@ const PaywallPage: React.FC = () => {
             fontWeight: "500",
           }}
         >
-          {isPaddleApiKey
-            ? "Paddle demo"
-            : isStripeApiKey
-              ? "Stripe Checkout demo"
-              : "Web Billing demo"}
+          {tryWithApplePay
+            ? "Apple Pay first demo"
+            : isPaddleApiKey
+              ? "Paddle demo"
+              : isStripeApiKey
+                ? "Stripe Checkout demo"
+                : "Web Billing demo"}
         </div>
 
         <h1>
           Subscribe today and <em>save up to 25%!</em>
         </h1>
+        {tryWithApplePay ? (
+          <p className="notice">
+            {isPreparingApplePay
+              ? "Preparing Apple Pay before the purchase click…"
+              : isApplePayPrepared
+                ? "Apple Pay is prepared. The purchase click presents it before starting checkout."
+                : "Apple Pay preparation failed. Purchases use the normal checkout."}
+          </p>
+        ) : null}
         <div className="packages">
           {packages.map((pkg) =>
             pkg.webBillingProduct !== null ? (

@@ -5,6 +5,7 @@ import {
   checkoutStartResponse,
   checkoutCompleteResponse,
   checkoutPrepareResponse,
+  quickPurchasesPrepareResponse,
   customerInfoResponse,
   offeringsArray,
   productsResponse,
@@ -711,6 +712,26 @@ describe("postCheckoutPrepare request", () => {
       priceId: "test_price_id",
     });
     expect(backendResponse).toEqual(checkoutPrepareResponse);
+  });
+
+  test("can prepare quick purchases without product data", async () => {
+    let requestBody: unknown;
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/prepare",
+        async ({ request }) => {
+          requestBody = await request.json();
+          return HttpResponse.json(quickPurchasesPrepareResponse, {
+            status: 200,
+          });
+        },
+      ),
+    );
+
+    const backendResponse = await backend.postCheckoutPrepare();
+
+    expect(requestBody).toEqual({});
+    expect(backendResponse).toEqual(quickPurchasesPrepareResponse);
   });
 
   test("throws an error if the backend returns a server error", async () => {

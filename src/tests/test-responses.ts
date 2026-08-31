@@ -5,11 +5,14 @@ import type {
   ProductResponse,
   ProductsResponse,
 } from "../networking/responses/products-response";
-import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import { type WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
 import { StripeElementsMode } from "../networking/responses/stripe-elements";
-import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
+import type {
+  CheckoutPrepareResponse,
+  QuickPurchasesPrepareResponse,
+} from "../networking/responses/checkout-prepare-response";
 import type { SubscriberResponse } from "../networking/responses/subscriber-response";
 
 const monthlyProductResponse: ProductResponse = {
@@ -620,6 +623,15 @@ export const checkoutPrepareResponse: CheckoutPrepareResponse = {
   },
 };
 
+export const quickPurchasesPrepareResponse: QuickPurchasesPrepareResponse = {
+  stripe_gateway_params: {
+    publishable_api_key: "test_publishable_api_key",
+    stripe_account_id: "test_stripe_account_id",
+    account_country: "US",
+  },
+  management_url: "https://api.revenuecat.com/quick-purchase-management",
+};
+
 export const customerInfoResponse: SubscriberResponse = {
   request_date: "2024-01-22T13:23:07Z",
   request_date_ms: 1705929787636,
@@ -927,7 +939,7 @@ const brandingInfoResponse = {
   support_email: "test-rcbilling-support@revenuecat.com",
 };
 
-export const checkoutStartResponse: CheckoutStartResponse = {
+export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
   operation_session_id: "test-operation-session-id",
   gateway_params: {
     stripe_account_id: "test-stripe-account-id",

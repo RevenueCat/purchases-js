@@ -43,7 +43,10 @@ import type { CheckoutCompleteResponse } from "./responses/checkout-complete-res
 import type { CheckoutPricingResponse } from "./responses/checkout-pricing-response";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
-import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
+import type {
+  CheckoutPrepareResponse,
+  QuickPurchasesPrepareResponse,
+} from "./responses/checkout-prepare-response";
 import type { AttributionMetadata } from "../entities/purchase-params";
 import type { BrandingAppearance } from "../entities/branding";
 
@@ -253,20 +256,26 @@ export class Backend {
 
   async postCheckoutPrepare<
     T extends CheckoutPrepareResponse = CheckoutPrepareResponse,
-  >(productId: string, purchaseOption: PurchaseOption): Promise<T> {
+  >(productId: string, purchaseOption: PurchaseOption): Promise<T>;
+  async postCheckoutPrepare(): Promise<QuickPurchasesPrepareResponse>;
+  async postCheckoutPrepare<T>(
+    productId?: string,
+    purchaseOption?: PurchaseOption,
+  ): Promise<T> {
     type CheckoutPrepareRequestBody = {
-      product_id: string;
-      price_id: string;
+      product_id?: string;
+      price_id?: string;
       offer_id?: string;
     };
 
-    const requestBody: CheckoutPrepareRequestBody = {
-      product_id: productId,
-      price_id: purchaseOption.priceId,
-    };
+    const requestBody: CheckoutPrepareRequestBody = {};
 
-    if (purchaseOption.id !== "base_option") {
-      requestBody.offer_id = purchaseOption.id;
+    if (productId && purchaseOption) {
+      requestBody.product_id = productId;
+      requestBody.price_id = purchaseOption.priceId;
+      if (purchaseOption.id !== "base_option") {
+        requestBody.offer_id = purchaseOption.id;
+      }
     }
 
     return (await performRequest<CheckoutPrepareRequestBody, T>(

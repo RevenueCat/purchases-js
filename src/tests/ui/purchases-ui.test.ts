@@ -18,10 +18,7 @@ import {
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 import type { CheckoutPricingResponse } from "../../networking/responses/checkout-pricing-response";
-import {
-  checkoutCompleteResponse,
-  checkoutPrepareResponse,
-} from "../test-responses";
+import { checkoutCompleteResponse } from "../test-responses";
 import type { CheckoutCompleteResponse } from "../../networking/responses/checkout-complete-response";
 import type { SubscriptionOptionResponse } from "../../networking/responses/products-response";
 
@@ -146,7 +143,6 @@ const sessionForeverFreePurchaseOption =
   });
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
-  prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
   checkoutComplete: async () =>

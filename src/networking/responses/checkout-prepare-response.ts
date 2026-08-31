@@ -18,3 +18,8 @@ export interface CheckoutPrepareResponse {
   paypal_gateway_params: CheckoutPreparePayPalGatewayParams | null;
   paddle_billing_params: CheckoutPreparePaddleBillingParams | null;
 }
+
+export interface QuickPurchasesPrepareResponse {
+  stripe_gateway_params: CheckoutPrepareStripeGatewayParams;
+  management_url: string;
+}

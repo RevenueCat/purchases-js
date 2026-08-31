@@ -26,6 +26,7 @@ import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
 import UpgradePage from "./pages/upgrade";
 import UpgradePaywallPage from "./pages/upgrade_paywall";
 import AppearanceOverridesPage from "./pages/appearance_overrides";
+import ApplePayPage from "./pages/apple_pay";
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,15 @@ const router = createBrowserRouter([
     element: (
       <WithoutEntitlement>
         <PaywallPage />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/apple_pay/:app_user_id",
+    loader: loadPurchases,
+    element: (
+      <WithoutEntitlement>
+        <ApplePayPage />
       </WithoutEntitlement>
     ),
   },

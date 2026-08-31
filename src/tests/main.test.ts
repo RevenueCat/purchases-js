@@ -21,13 +21,20 @@ import {
   testApiKey,
   testUserId,
 } from "./base.purchases_test";
-import { APIGetRequest, type GetRequest } from "./test-responses";
+import {
+  APIGetRequest,
+  checkoutStartResponse,
+  type GetRequest,
+  quickPurchasesPrepareResponse,
+} from "./test-responses";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { waitFor } from "@testing-library/svelte";
 import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
+import { StripeService } from "../stripe/stripe-service";
+import type { PaymentRequest, Stripe } from "@stripe/stripe-js";
 
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
@@ -568,6 +575,74 @@ describe("Purchases.preload()", () => {
   test("can initialize without failing", async () => {
     const purchases = configurePurchases();
     await purchases.preload();
+  });
+});
+
+describe("Purchases.prepareForQuickPurchases()", () => {
+  test("shares preparation and presents Apple Pay before checkout start", async () => {
+    const purchases = configurePurchases();
+    const handlers: { cancel?: () => void } = {};
+    const order: string[] = [];
+    const paymentRequest = {
+      canMakePayment: vi.fn(async () => {
+        order.push("canMakePayment");
+        return { applePay: true };
+      }),
+      on: vi.fn((eventName: string, handler: () => void) => {
+        if (eventName === "cancel") {
+          handlers.cancel = handler;
+        }
+      }),
+      off: vi.fn(),
+      update: vi.fn(() => {
+        order.push("update");
+      }),
+      show: vi.fn(() => {
+        order.push("show");
+        queueMicrotask(() => handlers.cancel?.());
+      }),
+      abort: vi.fn(),
+    } as unknown as PaymentRequest;
+    const stripe = {
+      paymentRequest: vi.fn(() => paymentRequest),
+    } as unknown as Stripe;
+    const prepareSpy = vi
+      .spyOn(purchases["purchaseOperationHelper"], "prepareForQuickPurchases")
+      .mockResolvedValue(quickPurchasesPrepareResponse);
+    vi.spyOn(StripeService, "getStripeClient").mockResolvedValue({ stripe });
+
+    await Promise.all([
+      purchases.prepareForQuickPurchases(),
+      purchases.prepareForQuickPurchases(),
+    ]);
+
+    expect(prepareSpy).toHaveBeenCalledOnce();
+    expect(order).toEqual(["canMakePayment"]);
+
+    vi.spyOn(
+      purchases["purchaseOperationHelper"],
+      "checkoutStart",
+    ).mockImplementation(async () => {
+      order.push("start");
+      return checkoutStartResponse;
+    });
+
+    const purchasePromise = purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+      tryWithApplePay: true,
+    });
+
+    expect(order).toEqual(["canMakePayment", "update", "show", "start"]);
+    expect(paymentRequest.canMakePayment).toHaveBeenCalledOnce();
+    expect(paymentRequest.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currency: "usd",
+      }),
+    );
+    await expect(purchasePromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
   });
 });
 
