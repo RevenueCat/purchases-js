@@ -312,6 +312,7 @@ export class PurchaseOperationHelper {
         subscriberToken,
       });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
+      this.completedCustomerEmail = undefined;
       return checkoutStartResponse;
     } catch (error) {
       if (error instanceof PurchasesError) {

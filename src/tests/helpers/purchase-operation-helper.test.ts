@@ -1024,6 +1024,66 @@ describe("PurchaseOperationHelper", () => {
     expect(secondPoll.customerEmail).toBeUndefined();
   });
 
+  test("pollCurrentPurchaseForCompletion does not leak customerEmail after abandoned checkoutComplete", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    await purchaseOperationHelper.checkoutComplete({
+      email: "typed@example.com",
+    });
+
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T04:21:11Z",
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    const pollResult =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(pollResult.customerEmail).toBeUndefined();
+  });
+
   test("pollCurrentPurchaseForCompletion success with redemption info and operation session id if poll returns success", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
