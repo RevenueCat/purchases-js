@@ -198,7 +198,7 @@
   }
 
   .rcb-upgrade-header {
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: var(--rc-spacing-gapMedium-mobile);
   }
@@ -239,6 +239,7 @@
     }
 
     .rcb-upgrade-header {
+      display: flex;
       gap: var(--rc-spacing-gapMedium-desktop);
     }
 

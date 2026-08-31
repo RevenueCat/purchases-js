@@ -145,7 +145,9 @@ export interface PurchaseParams {
 
   /**
    * @experimental
-   * Initial discount code to display as applied in the Web Billing checkout.
+   * Initial discount code to apply at checkout.
+   * For Web Billing this is displayed as applied in the checkout UI.
+   * For Paddle this is passed to Paddle Checkout as `discountCode`.
    * This is useful when the code originated outside of the checkout UI,
    * for example from a URL parameter.
    */

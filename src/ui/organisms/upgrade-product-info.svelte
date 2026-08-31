@@ -154,6 +154,7 @@
       onRemoveDiscountCode={undefined}
       {pendingTaxLabel}
       {totalRowLabel}
+      detailsExpandedByDefault={false}
     />
   </div>
 
