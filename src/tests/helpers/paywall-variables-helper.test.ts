@@ -1152,3 +1152,213 @@ describe("discount variables - offer sources beyond introPrice", () => {
     );
   });
 });
+
+describe("discount variables - with offer", () => {
+  /**
+   * The Yousician case: an Annual vs. Monthly paywall where annual carries a paid intro
+   * year. The badge should compare annual's *offer* price per month against monthly's
+   * price per month, which no other discount variable produces.
+   */
+  const annualWithPaidIntro = () =>
+    toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        currency: "USD",
+        basePriceMicros: 9990000,
+      },
+      {
+        packageIdentifier: "$rc_annual",
+        identifier: "annual_bingo",
+        title: "Annual",
+        currency: "USD",
+        period: { unit: PeriodUnit.Year, number: 1 },
+        basePriceMicros: 99990000,
+        introPrice: {
+          periodDuration: "P1Y",
+          period: { number: 1, unit: PeriodUnit.Year },
+          cycleCount: 1,
+          price: toPrice(52990000, "USD"),
+          pricePerWeek: null,
+          pricePerMonth: null,
+          pricePerYear: null,
+        },
+      },
+    ]);
+
+  test("relative_discount_with_offer prices the offer against the anchor", () => {
+    const variables = parseOfferingIntoVariables(
+      annualWithPaidIntro(),
+      enTranslator,
+    );
+
+    // $52.99/yr is $4.42/mo against a $9.99/mo anchor.
+    expect(variables.$rc_annual["product.relative_discount_with_offer"]).toBe(
+      "56%",
+    );
+    // The base-price comparison is a different, smaller number.
+    expect(variables.$rc_annual["product.relative_discount"]).toBe("17%");
+  });
+
+  test("absolute_discount_with_offer spans the offer's own duration", () => {
+    const variables = parseOfferingIntoVariables(
+      annualWithPaidIntro(),
+      enTranslator,
+    );
+
+    // ($9.99 - $4.4158) x 12 months of offer = $66.89.
+    expect(variables.$rc_annual["product.absolute_discount_with_offer"]).toBe(
+      "$66.89",
+    );
+  });
+
+  test("with_offer variables fall back to the base comparison when there is no offer", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 10000000,
+      },
+      {
+        packageIdentifier: "$rc_annual",
+        identifier: "annual_bingo",
+        title: "Annual",
+        period: { unit: PeriodUnit.Year, number: 1 },
+        basePriceMicros: 60000000,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_annual["product.relative_discount_with_offer"]).toBe(
+      variables.$rc_annual["product.relative_discount"],
+    );
+    expect(variables.$rc_annual["product.absolute_discount_with_offer"]).toBe(
+      variables.$rc_annual["product.absolute_discount"],
+    );
+  });
+
+  test("a free trial is treated as no offer rather than 100% off", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 10000000,
+      },
+      {
+        packageIdentifier: "$rc_annual",
+        identifier: "annual_bingo",
+        title: "Annual",
+        period: { unit: PeriodUnit.Year, number: 1 },
+        basePriceMicros: 60000000,
+        trial: trialPhaseP2W,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_annual["product.relative_discount_with_offer"]).toBe(
+      variables.$rc_annual["product.relative_discount"],
+    );
+  });
+
+  test("a multi-cycle offer spans every cycle", () => {
+    // 3 cycles at $5.99/mo against a $9.99/mo anchor: 40% off, $12.00 across the offer.
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_weekly",
+        identifier: "weekly_bingo",
+        title: "Weekly",
+        currency: "USD",
+        period: { unit: PeriodUnit.Week, number: 1 },
+        basePriceMicros: 2299000,
+      },
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        currency: "USD",
+        basePriceMicros: 9990000,
+        introPrice: {
+          periodDuration: "P1M",
+          period: { number: 1, unit: PeriodUnit.Month },
+          cycleCount: 3,
+          price: toPrice(5990000, "USD"),
+          pricePerWeek: null,
+          pricePerMonth: null,
+          pricePerYear: null,
+        },
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    // Anchor is weekly at $2.299/wk ~= $9.99/mo, so the monthly offer saves ~$4.00/mo.
+    expect(variables.$rc_monthly["product.absolute_discount_with_offer"]).toBe(
+      "$12.00",
+    );
+  });
+
+  test("with_offer variables are empty when every package is free", () => {
+    // A zero anchor makes the ratio NaN, and `NaN < 1` is false, so the guard must not
+    // fall through for the new pair either.
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        basePriceMicros: 0,
+      },
+      {
+        packageIdentifier: "$rc_annual",
+        identifier: "annual_bingo",
+        title: "Annual",
+        period: { unit: PeriodUnit.Year, number: 1 },
+        basePriceMicros: 0,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    expect(variables.$rc_annual["product.relative_discount_with_offer"]).toBe(
+      "",
+    );
+    expect(variables.$rc_annual["product.absolute_discount_with_offer"]).toBe(
+      "",
+    );
+  });
+
+  test("a forever discount leaves the absolute variant empty but keeps the relative one", () => {
+    const off = toOffering([
+      {
+        packageIdentifier: "$rc_monthly",
+        identifier: "monthly_bingo",
+        title: "Monthly",
+        currency: "USD",
+        basePriceMicros: 20000000,
+      },
+      {
+        packageIdentifier: "$rc_annual",
+        identifier: "annual_bingo",
+        title: "Annual",
+        currency: "USD",
+        basePriceMicros: 12000000,
+        discount: discountPhaseForever,
+      },
+    ]);
+
+    const variables = parseOfferingIntoVariables(off, enTranslator);
+
+    // A perpetual discount has a monthly rate but never reverts, so there is no term
+    // over which a total saving accrues.
+    expect(
+      variables.$rc_annual["product.relative_discount_with_offer"],
+    ).not.toBe("");
+    expect(variables.$rc_annual["product.absolute_discount_with_offer"]).toBe(
+      "",
+    );
+  });
+});

@@ -10,6 +10,7 @@ import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import { getNextRenewalDate, type Period } from "./duration-helper";
 import { getPeriodVariables } from "./paywall-period-helpers";
 import { getPriceVariables } from "./paywall-price-helpers";
+import { getPricePerPeriodFactors } from "./price-conversion-helper";
 
 export type OfferPhase = PricingPhase | DiscountPhase;
 
@@ -60,6 +61,68 @@ function getOfferEndDate(period: Period, translator: Translator): string {
 
 function isDiscountPhase(offer: OfferPhase): offer is DiscountPhase {
   return "durationMode" in offer;
+}
+
+/**
+ * The period an offer's price is quoted against. A discount replaces the base plan's own
+ * renewal price, so its rate is per base period; `toDiscountPhase` normalizes its own
+ * `period` to a single unit, which would misprice a discount on a multi-month plan.
+ * Trials and intro prices bill on their own period.
+ *
+ * Note this covers every discount phase, whereas `getOfferPricingPeriod` above only special-cases
+ * `time_window` ones. The two therefore disagree for a `forever` discount on a multi-unit base
+ * plan, where `offer_price_per_*` still uses the normalized period and so reports a different
+ * monthly rate than these variables do. That looks like a latent bug in `offer_price_per_*` rather
+ * than something to replicate here — tracked separately, since changing it would move a value
+ * already rendering on live paywalls.
+ */
+function offerRatePeriod(
+  product: SubscriptionOption,
+  offer: OfferPhase,
+): Period | null {
+  return isDiscountPhase(offer) ? product.base.period : offer.period;
+}
+
+/**
+ * The currently applicable offer expressed as a monthly rate plus the span it runs for, for
+ * the `*_with_offer` variables. Returns null when there is no usable offer, so callers fall
+ * back to the package's own base price and period.
+ *
+ * `durationInMonths` is null when the offer never reverts (a "forever" discount): there is no
+ * term over which a total saving accrues, so the absolute variant renders empty.
+ */
+export function getOfferRate(product: SubscriptionOption): {
+  ratePerMonthMicros: number;
+  durationInMonths: number | null;
+} | null {
+  const offer = product.discount ?? product.trial ?? product.introPrice;
+
+  // A free offer is treated as no offer: "100% off" isn't the claim these variables make.
+  if (offer === null || offer.price === null || offer.price.amountMicros <= 0) {
+    return null;
+  }
+
+  const ratePeriod = offerRatePeriod(product, offer);
+  if (ratePeriod === null) {
+    return null;
+  }
+
+  const rateFactor = getPricePerPeriodFactors(ratePeriod).perMonth;
+  if (rateFactor <= 0) {
+    return null;
+  }
+
+  const duration = getOfferDuration(offer);
+  const durationFactor = duration
+    ? getPricePerPeriodFactors(duration).perMonth
+    : 0;
+
+  return {
+    ratePerMonthMicros: offer.price.amountMicros * rateFactor,
+    // perMonth is "how many of this period fit in a month", so its reciprocal is the
+    // period expressed in months.
+    durationInMonths: durationFactor > 0 ? 1 / durationFactor : null,
+  };
 }
 
 /**

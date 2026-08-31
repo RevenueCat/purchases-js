@@ -17,6 +17,7 @@ import { getPricePerPeriodFactors } from "./price-conversion-helper";
 import { floorMicrosToCurrencyUnit } from "./price-labels";
 import { getPriceVariables } from "./paywall-price-helpers";
 import {
+  getOfferRate,
   setNonSubscriptionOfferVariables,
   setOfferVariables,
 } from "./paywall-offer-helpers";
@@ -204,6 +205,8 @@ function parsePackageIntoVariables(
     "product.absolute_discount": "",
     "product.offer_relative_discount": "",
     "product.offer_absolute_discount": "",
+    "product.relative_discount_with_offer": "",
+    "product.absolute_discount_with_offer": "",
   };
 
   if (productIsSubscription(productType, purchaseOption)) {
@@ -290,6 +293,46 @@ function parsePackageIntoVariables(
               // customer saves. Matches `getPriceVariables` and `toPricingPhase`.
               floorMicrosToCurrencyUnit(
                 (highestMonthlyPrice - packageMonthlyPrice) / perMonth,
+                productPrice.currency,
+              ),
+              productPrice.currency,
+            );
+
+      // The `*_with_offer` pair is the same cross-package comparison, but priced off the
+      // offer the customer would actually get. With no usable offer the effective rate and
+      // term are the package's own, so these collapse to the two variables above.
+      const offerRate = getOfferRate(purchaseOption);
+      const effectiveRate =
+        offerRate?.ratePerMonthMicros ?? packageMonthlyPrice;
+      const effectiveMonths =
+        offerRate !== null
+          ? offerRate.durationInMonths
+          : perMonth > 0
+            ? 1 / perMonth
+            : null;
+
+      const offerDelta = highestMonthlyPrice - effectiveRate;
+      const offerDiscount = (offerDelta * 100) / highestMonthlyPrice;
+
+      baseObject["product.relative_discount_with_offer"] =
+        offerDiscount < 1
+          ? ""
+          : translator.translate(
+              LocalizationKeys.PaywallVariablesSubRelativeDiscount,
+              {
+                discount: offerDiscount.toFixed(0),
+              },
+            );
+
+      // A "forever" discount never reverts, so there is no term over which a total saving
+      // accrues and `effectiveMonths` is null. Render empty, as the bare variables already
+      // do for a package with no period.
+      baseObject["product.absolute_discount_with_offer"] =
+        offerDiscount < 1 || effectiveMonths === null
+          ? ""
+          : translator.formatPrice(
+              floorMicrosToCurrencyUnit(
+                offerDelta * effectiveMonths,
                 productPrice.currency,
               ),
               productPrice.currency,
