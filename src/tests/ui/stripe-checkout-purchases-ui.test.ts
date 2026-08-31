@@ -33,6 +33,7 @@ const checkoutStartResponseWithoutStripeParams: WebBillingCheckoutStartResponse 
     },
     management_url: "https://test-management-url.revenuecat.com",
     paddle_billing_params: null,
+    checkout_mode: "purchase",
   };
 
 const createCheckoutStartResponseWithStripeParams = (
@@ -56,6 +57,7 @@ const createCheckoutStartResponseWithStripeParams = (
   },
   management_url: "https://test-management-url.revenuecat.com",
   paddle_billing_params: null,
+  checkout_mode: "purchase",
 });
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
@@ -115,6 +117,31 @@ describe("StripeCheckoutPurchasesUi", () => {
         workflowPurchaseContext: { stepId: "test-step-123" },
         locale: "en",
       });
+    });
+  });
+
+  test("passes an appearance override to checkoutStart", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponseWithoutStripeParams);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        appearanceOverride: {
+          color_buttons_primary: "#ffffff",
+        },
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          appearanceOverride: {
+            color_buttons_primary: "#ffffff",
+          },
+        }),
+      );
     });
   });
 

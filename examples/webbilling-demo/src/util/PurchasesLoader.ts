@@ -9,6 +9,7 @@ import {
 } from "@revenuecat/purchases-js";
 import type { LoaderFunction } from "react-router-dom";
 import { redirect, useLoaderData } from "react-router-dom";
+import { configuredAppearanceOverride } from "./runtime-appearance-overrides";
 
 declare global {
   interface Window {
@@ -25,6 +26,7 @@ export const isStripeApiKey = /^strp_[a-zA-Z0-9_.-]+$/.test(apiKey);
 
 type IPurchasesLoaderData = {
   purchases: Purchases;
+  defaultPurchases: Purchases;
   customerInfo: CustomerInfo;
   offering: Offering;
 };
@@ -46,6 +48,8 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const useCustomLogger = searchParams.get("useCustomLogger") === "true";
   const storeLoadTime =
     (searchParams.get("storeLoadTime") as StoreLoadTime) || undefined;
+  const useConfiguredAppearanceOverride =
+    searchParams.get("configuredAppearanceOverride") === "true";
 
   if (!appUserId) {
     throw redirect("/");
@@ -109,17 +113,35 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
   Purchases.setLogLevel(LogLevel.Verbose);
   try {
-    if (!Purchases.isConfigured()) {
-      Purchases.configure({
+    const purchasesConfig = {
+      apiKey,
+      appUserId,
+      httpConfig,
+      flags: flagsConfig,
+    };
+    let purchases: Purchases;
+    let defaultPurchases: Purchases;
+
+    if (useConfiguredAppearanceOverride) {
+      defaultPurchases = Purchases.configure(purchasesConfig);
+      purchases = Purchases.configure({
+        ...purchasesConfig,
+        brandingAppearanceOverride: configuredAppearanceOverride,
+      });
+    } else if (!Purchases.isConfigured()) {
+      purchases = Purchases.configure({
         apiKey,
         appUserId,
         httpConfig,
         flags: flagsConfig,
       });
+      defaultPurchases = purchases;
     } else {
       await Purchases.getSharedInstance().changeUser(appUserId);
+      purchases = Purchases.getSharedInstance();
+      defaultPurchases = purchases;
     }
-    const purchases = Purchases.getSharedInstance();
+
     const [customerInfo, offerings] = await Promise.all([
       purchases.getCustomerInfo(),
       purchases.getOfferings({
@@ -137,6 +159,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
     return {
       purchases,
+      defaultPurchases,
       customerInfo,
       offering,
     };
@@ -160,4 +183,20 @@ const loadPurchasesWithDelayedStore: LoaderFunction<
   });
 };
 
-export { loadPurchases, loadPurchasesWithDelayedStore, usePurchasesLoaderData };
+const loadPurchasesWithAppearanceOverride: LoaderFunction<
+  IPurchasesLoaderData
+> = async (args) => {
+  const url = new URL(args.request.url);
+  url.searchParams.set("configuredAppearanceOverride", "true");
+  return loadPurchases({
+    ...args,
+    request: new Request(url, args.request),
+  });
+};
+
+export {
+  loadPurchases,
+  loadPurchasesWithAppearanceOverride,
+  loadPurchasesWithDelayedStore,
+  usePurchasesLoaderData,
+};

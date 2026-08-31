@@ -1,8 +1,9 @@
-import { parseISODuration } from "./duration-helper";
+import { parseISODuration, type Period } from "./duration-helper";
 import { type Translator } from "../ui/localization/translator";
 
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
-import { toBcp47Locale } from "./locale-helper";
+import { englishLocale } from "../ui/localization/constants";
+import { toBcp47Locale, toLanguageCode } from "./locale-helper";
 
 const microsToDollars = (micros: number): number => {
   return micros / 1000000;
@@ -69,6 +70,29 @@ export const formatPrice = (
   return formattedPrice.replace("US$", "$");
 };
 
+export const formatPriceWithPeriod = (
+  formattedPrice: string,
+  period: Period | null | undefined,
+  translator: Translator,
+): string => {
+  if (!period) {
+    return formattedPrice;
+  }
+
+  const periodLabel =
+    period.number === 1
+      ? translator.translatePeriodUnit(period.unit, {
+          noWhitespace: true,
+          short: true,
+        })
+      : translator.translatePeriod(period.number, period.unit, {
+          noWhitespace: true,
+          short: true,
+        });
+
+  return periodLabel ? `${formattedPrice}/${periodLabel}` : formattedPrice;
+};
+
 export const getTranslatedPeriodFrequency = (
   duration: string,
   translator: Translator,
@@ -97,4 +121,41 @@ export const getTranslatedPeriodLength = (
     translator.translatePeriod(period.number, period.unit) ||
     `${period.number} ${period.unit}s`
   );
+};
+
+/**
+ * A duration as a customer-facing label ("1 week", "2 weeks", "7 days").
+ *
+ * Takes an already-resolved {@link Period} rather than a pricing phase so the
+ * period-times-cycle-count arithmetic stays in `getOfferDuration`, which is the
+ * one place that also clamps a zero cycle count.
+ *
+ * `collapseSingularInEnglish` drops the leading "1" so a one-unit duration
+ * reads as "week" rather than "1 week". Only pass it where the surrounding copy
+ * reads better that way ("First week for $1.49"); "After week, on Aug 14" does
+ * not, so it defaults off.
+ */
+export const getPeriodDurationLabel = (
+  period: Period | null,
+  translator: Translator,
+  { collapseSingularInEnglish = false } = {},
+): string => {
+  if (!period) return "";
+
+  // This is a customer paper cut that we want to fix, but we run into limitations of the templating translation system.
+  // In order to avoid impact to other locales, we only apply this to the English locale.
+  // Matched on the language subtag, not the whole locale: selectedLocale is
+  // often navigator.language ("en-US") or a paywall locale key ("en_US"), both
+  // of which resolve to the English strings this collapse is written for.
+  if (
+    collapseSingularInEnglish &&
+    period.number === 1 &&
+    toLanguageCode(translator.selectedLocale) === englishLocale
+  ) {
+    return (
+      translator.translatePeriodUnit(period.unit, { noWhitespace: true }) || ""
+    );
+  }
+
+  return translator.translatePeriod(period.number, period.unit) || "";
 };

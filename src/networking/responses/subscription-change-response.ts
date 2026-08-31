@@ -3,6 +3,7 @@ export interface SubscriptionChangeProductSummary {
   display_name: string | null;
   price_in_micros: number;
   currency: string;
+  period_duration?: string | null;
 }
 
 export interface SubscriptionChangePaymentMethodSummary {
@@ -41,10 +42,35 @@ export interface SubscriptionChangeCheckoutStartResponse {
   email: string;
   payment_method: SubscriptionChangePaymentMethodSummary | null;
   billing_address: SubscriptionChangeBillingAddressSummary | null;
+  checkout_mode: "subscription_change";
 }
 
-export interface SubscriptionChangeConfirmResponse {
+export interface SubscriptionChangeCompleteResponse {
   operation_session_id: string;
   change_type: "immediate" | "deferred";
   new_product_id: string;
+  checkout_mode: "subscription_change";
+}
+
+function isSubscriptionChangeMode(
+  response: unknown,
+): response is { checkout_mode: "subscription_change" } {
+  return (
+    typeof response === "object" &&
+    response !== null &&
+    "checkout_mode" in response &&
+    response.checkout_mode === "subscription_change"
+  );
+}
+
+export function isSubscriptionChangeCheckoutStartResponse(
+  response: unknown,
+): response is SubscriptionChangeCheckoutStartResponse {
+  return isSubscriptionChangeMode(response) && "to_product" in response;
+}
+
+export function isSubscriptionChangeCompleteResponse(
+  response: unknown,
+): response is SubscriptionChangeCompleteResponse {
+  return isSubscriptionChangeMode(response) && "new_product_id" in response;
 }

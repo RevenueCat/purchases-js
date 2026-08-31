@@ -4,18 +4,25 @@
   import type {
     SubscriptionChangeCheckoutStartResponse,
     SubscriptionChangePriceBreakdownSummary,
+    SubscriptionChangeProductSummary,
   } from "../../networking/responses/subscription-change-response";
   import type { PriceBreakdown } from "../ui-types";
   import type { Translator } from "../localization/translator";
   import { translatorContextKey } from "../localization/constants";
+  import { LocalizationKeys } from "../localization/supportedLanguages";
+  import { parseISODuration } from "../../helpers/duration-helper";
+  import { formatPriceWithPeriod } from "../../helpers/price-labels";
   import PricingTable from "../molecules/pricing-table.svelte";
+  import PlanCard from "../molecules/plan-card.svelte";
+  import UnusedTimeAdjustment from "../molecules/unused-time-adjustment.svelte";
   import Typography from "../atoms/typography.svelte";
 
   interface Props {
     startData: SubscriptionChangeCheckoutStartResponse;
+    unusedTimeAdjustmentVariant?: "refund" | "credit";
   }
 
-  let { startData }: Props = $props();
+  let { startData, unusedTimeAdjustmentVariant = "refund" }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
@@ -25,18 +32,32 @@
   const toTitle = $derived(
     startData.to_product.display_name ?? startData.to_product.product_id,
   );
-  const fromPrice = $derived(
-    $translator.formatPrice(
-      startData.from_product.price_in_micros,
-      startData.from_product.currency,
-    ),
+
+  const pageTitle = $derived(
+    startData.change_type === "deferred"
+      ? $translator.translate(
+          LocalizationKeys.UpgradeProductInfoChangeSubscriptionTitle,
+        )
+      : $translator.translate(
+          LocalizationKeys.UpgradeProductInfoUpgradeSubscriptionTitle,
+        ),
   );
-  const toPrice = $derived(
-    $translator.formatPrice(
-      startData.to_product.price_in_micros,
-      startData.to_product.currency,
-    ),
-  );
+
+  function formatProductPrice(
+    product: SubscriptionChangeProductSummary,
+  ): string {
+    const period = product.period_duration
+      ? parseISODuration(product.period_duration)
+      : null;
+    return formatPriceWithPeriod(
+      $translator.formatPrice(product.price_in_micros, product.currency),
+      period,
+      $translator,
+    );
+  }
+
+  const fromPrice = $derived(formatProductPrice(startData.from_product));
+  const toPrice = $derived(formatProductPrice(startData.to_product));
 
   function toPriceBreakdown(
     summary: SubscriptionChangePriceBreakdownSummary,
@@ -53,7 +74,9 @@
         taxAmount != null
           ? [
               {
-                display_name: "Tax (estimated)",
+                display_name: $translator.translate(
+                  LocalizationKeys.UpgradeProductInfoTaxEstimated,
+                ),
                 tax_amount_in_micros: taxAmount,
               },
             ]
@@ -79,59 +102,64 @@
 
   const totalRowLabel = $derived(
     startData.change_type === "deferred" && startData.estimated_renewal_price
-      ? "Estimated at next renewal"
+      ? $translator.translate(
+          LocalizationKeys.UpgradeProductInfoEstimatedAtNextRenewal,
+        )
       : null,
   );
 
   const pendingTaxLabel = $derived(
     startData.price_breakdown || startData.estimated_renewal_price
-      ? "Calculated later"
+      ? $translator.translate(
+          LocalizationKeys.UpgradeProductInfoCalculatedLater,
+        )
       : null,
   );
+
+  const showRefundBlock = $derived(startData.change_type === "immediate");
 </script>
 
 <div class="rcb-pricing-info">
   <div class="rcb-pricing-info-header">
-    <div class="rcb-upgrade-product">
-      <div class="rcb-upgrade-label">
-        <Typography size="body-base">Upgrade from</Typography>
-      </div>
-      <div class="rcb-product-title">
-        <Typography size="heading-lg" branded>
-          {fromTitle} — {fromPrice}
-        </Typography>
-      </div>
+    <div class="rcb-upgrade-title">
+      <Typography size="heading-2xl" branded>{pageTitle}</Typography>
     </div>
 
-    <div class="rcb-upgrade-product">
-      <div class="rcb-upgrade-label">
-        <Typography size="body-base">Upgrade to</Typography>
-      </div>
-      <div class="rcb-product-title">
-        <Typography size="heading-lg" branded>
-          {toTitle} — {toPrice}
-        </Typography>
-      </div>
+    <div class="rcb-upgrade-panels">
+      <PlanCard name={fromTitle} price={fromPrice} variant="current" />
+      <PlanCard name={toTitle} price={toPrice} variant="new" />
     </div>
   </div>
 
-  <PricingTable
-    {priceBreakdown}
-    trialPhase={null}
-    basePhase={null}
-    resolvedDiscount={null}
-    showDiscountCodeField={false}
-    discountCode=""
-    appliedDiscountCode={null}
-    discountCodeError={null}
-    isUpdatingDiscountCode={false}
-    isDiscountCodeControlsEnabled={false}
-    onDiscountCodeChange={undefined}
-    onApplyDiscountCode={undefined}
-    onRemoveDiscountCode={undefined}
-    {pendingTaxLabel}
-    {totalRowLabel}
-  />
+  <div class="rcb-upgrade-pricing-table">
+    <PricingTable
+      {priceBreakdown}
+      trialPhase={null}
+      basePhase={null}
+      resolvedDiscount={null}
+      showDiscountCodeField={false}
+      discountCode=""
+      appliedDiscountCode={null}
+      discountCodeError={null}
+      isUpdatingDiscountCode={false}
+      isDiscountCodeControlsEnabled={false}
+      onDiscountCodeChange={undefined}
+      onApplyDiscountCode={undefined}
+      onRemoveDiscountCode={undefined}
+      {pendingTaxLabel}
+      {totalRowLabel}
+      detailsExpandedByDefault={false}
+    />
+  </div>
+
+  {#if showRefundBlock}
+    <div class="rcb-upgrade-refund">
+      <UnusedTimeAdjustment
+        previousProductName={fromTitle}
+        variant={unusedTimeAdjustmentVariant}
+      />
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -139,40 +167,35 @@
     display: flex;
     flex-direction: column;
     user-select: none;
-    gap: var(--rc-spacing-gapXXLarge-mobile);
+  }
+
+  .rcb-upgrade-pricing-table {
+    margin-top: 48px;
+  }
+
+  .rcb-upgrade-refund {
+    margin-top: 32px;
   }
 
   .rcb-pricing-info-header {
     display: flex;
     flex-direction: column;
-    gap: var(--rc-spacing-gapLarge-mobile);
+    gap: 24px;
   }
 
-  .rcb-upgrade-product {
-    display: flex;
-    flex-direction: column;
-    gap: var(--rc-spacing-gapMedium-mobile);
-  }
-
-  .rcb-upgrade-label {
-    color: var(--rc-color-grey-text-light);
-  }
-
-  .rcb-product-title {
+  .rcb-upgrade-title {
     color: var(--rc-color-grey-text-dark);
   }
 
+  .rcb-upgrade-panels {
+    display: flex;
+    flex-direction: column;
+    gap: var(--rc-spacing-gapSmall-mobile);
+  }
+
   @container layout-query-container (width >= 768px) {
-    .rcb-pricing-info {
-      gap: var(--rc-spacing-gapXXXLarge-desktop);
-    }
-
-    .rcb-pricing-info-header {
-      gap: var(--rc-spacing-gapLarge-desktop);
-    }
-
-    .rcb-upgrade-product {
-      gap: var(--rc-spacing-gapMedium-desktop);
+    .rcb-upgrade-panels {
+      gap: var(--rc-spacing-gapSmall-desktop);
     }
   }
 </style>

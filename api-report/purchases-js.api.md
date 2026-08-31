@@ -53,6 +53,12 @@ export interface CustomerInfo {
     };
 }
 
+// @public
+export interface CustomPaywallImpressionParams {
+    offering?: Offering;
+    paywallId?: string;
+}
+
 export { CustomVariables }
 
 export { CustomVariableValue }
@@ -331,12 +337,14 @@ export interface PresentExpressPurchaseButtonParams {
 
 // @public
 export interface PresentPaywallParams {
+    readonly brandingAppearanceOverride?: Partial<BrandingAppearance>;
     readonly customerEmail?: string;
     readonly customVariables?: CustomVariables;
     readonly discountCode?: string;
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
     readonly listener?: PaywallListener;
+    readonly metadata?: PurchaseMetadata;
     readonly offering?: Offering;
     readonly onBack?: (closePaywall: () => void) => void;
     readonly onDiscountCodeChanged?: (discountCode: string | null) => void;
@@ -347,6 +355,7 @@ export interface PresentPaywallParams {
     readonly purchaseHtmlTarget?: HTMLElement;
     readonly selectedLocale?: string;
     readonly showDiscountCodeField?: boolean;
+    /* Excluded from this release type: productChangeInfo */
 }
 
 // @public
@@ -421,6 +430,7 @@ export interface PurchaseOption {
 
 // @public
 export interface PurchaseParams {
+    brandingAppearanceOverride?: Partial<BrandingAppearance>;
     customerEmail?: string;
     defaultLocale?: string;
     discountCode?: string;
@@ -454,12 +464,14 @@ export class Purchases {
     /* Excluded from this release type: _loadingResourcesPromise */
     /* Excluded from this release type: _flags */
     /* Excluded from this release type: _subscriberToken */
+    /* Excluded from this release type: _brandingAppearanceOverride */
     /* Excluded from this release type: _context */
     /* Excluded from this release type: backend */
     /* Excluded from this release type: purchaseOperationHelper */
     /* Excluded from this release type: eventsTracker */
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
+    /* Excluded from this release type: cachedCurrentOffering */
     /* Excluded from this release type: instance */
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
@@ -494,6 +506,7 @@ export class Purchases {
     static setLogHandler(handler: LogHandler | null): void;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
+    trackCustomPaywallImpression(params?: CustomPaywallImpressionParams): void;
     /* Excluded from this release type: _trackEvent */
     /* Excluded from this release type: _flushAllEvents */
 }
@@ -502,6 +515,7 @@ export class Purchases {
 export interface PurchasesConfig {
     apiKey: string;
     appUserId: string;
+    brandingAppearanceOverride?: Partial<BrandingAppearance>;
     flags?: FlagsConfig;
     httpConfig?: HttpConfig;
     /* Excluded from this release type: subscriberToken */
@@ -532,6 +546,7 @@ export interface PurchasesErrorExtra {
 // @public
 export interface RedemptionInfo {
     readonly redeemUrl: string | null;
+    readonly redeemUrlRedirect?: string | null;
 }
 
 // @public
@@ -580,6 +595,7 @@ export enum ReservedCustomerAttribute {
     PhoneNumber = "$phoneNumber",
     PosthogUserId = "$posthogUserId",
     SegmentId = "$segmentId",
+    SingularDeviceId = "$singularDeviceId",
     TelemetryDeckAppId = "$telemetryDeckAppId",
     TelemetryDeckUserId = "$telemetryDeckUserId",
     TenjinId = "$tenjinId"

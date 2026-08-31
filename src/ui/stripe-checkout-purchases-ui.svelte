@@ -48,6 +48,7 @@
     attributionMetadata?: AttributionMetadata;
     paywallId?: string;
     paywallSessionId?: string;
+    appearanceOverride?: Partial<BrandingAppearance>;
   }
 
   const {
@@ -70,6 +71,7 @@
     attributionMetadata,
     paywallId,
     paywallSessionId,
+    appearanceOverride,
   }: Props = $props();
   let productDetails: Product = rcPackage.webBillingProduct;
   let translator: Translator = new Translator(
@@ -181,9 +183,13 @@
         paywallId,
         paywallSessionId,
         locale: selectedLocale,
+        ...(appearanceOverride ? { appearanceOverride } : {}),
       });
 
-      if (!result.stripe_billing_params) {
+      if (
+        !("stripe_billing_params" in result) ||
+        !result.stripe_billing_params
+      ) {
         handleError(
           new PurchaseFlowError(
             PurchaseFlowErrorCode.ErrorSettingUpPurchase,

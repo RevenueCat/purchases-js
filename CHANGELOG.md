@@ -1,3 +1,87 @@
+## 1.55.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(paddle): forward discountCode to Paddle Checkout (#1102) via Víctor Ferrer García (@vicfergar)
+* feat: add trackCustomPaywallImpression() function (#1092) via Will Taylor (@fire-at-will)
+
+### 🔄 Other Changes
+* Product-change checkout tweaks (#1100) via James O'Donnell (@james-od)
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `7dd9ab9` to `6db1da0` (#1101) via dependabot[bot] (@dependabot[bot])
+
+## 1.54.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(singular): add $singularDeviceId reserved customer attribute (#1080) via Guillem Corominas (@guillemcorominas)
+* [EXTERNAL] Allow Paddle checkout settings to carry non-boolean values (#1077) via @alepacheco (#1079) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Support unused credit copy on the upgrade checkout UI (#1084) via Burdock (@lburdock)
+* chore: drop the unused api-extractor doc model (#1085) via Álvaro Brey (@AlvaroBrey)
+* Adopt shared Renovate config (#1078) via Álvaro Brey (@AlvaroBrey)
+* Update sdks-common-config orb to v4.6.1 (#1076) via Antonio Pallares (@ajpallares)
+* chore: drop unused npm deps (#1069) via Nihal Gonsalves (@nihalgonsalves)
+* ci: enable turbosnap (#1070) via Nihal Gonsalves (@nihalgonsalves)
+
+## 1.53.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* "No Offering" placement not returning null (#1066) via Guilherme (@GuilhermeMota93)
+
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* WFL-486 | Make sure custom variable overrides are taken into accounts (#1067) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `7fbbe66` to `7dd9ab9` (#1064) via dependabot[bot] (@dependabot[bot])
+
+## 1.53.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-4597 Allow runtime purchase appearance overrides (#1054) via Nicola Sacco (@nicfix)
+* Paddle Metadata (#1055) via HaleyRevcat (@HaleyRevcat)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane from 2.237.0 to 2.238.0 (#1056) via dependabot[bot] (@dependabot[bot])
+
+## 1.52.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* WEB-4553 Expose the alternative redemption redirect URL (#1049) via Nicola Sacco (@nicfix)
+
+## 1.52.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Block multiple purchase inits (#1045) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* [WEB-4530] Improved product change checkout (#1042) via James O'Donnell (@james-od)
+
+## 1.52.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* [WEB-4590] Scope placement product fetches to resolved offerings (#1041) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* [WEB-4582] Demo page for product change from paywall (#1036) via James O'Donnell (@james-od)
+* [WEB-4571] Fold sub-change checkout into /start and /complete (#1029) via James O'Donnell (@james-od)
+
+## 1.52.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(paddle): apply configurable Paddle checkout settings (WST-912) (#1027) via Roger Solé (@rogersole)
+### 🐞 Bugfixes
+* fix(paddle): count the next charge date from the intro/trial phase (#1032) via Roger Solé (@rogersole)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `b4e1e7f` to `7fbbe66` (#1034) via dependabot[bot] (@dependabot[bot])
+
+## 1.51.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix(paywalls): pass infoPerPackage when mounting Workflow (#1026) via Franco Correa (@francocorreasosa)
+### 📦 Dependency Updates
+* chore: bump purchases-ui-js to 4.8.16 (#1030) via Franco Correa (@francocorreasosa)
+
 ## 1.51.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes

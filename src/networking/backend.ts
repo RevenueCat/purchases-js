@@ -16,8 +16,6 @@ import {
   IdentifyEndpoint,
   PostReceiptEndpoint,
   SetAttributesEndpoint,
-  SubscriptionChangeCheckoutConfirmEndpoint,
-  SubscriptionChangeCheckoutStartEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
@@ -26,7 +24,7 @@ import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
 import type {
   SubscriptionChangeCheckoutStartResponse,
-  SubscriptionChangeConfirmResponse,
+  SubscriptionChangeCompleteResponse,
 } from "./responses/subscription-change-response";
 import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
 import type {
@@ -47,6 +45,7 @@ import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 import type { AttributionMetadata } from "../entities/purchase-params";
+import type { BrandingAppearance } from "../entities/branding";
 
 const MAX_GET_PRODUCTS_URL_PATH_LENGTH = 2000;
 
@@ -71,6 +70,18 @@ interface CheckoutStartRequestParams {
   locale?: string;
 
   attributionMetadata?: AttributionMetadata;
+  appearanceOverride?: Partial<BrandingAppearance>;
+
+  /**
+   * When set, will attempt a subscription change. Requires
+   * subscriberToken. If the change is not possible, the
+   * backend falls back to a normal purchase response.
+   */
+  productChange?: {
+    subscriptionId?: string;
+    productIdentifier?: string;
+  };
+  subscriberToken?: string;
 }
 
 interface CheckoutRefreshPricingParams {
@@ -268,7 +279,9 @@ export class Backend {
   }
 
   async postCheckoutStart<
-    T extends CheckoutStartResponse = CheckoutStartResponse,
+    T extends
+      | CheckoutStartResponse
+      | SubscriptionChangeCheckoutStartResponse = CheckoutStartResponse,
   >({
     appUserId,
     productId,
@@ -283,6 +296,9 @@ export class Backend {
     metadata,
     locale,
     attributionMetadata,
+    appearanceOverride,
+    productChange,
+    subscriberToken,
   }: CheckoutStartRequestParams): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -307,6 +323,11 @@ export class Backend {
         paywall_session_id?: string;
       };
       attribution_metadata?: AttributionMetadata;
+      appearance_override?: Partial<BrandingAppearance>;
+      product_change?: {
+        subscription_id?: string;
+        from_product_id?: string;
+      };
     };
 
     const requestBody: CheckoutStartRequestBody = {
@@ -367,11 +388,29 @@ export class Backend {
       requestBody.attribution_metadata = attributionMetadata;
     }
 
+    if (appearanceOverride) {
+      requestBody.appearance_override = appearanceOverride;
+    }
+
+    if (productChange) {
+      requestBody.product_change = {
+        ...(productChange.subscriptionId
+          ? { subscription_id: productChange.subscriptionId }
+          : {}),
+        ...(productChange.productIdentifier
+          ? { from_product_id: productChange.productIdentifier }
+          : {}),
+      };
+    }
+
     return (await performRequest<CheckoutStartRequestBody, T>(
       new CheckoutStartEndpoint(),
       {
         apiKey: this.API_KEY,
         body: requestBody,
+        headers: subscriberToken
+          ? { "X-RC-Subscriber-Token": subscriberToken }
+          : undefined,
         httpConfig: this.httpConfig,
       },
     )) as T;
@@ -426,28 +465,34 @@ export class Backend {
 
   async postCheckoutComplete(
     operationSessionId: string,
-    email?: string,
-    locale?: string,
-  ): Promise<CheckoutCompleteResponse> {
+    options: {
+      email?: string;
+      locale?: string;
+      subscriberToken?: string;
+    } = {},
+  ): Promise<CheckoutCompleteResponse | SubscriptionChangeCompleteResponse> {
     type CheckoutCompleteRequestBody = {
       email?: string;
       locale?: string;
     };
 
-    const requestBody: CheckoutCompleteRequestBody = {
-      email: email,
-    };
-
-    if (locale) {
-      requestBody.locale = locale;
+    const requestBody: CheckoutCompleteRequestBody = {};
+    if (options.email) {
+      requestBody.email = options.email;
+    }
+    if (options.locale) {
+      requestBody.locale = options.locale;
     }
 
     return await performRequest<
       CheckoutCompleteRequestBody,
-      CheckoutCompleteResponse
+      CheckoutCompleteResponse | SubscriptionChangeCompleteResponse
     >(new CheckoutCompleteEndpoint(operationSessionId), {
       apiKey: this.API_KEY,
       body: requestBody,
+      headers: options.subscriberToken
+        ? { "X-RC-Subscriber-Token": options.subscriberToken }
+        : undefined,
       httpConfig: this.httpConfig,
     });
   }
@@ -459,53 +504,6 @@ export class Backend {
       new GetCheckoutStatusEndpoint(operationSessionId),
       {
         apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
-    );
-  }
-
-  async postSubscriptionChangeCheckoutStart(
-    newProductId: string,
-    subscriptionId: string | undefined,
-    productIdentifier: string | undefined,
-    subscriberToken: string,
-  ): Promise<SubscriptionChangeCheckoutStartResponse> {
-    type RequestBody = {
-      new_product_id: string;
-      subscription_id?: string;
-      from_product_id?: string;
-    };
-
-    const body: RequestBody = {
-      new_product_id: newProductId,
-    };
-    if (subscriptionId) {
-      body.subscription_id = subscriptionId;
-    }
-    if (productIdentifier) {
-      body.from_product_id = productIdentifier;
-    }
-
-    return await performRequest<
-      RequestBody,
-      SubscriptionChangeCheckoutStartResponse
-    >(new SubscriptionChangeCheckoutStartEndpoint(), {
-      apiKey: this.API_KEY,
-      body,
-      headers: { Authorization: `Bearer ${subscriberToken}` },
-      httpConfig: this.httpConfig,
-    });
-  }
-
-  async postSubscriptionChangeCheckoutConfirm(
-    operationSessionId: string,
-    subscriberToken: string,
-  ): Promise<SubscriptionChangeConfirmResponse> {
-    return await performRequest<undefined, SubscriptionChangeConfirmResponse>(
-      new SubscriptionChangeCheckoutConfirmEndpoint(operationSessionId),
-      {
-        apiKey: this.API_KEY,
-        headers: { Authorization: `Bearer ${subscriberToken}` },
         httpConfig: this.httpConfig,
       },
     );

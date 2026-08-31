@@ -51,7 +51,15 @@ It uses a small token server to serve as a backend: it holds a **secret** API ke
 4. Open `/upgrade/<app_user_id>` for a customer with an active Web Billing subscription
 5. Optionally pick a source product from active Web Billing subscriptions and/or enter a subscription public id (`sub…`). Either, both (must match), or neither (we infer a single active Web Billing subscription) is allowed. Provide at least one id if the user may have multiple active Web Billing subscriptions.
 6. Pick the target package from the current offering.
-7. Click **Open upgrade checkout**. The SDK starts a checkout session, shows from→to / pricing / PM on file, then confirms on CTA.
+7. Click **Open upgrade checkout**. The SDK calls `/checkout/start` with a product-change hint (API key in `Authorization`, subscriber token in `X-RC-Subscriber-Token`). Returns an upgrade session when a change path exists, otherwise a normal purchase.
+
+### Upgrade from a paywall (`Purchases.presentPaywall` + `productChangeInfo`)
+
+Same token-server setup as above. Open `/upgrade-paywall/<app_user_id>` for a customer with an active Web Billing subscription and an offering that has an RC Paywall configured.
+
+1. Optionally pick a source product and/or enter a subscription public id (`sub…`)
+2. Click **Open upgrade paywall** — the SDK presents the offering paywall with `productChangeInfo`
+3. Pick a package on the paywall; checkout starts in product-change mode when a change path exists, otherwise as a normal purchase
 
 ### Payment Methods
 
@@ -149,3 +157,7 @@ Before a paywall will appear, you need an offering configured in the [RevenueCat
 4. Click **"Continue (RC Paywall)"** to view the RC paywall
 
 If you see a blank page or "No offering found!", check that your offering is set as the **default offering** in the dashboard (or that the identifier you entered is correct) and has a paywall configured.
+
+### Testing runtime appearance overrides
+
+From the login page, select **Runtime appearance demo**. The page configures Purchases with a purple and lavender palette, then lets you compare that baseline with a green and peach override passed to either `purchase()` or `presentPaywall()`.

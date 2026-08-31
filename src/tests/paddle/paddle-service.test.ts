@@ -151,6 +151,74 @@ describe("buildPaddleCheckoutOptions", () => {
     ).toEqual(expect.objectContaining({ theme: "dark" }));
   });
 
+  test("merges checkout settings over RevenueCat defaults", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: { showAddTaxId: true },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({ showAddTaxId: true }),
+    );
+  });
+
+  test("lets checkout settings override the default variant", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: { variant: "express" },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({ variant: "express" }),
+    );
+  });
+
+  test("forwards unknown checkout settings to Paddle untouched", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: {
+        variant: "express",
+        showNonExpressPaymentMethods: false,
+      },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({
+        variant: "express",
+        showNonExpressPaymentMethods: false,
+      }),
+    );
+  });
+
+  test("keeps SDK-controlled layout settings", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: {
+        showAddTaxId: true,
+        displayMode: false,
+        frameTarget: false,
+        frameInitialHeight: false,
+        frameStyle: false,
+      },
+      displayMode: "inline",
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({
+        showAddTaxId: true,
+        displayMode: "inline",
+        frameTarget: PADDLE_INLINE_FRAME_TARGET,
+        frameInitialHeight: 450,
+        frameStyle:
+          "width:100%; min-width:312px; background-color:transparent; border:none;",
+      }),
+    );
+  });
+
   test("includes customer email when provided and omits it otherwise", () => {
     const withEmail = buildPaddleCheckoutOptions({
       transactionId,
@@ -164,6 +232,21 @@ describe("buildPaddleCheckoutOptions", () => {
       locale: "en",
     });
     expect(withoutEmail).not.toHaveProperty("customer");
+  });
+
+  test("includes discountCode when provided and omits it otherwise", () => {
+    const withDiscount = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      discountCode: "SAVE10",
+    });
+    expect(withDiscount.discountCode).toBe("SAVE10");
+
+    const withoutDiscount = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+    });
+    expect(withoutDiscount).not.toHaveProperty("discountCode");
   });
 });
 
@@ -180,6 +263,7 @@ describe("PaddleService", () => {
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       trackPaywallEvent: () => {},
+      trackCustomPaywallImpression: () => {},
       dispose: () => {},
       flushAllEvents: () => Promise.resolve(),
     };
@@ -537,6 +621,41 @@ describe("PaddleService", () => {
       purchasePromise.catch(() => {});
     });
 
+    test("passes discountCode to Paddle when provided", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: { ...purchaseParams, discountCode: "SAVE10" },
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          transactionId: "test-transaction-id",
+          discountCode: "SAVE10",
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test("omits discountCode from Paddle when not provided", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+      });
+
+      const openOptions = vi.mocked(mockPaddleInstance.Checkout!.open).mock
+        .calls[0][0];
+      expect(openOptions).not.toHaveProperty("discountCode");
+
+      purchasePromise.catch(() => {});
+    });
+
     test("opens an overlay checkout by default", async () => {
       const purchasePromise = paddleService.purchase({
         operationSessionId,
@@ -570,6 +689,53 @@ describe("PaddleService", () => {
           settings: expect.objectContaining({
             displayMode: "inline",
             frameTarget: PADDLE_INLINE_FRAME_TARGET,
+          }),
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test.each([true, false])(
+      "passes showAddTaxId: %s to Paddle",
+      async (showAddTaxId) => {
+        const purchasePromise = paddleService.purchase({
+          operationSessionId,
+          transactionId,
+          onCheckoutLoaded: vi.fn(),
+          onClose: vi.fn(),
+          params: purchaseParams,
+          checkoutSettings: { showAddTaxId },
+        });
+
+        expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+          expect.objectContaining({
+            settings: expect.objectContaining({ showAddTaxId }),
+          }),
+        );
+
+        purchasePromise.catch(() => {});
+      },
+    );
+
+    test("passes the express checkout settings to Paddle", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+        checkoutSettings: {
+          variant: "express",
+          showNonExpressPaymentMethods: false,
+        },
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: expect.objectContaining({
+            variant: "express",
+            showNonExpressPaymentMethods: false,
           }),
         }),
       );
@@ -703,6 +869,7 @@ describe("PaddleService", () => {
       expect(result).toEqual({
         redemptionInfo: {
           redeemUrl: "test-url://redeem_my_rcb?token=1234",
+          redeemUrlRedirect: null,
         },
         operationSessionId: operationSessionId,
         storeTransactionIdentifier: "test-store-transaction-id",
@@ -814,6 +981,7 @@ describe("PaddleService", () => {
         trackSDKEvent: () => {},
         trackExternalEvent: () => {},
         trackPaywallEvent: () => {},
+        trackCustomPaywallImpression: () => {},
         dispose: () => {},
         flushAllEvents: () => Promise.resolve(),
       });

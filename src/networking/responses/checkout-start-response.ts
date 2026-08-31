@@ -1,4 +1,5 @@
 import type { GatewayParams } from "./stripe-elements";
+import type { PaddleCheckoutSettings } from "./paddle-checkout-settings";
 
 export interface StripeBillingParams {
   client_secret: string;
@@ -7,12 +8,15 @@ export interface StripeBillingParams {
   stripe_account_id: string;
 }
 
+export type CheckoutMode = "purchase" | "subscription_change";
+
 export interface WebBillingCheckoutStartResponse {
   operation_session_id: string;
   gateway_params: GatewayParams;
   stripe_billing_params: StripeBillingParams | null;
   management_url: string;
   paddle_billing_params: null;
+  checkout_mode: "purchase";
 }
 
 export interface PaddleCheckoutStartResponse {
@@ -23,6 +27,7 @@ export interface PaddleCheckoutStartResponse {
     client_side_token: string;
     is_sandbox: boolean;
     transaction_id: string;
+    checkout_settings?: PaddleCheckoutSettings;
     /**
      * Per-project gate for the Paddle inline checkout rollout. When `true`,
      * present Paddle's checkout inline (embedded in our own container); when

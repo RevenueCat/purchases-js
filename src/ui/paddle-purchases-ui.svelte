@@ -47,6 +47,7 @@
     appUserId: string;
     purchaseOption: PurchaseOption;
     customerEmail: string | undefined;
+    discountCode?: string;
     metadata: PurchaseMetadata | undefined;
     attributionMetadata?: AttributionMetadata;
     workflowPurchaseContext?: WorkflowPurchaseContext;
@@ -71,6 +72,7 @@
     appUserId,
     purchaseOption,
     customerEmail,
+    discountCode,
     metadata,
     attributionMetadata,
     workflowPurchaseContext,
@@ -235,6 +237,7 @@
         transactionId: resp.paddle_billing_params?.transaction_id,
         onCheckoutLoaded,
         onClose,
+        checkoutSettings: resp.paddle_billing_params.checkout_settings,
         params: {
           rcPackage,
           purchaseOption,
@@ -243,6 +246,7 @@
             productDetails.presentedOfferingContext.offeringIdentifier,
           customerEmail,
           locale: selectedLocale || defaultLocale,
+          ...(discountCode && { discountCode }),
         },
         ...(useInlineCheckout && {
           displayMode: "inline" as const,
