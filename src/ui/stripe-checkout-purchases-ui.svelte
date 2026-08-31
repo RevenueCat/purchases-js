@@ -40,6 +40,7 @@
     defaultLocale: string;
     customTranslations?: Record<string, Record<string, string>>;
     isInElement: boolean;
+    isSandbox: boolean;
     skipSuccessPage: boolean;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
@@ -71,6 +72,7 @@
     defaultLocale,
     customTranslations = {},
     isInElement,
+    isSandbox: initialIsSandbox,
     skipSuccessPage = false,
     onFinished,
     onError,
@@ -105,7 +107,8 @@
   );
   setContext(brandingContextKey, brandingAppearanceStore);
 
-  let isSandbox = $state(false);
+  let checkoutResponseIsSandbox = $state<boolean | null>(null);
+  let isSandbox = $derived(checkoutResponseIsSandbox ?? initialIsSandbox);
   let operationResult = $state<OperationSessionSuccessfulResult | null>(null);
   let error = $state<PurchaseFlowError | null>(null);
   let currentPage = $state<
@@ -264,7 +267,7 @@
         return;
       }
 
-      isSandbox =
+      checkoutResponseIsSandbox =
         result.stripe_billing_params.environment.toLowerCase() === "sandbox";
       stripeBillingParams = result.stripe_billing_params;
       currentPage = "stripe-checkout";

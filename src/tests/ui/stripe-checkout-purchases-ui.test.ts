@@ -78,6 +78,7 @@ const baseProps: ComponentProps<StripeCheckoutPurchasesUi> = {
   defaultLocale: "en",
   customTranslations: {},
   isInElement: true,
+  isSandbox: false,
   skipSuccessPage: false,
   onFinished: vi.fn(),
   onError: vi.fn(),
@@ -322,6 +323,22 @@ describe("StripeCheckoutPurchasesUi", () => {
       expect(checkoutStartSpy).toHaveBeenCalledTimes(1);
     });
     expect(screen.queryByText("SANDBOX")).not.toBeInTheDocument();
+  });
+
+  test("shows sandbox banner on the upgrade confirm page", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      subscriptionChangeImmediateWithTax,
+    );
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        isSandbox: true,
+        productChange: { subscriberToken: "subscriber.token" },
+      },
+    });
+
+    expect(await screen.findByText("SANDBOX")).toBeInTheDocument();
   });
 
   test("renders the close button on the upgrade confirm page", async () => {

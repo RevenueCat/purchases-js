@@ -30,6 +30,7 @@ import {
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
+  isStripeSandboxApiKey,
   isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
@@ -1876,6 +1877,7 @@ export class Purchases {
         target: certainHTMLTarget,
         props: {
           isInElement: isInElement,
+          isSandbox: this.isSandbox(),
           appUserId,
           rcPackage,
           purchaseOption: purchaseOptionToUse,
@@ -2496,6 +2498,7 @@ export class Purchases {
   public isSandbox(): boolean {
     return (
       isWebBillingSandboxApiKey(this._API_KEY) ||
+      isStripeSandboxApiKey(this._API_KEY) ||
       isSimulatedStoreApiKey(this._API_KEY)
     );
   }
