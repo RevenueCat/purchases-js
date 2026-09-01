@@ -120,6 +120,27 @@ describe("StripeCheckoutPurchasesUi", () => {
     });
   });
 
+  test("passes an external purchase token ID to checkoutStart", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponseWithoutStripeParams);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        externalPurchaseTokenId: "rcat_external_purchase_token_123",
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          externalPurchaseTokenId: "rcat_external_purchase_token_123",
+        }),
+      );
+    });
+  });
+
   test("passes an appearance override to checkoutStart", async () => {
     const checkoutStartSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutStart")
