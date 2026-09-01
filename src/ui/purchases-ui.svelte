@@ -53,6 +53,7 @@
     appUserId: string;
     rcPackage: Package;
     purchaseOption: PurchaseOption;
+    externalPurchaseTokenId?: string;
     metadata: PurchaseMetadata | undefined;
     brandingInfo: BrandingInfoResponse | null;
     purchases: Purchases;
@@ -89,6 +90,7 @@
     appUserId,
     rcPackage,
     purchaseOption,
+    externalPurchaseTokenId,
     metadata,
     brandingInfo,
     purchases,
@@ -242,6 +244,7 @@
         purchaseOption: nextPurchaseOption,
         presentedOfferingContext: nextProductDetails.presentedOfferingContext,
         customerEmail: nextEmail,
+        ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
         metadata,
         workflowPurchaseContext,
         attributionMetadata,
@@ -271,6 +274,7 @@
             presentedOfferingContext:
               nextProductDetails.presentedOfferingContext,
             customerEmail: undefined,
+            ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
             metadata,
             workflowPurchaseContext,
             attributionMetadata,
