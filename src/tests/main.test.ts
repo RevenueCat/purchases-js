@@ -208,6 +208,24 @@ describe("Purchases.configure()", () => {
     ).not.toThrow();
   });
 
+  test("identifies stripe sandbox api keys as sandbox", () => {
+    const purchases = Purchases.configure({
+      apiKey: "strp_sb_valid_key",
+      appUserId: testUserId,
+    });
+
+    expect(purchases.isSandbox()).toBe(true);
+  });
+
+  test("does not identify production stripe api keys as sandbox", () => {
+    const purchases = Purchases.configure({
+      apiKey: "strp_valid_key",
+      appUserId: testUserId,
+    });
+
+    expect(purchases.isSandbox()).toBe(false);
+  });
+
   test("does not throw error if given valid web billing api key", () => {
     expect(() =>
       Purchases.configure({
