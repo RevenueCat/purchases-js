@@ -157,3 +157,7 @@ Before a paywall will appear, you need an offering configured in the [RevenueCat
 4. Click **"Continue (RC Paywall)"** to view the RC paywall
 
 If you see a blank page or "No offering found!", check that your offering is set as the **default offering** in the dashboard (or that the identifier you entered is correct) and has a paywall configured.
+
+### Testing runtime appearance overrides
+
+From the login page, select **Runtime appearance demo**. The page configures Purchases with a purple and lavender palette, then lets you compare that baseline with a green and peach override passed to either `purchase()` or `presentPaywall()`.

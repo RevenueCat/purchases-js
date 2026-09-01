@@ -839,6 +839,35 @@ describe("postCheckoutStart request", () => {
     expect(result).toEqual(checkoutStartResponse);
   });
 
+  test("includes a partial appearance override when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      appearanceOverride: {
+        color_buttons_primary: "#ffffff",
+        color_page_bg: "#101010",
+      },
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.appearance_override).toEqual({
+      color_buttons_primary: "#ffffff",
+      color_page_bg: "#101010",
+    });
+  });
+
   test("handles workflow identifier correctly", async () => {
     const backendWithContext = new Backend("test_api_key", undefined, {
       workflowContext: { workflowIdentifier: "workflow_456" },

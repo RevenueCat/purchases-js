@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Taxe (estimée)",
   "upgrade_confirm_page.subtitle_deferred": "Vérifiez vos détails de paiement et planifiez le changement",
   "upgrade_confirm_page.confirm_schedule": "Confirmer la planification",
-  "upgrade_confirm_page.on_file": "Enregistré"
+  "upgrade_confirm_page.on_file": "Enregistré",
+  "credit_for_unused_time.title": "Crédit pour temps non utilisé",
+  "credit_for_unused_time.message": "Votre mode de paiement sera débité de la différence entre les abonnements, avec un crédit pour le temps non utilisé sur votre abonnement {{previousProductName}}."
 }

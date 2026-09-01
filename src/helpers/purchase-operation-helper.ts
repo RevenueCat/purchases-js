@@ -38,6 +38,7 @@ import {
   type SubscriptionChangeCheckoutStartResponse,
 } from "../networking/responses/subscription-change-response";
 import type { ProductChangeResult } from "../entities/product-change-params";
+import type { BrandingAppearance } from "../entities/branding";
 
 export enum PurchaseFlowErrorCode {
   ErrorSettingUpPurchase = 0,
@@ -139,6 +140,7 @@ interface CheckoutStartParams {
   locale?: string;
 
   attributionMetadata?: AttributionMetadata;
+  appearanceOverride?: Partial<BrandingAppearance>;
 
   /**
    * When set, asks the backend to start a subscription-change
@@ -275,6 +277,7 @@ export class PurchaseOperationHelper {
     metadata,
     locale,
     attributionMetadata,
+    appearanceOverride,
     productChange,
     subscriberToken,
   }: CheckoutStartParams): Promise<
@@ -302,6 +305,7 @@ export class PurchaseOperationHelper {
         metadata,
         locale,
         attributionMetadata,
+        ...(appearanceOverride ? { appearanceOverride } : {}),
         productChange,
         subscriberToken,
       });

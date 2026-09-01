@@ -430,6 +430,28 @@ describe("PaddlePurchasesUI", () => {
     await expect(unmountPaddlePurchaseUi).toHaveBeenCalled();
   });
 
+  test("passes discountCode to purchase when provided", async () => {
+    const paddleServiceMock = createPaddleServiceMock();
+    const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+    render(PaddlePurchasesUI, {
+      props: {
+        ...baseProps,
+        paddleService: paddleServiceMock,
+        discountCode: "SAVE10",
+      },
+      context: defaultContext,
+    });
+
+    await waitFor(() => {
+      expect(purchaseSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: expect.objectContaining({ discountCode: "SAVE10" }),
+        }),
+      );
+    });
+  });
+
   test("passes customerEmail and metadata to startCheckout", async () => {
     const paddleServiceMock = createPaddleServiceMock();
     const startCheckoutSpy = vi.spyOn(paddleServiceMock, "startCheckout");

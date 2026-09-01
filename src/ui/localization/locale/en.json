@@ -113,6 +113,8 @@
   "plan_card.new": "New",
   "refund_for_unused_time.title": "Refund for unused time",
   "refund_for_unused_time.message": "Your payment method will be charged immediately and you'll receive a refund for the time remaining on your {{previousProductName}} subscription.",
+  "credit_for_unused_time.title": "Credit for unused time",
+  "credit_for_unused_time.message": "Your payment method will be charged for the difference between subscriptions, with a credit for unused time on your {{previousProductName}} subscription.",
   "upgrade_confirm_page.title": "Confirm payment",
   "upgrade_confirm_page.subtitle_immediate": "Review your payment details and confirm upgrade",
   "upgrade_confirm_page.subtitle_deferred": "Review your payment details and schedule change",

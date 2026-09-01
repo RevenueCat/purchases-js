@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Cukai (anggaran)",
   "upgrade_confirm_page.subtitle_deferred": "Semak butiran pembayaran anda dan jadualkan perubahan",
   "upgrade_confirm_page.confirm_schedule": "Sahkan jadual",
-  "upgrade_confirm_page.on_file": "Dalam rekod"
+  "upgrade_confirm_page.on_file": "Dalam rekod",
+  "credit_for_unused_time.title": "Kredit untuk masa tidak digunakan",
+  "credit_for_unused_time.message": "Kaedah pembayaran anda akan dicaj untuk perbezaan antara langganan, dengan kredit untuk masa tidak digunakan pada langganan {{previousProductName}} anda."
 }

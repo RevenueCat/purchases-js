@@ -882,16 +882,22 @@ describe("getOfferings placements", () => {
     ).toEqual("missing_placement_id");
   });
 
-  test("gets fallback offering if placement id has null offering id", async () => {
+  test("gets null offering when placement is explicitly set to No Offering, even with a fallback configured", async () => {
     const purchases = configurePurchases();
     const offeringWithPlacement =
       await purchases.getCurrentOfferingForPlacement("test_null_placement_id");
-    expect(offeringWithPlacement).not.toBeNull();
-    expect(offeringWithPlacement?.identifier).toEqual("offering_1");
-    expect(
-      offeringWithPlacement!.availablePackages[0].webBillingProduct
-        .presentedOfferingContext.placementIdentifier,
-    ).toEqual("test_null_placement_id");
+    expect(offeringWithPlacement).toBeNull();
+  });
+
+  test("does not fetch any products when placement is explicitly set to No Offering", async () => {
+    const purchases = configurePurchases();
+    await purchases.getCurrentOfferingForPlacement("test_null_placement_id");
+    const productsUrl =
+      "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products";
+    const productRequests = APIGetRequest.mock.calls.filter(([request]) =>
+      request.url.startsWith(productsUrl),
+    );
+    expect(productRequests).toHaveLength(0);
   });
 
   test("gets fallback offering if placement id maps to a non-existent offering", async () => {

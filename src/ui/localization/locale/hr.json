@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Porez (procijenjeno)",
   "upgrade_confirm_page.subtitle_deferred": "Pregledajte detalje plaćanja i promjenu rasporeda",
   "upgrade_confirm_page.confirm_schedule": "Potvrdite raspored",
-  "upgrade_confirm_page.on_file": "U evidenciji"
+  "upgrade_confirm_page.on_file": "U evidenciji",
+  "credit_for_unused_time.title": "Kredit za neiskorišteno vrijeme",
+  "credit_for_unused_time.message": "Vaš način plaćanja bit će naplaćen za razliku između pretplata, uz kredit za neiskorišteno vrijeme na vašoj pretplati {{previousProductName}}."
 }

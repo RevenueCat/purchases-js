@@ -1,3 +1,53 @@
+## 1.55.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(paddle): forward discountCode to Paddle Checkout (#1102) via Víctor Ferrer García (@vicfergar)
+* feat: add trackCustomPaywallImpression() function (#1092) via Will Taylor (@fire-at-will)
+
+### 🔄 Other Changes
+* Product-change checkout tweaks (#1100) via James O'Donnell (@james-od)
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `7dd9ab9` to `6db1da0` (#1101) via dependabot[bot] (@dependabot[bot])
+
+## 1.54.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(singular): add $singularDeviceId reserved customer attribute (#1080) via Guillem Corominas (@guillemcorominas)
+* [EXTERNAL] Allow Paddle checkout settings to carry non-boolean values (#1077) via @alepacheco (#1079) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Support unused credit copy on the upgrade checkout UI (#1084) via Burdock (@lburdock)
+* chore: drop the unused api-extractor doc model (#1085) via Álvaro Brey (@AlvaroBrey)
+* Adopt shared Renovate config (#1078) via Álvaro Brey (@AlvaroBrey)
+* Update sdks-common-config orb to v4.6.1 (#1076) via Antonio Pallares (@ajpallares)
+* chore: drop unused npm deps (#1069) via Nihal Gonsalves (@nihalgonsalves)
+* ci: enable turbosnap (#1070) via Nihal Gonsalves (@nihalgonsalves)
+
+## 1.53.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* "No Offering" placement not returning null (#1066) via Guilherme (@GuilhermeMota93)
+
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* WFL-486 | Make sure custom variable overrides are taken into accounts (#1067) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `7fbbe66` to `7dd9ab9` (#1064) via dependabot[bot] (@dependabot[bot])
+
+## 1.53.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-4597 Allow runtime purchase appearance overrides (#1054) via Nicola Sacco (@nicfix)
+* Paddle Metadata (#1055) via HaleyRevcat (@HaleyRevcat)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane from 2.237.0 to 2.238.0 (#1056) via dependabot[bot] (@dependabot[bot])
+
+## 1.52.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* WEB-4553 Expose the alternative redemption redirect URL (#1049) via Nicola Sacco (@nicfix)
+
 ## 1.52.2
 ## RevenueCat SDK
 ### 🐞 Bugfixes

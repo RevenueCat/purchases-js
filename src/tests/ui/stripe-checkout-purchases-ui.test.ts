@@ -120,6 +120,31 @@ describe("StripeCheckoutPurchasesUi", () => {
     });
   });
 
+  test("passes an appearance override to checkoutStart", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponseWithoutStripeParams);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        appearanceOverride: {
+          color_buttons_primary: "#ffffff",
+        },
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          appearanceOverride: {
+            color_buttons_primary: "#ffffff",
+          },
+        }),
+      );
+    });
+  });
+
   test("passes undefined workflowPurchaseContext to checkoutStart when not provided", async () => {
     const checkoutStartSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutStart")

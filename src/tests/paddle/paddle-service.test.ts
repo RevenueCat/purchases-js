@@ -163,6 +163,36 @@ describe("buildPaddleCheckoutOptions", () => {
     );
   });
 
+  test("lets checkout settings override the default variant", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: { variant: "express" },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({ variant: "express" }),
+    );
+  });
+
+  test("forwards unknown checkout settings to Paddle untouched", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: {
+        variant: "express",
+        showNonExpressPaymentMethods: false,
+      },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({
+        variant: "express",
+        showNonExpressPaymentMethods: false,
+      }),
+    );
+  });
+
   test("keeps SDK-controlled layout settings", () => {
     const options = buildPaddleCheckoutOptions({
       transactionId,
@@ -203,6 +233,21 @@ describe("buildPaddleCheckoutOptions", () => {
     });
     expect(withoutEmail).not.toHaveProperty("customer");
   });
+
+  test("includes discountCode when provided and omits it otherwise", () => {
+    const withDiscount = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      discountCode: "SAVE10",
+    });
+    expect(withDiscount.discountCode).toBe("SAVE10");
+
+    const withoutDiscount = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+    });
+    expect(withoutDiscount).not.toHaveProperty("discountCode");
+  });
 });
 
 describe("PaddleService", () => {
@@ -218,6 +263,7 @@ describe("PaddleService", () => {
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       trackPaywallEvent: () => {},
+      trackCustomPaywallImpression: () => {},
       dispose: () => {},
       flushAllEvents: () => Promise.resolve(),
     };
@@ -575,6 +621,41 @@ describe("PaddleService", () => {
       purchasePromise.catch(() => {});
     });
 
+    test("passes discountCode to Paddle when provided", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: { ...purchaseParams, discountCode: "SAVE10" },
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          transactionId: "test-transaction-id",
+          discountCode: "SAVE10",
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test("omits discountCode from Paddle when not provided", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+      });
+
+      const openOptions = vi.mocked(mockPaddleInstance.Checkout!.open).mock
+        .calls[0][0];
+      expect(openOptions).not.toHaveProperty("discountCode");
+
+      purchasePromise.catch(() => {});
+    });
+
     test("opens an overlay checkout by default", async () => {
       const purchasePromise = paddleService.purchase({
         operationSessionId,
@@ -636,6 +717,31 @@ describe("PaddleService", () => {
         purchasePromise.catch(() => {});
       },
     );
+
+    test("passes the express checkout settings to Paddle", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+        checkoutSettings: {
+          variant: "express",
+          showNonExpressPaymentMethods: false,
+        },
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: expect.objectContaining({
+            variant: "express",
+            showNonExpressPaymentMethods: false,
+          }),
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
 
     test("forwards order totals on checkout.loaded and checkout.updated", async () => {
       const onCheckoutTotals = vi.fn();
@@ -763,6 +869,7 @@ describe("PaddleService", () => {
       expect(result).toEqual({
         redemptionInfo: {
           redeemUrl: "test-url://redeem_my_rcb?token=1234",
+          redeemUrlRedirect: null,
         },
         operationSessionId: operationSessionId,
         storeTransactionIdentifier: "test-store-transaction-id",
@@ -874,6 +981,7 @@ describe("PaddleService", () => {
         trackSDKEvent: () => {},
         trackExternalEvent: () => {},
         trackPaywallEvent: () => {},
+        trackCustomPaywallImpression: () => {},
         dispose: () => {},
         flushAllEvents: () => Promise.resolve(),
       });

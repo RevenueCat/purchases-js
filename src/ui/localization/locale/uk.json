@@ -123,5 +123,7 @@
   "upgrade_product_info.tax_estimated": "Податок (орієнтовно)",
   "upgrade_confirm_page.subtitle_deferred": "Перегляньте деталі платежу та заплануйте зміну",
   "upgrade_confirm_page.confirm_schedule": "Підтвердити розклад",
-  "upgrade_confirm_page.on_file": "Збережено"
+  "upgrade_confirm_page.on_file": "Збережено",
+  "credit_for_unused_time.title": "Кредит за невикористаний час",
+  "credit_for_unused_time.message": "З вашого способу оплати буде списано різницю між підписками, з урахуванням кредиту за невикористаний час вашої підписки на {{previousProductName}}."
 }

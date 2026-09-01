@@ -12,6 +12,7 @@ import PaywallPage from "./pages/paywall";
 import SuccessPage from "./pages/success";
 import {
   loadPurchases,
+  loadPurchasesWithAppearanceOverride,
   loadPurchasesWithDelayedStore,
 } from "./util/PurchasesLoader";
 import RCPaywallPage from "./pages/rc_paywall";
@@ -24,6 +25,7 @@ import ExpressPurchaseButtonsPackageSelector from "./pages/express_purchase_butt
 import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
 import UpgradePage from "./pages/upgrade";
 import UpgradePaywallPage from "./pages/upgrade_paywall";
+import AppearanceOverridesPage from "./pages/appearance_overrides";
 
 const router = createBrowserRouter([
   {
@@ -48,6 +50,11 @@ const router = createBrowserRouter([
         <PaywallPage />
       </WithoutEntitlement>
     ),
+  },
+  {
+    path: "/appearance-overrides/:app_user_id",
+    loader: loadPurchasesWithAppearanceOverride,
+    element: <AppearanceOverridesPage />,
   },
   {
     path: "/rc_paywall/:app_user_id",
