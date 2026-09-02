@@ -1,4 +1,4 @@
-import { assert, describe, expect, test } from "vitest";
+import { assert, describe, expect, test, vi } from "vitest";
 import {
   createConsumablePackageMock,
   createMonthlyPackageMock,
@@ -23,6 +23,7 @@ import {
 } from "./test-responses";
 import type { PaywallData } from "@revenuecat/purchases-ui-js";
 import { http, HttpResponse } from "msw";
+import type { OfferingsResponse } from "../networking/responses/offerings-response";
 
 describe("getOfferings", () => {
   const expectedMonthlyPackage = createMonthlyPackageMock();
@@ -870,6 +871,156 @@ describe("getOfferings", () => {
 });
 
 describe("getOfferings placements", () => {
+  const offeringsUrl =
+    "http://localhost:8000/v1/subscribers/someAppUserId/offerings";
+  const rawOfferingsResponse: OfferingsResponse = {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: "offering_1",
+      offering_ids_by_placement: {
+        test_placement_id: "offering_2",
+      },
+    },
+  };
+  const getOfferingsRequestCount = () =>
+    APIGetRequest.mock.calls.filter(([request]) => request.url === offeringsUrl)
+      .length;
+
+  test("shares one offerings request across concurrent placement lookups", async () => {
+    const purchases = configurePurchases();
+
+    const offerings = await Promise.all([
+      purchases.getCurrentOfferingForPlacement("test_placement_id"),
+      purchases.getCurrentOfferingForPlacement("missing_placement_id"),
+      purchases.getCurrentOfferingForPlacement("another_missing_placement_id"),
+    ]);
+
+    expect(offerings.map((offering) => offering?.identifier)).toEqual([
+      "offering_2",
+      "offering_1",
+      "offering_1",
+    ]);
+    expect(getOfferingsRequestCount()).toBe(1);
+  });
+
+  test("reuses a recent offerings response across sequential placement lookups", async () => {
+    const purchases = configurePurchases();
+
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+    await purchases.getCurrentOfferingForPlacement("missing_placement_id");
+    await purchases.getCurrentOfferingForPlacement(
+      "another_missing_placement_id",
+    );
+
+    expect(getOfferingsRequestCount()).toBe(1);
+  });
+
+  test("refetches offerings after the public cache invalidation", async () => {
+    const purchases = configurePurchases();
+
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+    purchases.invalidateOfferingsCache();
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(getOfferingsRequestCount()).toBe(2);
+  });
+
+  test("refetches offerings after the cache expires", async () => {
+    const now = Date.now();
+    const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(now);
+    const purchases = configurePurchases();
+
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+    dateNowSpy.mockReturnValue(now + 10_000);
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(getOfferingsRequestCount()).toBe(2);
+    dateNowSpy.mockRestore();
+  });
+
+  test("shares the raw response without allowing getOfferings filtering to mutate it", async () => {
+    const purchases = configurePurchases();
+
+    const [filteredOfferings, placementOffering] = await Promise.all([
+      purchases.getOfferings({ offeringIdentifier: "offering_1" }),
+      purchases.getCurrentOfferingForPlacement("test_placement_id"),
+    ]);
+
+    expect(Object.keys(filteredOfferings.all)).toEqual(["offering_1"]);
+    expect(placementOffering?.identifier).toBe("offering_2");
+    expect(getOfferingsRequestCount()).toBe(1);
+  });
+
+  test("does not cache failed offerings requests", async () => {
+    let requestCount = 0;
+    server.use(
+      http.get(offeringsUrl, ({ request }) => {
+        APIGetRequest({ url: request.url });
+        requestCount += 1;
+        return requestCount === 1
+          ? HttpResponse.json(null, { status: 500 })
+          : HttpResponse.json(rawOfferingsResponse, { status: 200 });
+      }),
+    );
+    const purchases = configurePurchases();
+
+    await expect(
+      purchases.getCurrentOfferingForPlacement("test_placement_id"),
+    ).rejects.toBeInstanceOf(PurchasesError);
+    const offering =
+      await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(offering?.identifier).toBe("offering_2");
+    expect(requestCount).toBe(2);
+  });
+
+  test("reuses a recent offerings response across sequential getOfferings calls", async () => {
+    const purchases = configurePurchases();
+
+    await purchases.getOfferings();
+    await purchases.getOfferings();
+
+    expect(getOfferingsRequestCount()).toBe(1);
+  });
+
+  test("does not let an invalidated in-flight request repopulate the cache", async () => {
+    let resolveFirstRequest:
+      | ((response: OfferingsResponse) => void)
+      | undefined;
+    const purchases = configurePurchases();
+    const getOfferingsSpy = vi
+      .spyOn(purchases["backend"], "getOfferings")
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFirstRequest = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(rawOfferingsResponse);
+    server.use(
+      http.post(
+        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
+        () => HttpResponse.json({}, { status: 200 }),
+      ),
+    );
+
+    const firstLookup =
+      purchases.getCurrentOfferingForPlacement("test_placement_id");
+    await vi.waitFor(() => expect(getOfferingsSpy).toHaveBeenCalledTimes(1));
+
+    await purchases.setAttributes({ segment: "updated" });
+    const secondLookup =
+      purchases.getCurrentOfferingForPlacement("test_placement_id");
+    await vi.waitFor(() => expect(getOfferingsSpy).toHaveBeenCalledTimes(2));
+
+    resolveFirstRequest?.(rawOfferingsResponse);
+    await Promise.all([firstLookup, secondLookup]);
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(getOfferingsSpy).toHaveBeenCalledTimes(2);
+  });
+
   test("gets fallback offering if placement id is missing", async () => {
     const purchases = configurePurchases();
     const offeringWithPlacement =
