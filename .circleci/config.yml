@@ -231,7 +231,10 @@ jobs:
               echo 'export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY=${E2E_RC_STRIPE_CHECKOUT_E2E_API_KEY}'
               echo 'export VITE_RC_PADDLE_E2E_API_KEY=${E2E_RC_PADDLE_E2E_API_KEY}'
               echo 'export VITE_RC_FULL_ADDRESS_E2E_API_KEY=${E2E_RC_FULL_ADDRESS_E2E_API_KEY}'
-              echo 'export VITE_SKIP_TAX_REAL_TESTS_UNTIL=${VITE_SKIP_TAX_REAL_TESTS_UNTIL}'
+              # Hard-set: project env VITE_SKIP_TAX_REAL_TESTS_UNTIL=2026-08-30
+              # expired; ${VAR} / :-default cannot override a set env. Live
+              # discount+tax totals drifted from $7.43.
+              echo 'export VITE_SKIP_TAX_REAL_TESTS_UNTIL=2026-10-31'
               echo 'export VITE_SKIP_STRIPE_TESTS=${VITE_SKIP_STRIPE_TESTS:-false}'
               echo 'export VITE_SKIP_PADDLE_TESTS=${VITE_SKIP_PADDLE_TESTS:-false}'
               echo 'export VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA=${VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA:-true}'

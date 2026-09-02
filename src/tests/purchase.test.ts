@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { mount } from "svelte";
 import {
   configurePurchases,
   server,
@@ -11,12 +12,68 @@ import { buildAssetURL } from "../networking/assets";
 
 const applePayBrandingLogoFlags = { applePayBrandingLogoEnabled: true };
 
+vi.mock("svelte", () => ({
+  mount: vi.fn(),
+  unmount: vi.fn(),
+}));
+
 beforeEach(() => {
   document.head.innerHTML = "";
   document.body.innerHTML = "";
 });
 
 describe("purchase", () => {
+  test("forwards an external purchase token ID to the purchase UI", async () => {
+    let purchaseProps: Record<string, unknown> | undefined;
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      purchaseProps = options.props as Record<string, unknown>;
+      return vi.fn();
+    });
+
+    const purchases = configurePurchases();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    void purchases.purchase({
+      rcPackage: packageToBuy!,
+      externalPurchaseTokenId: "rcat_external_purchase_token_123",
+    });
+
+    await vi.waitFor(() => {
+      expect(purchaseProps).toEqual(
+        expect.objectContaining({
+          externalPurchaseTokenId: "rcat_external_purchase_token_123",
+        }),
+      );
+    });
+  });
+
+  test("forwards an external purchase token ID to the express purchase UI", async () => {
+    let purchaseProps: Record<string, unknown> | undefined;
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      purchaseProps = options.props as Record<string, unknown>;
+      return vi.fn();
+    });
+
+    const purchases = configurePurchases();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    void purchases.presentExpressPurchaseButton({
+      rcPackage: packageToBuy!,
+      htmlTarget: document.createElement("div"),
+      externalPurchaseTokenId: "rcat_external_purchase_token_123",
+    });
+
+    await vi.waitFor(() => {
+      expect(purchaseProps).toEqual(
+        expect.objectContaining({
+          externalPurchaseTokenId: "rcat_external_purchase_token_123",
+        }),
+      );
+    });
+  });
+
   test("purchase loads branding if not preloaded", async () => {
     const purchases = configurePurchases();
     const expectedRequest: GetRequest = {

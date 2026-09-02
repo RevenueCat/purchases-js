@@ -65,6 +65,7 @@ interface CheckoutStartRequestParams {
 
   // Customer data
   customerEmail?: string;
+  externalPurchaseTokenId?: string;
   metadata?: PurchaseMetadata;
   // Locale for lifecycle emails.
   locale?: string;
@@ -293,6 +294,7 @@ export class Backend {
     paywallId,
     paywallSessionId,
     customerEmail,
+    externalPurchaseTokenId,
     metadata,
     locale,
     attributionMetadata,
@@ -314,6 +316,7 @@ export class Backend {
         revision: number;
       };
       email?: string;
+      external_purchase_token_id?: string;
       metadata?: PurchaseMetadata;
       trace_id: string;
       locale?: string;
@@ -342,6 +345,10 @@ export class Backend {
 
     if (metadata) {
       requestBody.metadata = metadata;
+    }
+
+    if (externalPurchaseTokenId) {
+      requestBody.external_purchase_token_id = externalPurchaseTokenId;
     }
 
     if (purchaseOption.id !== "base_option") {

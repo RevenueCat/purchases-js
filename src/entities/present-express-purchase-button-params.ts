@@ -70,6 +70,10 @@ export interface PresentExpressPurchaseButtonParams {
    */
   customerEmail?: string;
   /**
+   * The RevenueCat public identifier for an Apple external purchase token.
+   */
+  externalPurchaseTokenId?: string;
+  /**
    * The locale to use for the purchase flow. If not specified, English will be used
    */
   selectedLocale?: string;

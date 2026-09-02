@@ -175,6 +175,7 @@ interface PaddleStartCheckoutParams {
   presentedOfferingContext: PresentedOfferingContext;
   purchaseOption: PurchaseOption;
   customerEmail?: string;
+  externalPurchaseTokenId?: string;
   metadata?: PurchaseMetadata;
   locale?: string;
   attributionMetadata?: AttributionMetadata;
@@ -261,6 +262,7 @@ export class PaddleService {
     presentedOfferingContext,
     purchaseOption,
     customerEmail,
+    externalPurchaseTokenId,
     metadata,
     locale,
     attributionMetadata,
@@ -280,6 +282,7 @@ export class PaddleService {
           presentedStepId,
           urlParameters,
           customerEmail: customerEmail ?? undefined,
+          externalPurchaseTokenId,
           metadata,
           locale,
           attributionMetadata,

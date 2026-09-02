@@ -30,6 +30,7 @@ import {
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
+  isStripeSandboxApiKey,
   isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
@@ -844,6 +845,7 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
+        externalPurchaseTokenId: paywallParams.externalPurchaseTokenId,
         metadata: paywallParams.metadata,
         brandingAppearanceOverride: paywallParams.brandingAppearanceOverride,
         showDiscountCodeField: paywallParams.showDiscountCodeField,
@@ -1181,6 +1183,7 @@ export class Purchases {
         onError("Error presenting express purchase button"),
         listener,
         paywallParams.metadata,
+        paywallParams.externalPurchaseTokenId,
       );
 
       certainHTMLTarget.innerHTML = "";
@@ -1574,6 +1577,7 @@ export class Purchases {
       purchaseOption,
       htmlTarget,
       customerEmail,
+      externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       onButtonReady = () => {},
@@ -1643,6 +1647,7 @@ export class Purchases {
         eventsTracker: this.eventsTracker,
         brandingInfo: this._brandingInfo,
         purchaseOperationHelper: this.purchaseOperationHelper,
+        externalPurchaseTokenId,
         metadata: metadata,
         customTranslations: params.labelsOverride,
         translator,
@@ -1665,6 +1670,7 @@ export class Purchases {
    * @param onPurchaseError - The callback to be called when the purchase fails.
    * @param listener - Optional paywall listener for purchase lifecycle events.
    * @param metadata - Optional purchase metadata forwarded to express checkout.
+   * @param externalPurchaseTokenId - Optional RevenueCat public identifier for an Apple external purchase token.
    * @returns Function that renders the wallet button.
    */
   public getWalletButtonRender(
@@ -1674,6 +1680,7 @@ export class Purchases {
     onError?: (error: Error) => void,
     listener?: PaywallListener,
     metadata?: PurchaseMetadata,
+    externalPurchaseTokenId?: string,
   ): WalletButtonRender | undefined {
     if (!isWebBillingApiKey(this._API_KEY)) {
       return undefined;
@@ -1696,6 +1703,7 @@ export class Purchases {
         customerEmail: customerEmail,
         htmlTarget: element,
         metadata,
+        externalPurchaseTokenId,
         onButtonReady: (updater, walletsAvailable) => {
           buttonUpdater = updater;
           onReady?.(walletsAvailable);
@@ -1793,6 +1801,7 @@ export class Purchases {
     params: PurchaseParams,
     brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
+    const productChange = this.resolveProductChange(params);
     const {
       rcPackage,
       purchaseOption,
@@ -1802,6 +1811,7 @@ export class Purchases {
       attributionMetadata,
       paywallId,
       paywallSessionId,
+      externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1866,6 +1876,29 @@ export class Purchases {
         unmountPurchaseUi,
       );
 
+      const onProductChangeFinished = async (result: ProductChangeResult) => {
+        this.inMemoryCache.invalidateAllCaches();
+        unmountPurchaseUi();
+        try {
+          const customerInfo = await this.getCustomerInfo();
+          resolve({
+            customerInfo,
+            redemptionInfo: null,
+            operationSessionId: result.operationSessionId,
+            storeTransaction: {
+              storeTransactionId: result.operationSessionId,
+              productIdentifier: result.newProductId,
+              purchaseDate: new Date(),
+            },
+            productChange: {
+              changeType: result.changeType,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+
       const onError = this.createCheckoutOnErrorHandler(
         reject,
         unmountPurchaseUi,
@@ -1875,6 +1908,7 @@ export class Purchases {
         target: certainHTMLTarget,
         props: {
           isInElement: isInElement,
+          isSandbox: this.isSandbox(),
           appUserId,
           rcPackage,
           purchaseOption: purchaseOptionToUse,
@@ -1883,18 +1917,22 @@ export class Purchases {
           attributionMetadata,
           paywallId,
           paywallSessionId,
+          productChange,
           onFinished,
+          onProductChangeFinished,
           onClose,
           onError,
           eventsTracker: this.eventsTracker,
           brandingInfo,
           appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
+          externalPurchaseTokenId,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
           customTranslations: params.labelsOverride,
           skipSuccessPage,
+          hideBackButton: this.shouldHideCheckoutBackButton(),
         },
       });
     });
@@ -1912,6 +1950,7 @@ export class Purchases {
       customerEmail,
       workflowPurchaseContext,
       attributionMetadata,
+      externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -2034,6 +2073,7 @@ export class Purchases {
           brandingInfo,
           appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
+          externalPurchaseTokenId,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
@@ -2060,6 +2100,7 @@ export class Purchases {
       discountCode,
       attributionMetadata,
       workflowPurchaseContext,
+      externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -2158,6 +2199,7 @@ export class Purchases {
             discountCode,
             attributionMetadata,
             workflowPurchaseContext,
+            externalPurchaseTokenId,
             metadata,
             unmountPaddlePurchaseUi,
             paddleService,
@@ -2404,7 +2446,8 @@ export class Purchases {
   /**
    * Resolves {@link PurchaseParams.productChangeInfo} into the product-change
    * context passed to the checkout UI, or undefined when the purchase should
-   * proceed as a normal purchase (no info, no token, or non-Web Billing key).
+   * proceed as a normal purchase (no info, no token, or an API key whose
+   * gateway doesn't support product change, e.g. Paddle).
    */
   private resolveProductChange(params: PurchaseParams):
     | {
@@ -2414,7 +2457,9 @@ export class Purchases {
       }
     | undefined {
     const productChangeInfo = params.productChangeInfo;
-    if (!productChangeInfo || !isWebBillingApiKey(this._API_KEY)) {
+    const supportsProductChange =
+      isWebBillingApiKey(this._API_KEY) || isStripeApiKey(this._API_KEY);
+    if (!productChangeInfo || !supportsProductChange) {
       return undefined;
     }
 
@@ -2491,6 +2536,7 @@ export class Purchases {
   public isSandbox(): boolean {
     return (
       isWebBillingSandboxApiKey(this._API_KEY) ||
+      isStripeSandboxApiKey(this._API_KEY) ||
       isSimulatedStoreApiKey(this._API_KEY)
     );
   }

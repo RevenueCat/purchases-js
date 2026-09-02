@@ -19,6 +19,10 @@ export function isStripeApiKey(apiKey: string): boolean {
   return apiKey ? stripe_api_key_regex.test(apiKey) : false;
 }
 
+export function isStripeSandboxApiKey(apiKey: string): boolean {
+  return apiKey ? apiKey.startsWith("strp_sb_") : false;
+}
+
 export function isSimulatedStoreApiKey(apiKey: string): boolean {
   return apiKey ? rc_simulated_store_api_key_regex.test(apiKey) : false;
 }

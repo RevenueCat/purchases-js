@@ -246,6 +246,30 @@ describe("PurchaseOperationHelper", () => {
     });
   });
 
+  test("checkoutStart passes an external purchase token ID to the backend", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      externalPurchaseTokenId: "rcat_external_purchase_token_123",
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      expect.objectContaining({
+        externalPurchaseTokenId: "rcat_external_purchase_token_123",
+      }),
+    );
+  });
+
   test("checkoutStart passes an appearance override to the backend", async () => {
     const mockPostCheckoutStart = vi
       .spyOn(backend, "postCheckoutStart")
