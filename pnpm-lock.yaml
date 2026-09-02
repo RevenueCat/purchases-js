@@ -17,8 +17,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       "@revenuecat/purchases-ui-js":
-        specifier: file:../../purchases-ui-js/franco-pweng-229-webview-paywall-context
-        version: file:../../purchases-ui-js/franco-pweng-229-webview-paywall-context(svelte@5.46.4)
+        specifier: 4.8.20
+        version: 4.8.20(svelte@5.46.4)
       "@storybook/addon-essentials":
         specifier: ^8.6.15
         version: 8.6.15(@types/react@19.0.10)(storybook@8.6.15(prettier@3.4.2))
@@ -698,11 +698,10 @@ packages:
       }
     engines: { node: ^12.20.0 || ^14.18.0 || >=16.0.0 }
 
-  "@revenuecat/purchases-ui-js@file:../../purchases-ui-js/franco-pweng-229-webview-paywall-context":
+  "@revenuecat/purchases-ui-js@4.8.20":
     resolution:
       {
-        directory: ../../purchases-ui-js/franco-pweng-229-webview-paywall-context,
-        type: directory,
+        integrity: sha512-kO79gX2voMYn5xKy9n1km7vCx/YAcUSfkNHKLQsTH3mv6o+J7d9aU2f29b/ywUGzAM7s9jzSDXhDxdId3OYQoA==,
       }
     engines: { node: ^22.18 || ^24.11 }
     peerDependencies:
@@ -6129,7 +6128,7 @@ snapshots:
 
   "@pkgr/core@0.1.1": {}
 
-  "@revenuecat/purchases-ui-js@file:../../purchases-ui-js/franco-pweng-229-webview-paywall-context(svelte@5.46.4)":
+  "@revenuecat/purchases-ui-js@4.8.20(svelte@5.46.4)":
     dependencies:
       "@revenuecat/workflow-web-components-sdk": 0.1.7
       qrcode: 1.5.4
