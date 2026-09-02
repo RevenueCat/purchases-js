@@ -18,6 +18,7 @@ import {
 import { getLongPeriodLabel, pluralizePeriod } from "../../util/period-label";
 import Button from "../../components/Button";
 import LogoutButton from "../../components/LogoutButton";
+import { getExternalPurchaseTokenId } from "../../util/external-purchase-token";
 
 interface IPackageCardProps {
   pkg: Package;
@@ -169,6 +170,7 @@ const PaywallPage: React.FC = () => {
   const email = searchParams.get("email");
   const displayName = searchParams.get("$displayName");
   const nickname = searchParams.get("nickname");
+  const externalPurchaseTokenId = getExternalPurchaseTokenId(searchParams);
   const skipSuccessPage = searchParams.get("skipSuccessPage") === "true";
   const showDiscountCodeField =
     searchParams.get("showDiscountCodeField") === "true";
@@ -238,6 +240,7 @@ const PaywallPage: React.FC = () => {
           showDiscountCodeField,
           selectedLocale: lang || navigator.language,
           customerEmail: email || undefined,
+          externalPurchaseTokenId,
           skipSuccessPage: skipSuccessPage,
           // @ts-expect-error This method is marked as internal for now but it's public.'
           labelsOverride: {

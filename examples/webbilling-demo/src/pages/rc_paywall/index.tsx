@@ -5,6 +5,7 @@ import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePaywallSettings } from "../../hooks/usePaywallSettings";
 import SettingsGearButton from "../../components/SettingsGearButton";
+import { getExternalPurchaseTokenId } from "../../util/external-purchase-token";
 
 const RCPaywallPage: React.FC = () => {
   const { offering } = usePurchasesLoaderData();
@@ -12,6 +13,7 @@ const RCPaywallPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
   const email = searchParams.get("email");
+  const externalPurchaseTokenId = getExternalPurchaseTokenId(searchParams);
   const hideBackButtons = searchParams.get("hideBackButtons") === "true";
   const showDiscountCodeField =
     searchParams.get("showDiscountCodeField") === "true";
@@ -37,6 +39,7 @@ const RCPaywallPage: React.FC = () => {
         hideBackButtons: hideBackButtons,
         customVariables,
         customerEmail: email || undefined,
+        externalPurchaseTokenId,
       })
       .then((purchaseResult: PurchaseResult) => {
         const { customerInfo, redemptionInfo } = purchaseResult;
@@ -55,7 +58,15 @@ const RCPaywallPage: React.FC = () => {
         );
       })
       .catch((err: Error) => console.log(`Error: ${err}`));
-  }, [offering, navigate, lang, hideBackButtons, customVariables, email]);
+  }, [
+    offering,
+    navigate,
+    lang,
+    hideBackButtons,
+    customVariables,
+    email,
+    externalPurchaseTokenId,
+  ]);
 
   if (!offering) {
     console.error("No offering found");

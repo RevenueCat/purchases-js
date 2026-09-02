@@ -462,6 +462,25 @@ describe("PaddleService", () => {
       });
     });
 
+    test("passes an external purchase token ID to the backend", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+
+      const mockPostCheckoutStart = vi
+        .spyOn(backend, "postCheckoutStart")
+        .mockResolvedValue(paddleCheckoutStartResponse);
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        externalPurchaseTokenId: "rcat_external_purchase_token_123",
+      });
+
+      expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+        expect.objectContaining({
+          externalPurchaseTokenId: "rcat_external_purchase_token_123",
+        }),
+      );
+    });
+
     test("omits url_parameters and presented_step_id without workflowPurchaseContext", async () => {
       vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
       let capturedBody: Record<string, unknown> | undefined;

@@ -116,4 +116,24 @@ describe("Purchases.getWalletButtonRender()", () => {
     await vi.waitFor(() => expect(buttonProps).toBeDefined());
     expect(buttonProps!.metadata).toEqual(metadata);
   });
+
+  test("forwards an external purchase token ID to the express purchase button", async () => {
+    const render = purchases.getWalletButtonRender(
+      offering,
+      onSuccess,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      "rcat_external_purchase_token_123",
+    );
+    render!(document.createElement("div"), {
+      selectedPackageId: monthlyPackage.identifier,
+      onReady: vi.fn(),
+    });
+    await vi.waitFor(() => expect(buttonProps).toBeDefined());
+    expect(buttonProps!.externalPurchaseTokenId).toBe(
+      "rcat_external_purchase_token_123",
+    );
+  });
 });

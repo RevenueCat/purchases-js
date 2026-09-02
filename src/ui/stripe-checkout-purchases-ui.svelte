@@ -49,6 +49,7 @@
     appUserId: string;
     purchaseOption: PurchaseOption;
     customerEmail: string | undefined;
+    externalPurchaseTokenId?: string;
     metadata: PurchaseMetadata | undefined;
     purchaseOperationHelper: PurchaseOperationHelper;
     workflowPurchaseContext?: WorkflowPurchaseContext;
@@ -81,6 +82,7 @@
     appUserId,
     purchaseOption,
     customerEmail,
+    externalPurchaseTokenId,
     metadata,
     purchaseOperationHelper,
     workflowPurchaseContext,
@@ -232,6 +234,7 @@
         presentedOfferingContext:
           rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail: email,
+        externalPurchaseTokenId,
         metadata,
         workflowPurchaseContext,
         attributionMetadata,

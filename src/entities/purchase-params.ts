@@ -89,6 +89,11 @@ export interface PurchaseParams {
   customerEmail?: string;
 
   /**
+   * The RevenueCat public identifier for an Apple external purchase token.
+   */
+  externalPurchaseTokenId?: string;
+
+  /**
    * Workflow-specific context for this purchase.
    * @internal
    */
