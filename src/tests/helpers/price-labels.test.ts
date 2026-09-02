@@ -2,9 +2,17 @@ import { describe, expect, test } from "vitest";
 import {
   floorMicrosToCurrencyUnit,
   formatPrice,
+  formatPriceWithPeriod,
+  getPeriodDurationLabel,
   getTranslatedPeriodFrequency,
 } from "../../helpers/price-labels";
+import { getOfferDuration } from "../../helpers/paywall-offer-helpers";
+import { PeriodUnit } from "../../helpers/duration-helper";
 import { Translator } from "../../ui/localization/translator";
+import {
+  subscriptionOptionWithMultipleWeeksIntroPriceRecurring,
+  subscriptionOptionWithSingleWeekIntroPriceRecurring,
+} from "../../stories/fixtures";
 
 describe("getRenewsLabel", () => {
   const translator: Translator = new Translator();
@@ -78,5 +86,128 @@ describe("formatPrice", () => {
     expect(formatPrice(9990000, "USD", "en-GB")).toEqual("$9.99");
     expect(formatPrice(9990000, "CNY", "en-US")).toEqual("CN¥9.99");
     expect(formatPrice(9990000, "CNY", "zh-CN")).toEqual("¥9.99");
+  });
+});
+
+describe("formatPriceWithPeriod", () => {
+  const translator: Translator = new Translator();
+
+  test("returns the bare price when period is missing", () => {
+    expect(formatPriceWithPeriod("$9.99", null, translator)).toEqual("$9.99");
+    expect(formatPriceWithPeriod("$9.99", undefined, translator)).toEqual(
+      "$9.99",
+    );
+  });
+
+  test("appends a short singular period unit", () => {
+    expect(
+      formatPriceWithPeriod(
+        "$9.99",
+        { number: 1, unit: PeriodUnit.Month },
+        translator,
+      ),
+    ).toEqual("$9.99/mo");
+  });
+
+  test("appends a short multi-unit period", () => {
+    expect(
+      formatPriceWithPeriod(
+        "$9.99",
+        { number: 3, unit: PeriodUnit.Month },
+        translator,
+      ),
+    ).toEqual("$9.99/3mo");
+  });
+});
+
+describe("getPeriodDurationLabel", () => {
+  const translator: Translator = new Translator();
+  const spanishTranslator: Translator = new Translator({}, "es", "en");
+
+  const oneWeek = { number: 1, unit: PeriodUnit.Week };
+  const twoWeeks = { number: 2, unit: PeriodUnit.Week };
+
+  test("pluralises multi-unit durations", () => {
+    expect(getPeriodDurationLabel(twoWeeks, translator)).toEqual("2 weeks");
+  });
+
+  test("keeps the leading 1 by default", () => {
+    expect(getPeriodDurationLabel(oneWeek, translator)).toEqual("1 week");
+  });
+
+  test("drops the leading 1 in English when asked", () => {
+    expect(
+      getPeriodDurationLabel(oneWeek, translator, {
+        collapseSingularInEnglish: true,
+      }),
+    ).toEqual("week");
+  });
+
+  test("keeps the leading 1 outside English even when asked", () => {
+    expect(
+      getPeriodDurationLabel(oneWeek, spanishTranslator, {
+        collapseSingularInEnglish: true,
+      }),
+    ).toEqual("1 semana");
+  });
+
+  test.each(["en-US", "en_US", "en-GB", "EN"])(
+    "collapses for the English variant %s",
+    (locale) => {
+      // selectedLocale is often navigator.language or a paywall locale key, and
+      // Translator resolves those to the English strings, so the collapse has to
+      // match on the language subtag rather than the whole locale.
+      expect(
+        getPeriodDurationLabel(oneWeek, new Translator({}, locale, "en"), {
+          collapseSingularInEnglish: true,
+        }),
+      ).toEqual("week");
+    },
+  );
+
+  test("does not collapse for a non-English regional locale", () => {
+    expect(
+      getPeriodDurationLabel(oneWeek, new Translator({}, "es-MX", "en"), {
+        collapseSingularInEnglish: true,
+      }),
+    ).toEqual("1 semana");
+  });
+
+  test("returns an empty label when there is no period", () => {
+    expect(getPeriodDurationLabel(null, translator)).toEqual("");
+  });
+
+  test("clamps a zero cycle count via getOfferDuration", () => {
+    // cycleCount defaults to 0 in the offerings entity, which must read as one
+    // cycle rather than "0 weeks" — the label and the end date are derived from
+    // the same getOfferDuration result so they cannot disagree.
+    const zeroCycleWeek = {
+      ...subscriptionOptionWithSingleWeekIntroPriceRecurring.introPrice!,
+      cycleCount: 0,
+    };
+    expect(
+      getPeriodDurationLabel(getOfferDuration(zeroCycleWeek), translator),
+    ).toEqual("1 week");
+  });
+
+  test("multiplies the phase period by its cycle count via getOfferDuration", () => {
+    const threeCyclesOfOneWeek = {
+      ...subscriptionOptionWithSingleWeekIntroPriceRecurring.introPrice!,
+      cycleCount: 3,
+    };
+    expect(
+      getPeriodDurationLabel(
+        getOfferDuration(threeCyclesOfOneWeek),
+        translator,
+      ),
+    ).toEqual("3 weeks");
+    expect(
+      getPeriodDurationLabel(
+        getOfferDuration(
+          subscriptionOptionWithMultipleWeeksIntroPriceRecurring.introPrice!,
+        ),
+        translator,
+      ),
+    ).toEqual("2 weeks");
   });
 });

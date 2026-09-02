@@ -3,6 +3,7 @@ import type {
   Offerings,
   Package,
   Product,
+  PurchaseMetadata,
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
@@ -19,13 +20,17 @@ import {
   type OfferingsResponse,
   type PackageResponse,
 } from "./networking/responses/offerings-response";
-import { type ProductResponse } from "./networking/responses/products-response";
+import {
+  type ProductResponse,
+  type ProductsResponse,
+} from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
+  isStripeSandboxApiKey,
   isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
@@ -44,6 +49,7 @@ import {
   validateProxyUrl,
 } from "./helpers/configuration-validators";
 import { type PurchaseParams } from "./entities/purchase-params";
+import { type ProductChangeResult } from "./entities/product-change-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import {
   type GetOfferingsParams,
@@ -51,9 +57,13 @@ import {
 } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
+import type { BrandingAppearance } from "./entities/branding";
 import { requiresLoadedResources } from "./helpers/decorators";
+import { resolveTermsAndConditionsUrl } from "./helpers/checkout-consent-helper";
 import {
-  findOfferingByPlacementId,
+  enrichPackagesWithPlacementContext,
+  getOfferingIdForPlacement,
+  toOffering,
   toOfferings,
 } from "./helpers/offerings-parser";
 import {
@@ -129,6 +139,7 @@ import type {
   ExpressPurchaseButtonUpdater,
   PresentExpressPurchaseButtonParams,
 } from "./entities/present-express-purchase-button-params";
+import type { CustomPaywallImpressionParams } from "./entities/custom-paywall-impression-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
 import {
   getDocument,
@@ -142,6 +153,10 @@ import {
   removeManagedAppleTouchIcon,
   syncManagedAppleTouchIcon,
 } from "./helpers/apple-touch-icon";
+import {
+  applyBrandingAppearanceOverride,
+  mergeBrandingAppearanceOverrides,
+} from "./helpers/branding-appearance-helper";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -212,6 +227,10 @@ export type {
   PurchaseResponseAttributionMetadata,
   PurchaseParams,
 } from "./entities/purchase-params";
+export type {
+  ProductChangeInfo,
+  ProductChangeResult,
+} from "./entities/product-change-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type {
   PurchaseResult,
@@ -220,6 +239,7 @@ export type {
 export type { BrandingAppearance } from "./entities/branding";
 export type { PlatformInfo } from "./entities/platform-info";
 export type { PurchasesConfig } from "./entities/purchases-config";
+export type { CustomPaywallImpressionParams } from "./entities/custom-paywall-impression-params";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
@@ -259,6 +279,12 @@ export class Purchases {
   private readonly _flags: FlagsConfig;
 
   /** @internal */
+  private readonly _subscriberToken: string | null;
+
+  /** @internal */
+  private readonly _brandingAppearanceOverride?: Partial<BrandingAppearance>;
+
+  /** @internal */
   private readonly _context?: PurchasesContext;
 
   /** @internal */
@@ -275,6 +301,9 @@ export class Purchases {
 
   /** @internal */
   private readonly inMemoryCache: InMemoryCache;
+
+  /** @internal */
+  private cachedCurrentOffering: Offering | null = null;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -423,7 +452,16 @@ export class Purchases {
   }
 
   private static configureInternal(config: PurchasesConfig): void {
-    const { apiKey, appUserId, httpConfig, flags, context, trace_id } = config;
+    const {
+      apiKey,
+      appUserId,
+      httpConfig,
+      flags,
+      subscriberToken,
+      brandingAppearanceOverride,
+      context,
+      trace_id,
+    } = config;
     const finalHttpConfig = httpConfig ?? defaultHttpConfig;
     const finalFlags = flags ?? defaultFlagsConfig;
 
@@ -433,6 +471,8 @@ export class Purchases {
       appUserId,
       finalHttpConfig,
       finalFlags,
+      subscriberToken,
+      brandingAppearanceOverride,
       context,
       trace_id,
     );
@@ -518,12 +558,18 @@ export class Purchases {
     appUserId: string,
     httpConfig: HttpConfig = defaultHttpConfig,
     flags: FlagsConfig = defaultFlagsConfig,
+    subscriberToken?: string,
+    brandingAppearanceOverride?: Partial<BrandingAppearance>,
     context?: PurchasesContext,
     trace_id?: string,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
     this._flags = { ...defaultFlagsConfig, ...flags };
+    this._subscriberToken = subscriberToken ?? null;
+    this._brandingAppearanceOverride = brandingAppearanceOverride
+      ? { ...brandingAppearanceOverride }
+      : undefined;
     this._context = context;
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
@@ -612,12 +658,12 @@ export class Purchases {
     }
 
     // Check for a workflow associated with this offering.
-    const workflowsResponse = this._flags.workflowsEndpointEnabled
-      ? await this.backend.getWorkflows(this._appUserId).catch((e) => {
-          Logger.warnLog(`Failed to fetch workflows: ${e}`);
-          return null;
-        })
-      : null;
+    const workflowsResponse = await this.backend
+      .getWorkflows(this._appUserId)
+      .catch((e) => {
+        Logger.warnLog(`Failed to fetch workflows: ${e}`);
+        return null;
+      });
     const matchedWorkflowSummary = workflowsResponse?.workflows?.find(
       (w) => w.offering_id === offering.identifier,
     );
@@ -672,8 +718,9 @@ export class Purchases {
       ? paywallParams.selectedLocale
       : navigator.language;
 
-    // finalLocale and translator are only needed for the paywall path — the
-    // Workflow component handles locale resolution internally.
+    // finalLocale and translator are only needed for the standard paywall path.
+    // The workflow path resolves its own locale below, against the workflow's
+    // screens (see finalWorkflowLocale).
     const finalLocale = offering.paywallComponents
       ? calculateLocale(offering.paywallComponents, selectedLocale)
       : selectedLocale;
@@ -788,6 +835,8 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
+        metadata: paywallParams.metadata,
+        brandingAppearanceOverride: paywallParams.brandingAppearanceOverride,
         showDiscountCodeField: paywallParams.showDiscountCodeField,
         discountCode: paywallParams.discountCode,
         onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
@@ -796,6 +845,7 @@ export class Purchases {
           offering.paywallComponents?.default_locale ?? englishLocale,
         paywallId: offering.paywallComponents?.id,
         paywallSessionId,
+        productChangeInfo: paywallParams.productChangeInfo,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
@@ -953,6 +1003,7 @@ export class Purchases {
 
     let workflowNavData: ReturnType<typeof workflowDataToNavData> | undefined;
     let workflowDataResponse: WorkflowData | undefined;
+    let finalWorkflowLocale: string = selectedLocale;
     if (matchedWorkflowSummary) {
       const workflowData = await this.backend
         .getWorkflowById(this._appUserId, matchedWorkflowSummary.id)
@@ -966,6 +1017,15 @@ export class Purchases {
       if (workflowData && navData) {
         workflowDataResponse = workflowData;
         workflowNavData = navData;
+        // The workflow renderer does exact-key locale lookups only, so resolve
+        // the requested locale to a concrete key the workflow provides (e.g.
+        // "sk" -> "sk_SK"), mirroring what the standard paywall does. All
+        // screens in a workflow share the same locale, so resolving against the
+        // initial screen is sufficient.
+        const initialScreen = navData.pages[navData.initial_page_id];
+        if (initialScreen) {
+          finalWorkflowLocale = calculateLocale(initialScreen, selectedLocale);
+        }
       } else {
         if (workflowData && !navData) {
           Logger.warnLog(
@@ -991,6 +1051,7 @@ export class Purchases {
       let component: ReturnType<typeof mount> | null = null;
       let paywallImpressionTracked = false;
       let paywallCloseTracked = false;
+      let purchaseInFlight = false;
 
       certainHTMLTarget.addEventListener("click", recordTextLinkClick);
 
@@ -1077,12 +1138,34 @@ export class Purchases {
         notifyPurchaseError(error);
       };
 
+      const createPurchaseClickHandler = (checkoutLocale: string) => {
+        return (selectedPackageId: string) => {
+          if (purchaseInFlight) {
+            return;
+          }
+          purchaseInFlight = true;
+
+          const pkg = offering.packagesById[selectedPackageId];
+          if (pkg) {
+            notifyPurchaseStarted(pkg);
+          }
+
+          startPurchaseFlow(selectedPackageId, checkoutLocale)
+            .then(onSuccess)
+            .catch(onError("Error performing purchase"))
+            .finally(() => {
+              purchaseInFlight = false;
+            });
+        };
+      };
+
       const walletButtonRender = this.getWalletButtonRender(
         offering,
         onSuccess,
         paywallParams.customerEmail,
         onError("Error presenting express purchase button"),
         listener,
+        paywallParams.metadata,
       );
 
       certainHTMLTarget.innerHTML = "";
@@ -1136,18 +1219,13 @@ export class Purchases {
             props: {
               workflow: workflowNavData,
               uiConfig: workflowDataResponse.ui_config as unknown as UIConfig,
-              selectedLocale,
+              selectedLocale: finalWorkflowLocale,
+              hideBackButtons: paywallParams.hideBackButtons,
               variablesPerPackage,
+              infoPerPackage,
               walletButtonRender,
-              onPurchaseClicked: (selectedPackageId: string) => {
-                const pkg = offering.packagesById[selectedPackageId];
-                if (pkg) {
-                  notifyPurchaseStarted(pkg);
-                }
-                startPurchaseFlow(selectedPackageId, selectedLocale)
-                  .then(onSuccess)
-                  .catch(onError("Error performing purchase"));
-              },
+              onPurchaseClicked:
+                createPurchaseClickHandler(finalWorkflowLocale),
               onClose: closePaywall,
               onExitBack: () => {
                 if (paywallParams.onBack) {
@@ -1200,15 +1278,7 @@ export class Purchases {
               closePaywall();
             },
             onRestorePurchasesClicked: onRestorePurchasesClicked,
-            onPurchaseClicked: (selectedPackageId: string) => {
-              const pkg = offering.packagesById[selectedPackageId];
-              if (pkg) {
-                notifyPurchaseStarted(pkg);
-              }
-              startPurchaseFlow(selectedPackageId)
-                .then(onSuccess)
-                .catch(onError("Error performing purchase"));
-            },
+            onPurchaseClicked: createPurchaseClickHandler(finalLocale),
             onError: (err: unknown) => {
               unmountPaywall();
               reject(err);
@@ -1259,7 +1329,54 @@ export class Purchases {
       );
     }
 
-    return await this.getAllOfferings(offeringsResponse, appUserId, params);
+    const offerings = await this.getAllOfferings(
+      offeringsResponse,
+      appUserId,
+      params,
+    );
+    // A filtered response may intentionally omit the current offering. Preserve
+    // the current-offering cache in that case so implicit impression tracking
+    // remains attributed to the last fetched current offering.
+    if (
+      appUserId === this._appUserId &&
+      (!offeringIdFilter || offerings.current !== null)
+    ) {
+      this.cachedCurrentOffering = offerings.current;
+    }
+    return offerings;
+  }
+
+  /**
+   * Tracks an impression for a custom paywall.
+   *
+   * Pass the offering used to render the paywall to preserve placement and
+   * targeting attribution. When no offering is passed, the most recently
+   * fetched current offering is used if available.
+   *
+   * Each call creates a separate impression event. Call this once per
+   * paywall presentation and avoid lifecycle callbacks that may run
+   * multiple times for the same display.
+   *
+   * @param params Parameters for the custom paywall impression event.
+   */
+  public trackCustomPaywallImpression(
+    params: CustomPaywallImpressionParams = {},
+  ): void {
+    const offering = params.offering ?? this.cachedCurrentOffering;
+    const presentedOfferingContext =
+      offering?.availablePackages[0]?.webBillingProduct
+        .presentedOfferingContext;
+
+    this.eventsTracker.trackCustomPaywallImpression({
+      paywallId: params.paywallId,
+      offeringId: offering?.identifier,
+      placementIdentifier:
+        presentedOfferingContext?.placementIdentifier ?? undefined,
+      targetingRevision:
+        presentedOfferingContext?.targetingContext?.revision ?? undefined,
+      targetingRuleId:
+        presentedOfferingContext?.targetingContext?.ruleId ?? undefined,
+    });
   }
 
   /**
@@ -1274,21 +1391,78 @@ export class Purchases {
   ): Promise<Offering | null> {
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
-
-    const offerings = await this.getAllOfferings(
-      offeringsResponse,
-      appUserId,
-      params,
-    );
     const placementData = offeringsResponse.placements ?? null;
     if (placementData == null) {
       return null;
     }
-    return findOfferingByPlacementId(
-      placementData,
-      offerings.all,
-      placementIdentifier,
+
+    const { offeringIdForPlacement, fallbackOfferingId } =
+      getOfferingIdForPlacement(placementData, placementIdentifier);
+
+    if (!offeringIdForPlacement && !fallbackOfferingId) {
+      return null;
+    }
+
+    const offeringWithPreloadedProducts = offeringIdForPlacement
+      ? await this.findOfferingById(
+          offeringIdForPlacement,
+          offeringsResponse,
+          appUserId,
+          params,
+        )
+      : null;
+
+    if (offeringWithPreloadedProducts !== null) {
+      return enrichPackagesWithPlacementContext(
+        placementIdentifier,
+        offeringWithPreloadedProducts,
+      );
+    }
+
+    if (offeringIdForPlacement === fallbackOfferingId) {
+      return null;
+    }
+
+    const fallbackOfferingWithPreloadedProducts = fallbackOfferingId
+      ? await this.findOfferingById(
+          fallbackOfferingId,
+          offeringsResponse,
+          appUserId,
+          params,
+        )
+      : null;
+
+    if (fallbackOfferingWithPreloadedProducts !== null) {
+      return enrichPackagesWithPlacementContext(
+        placementIdentifier,
+        fallbackOfferingWithPreloadedProducts,
+      );
+    }
+
+    return null;
+  }
+
+  private async findOfferingById(
+    offeringIdentifier: string,
+    offeringsResponse: OfferingsResponse,
+    appUserId: string,
+    params?: GetOfferingsParams,
+  ): Promise<Offering | null> {
+    const offering = offeringsResponse.offerings.find(
+      (offering) => offering.identifier === offeringIdentifier,
     );
+
+    if (offering == null) {
+      return null;
+    }
+
+    const productsResponse = await this.fetchProductsForOfferings(
+      [offering],
+      appUserId,
+      params,
+    );
+
+    return toOffering(offeringIdentifier, offeringsResponse, productsResponse);
   }
 
   private async getAllOfferings(
@@ -1296,7 +1470,21 @@ export class Purchases {
     appUserId: string,
     params?: GetOfferingsParams,
   ): Promise<Offerings> {
-    const productIds = offeringsResponse.offerings
+    const productsResponse = await this.fetchProductsForOfferings(
+      offeringsResponse.offerings,
+      appUserId,
+      params,
+    );
+
+    return toOfferings(offeringsResponse, productsResponse);
+  }
+
+  private async fetchProductsForOfferings(
+    offerings: OfferingResponse[],
+    appUserId: string,
+    params?: GetOfferingsParams,
+  ): Promise<ProductsResponse> {
+    const productIds = offerings
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
@@ -1308,7 +1496,7 @@ export class Purchases {
     );
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
-    return toOfferings(offeringsResponse, productsResponse);
+    return productsResponse;
   }
 
   /**
@@ -1453,6 +1641,8 @@ export class Purchases {
    * @param onSuccess - The callback to be called when the purchase is successful.
    * @param customerEmail - The email of the user. If undefined, RevenueCat will ask the customer for their email.
    * @param onPurchaseError - The callback to be called when the purchase fails.
+   * @param listener - Optional paywall listener for purchase lifecycle events.
+   * @param metadata - Optional purchase metadata forwarded to express checkout.
    * @returns Function that renders the wallet button.
    */
   public getWalletButtonRender(
@@ -1461,6 +1651,7 @@ export class Purchases {
     customerEmail?: string,
     onError?: (error: Error) => void,
     listener?: PaywallListener,
+    metadata?: PurchaseMetadata,
   ): WalletButtonRender | undefined {
     if (!isWebBillingApiKey(this._API_KEY)) {
       return undefined;
@@ -1482,6 +1673,7 @@ export class Purchases {
         rcPackage: pkg,
         customerEmail: customerEmail,
         htmlTarget: element,
+        metadata,
         onButtonReady: (updater, walletsAvailable) => {
           buttonUpdater = updater;
           onReady?.(walletsAvailable);
@@ -1519,15 +1711,33 @@ export class Purchases {
    * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
+   *
+   * When {@link PurchaseParams.productChangeInfo} is set with a subscriber token,
+   * checkout starts in product-change mode: if the backend can change the
+   * existing subscription, an upgrade-confirm page is shown; otherwise the
+   * same checkout session continues as a normal purchase.
+   *
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns a Promise for the customer and redemption info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   @requiresLoadedResources
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
+    const appearanceOverride = mergeBrandingAppearanceOverrides(
+      this._brandingAppearanceOverride,
+      params.brandingAppearanceOverride,
+    );
+    const effectiveParams = appearanceOverride
+      ? { ...params, brandingAppearanceOverride: appearanceOverride }
+      : params;
+    const effectiveBrandingInfo = applyBrandingAppearanceOverride(
+      this._brandingInfo,
+      appearanceOverride,
+    );
+
     if (isSimulatedStoreApiKey(this._API_KEY)) {
       const purchaseResult = await purchaseSimulatedStoreProduct(
-        params,
+        effectiveParams,
         this.backend,
         this._appUserId,
       );
@@ -1537,20 +1747,31 @@ export class Purchases {
 
     const isPaddle = isPaddleApiKey(this._API_KEY);
     if (isPaddle) {
-      return await this.performPaddlePurchase(params);
+      return await this.performPaddlePurchase(
+        effectiveParams,
+        effectiveBrandingInfo,
+      );
     }
 
     const isStripe = isStripeApiKey(this._API_KEY);
     if (isStripe) {
-      return await this.performStripePurchase(params);
+      return await this.performStripePurchase(
+        effectiveParams,
+        effectiveBrandingInfo,
+      );
     }
 
-    return await this.performWebBillingPurchase(params);
+    return await this.performWebBillingPurchase(
+      effectiveParams,
+      effectiveBrandingInfo,
+    );
   }
 
   private async performStripePurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
+    const productChange = this.resolveProductChange(params);
     const {
       rcPackage,
       purchaseOption,
@@ -1579,7 +1800,7 @@ export class Purchases {
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -1592,12 +1813,6 @@ export class Purchases {
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
     let component: ReturnType<typeof mount> | null = null;
-
-    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
-
-    if (finalBrandingInfo && params.brandingAppearanceOverride) {
-      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
-    }
 
     const isInElement = htmlTarget !== undefined;
 
@@ -1630,6 +1845,29 @@ export class Purchases {
         unmountPurchaseUi,
       );
 
+      const onProductChangeFinished = async (result: ProductChangeResult) => {
+        this.inMemoryCache.invalidateAllCaches();
+        unmountPurchaseUi();
+        try {
+          const customerInfo = await this.getCustomerInfo();
+          resolve({
+            customerInfo,
+            redemptionInfo: null,
+            operationSessionId: result.operationSessionId,
+            storeTransaction: {
+              storeTransactionId: result.operationSessionId,
+              productIdentifier: result.newProductId,
+              purchaseDate: new Date(),
+            },
+            productChange: {
+              changeType: result.changeType,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+
       const onError = this.createCheckoutOnErrorHandler(
         reject,
         unmountPurchaseUi,
@@ -1639,6 +1877,7 @@ export class Purchases {
         target: certainHTMLTarget,
         props: {
           isInElement: isInElement,
+          isSandbox: this.isSandbox(),
           appUserId,
           rcPackage,
           purchaseOption: purchaseOptionToUse,
@@ -1647,17 +1886,21 @@ export class Purchases {
           attributionMetadata,
           paywallId,
           paywallSessionId,
+          productChange,
           onFinished,
+          onProductChangeFinished,
           onClose,
           onError,
           eventsTracker: this.eventsTracker,
-          brandingInfo: this._brandingInfo,
+          brandingInfo,
+          appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
           customTranslations: params.labelsOverride,
           skipSuccessPage,
+          hideBackButton: this.shouldHideCheckoutBackButton(),
         },
       });
     });
@@ -1665,7 +1908,9 @@ export class Purchases {
 
   private async performWebBillingPurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
+    const productChange = this.resolveProductChange(params);
     const {
       rcPackage,
       purchaseOption,
@@ -1695,7 +1940,7 @@ export class Purchases {
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -1709,11 +1954,10 @@ export class Purchases {
 
     let component: ReturnType<typeof mount> | null = null;
 
-    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
-
-    if (finalBrandingInfo && params.brandingAppearanceOverride) {
-      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
-    }
+    const termsAndConditionsUrl = resolveTermsAndConditionsUrl({
+      brandingInfo,
+      termsAndConditionsUrl: params.termsAndConditionsUrl,
+    });
 
     const isInElement = htmlTarget !== undefined;
 
@@ -1746,6 +1990,29 @@ export class Purchases {
         unmountPurchaseUi,
       );
 
+      const onProductChangeFinished = async (result: ProductChangeResult) => {
+        this.inMemoryCache.invalidateAllCaches();
+        unmountPurchaseUi();
+        try {
+          const customerInfo = await this.getCustomerInfo();
+          resolve({
+            customerInfo,
+            redemptionInfo: null,
+            operationSessionId: result.operationSessionId,
+            storeTransaction: {
+              storeTransactionId: result.operationSessionId,
+              productIdentifier: result.newProductId,
+              purchaseDate: new Date(),
+            },
+            productChange: {
+              changeType: result.changeType,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+
       const onError = this.createCheckoutOnErrorHandler(
         reject,
         unmountPurchaseUi,
@@ -1763,18 +2030,21 @@ export class Purchases {
           attributionMetadata,
           paywallId: params.paywallId,
           paywallSessionId: params.paywallSessionId,
+          productChange,
           onFinished,
+          onProductChangeFinished,
           onClose,
           onError,
           purchases: this,
           eventsTracker: this.eventsTracker,
-          brandingInfo: this._brandingInfo,
+          brandingInfo,
+          appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
           customTranslations: params.labelsOverride,
-          termsAndConditionsUrl: params.termsAndConditionsUrl,
+          termsAndConditionsUrl,
           showDiscountCodeField,
           discountCode,
           onDiscountCodeChanged,
@@ -1787,11 +2057,13 @@ export class Purchases {
 
   private async performPaddlePurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
     const {
       rcPackage,
       purchaseOption,
       customerEmail,
+      discountCode,
       attributionMetadata,
       workflowPurchaseContext,
       selectedLocale = englishLocale,
@@ -1819,14 +2091,8 @@ export class Purchases {
       ...(params.metadata || {}),
     };
 
-    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
-
-    if (finalBrandingInfo && params.brandingAppearanceOverride) {
-      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
-    }
-
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -1881,7 +2147,7 @@ export class Purchases {
           target: certainHTMLTarget,
           props: {
             eventsTracker: this.eventsTracker,
-            brandingInfo: this._brandingInfo,
+            brandingInfo,
             selectedLocale: selectedLocale || defaultLocale,
             defaultLocale,
             customTranslations: params.labelsOverride,
@@ -1895,6 +2161,7 @@ export class Purchases {
             appUserId,
             purchaseOption: purchaseOptionToUse,
             customerEmail,
+            discountCode,
             attributionMetadata,
             workflowPurchaseContext,
             metadata,
@@ -2140,11 +2407,67 @@ export class Purchases {
     };
   }
 
+  /**
+   * Resolves {@link PurchaseParams.productChangeInfo} into the product-change
+   * context passed to the checkout UI, or undefined when the purchase should
+   * proceed as a normal purchase (no info, no token, or an API key whose
+   * gateway doesn't support product change, e.g. Paddle).
+   */
+  private resolveProductChange(params: PurchaseParams):
+    | {
+        subscriptionId?: string;
+        productIdentifier?: string;
+        subscriberToken: string;
+      }
+    | undefined {
+    const productChangeInfo = params.productChangeInfo;
+    const supportsProductChange =
+      isWebBillingApiKey(this._API_KEY) || isStripeApiKey(this._API_KEY);
+    if (!productChangeInfo || !supportsProductChange) {
+      return undefined;
+    }
+
+    const subscriberToken =
+      productChangeInfo.subscriberToken ?? this._subscriberToken ?? undefined;
+    if (!subscriberToken) {
+      return undefined;
+    }
+
+    this.validateSubscriberToken(subscriberToken);
+
+    return {
+      subscriptionId: productChangeInfo.subscriptionId || undefined,
+      productIdentifier: productChangeInfo.productIdentifier || undefined,
+      subscriberToken,
+    };
+  }
+
+  /**
+   * Rejects anything shaped like a RevenueCat API key so a secret or public
+   * key is never sent (or exposed) where a subscriber token belongs.
+   */
+  private validateSubscriberToken(subscriberToken: string): void {
+    const looksLikeApiKey =
+      isWebBillingApiKey(subscriberToken) ||
+      isPaddleApiKey(subscriberToken) ||
+      isStripeApiKey(subscriberToken) ||
+      isSimulatedStoreApiKey(subscriberToken) ||
+      subscriberToken.startsWith("sk_");
+
+    if (looksLikeApiKey || !subscriberToken) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Invalid subscriber token.",
+      );
+    }
+  }
+
   private async replaceUserId(newAppUserId: string): Promise<void> {
     validateAppUserId(newAppUserId);
     this._appUserId = newAppUserId;
     await this.eventsTracker.updateUser(newAppUserId);
     this.inMemoryCache.invalidateAllCaches();
+    this.cachedCurrentOffering = null;
   }
 
   /** @internal */
@@ -2177,6 +2500,7 @@ export class Purchases {
   public isSandbox(): boolean {
     return (
       isWebBillingSandboxApiKey(this._API_KEY) ||
+      isStripeSandboxApiKey(this._API_KEY) ||
       isSimulatedStoreApiKey(this._API_KEY)
     );
   }

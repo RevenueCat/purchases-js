@@ -1,5 +1,7 @@
-import type { Offering } from "./offerings";
+import type { Offering, PurchaseMetadata } from "./offerings";
 import type { PaywallListener } from "./paywall-listener";
+import type { ProductChangeInfo } from "./product-change-params";
+import type { BrandingAppearance } from "./branding";
 import type {
   CompleteWorkflowNavigateArgs,
   CustomVariables,
@@ -35,6 +37,25 @@ export interface PresentPaywallParams {
    * If passed the checkout flow will not ask for it to the customer.
    */
   readonly customerEmail?: string;
+
+  /**
+   * The purchase metadata to be passed to the backend when a purchase is started
+   * from the paywall.
+   * Any information provided here will be propagated to the payment gateway and
+   * to the RC transaction as metadata.
+   */
+  readonly metadata?: PurchaseMetadata;
+
+  /**
+   * Overrides the branding appearance for the purchase started from this
+   * paywall. Only the provided values are overridden. These values take
+   * precedence over the override passed to `Purchases.configure()`.
+   *
+   * For Stripe Checkout, this customizes the supported mobile wallet experience.
+   * The Stripe-hosted fallback opened through "Pay another way" remains light and
+   * cannot currently be customized.
+   */
+  readonly brandingAppearanceOverride?: Partial<BrandingAppearance>;
 
   /**
    * @experimental
@@ -137,4 +158,13 @@ export interface PresentPaywallParams {
    * ```
    */
   readonly customVariables?: CustomVariables;
+
+  /**
+   * Optional hint to enable suppot for upgrade/downgrades of an
+   * existing Web Billing subscription. Requires a subscriber access token
+   * (via {@link PurchasesConfig.subscriberToken} or
+   * {@link ProductChangeInfo.subscriberToken}).
+   * @internal
+   */
+  readonly productChangeInfo?: ProductChangeInfo | null;
 }

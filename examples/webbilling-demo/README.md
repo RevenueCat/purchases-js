@@ -32,6 +32,35 @@ npm run dev
 >
 > **Expected behavior:** When using your Web Billing product API key, you should see customers created in Sandbox in your dashboard after completing purchases. View activity at https://app.revenuecat.com/activity after a few minutes to see sandbox transactions and customer data.
 
+### Upgrade-mode checkout (`Purchases.purchase` + `productChangeInfo`)
+
+#### Note this feature is currently experimental
+
+The `/upgrade/:app_user_id` page demonstrates upgrade-mode checkout, calling the `purchase()` API with `productChangeInfo` and the target package as `rcPackage`.
+It uses a small token server to serve as a backend: it holds a **secret** API key and mints short-lived subscriber access tokens via the Developer API `authenticate` endpoint. The secret key is read from a non-`VITE_` env var so it is never bundled into frontend code.
+
+**Prerequisite:** configure a product change path in RevenueCat from the customer's current product to the target product. Without a path, start returns 404.
+
+1. Copy `server/.env.example` to `server/.env` and set:
+   - `RC_SECRET_API_KEY` — V2 secret key with `iam:authorization:issue_token`
+   - `RC_PROJECT_ID` — project id (`proj...`)
+   - `RC_APP_ID` — Web Billing app id (`app...`)
+   - Optional: `RC_API_BASE` (default `https://api.revenuecat.com`), `RC_CANARY`, `TOKEN_SERVER_PORT` (default `8010`)
+2. Start the token server: `pnpm run token-server`
+3. In another terminal, start the demo: `pnpm run dev` (Vite proxies `/api` → the token server)
+4. Open `/upgrade/<app_user_id>` for a customer with an active Web Billing subscription
+5. Optionally pick a source product from active Web Billing subscriptions and/or enter a subscription public id (`sub…`). Either, both (must match), or neither (we infer a single active Web Billing subscription) is allowed. Provide at least one id if the user may have multiple active Web Billing subscriptions.
+6. Pick the target package from the current offering.
+7. Click **Open upgrade checkout**. The SDK calls `/checkout/start` with a product-change hint (API key in `Authorization`, subscriber token in `X-RC-Subscriber-Token`). Returns an upgrade session when a change path exists, otherwise a normal purchase.
+
+### Upgrade from a paywall (`Purchases.presentPaywall` + `productChangeInfo`)
+
+Same token-server setup as above. Open `/upgrade-paywall/<app_user_id>` for a customer with an active Web Billing subscription and an offering that has an RC Paywall configured.
+
+1. Optionally pick a source product and/or enter a subscription public id (`sub…`)
+2. Click **Open upgrade paywall** — the SDK presents the offering paywall with `productChangeInfo`
+3. Pick a package on the paywall; checkout starts in product-change mode when a change path exists, otherwise as a normal purchase
+
 ### Payment Methods
 
 The demo supports both **Web Billing** and **Paddle** payment flows:
@@ -128,3 +157,7 @@ Before a paywall will appear, you need an offering configured in the [RevenueCat
 4. Click **"Continue (RC Paywall)"** to view the RC paywall
 
 If you see a blank page or "No offering found!", check that your offering is set as the **default offering** in the dashboard (or that the identifier you entered is correct) and has a paywall configured.
+
+### Testing runtime appearance overrides
+
+From the login page, select **Runtime appearance demo**. The page configures Purchases with a purple and lavender palette, then lets you compare that baseline with a green and peach override passed to either `purchase()` or `presentPaywall()`.

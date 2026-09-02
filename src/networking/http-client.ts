@@ -129,6 +129,7 @@ const VERSION_HEADER = "X-Version";
 const FLAVOR_HEADER = "X-Platform-Flavor";
 const FLAVOR_VERSION_HEADER = "X-Platform-Flavor-Version";
 const IS_SANDBOX_HEADER = "X-Is-Sandbox";
+const SUBSCRIBER_TOKEN_HEADER = "X-RC-Subscriber-Token";
 
 export const SDK_HEADERS = new Set([
   AUTHORIZATION_HEADER,
@@ -139,6 +140,7 @@ export const SDK_HEADERS = new Set([
   IS_SANDBOX_HEADER,
   FLAVOR_HEADER,
   FLAVOR_VERSION_HEADER,
+  SUBSCRIBER_TOKEN_HEADER,
 ]);
 
 export function getHeaders(

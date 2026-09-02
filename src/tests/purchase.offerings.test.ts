@@ -3,7 +3,7 @@ import {
   createConsumablePackageMock,
   createMonthlyPackageMock,
 } from "./mocks/offering-mock-provider";
-import { configurePurchases } from "./base.purchases_test";
+import { configurePurchases, server } from "./base.purchases_test";
 import {
   type Offering,
   type Offerings,
@@ -16,8 +16,13 @@ import { PeriodUnit } from "../helpers/duration-helper";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { OfferingKeyword } from "../entities/get-offerings-params";
 import { trialPhaseP1W } from "./fixtures/price-phases";
-import { offeringsArray, productsResponse } from "./test-responses";
+import {
+  APIGetRequest,
+  offeringsArray,
+  productsResponse,
+} from "./test-responses";
 import type { PaywallData } from "@revenuecat/purchases-ui-js";
+import { http, HttpResponse } from "msw";
 
 describe("getOfferings", () => {
   const expectedMonthlyPackage = createMonthlyPackageMock();
@@ -39,10 +44,10 @@ describe("getOfferings", () => {
         formattedPrice: "$5.00",
       },
       pricePerWeek: {
-        amount: 116,
-        amountMicros: 1160000,
+        amount: 115,
+        amountMicros: 1150000,
         currency: "USD",
-        formattedPrice: "$1.16",
+        formattedPrice: "$1.15",
       },
       pricePerMonth: {
         amount: 500,
@@ -51,10 +56,10 @@ describe("getOfferings", () => {
         formattedPrice: "$5.00",
       },
       pricePerYear: {
-        amount: 6083,
-        amountMicros: 60830000,
+        amount: 6000,
+        amountMicros: 60000000,
         currency: "USD",
-        formattedPrice: "$60.83",
+        formattedPrice: "$60.00",
       },
     },
     trial: trialPhaseP1W,
@@ -553,8 +558,8 @@ describe("getOfferings", () => {
           formattedPrice: "$1.99",
         },
         pricePerMonth: expect.objectContaining({ amountMicros: 1990000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 460000 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 24210000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 450000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 23880000 }),
       };
 
       // Convenience accessors for the intro price phase
@@ -590,8 +595,8 @@ describe("getOfferings", () => {
           formattedPrice: "$4.99",
         },
         pricePerMonth: expect.objectContaining({ amountMicros: 4990000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 1160000 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 60710000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 1140000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 59880000 }),
       };
 
       // Convenience accessors for the trial phase
@@ -662,8 +667,8 @@ describe("getOfferings", () => {
           formattedPrice: "$6.99",
         },
         pricePerMonth: expect.objectContaining({ amountMicros: 1160000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 270000 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 14170000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 260000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 13980000 }),
       });
     });
 
@@ -877,16 +882,22 @@ describe("getOfferings placements", () => {
     ).toEqual("missing_placement_id");
   });
 
-  test("gets fallback offering if placement id has null offering id", async () => {
+  test("gets null offering when placement is explicitly set to No Offering, even with a fallback configured", async () => {
     const purchases = configurePurchases();
     const offeringWithPlacement =
       await purchases.getCurrentOfferingForPlacement("test_null_placement_id");
-    expect(offeringWithPlacement).not.toBeNull();
-    expect(offeringWithPlacement?.identifier).toEqual("offering_1");
-    expect(
-      offeringWithPlacement!.availablePackages[0].webBillingProduct
-        .presentedOfferingContext.placementIdentifier,
-    ).toEqual("test_null_placement_id");
+    expect(offeringWithPlacement).toBeNull();
+  });
+
+  test("does not fetch any products when placement is explicitly set to No Offering", async () => {
+    const purchases = configurePurchases();
+    await purchases.getCurrentOfferingForPlacement("test_null_placement_id");
+    const productsUrl =
+      "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products";
+    const productRequests = APIGetRequest.mock.calls.filter(([request]) =>
+      request.url.startsWith(productsUrl),
+    );
+    expect(productRequests).toHaveLength(0);
   });
 
   test("gets fallback offering if placement id maps to a non-existent offering", async () => {
@@ -913,6 +924,101 @@ describe("getOfferings placements", () => {
       offeringWithPlacement!.availablePackages[0].webBillingProduct
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("test_placement_id");
+  });
+
+  test("scopes product requests to the placement offering", async () => {
+    const appUserId = "appUserIdWithCurrentPlacementNoFallback";
+    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
+    server.use(
+      http.get(productsUrl, ({ request }) => {
+        APIGetRequest({ url: request.url });
+        const requestedProductIds = new URL(request.url).searchParams.getAll(
+          "id",
+        );
+
+        // Simulate currency resolution selecting an unrelated product when both
+        // offerings are requested, while a scoped request falls back to the
+        // placement offering's available currency.
+        const returnedProductIds = requestedProductIds.includes("monthly")
+          ? ["monthly"]
+          : requestedProductIds;
+        return HttpResponse.json({
+          product_details: productsResponse.product_details.filter((product) =>
+            returnedProductIds.includes(product.identifier),
+          ),
+        });
+      }),
+    );
+
+    const purchases = configurePurchases(appUserId);
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("upgrade_button", {
+        offeringIdentifier: OfferingKeyword.Current,
+      });
+
+    expect(offeringWithPlacement?.identifier).toEqual("offering_2");
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly_2`,
+    });
+    expect(APIGetRequest).not.toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly&id=monthly_2`,
+    });
+  });
+
+  test("fetches fallback products separately when placement products are missing", async () => {
+    const appUserId = "appUserIdWithMissingProducts";
+    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
+    const purchases = configurePurchases(appUserId);
+
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(offeringWithPlacement?.identifier).toEqual("offering_1");
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly_2`,
+    });
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly`,
+    });
+    expect(APIGetRequest).not.toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly&id=monthly_2`,
+    });
+  });
+
+  test("forwards currency and discount code when fetching placement products", async () => {
+    const appUserId = "appUserIdWithCurrentPlacementNoFallback";
+    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
+    const purchases = configurePurchases(appUserId);
+
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("upgrade_button", {
+        currency: "USD",
+        discountCode: "SUMMER2024",
+      });
+
+    expect(offeringWithPlacement?.identifier).toEqual("offering_2");
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly_2&currency=USD&discount_code=SUMMER2024`,
+    });
+  });
+
+  test("fetches products once when placement and fallback use the same offering", async () => {
+    const appUserId = "appUserIdWithMatchingPlacementAndFallback";
+    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
+    const purchases = configurePurchases(appUserId);
+
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(offeringWithPlacement).toBeNull();
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly`,
+    });
+    expect(
+      APIGetRequest.mock.calls.filter(
+        ([request]) => request.url === `${productsUrl}?id=monthly`,
+      ),
+    ).toHaveLength(1);
   });
 
   test("gets fallback offering when offering_ids_by_placement is omitted", async () => {

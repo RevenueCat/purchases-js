@@ -6,6 +6,7 @@ import {
   LogLevel,
   Purchases,
   type PurchasesConfig,
+  type PurchaseParams,
   PurchasesError,
   ReservedCustomerAttribute,
 } from "../main";
@@ -26,6 +27,7 @@ import { waitFor } from "@testing-library/svelte";
 import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
+import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
@@ -204,6 +206,24 @@ describe("Purchases.configure()", () => {
         appUserId: testUserId,
       }),
     ).not.toThrow();
+  });
+
+  test("identifies stripe sandbox api keys as sandbox", () => {
+    const purchases = Purchases.configure({
+      apiKey: "strp_sb_valid_key",
+      appUserId: testUserId,
+    });
+
+    expect(purchases.isSandbox()).toBe(true);
+  });
+
+  test("does not identify production stripe api keys as sandbox", () => {
+    const purchases = Purchases.configure({
+      apiKey: "strp_valid_key",
+      appUserId: testUserId,
+    });
+
+    expect(purchases.isSandbox()).toBe(false);
   });
 
   test("does not throw error if given valid web billing api key", () => {
@@ -663,10 +683,59 @@ describe("Purchases.identifyUser", () => {
 
 describe("Purchases.purchase()", () => {
   type PurchaseRouterMethods = {
-    performPaddlePurchase: (params: unknown) => Promise<unknown>;
-    performStripePurchase: (params: unknown) => Promise<unknown>;
-    performWebBillingPurchase: (params: unknown) => Promise<unknown>;
+    performPaddlePurchase: (
+      params: PurchaseParams,
+      brandingInfo: BrandingInfoResponse | null,
+    ) => Promise<unknown>;
+    performStripePurchase: (
+      params: PurchaseParams,
+      brandingInfo: BrandingInfoResponse | null,
+    ) => Promise<unknown>;
+    performWebBillingPurchase: (
+      params: PurchaseParams,
+      brandingInfo: BrandingInfoResponse | null,
+    ) => Promise<unknown>;
   };
+
+  test("resolves appearance overrides before routing the purchase", async () => {
+    const purchases = Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+      brandingAppearanceOverride: {
+        color_buttons_primary: "#000000",
+        color_page_bg: "#111111",
+      },
+    });
+    const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    const performWebBillingPurchaseSpy = vi
+      .spyOn(purchasesInternal, "performWebBillingPurchase")
+      .mockResolvedValue({});
+
+    await purchases.purchase({
+      rcPackage: createMonthlyPackageMock(),
+      brandingAppearanceOverride: {
+        color_page_bg: "#ffffff",
+        shapes: "pill",
+      },
+    });
+
+    expect(performWebBillingPurchaseSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        brandingAppearanceOverride: {
+          color_buttons_primary: "#000000",
+          color_page_bg: "#ffffff",
+          shapes: "pill",
+        },
+      }),
+      expect.objectContaining({
+        appearance: expect.objectContaining({
+          color_buttons_primary: "#000000",
+          color_page_bg: "#ffffff",
+          shapes: "pill",
+        }),
+      }),
+    );
+  });
 
   test("pressing back button unmounts the component", async () => {
     const unmountSpy = vi.spyOn(svelte, "unmount").mockImplementation(() => {

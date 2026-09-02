@@ -6,6 +6,7 @@ import StripeCheckoutPurchasesUi from "../../ui/stripe-checkout-purchases-ui.sve
 import {
   brandingInfo,
   rcPackage,
+  subscriptionChangeImmediateWithTax,
   subscriptionOption,
 } from "../../stories/fixtures";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
@@ -33,6 +34,7 @@ const checkoutStartResponseWithoutStripeParams: WebBillingCheckoutStartResponse 
     },
     management_url: "https://test-management-url.revenuecat.com",
     paddle_billing_params: null,
+    checkout_mode: "purchase",
   };
 
 const createCheckoutStartResponseWithStripeParams = (
@@ -56,6 +58,7 @@ const createCheckoutStartResponseWithStripeParams = (
   },
   management_url: "https://test-management-url.revenuecat.com",
   paddle_billing_params: null,
+  checkout_mode: "purchase",
 });
 
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
@@ -75,6 +78,7 @@ const baseProps: ComponentProps<StripeCheckoutPurchasesUi> = {
   defaultLocale: "en",
   customTranslations: {},
   isInElement: true,
+  isSandbox: false,
   skipSuccessPage: false,
   onFinished: vi.fn(),
   onError: vi.fn(),
@@ -115,6 +119,31 @@ describe("StripeCheckoutPurchasesUi", () => {
         workflowPurchaseContext: { stepId: "test-step-123" },
         locale: "en",
       });
+    });
+  });
+
+  test("passes an appearance override to checkoutStart", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponseWithoutStripeParams);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        appearanceOverride: {
+          color_buttons_primary: "#ffffff",
+        },
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          appearanceOverride: {
+            color_buttons_primary: "#ffffff",
+          },
+        }),
+      );
     });
   });
 
@@ -294,6 +323,62 @@ describe("StripeCheckoutPurchasesUi", () => {
       expect(checkoutStartSpy).toHaveBeenCalledTimes(1);
     });
     expect(screen.queryByText("SANDBOX")).not.toBeInTheDocument();
+  });
+
+  test("shows sandbox banner on the upgrade confirm page", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      subscriptionChangeImmediateWithTax,
+    );
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        isSandbox: true,
+        productChange: { subscriberToken: "subscriber.token" },
+      },
+    });
+
+    expect(await screen.findByText("SANDBOX")).toBeInTheDocument();
+  });
+
+  test("renders the close button on the upgrade confirm page", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      subscriptionChangeImmediateWithTax,
+    );
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        isInElement: false,
+        onClose: vi.fn(),
+        productChange: { subscriberToken: "subscriber.token" },
+      },
+    });
+
+    // BrandingHeader renders both a back and a close affordance, and both
+    // carry the "close-button" test id.
+    expect(await screen.findAllByTestId("close-button")).toHaveLength(2);
+  });
+
+  test("does not render the close button on the upgrade confirm page when hideBackButton is true", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        isInElement: false,
+        onClose: vi.fn(),
+        hideBackButton: true,
+        productChange: { subscriberToken: "subscriber.token" },
+      },
+    });
+
+    await waitFor(() => {
+      expect(checkoutStartSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(screen.queryAllByTestId("close-button")).toHaveLength(0);
   });
 
   test("uses default product background when branding appearance is not customized", async () => {

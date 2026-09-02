@@ -98,4 +98,22 @@ describe("Purchases.getWalletButtonRender()", () => {
     expect(result.selectedPackage).toBe(monthlyPackage);
     expect(result.storeTransaction.productIdentifier).toBe("monthly");
   });
+
+  test("forwards metadata to the express purchase button", async () => {
+    const metadata = { tolt_referral: "ref_123" };
+    const render = purchases.getWalletButtonRender(
+      offering,
+      onSuccess,
+      undefined,
+      undefined,
+      undefined,
+      metadata,
+    );
+    render!(document.createElement("div"), {
+      selectedPackageId: monthlyPackage.identifier,
+      onReady: vi.fn(),
+    });
+    await vi.waitFor(() => expect(buttonProps).toBeDefined());
+    expect(buttonProps!.metadata).toEqual(metadata);
+  });
 });

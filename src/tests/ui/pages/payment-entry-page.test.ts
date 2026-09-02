@@ -1058,7 +1058,7 @@ describe("PurchasesUI", () => {
       expect(screen.queryByTestId("CheckoutConsent")).toBeNull();
     });
 
-    test("hides the consent checkbox when terms URL is missing", async () => {
+    test("hides the entire consent row when terms URL is missing", async () => {
       render(PaymentEntryPage, {
         props: {
           ...basicProps,
@@ -1070,6 +1070,8 @@ describe("PurchasesUI", () => {
 
       await vi.advanceTimersToNextTimerAsync();
       expect(screen.queryByTestId("CheckoutConsent")).toBeNull();
+      expect(screen.queryByTestId("CheckoutConsentCheckbox")).toBeNull();
+      expect(screen.queryByTestId("CheckoutConsentTermsLink")).toBeNull();
     });
 
     test("hides the consent checkbox for one-time purchases", async () => {
@@ -1103,6 +1105,28 @@ describe("PurchasesUI", () => {
       expect(
         screen.getByTestId("CheckoutConsentTermsLink").getAttribute("href"),
       ).toBe(termsUrl);
+    });
+
+    test("toggles consent when the checkbox tap target is clicked", async () => {
+      render(PaymentEntryPage, {
+        props: {
+          ...basicProps,
+          brandingInfo: consentBranding,
+          termsAndConditionsUrl: termsUrl,
+        },
+        context: defaultContext,
+      });
+
+      await vi.advanceTimersToNextTimerAsync();
+
+      const checkbox = screen.getByTestId(
+        "CheckoutConsentCheckbox",
+      ) as HTMLInputElement;
+      const tapTarget = checkbox.parentElement as HTMLElement;
+      expect(checkbox.checked).toBe(false);
+
+      await fireEvent.click(tapTarget);
+      expect(checkbox.checked).toBe(true);
     });
 
     test("keeps Pay disabled until consent is checked", async () => {

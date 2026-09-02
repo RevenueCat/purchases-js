@@ -12,6 +12,7 @@ import PaywallPage from "./pages/paywall";
 import SuccessPage from "./pages/success";
 import {
   loadPurchases,
+  loadPurchasesWithAppearanceOverride,
   loadPurchasesWithDelayedStore,
 } from "./util/PurchasesLoader";
 import RCPaywallPage from "./pages/rc_paywall";
@@ -22,6 +23,9 @@ import RedemptionLinksTester from "./pages/redemption_links_tester";
 import RCPaywallLauncherPage from "./pages/rc_paywall_launcher";
 import ExpressPurchaseButtonsPackageSelector from "./pages/express_purchase_buttons";
 import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
+import UpgradePage from "./pages/upgrade";
+import UpgradePaywallPage from "./pages/upgrade_paywall";
+import AppearanceOverridesPage from "./pages/appearance_overrides";
 
 const router = createBrowserRouter([
   {
@@ -46,6 +50,11 @@ const router = createBrowserRouter([
         <PaywallPage />
       </WithoutEntitlement>
     ),
+  },
+  {
+    path: "/appearance-overrides/:app_user_id",
+    loader: loadPurchasesWithAppearanceOverride,
+    element: <AppearanceOverridesPage />,
   },
   {
     path: "/rc_paywall/:app_user_id",
@@ -113,6 +122,16 @@ const router = createBrowserRouter([
         <RedemptionLinksTester />
       </WithoutEntitlement>
     ),
+  },
+  {
+    path: "/upgrade/:app_user_id",
+    loader: loadPurchases,
+    element: <UpgradePage />,
+  },
+  {
+    path: "/upgrade-paywall/:app_user_id",
+    loader: loadPurchases,
+    element: <UpgradePaywallPage />,
   },
   {
     path: "/success/:app_user_id",

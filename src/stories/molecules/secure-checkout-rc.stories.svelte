@@ -78,6 +78,18 @@
 />
 
 <Story
+  name="Subscription with checkout footer"
+  args={{
+    brandingInfo: {
+      ...brandingInfo,
+      checkout_footer:
+        "By clicking Pay, you agree to start an auto-renewing annual subscription. Cancel before renewal to avoid the next charge.",
+    },
+    purchaseOption: subscriptionOption,
+  }}
+/>
+
+<Story
   name="Trial Subscription with branding info"
   args={{ brandingInfo, purchaseOption: subscriptionOptionWithTrial }}
 />

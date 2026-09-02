@@ -1,5 +1,6 @@
 import type { FlagsConfig } from "./flags-config";
 import type { HttpConfig } from "./http-config";
+import type { BrandingAppearance } from "./branding";
 
 /**
  * Contextual information specific to workflows.
@@ -64,6 +65,25 @@ export interface PurchasesConfig {
    * Advanced functionality configuration {@link FlagsConfig}.
    */
   flags?: FlagsConfig;
+  /**
+   * Overrides the Dashboard branding appearance for purchases created by this
+   * instance, including purchases started through {@link Purchases.presentPaywall}.
+   * Only the provided values are overridden. A value passed directly to
+   * {@link PurchaseParams.brandingAppearanceOverride} takes precedence for that
+   * purchase.
+   *
+   * For Stripe Checkout, this customizes the supported mobile wallet experience.
+   * The Stripe-hosted fallback opened through "Pay another way" remains light and
+   * cannot currently be customized.
+   */
+  brandingAppearanceOverride?: Partial<BrandingAppearance>;
+  /**
+   * Optional short-lived subscriber access token used for RevenueCat Billing
+   * product-change checkout. Minted server-side via the Developer API (https://www.revenuecat.com/docs/api-v2)
+   * `authenticate` endpoint.
+   * @internal
+   */
+  subscriberToken?: string;
   /**
    * Additional contextual information for the Purchases instance.
    * @internal

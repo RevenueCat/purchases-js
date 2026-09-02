@@ -16,6 +16,11 @@
     getNextRenewalDate,
     type Period,
   } from "../../helpers/duration-helper";
+  import {
+    getOfferDuration,
+    type OfferPhase,
+  } from "../../helpers/paywall-offer-helpers";
+  import { getPeriodDurationLabel } from "../../helpers/price-labels";
   import { toBcp47Locale } from "../../helpers/locale-helper";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import type { PaddleCheckoutTotals } from "../../paddle/paddle-service";
@@ -45,19 +50,63 @@
   const isSubscriptionOption = (
     option: PurchaseOption,
   ): option is SubscriptionOption => "base" in option;
-  const basePeriod: Period | null = isSubscriptionOption(purchaseOption)
-    ? (purchaseOption.base.period ?? null)
-    : null;
+  const subscriptionOption: SubscriptionOption | null = $derived(
+    isSubscriptionOption(purchaseOption) ? purchaseOption : null,
+  );
+  const basePeriod: Period | null = $derived(
+    subscriptionOption?.base.period ?? null,
+  );
+
+  // The first phase the customer actually pays for, which is what today's total
+  // covers and what determines when the recurring price kicks in. Matches the
+  // precedence in paywall-offer-helpers' setOfferVariables. (secure-checkout-rc
+  // and purchase-option-price-helper deliberately omit the trial: they quote a
+  // price, and a trial has none.)
+  const offerPhase: OfferPhase | null = $derived(
+    subscriptionOption?.discount ??
+      subscriptionOption?.trial ??
+      subscriptionOption?.introPrice ??
+      null,
+  );
+  // A "forever" discount has no end, so getOfferDuration returns null and we
+  // fall back to the base cadence — which is correct, it renews at that rate.
+  const firstPeriod: Period | null = $derived(
+    (offerPhase ? getOfferDuration(offerPhase) : null) ?? basePeriod,
+  );
+  // A phase sitting between the first one and the base price — the same
+  // "secondaryOffer" paywall-offer-helpers models. Only a trial can have one:
+  // a discount supersedes both the trial and the intro price.
+  const middlePhase = $derived(
+    subscriptionOption?.trial && !subscriptionOption.discount
+      ? (subscriptionOption.introPrice ?? null)
+      : null,
+  );
+  // Paddle's recurring total is the base price, so "then <recurring>" only
+  // holds when the first phase steps straight up to it. With a middle phase the
+  // next charge is that phase's price, which these two totals cannot express,
+  // so say nothing about the future rather than quote a price that is not next.
+  const hasUndescribedMiddlePhase = $derived(middlePhase !== null);
 
   const toMicros = (amount: number): number => Math.round(amount * 1_000_000);
 
-  const fallbackPrice = getInitialPriceFromPurchaseOption(
-    productDetails,
-    purchaseOption,
+  const fallbackPrice = $derived(
+    getInitialPriceFromPurchaseOption(productDetails, purchaseOption),
   );
   const currency = $derived(totals?.currencyCode ?? fallbackPrice.currency);
   const totalMicros = $derived(
     totals ? toMicros(totals.totalAmount) : fallbackPrice.amountMicros,
+  );
+  // What the customer pays each period once any intro/trial phase is over.
+  const recurringMicros = $derived(
+    totals?.recurringTotalAmount != null && !hasUndescribedMiddlePhase
+      ? toMicros(totals.recurringTotalAmount)
+      : null,
+  );
+  // Comparing the two amounts Paddle reports is a more direct signal than
+  // comparing periods: it also catches a same-length offer (a first month at
+  // $3 against a $20 monthly base), which a period comparison would miss.
+  const stepsUpToRecurring = $derived(
+    recurringMicros !== null && recurringMicros !== totalMicros,
   );
 
   const formatAmount = (micros: number): string =>
@@ -72,24 +121,49 @@
       : null,
   );
 
+  // "first week" rather than "first 1 week" — the shared helper keeps that
+  // collapse gated to English, where the surrounding copy needs it.
+  const firstPeriodLabel = $derived(
+    getPeriodDurationLabel(firstPeriod, $translator, {
+      collapseSingularInEnglish: true,
+    }),
+  );
+
+  // The headline amount is today's total, so a bare "billed monthly" underneath
+  // would read as "$3.00 monthly" while the customer is still in a 1-week intro
+  // phase. Spell out the intro window and the price it steps up to instead.
+  const billedSummaryLabel = $derived(
+    !billedFrequencyLabel
+      ? null
+      : stepsUpToRecurring && firstPeriodLabel
+        ? `first ${firstPeriodLabel}, then ${formatAmount(recurringMicros!)} ${billedFrequencyLabel}`
+        : `billed ${billedFrequencyLabel}`,
+  );
+
   const productName = $derived(totals?.productName ?? productDetails.title);
   const priceName = $derived(totals?.priceName ?? null);
   const hasTax = $derived(!!totals && totals.taxAmount > 0);
 
-  // Best-effort next billing date for the recurring row: today + the base
-  // period, formatted in the active locale. Reuses getNextRenewalDate so the
-  // leap-year / month-overflow edge cases live in one place. The exact Paddle
-  // renewal date isn't exposed through checkout events.
+  // Best-effort next billing date for the recurring row: today + the first
+  // phase's duration (the intro/trial window when there is one, otherwise the
+  // base period). Reuses getNextRenewalDate so the leap-year / month-overflow
+  // edge cases live in one place.
+  //
+  // The period comes from the RevenueCat catalog rather than Paddle because
+  // Paddle's checkout events don't carry it: `items[].billing_cycle` is the
+  // recurring cycle and `items[].trial_period` only covers free trials, so
+  // neither describes a paid intro window.
   const nextBillingLabel = $derived.by(() => {
-    if (!totals || totals.recurringTotalAmount === null || !basePeriod)
-      return null;
-    const renewalDate = getNextRenewalDate(new Date(), basePeriod, true);
+    if (recurringMicros === null || !firstPeriod) return null;
+    const renewalDate = getNextRenewalDate(new Date(), firstPeriod, true);
     if (!renewalDate) return null;
-    return new Intl.DateTimeFormat(toBcp47Locale($translator.selectedLocale), {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }).format(renewalDate);
+    // Formatted off selectedLocale, not the translator's resolved locale: only
+    // language-level translations exist, so `en-GB` resolves to `en` and would
+    // render the US month-first order instead of day-first.
+    return renewalDate.toLocaleDateString(
+      toBcp47Locale($translator.selectedLocale),
+      { day: "numeric", month: "long", year: "numeric" },
+    );
   });
 </script>
 
@@ -102,8 +176,8 @@
         <span class="rcb-paddle-summary-muted">inc. tax</span>
       {/if}
     </div>
-    {#if billedFrequencyLabel}
-      <Typography size="body-small">billed {billedFrequencyLabel}</Typography>
+    {#if billedSummaryLabel}
+      <Typography size="body-small">{billedSummaryLabel}</Typography>
     {/if}
 
     <div class="rcb-paddle-summary-product">
@@ -114,7 +188,11 @@
         >
       {/if}
       <div class="rcb-paddle-summary-product-price">
-        <span>{formatAmount(totalMicros)}</span>
+        <!-- The recurring price, not today's total: this row is suffixed with
+             "/ month", which describes what each period costs once any intro
+             phase is over. Today's charge is the headline amount and the
+             "Total due today" row. -->
+        <span>{formatAmount(recurringMicros ?? totalMicros)}</span>
         {#if periodUnitLabel}
           <span class="rcb-paddle-summary-muted">/ {periodUnitLabel}</span>
         {/if}
@@ -148,11 +226,11 @@
         >
         <span>{formatAmount(toMicros(totals.totalAmount))}</span>
       </div>
-      {#if totals.recurringTotalAmount !== null && nextBillingLabel}
+      {#if recurringMicros !== null && nextBillingLabel}
         <div class="rcb-paddle-summary-row">
           <span class="rcb-paddle-summary-muted">Due on {nextBillingLabel}</span
           >
-          <span>{formatAmount(toMicros(totals.recurringTotalAmount))}</span>
+          <span>{formatAmount(recurringMicros)}</span>
         </div>
       {/if}
     </div>

@@ -1,8 +1,7 @@
 version: 2.1
 orbs:
-  revenuecat: revenuecat/sdks-common-config@4.5.0
+  revenuecat: revenuecat/sdks-common-config@4.6.1
   aws-cli: circleci/aws-cli@4.1.3
-  node: circleci/node@7.2.1
 
 aliases:
   release-tags: &release-tags
@@ -40,17 +39,24 @@ commands:
 
   install-dependencies:
     steps:
-      - node/install:
-          node-version: "24.11"
+      - revenuecat/install-mise-tools:
+          tools: node
+      # corepack (enabled via mise.toml's [settings.node]) reads the packageManager
+      # field and provisions pnpm automatically -- no manual corepack bootstrap needed.
       - run:
-          name: Install pnpm package manager
-          command: |
-            npm install -g corepack && corepack enable
-            pnpm config set store-dir .pnpm-store
+          name: Configure pnpm store
+          command: pnpm config set store-dir .pnpm-store
       - copy-npm-rc
+      - restore_cache:
+          keys:
+            - v1-pnpm-store-{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
       - run:
           name: Npm Install
           command: pnpm install
+      - save_cache:
+          key: v1-pnpm-store-{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
+          paths:
+            - .pnpm-store
 
 
 
@@ -61,6 +67,8 @@ jobs:
     steps:
       - checkout
       - install-dependencies
+      - revenuecat/install-mise-tools:
+          tools: ruby
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/setup-git-credentials
@@ -75,6 +83,8 @@ jobs:
       - image: cimg/ruby:3.3.0-node
     steps:
       - checkout
+      - revenuecat/install-mise-tools:
+          tools: ruby
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/trust-github-key
@@ -95,8 +105,6 @@ jobs:
       - image: cimg/ruby:3.3.0-browsers
     steps:
       - checkout
-      - revenuecat/install-gem-unix-dependencies:
-          cache-version: v1
       - run:
           name: Update ENV for demo
           command: |
@@ -137,8 +145,6 @@ jobs:
     steps:
       - checkout
       - run: git fetch # Chromatic needs full history
-      - revenuecat/install-gem-unix-dependencies:
-          cache-version: v1
       - revenuecat/setup-git-credentials
       - install-dependencies
       - run:
@@ -192,6 +198,7 @@ jobs:
               export CHROMATIC_BRANCH=${CIRCLE_BRANCH}
               NODE_OPTIONS=--max-old-space-size=4096 npx chromatic \
                 --ci \
+                --only-changed \
                 --exit-once-uploaded \
                 --branch-name ${CIRCLE_BRANCH} \
                 --patch-build=${CIRCLE_BRANCH}...main
@@ -199,6 +206,7 @@ jobs:
               NODE_OPTIONS=--max-old-space-size=4096 npx chromatic \
                 --auto-accept-changes \
                 --ci \
+                --only-changed \
                 --exit-once-uploaded
             fi
 
@@ -223,7 +231,10 @@ jobs:
               echo 'export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY=${E2E_RC_STRIPE_CHECKOUT_E2E_API_KEY}'
               echo 'export VITE_RC_PADDLE_E2E_API_KEY=${E2E_RC_PADDLE_E2E_API_KEY}'
               echo 'export VITE_RC_FULL_ADDRESS_E2E_API_KEY=${E2E_RC_FULL_ADDRESS_E2E_API_KEY}'
-              echo 'export VITE_SKIP_TAX_REAL_TESTS_UNTIL=${VITE_SKIP_TAX_REAL_TESTS_UNTIL}'
+              # Hard-set: project env VITE_SKIP_TAX_REAL_TESTS_UNTIL=2026-08-30
+              # expired; ${VAR} / :-default cannot override a set env. Live
+              # discount+tax totals drifted from $7.43.
+              echo 'export VITE_SKIP_TAX_REAL_TESTS_UNTIL=2026-10-31'
               echo 'export VITE_SKIP_STRIPE_TESTS=${VITE_SKIP_STRIPE_TESTS:-false}'
               echo 'export VITE_SKIP_PADDLE_TESTS=${VITE_SKIP_PADDLE_TESTS:-false}'
               echo 'export VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA=${VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA:-true}'
@@ -263,7 +274,11 @@ workflows:
         - not:
             equal: [ update_error_codes, << pipeline.parameters.action >> ]
     jobs:
-      - revenuecat/danger
+      - revenuecat/danger:
+          ruby_version: "3.3.0"
+          filters:
+            branches:
+              ignore: main
 
   weekly-run-workflow:
     when:
@@ -271,13 +286,15 @@ workflows:
         - equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
         - equal: [ "release-train", << pipeline.schedule.name >> ]
     jobs:
-      - revenuecat/automatic-bump
+      - revenuecat/automatic-bump:
+          ruby_version: "3.3.0"
 
   manual-trigger-bump:
     when:
       equal: [ bump, << pipeline.parameters.action >> ]
     jobs:
-      - revenuecat/automatic-bump
+      - revenuecat/automatic-bump:
+          ruby_version: "3.3.0"
 
   update-error-codes:
     when:
@@ -289,8 +306,6 @@ workflows:
           commit_paths: "src/generated/error-codes.ts,api-report"
           update_api_steps:
             - install-dependencies
-            - revenuecat/install-gem-unix-dependencies:
-                cache-version: v1
             - run:
                 name: Build
                 command: pnpm run build
@@ -320,6 +335,7 @@ workflows:
           type: approval
           <<: *release-branches
       - revenuecat/tag-current-branch:
+          ruby_version: "3.3.0"
           requires:
             - hold
           <<: *release-branches
@@ -331,6 +347,7 @@ workflows:
             - make-release
       - revenuecat/merge-release-pr:
           repo_name: purchases-js
+          ruby_version: "3.3.0"
           requires:
             - docs-deploy
           <<: *release-tags

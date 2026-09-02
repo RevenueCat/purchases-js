@@ -11,11 +11,10 @@ const LoginPage: React.FC = () => {
   const [appUserId, setAppUserId] = useState("");
   const [offeringId, setOfferingId] = useState("");
   const [useCustomLogger, setUseCustomLogger] = useState(true);
-  const [enableWorkflows, setEnableWorkflows] = useState(false);
 
   const navigateToAppUserIDPaywall = (
     appUserId?: string,
-    useRCPaywall = false,
+    destination: "paywall" | "rc_paywall" = "paywall",
   ) => {
     if (appUserId) {
       const params = new URLSearchParams();
@@ -30,13 +29,9 @@ const LoginPage: React.FC = () => {
       }
       // Add custom logger preference
       params.append("useCustomLogger", useCustomLogger.toString());
-      if (enableWorkflows) {
-        params.append("enableWorkflows", "true");
-      }
 
       const queryString = params.toString();
-      const base = useRCPaywall ? "rc_paywall" : "paywall";
-      const url = `/${base}/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
+      const url = `/${destination}/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
       navigate(url);
     }
   };
@@ -94,17 +89,6 @@ const LoginPage: React.FC = () => {
               🏥 Use custom health logger (adds health icon to SDK logs)
             </span>
           </label>
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={enableWorkflows}
-              onChange={(e) => setEnableWorkflows(e.target.checked)}
-              className="checkbox-input"
-            />
-            <span className="checkbox-text">
-              Enable multipage paywalls (workflows)
-            </span>
-          </label>
         </div>
         <div className="button-group">
           <Button
@@ -116,7 +100,22 @@ const LoginPage: React.FC = () => {
           <Button
             caption="Continue (RC Paywall)"
             onClick={() => {
-              navigateToAppUserIDPaywall(appUserId, true);
+              navigateToAppUserIDPaywall(appUserId, "rc_paywall");
+            }}
+          />
+          <Button
+            caption="Runtime appearance demo"
+            onClick={() => {
+              const userId =
+                appUserId || Purchases.generateRevenueCatAnonymousAppUserId();
+              const params = new URLSearchParams();
+              if (offeringId.trim()) {
+                params.append("offeringId", offeringId.trim());
+              }
+              const queryString = params.toString();
+              window.location.assign(
+                `/appearance-overrides/${encodeURIComponent(userId)}${queryString ? `?${queryString}` : ""}`,
+              );
             }}
           />
           <Button

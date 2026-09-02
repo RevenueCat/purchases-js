@@ -59,6 +59,77 @@ describe("toPurchaseOptionForProductType", () => {
     });
   });
 
+  test.each([
+    {
+      periodDuration: "P7D",
+      amountMicros: 7_000_000,
+      expectedAmountMicros: {
+        week: 7_000_000,
+        month: 30_000_000,
+        year: 365_000_000,
+      },
+    },
+    {
+      periodDuration: "P2W",
+      amountMicros: 20_000_000,
+      expectedAmountMicros: {
+        week: 10_000_000,
+        month: 43_450_000,
+        year: 521_420_000,
+      },
+    },
+    {
+      periodDuration: "P3M",
+      amountMicros: 44_970_000,
+      expectedAmountMicros: {
+        week: 3_440_000,
+        month: 14_990_000,
+        year: 179_880_000,
+      },
+    },
+    {
+      periodDuration: "P1Y",
+      amountMicros: 119_990_000,
+      expectedAmountMicros: {
+        week: 2_300_000,
+        month: 9_990_000,
+        year: 119_990_000,
+      },
+    },
+    {
+      periodDuration: "P2Y",
+      amountMicros: 239_980_000,
+      expectedAmountMicros: {
+        week: 2_300_000,
+        month: 9_990_000,
+        year: 119_990_000,
+      },
+    },
+  ])(
+    "normalizes a $periodDuration subscription price",
+    ({ periodDuration, amountMicros, expectedAmountMicros }) => {
+      const result = toPurchaseOptionForProductType(ProductType.Subscription, {
+        ...subscriptionOptionResponse,
+        base: {
+          cycle_count: 1,
+          period_duration: periodDuration,
+          price: {
+            amount_micros: amountMicros,
+            currency: "USD",
+          },
+        },
+      });
+
+      expect(result).toMatchObject({
+        base: {
+          pricePerWeek: { amountMicros: expectedAmountMicros.week },
+          pricePerMonth: { amountMicros: expectedAmountMicros.month },
+          pricePerYear: { amountMicros: expectedAmountMicros.year },
+        },
+      });
+    },
+  );
+
   test("returns null when a subscription option is missing its base phase", () => {
     const result = toPurchaseOptionForProductType(ProductType.Subscription, {
       ...subscriptionOptionResponse,

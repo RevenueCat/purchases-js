@@ -48,6 +48,7 @@ describe("PurchaseOperationHelper", () => {
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       trackPaywallEvent: () => {},
+      trackCustomPaywallImpression: () => {},
       dispose: () => {},
       flushAllEvents: () => Promise.resolve(),
     };
@@ -243,6 +244,34 @@ describe("PurchaseOperationHelper", () => {
       presentedStepId: undefined,
       paywallId: "paywall-abc-123",
     });
+  });
+
+  test("checkoutStart passes an appearance override to the backend", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      appearanceOverride: {
+        color_buttons_primary: "#ffffff",
+      },
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appearanceOverride: {
+          color_buttons_primary: "#ffffff",
+        },
+      }),
+    );
   });
 
   test("checkoutStart passes locale to backend when provided", async () => {
@@ -862,6 +891,8 @@ describe("PurchaseOperationHelper", () => {
         error: null,
         redemption_info: {
           redeem_url: "test-url://redeem_my_rcb?token=1234",
+          redeem_url_redirect:
+            "https://api.revenuecat.com/redirect?url=test-url://redeem_my_rcb?token=1234",
         },
         store_transaction_identifier: "test-store-transaction-id",
         product_identifier: "test-product_identifier",
@@ -886,6 +917,9 @@ describe("PurchaseOperationHelper", () => {
       await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
     expect(pollResult.redemptionInfo?.redeemUrl).toEqual(
       "test-url://redeem_my_rcb?token=1234",
+    );
+    expect(pollResult.redemptionInfo?.redeemUrlRedirect).toEqual(
+      "https://api.revenuecat.com/redirect?url=test-url://redeem_my_rcb?token=1234",
     );
     expect(pollResult.operationSessionId).toEqual(operationSessionId);
     expect(pollResult.storeTransactionIdentifier).toEqual(
@@ -993,7 +1027,7 @@ describe("PurchaseOperationHelper", () => {
 
     await vi.runAllTimersAsync();
 
-    expect(callCount).toEqual(10);
+    expect(callCount).toEqual(30);
 
     await pollPromise;
 

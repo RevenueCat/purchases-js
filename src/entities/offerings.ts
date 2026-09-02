@@ -17,11 +17,8 @@ import {
   formatPrice,
 } from "../helpers/price-labels";
 import { Logger } from "../helpers/logger";
-import {
-  parseISODuration,
-  type Period,
-  PeriodUnit,
-} from "../helpers/duration-helper";
+import { parseISODuration, type Period } from "../helpers/duration-helper";
+import { getPricePerPeriodFactors } from "../helpers/price-conversion-helper";
 import type { PaywallData, UIConfig } from "@revenuecat/purchases-ui-js";
 
 /**
@@ -557,11 +554,11 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
   let pricePerYear: Price | null = null;
 
   if (price !== null && period !== null) {
-    const factor = getPriceConversionFactor(period);
+    const priceFactors = getPricePerPeriodFactors(period);
     const conversionFromMicrosToCents = 10000;
 
     const weeklyAmountMicros = floorMicrosToCurrencyUnit(
-      price.amountMicros * factor.toWeek,
+      price.amountMicros * priceFactors.perWeek,
       price.currency,
     );
     pricePerWeek = {
@@ -572,7 +569,7 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
     };
 
     const monthlyAmountMicros = floorMicrosToCurrencyUnit(
-      price.amountMicros * factor.toMonth,
+      price.amountMicros * priceFactors.perMonth,
       price.currency,
     );
     pricePerMonth = {
@@ -583,7 +580,7 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
     };
 
     const yearlyAmountMicros = floorMicrosToCurrencyUnit(
-      price.amountMicros * factor.toYear,
+      price.amountMicros * priceFactors.perYear,
       price.currency,
     );
     pricePerYear = {
@@ -650,44 +647,6 @@ const toDiscountPhase = (
         : null,
   };
 };
-
-function getPriceConversionFactor(period: Period): {
-  toWeek: number;
-  toMonth: number;
-  toYear: number;
-} {
-  const { number, unit } = period;
-
-  const DAYS_PER_WEEK = 7;
-  const DAYS_PER_MONTH = 30.0;
-  const DAYS_PER_YEAR = 365.0;
-
-  let daysInPeriod: number;
-
-  switch (unit) {
-    case PeriodUnit.Day:
-      daysInPeriod = number;
-      break;
-    case PeriodUnit.Week:
-      daysInPeriod = number * DAYS_PER_WEEK;
-      break;
-    case PeriodUnit.Month:
-      daysInPeriod = number * DAYS_PER_MONTH;
-      break;
-    case PeriodUnit.Year:
-      daysInPeriod = number * DAYS_PER_YEAR;
-      break;
-    default:
-      daysInPeriod = 0;
-      Logger.errorLog(`Unknown period unit: ${unit}`);
-  }
-
-  const toWeek = daysInPeriod > 0 ? DAYS_PER_WEEK / daysInPeriod : 0;
-  const toMonth = daysInPeriod > 0 ? DAYS_PER_MONTH / daysInPeriod : 0;
-  const toYear = daysInPeriod > 0 ? DAYS_PER_YEAR / daysInPeriod : 0;
-
-  return { toWeek, toMonth, toYear };
-}
 
 const toSubscriptionOption = (
   option: SubscriptionOptionResponse,

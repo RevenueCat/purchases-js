@@ -27,6 +27,9 @@
     onDiscountCodeChange: ((discountCode: string) => void) | undefined;
     onApplyDiscountCode: (() => void | Promise<void>) | undefined;
     onRemoveDiscountCode: (() => void | Promise<void>) | undefined;
+    pendingTaxLabel?: string | null;
+    totalRowLabel?: string | null;
+    detailsExpandedByDefault?: boolean;
   }
 
   let {
@@ -43,6 +46,9 @@
     onDiscountCodeChange,
     onApplyDiscountCode,
     onRemoveDiscountCode,
+    pendingTaxLabel = null,
+    totalRowLabel = null,
+    detailsExpandedByDefault = true,
   }: Props = $props();
 
   const trialEndDate = $derived(
@@ -229,9 +235,10 @@
           </div>
           <div class="rcb-pricing-table-value">
             <Typography size="body-small">
-              {$translator.translate(
-                LocalizationKeys.PricingTableEnterBillingAddressToCalculate,
-              )}
+              {pendingTaxLabel ??
+                $translator.translate(
+                  LocalizationKeys.PricingTableEnterBillingAddressToCalculate,
+                )}
             </Typography>
           </div>
         </div>
@@ -284,7 +291,8 @@
     <div class="rcb-pricing-table-row rcb-header">
       <div class="rcb-pricing-table-header">
         <Typography size="body-small">
-          {$translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
+          {totalRowLabel ??
+            $translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
         </Typography>
       </div>
       <div class="rcb-pricing-table-value">
@@ -297,7 +305,10 @@
 {/snippet}
 
 {#if showDetailsControls}
-  <PricingDropdown {showDiscountCodeField}>
+  <PricingDropdown
+    {showDiscountCodeField}
+    isExpanded={detailsExpandedByDefault}
+  >
     {@render pricingTable()}
   </PricingDropdown>
 {:else}

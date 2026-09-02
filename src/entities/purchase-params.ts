@@ -2,6 +2,7 @@ import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 
 import type { BrandingAppearance } from "./branding";
 import type { CustomTranslations } from "../ui/localization/translator";
+import type { ProductChangeInfo } from "./product-change-params";
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
@@ -144,7 +145,9 @@ export interface PurchaseParams {
 
   /**
    * @experimental
-   * Initial discount code to display as applied in the Web Billing checkout.
+   * Initial discount code to apply at checkout.
+   * For Web Billing this is displayed as applied in the checkout UI.
+   * For Paddle this is passed to Paddle Checkout as `discountCode`.
    * This is useful when the code originated outside of the checkout UI,
    * for example from a URL parameter.
    */
@@ -159,16 +162,15 @@ export interface PurchaseParams {
   onDiscountCodeChanged?: (discountCode: string | null) => void;
 
   /**
-   * Defines an optional override for the default branding appearance.
+   * Overrides the Dashboard branding appearance for this purchase.
+   * Only the provided values are overridden; all other values keep their
+   * Dashboard configuration.
    *
-   * This property is used internally at RevenueCat to handle dynamic themes such
-   * as the ones coming from the Web Paywall Links. We suggest to use the Dashboard
-   * configuration to set up the appearance since a configuration passed as parameter
-   * using this method might break in future releases of `purchases-js`.
-   *
-   * @internal
+   * For Stripe Checkout, this customizes the supported mobile wallet experience.
+   * The Stripe-hosted fallback opened through "Pay another way" remains light and
+   * cannot currently be customized.
    */
-  brandingAppearanceOverride?: BrandingAppearance;
+  brandingAppearanceOverride?: Partial<BrandingAppearance>;
 
   /**
    * @internal
@@ -182,4 +184,13 @@ export interface PurchaseParams {
    * Link to the terms and conditions that should be shown in the checkout footer.
    */
   termsAndConditionsUrl?: string;
+
+  /**
+   * When set, {@link Purchases.purchase} presents upgrade-mode checkout to
+   * change the customer's existing Web Billing subscription to
+   * {@link PurchaseParams.rcPackage}'s product, instead of a new purchase.
+   * Requires a configured product change path in RevenueCat.
+   * @internal
+   */
+  productChangeInfo?: ProductChangeInfo | null;
 }

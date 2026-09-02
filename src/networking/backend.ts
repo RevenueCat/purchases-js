@@ -22,6 +22,10 @@ import type { CheckoutStartResponse } from "./responses/checkout-start-response"
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
+import type {
+  SubscriptionChangeCheckoutStartResponse,
+  SubscriptionChangeCompleteResponse,
+} from "./responses/subscription-change-response";
 import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
 import type {
   WorkflowDataAction,
@@ -41,6 +45,9 @@ import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 import type { AttributionMetadata } from "../entities/purchase-params";
+import type { BrandingAppearance } from "../entities/branding";
+
+const MAX_GET_PRODUCTS_URL_PATH_LENGTH = 2000;
 
 interface CheckoutStartRequestParams {
   // Purchase identity
@@ -63,6 +70,18 @@ interface CheckoutStartRequestParams {
   locale?: string;
 
   attributionMetadata?: AttributionMetadata;
+  appearanceOverride?: Partial<BrandingAppearance>;
+
+  /**
+   * When set, will attempt a subscription change. Requires
+   * subscriberToken. If the change is not possible, the
+   * backend falls back to a normal purchase response.
+   */
+  productChange?: {
+    subscriptionId?: string;
+    productIdentifier?: string;
+  };
+  subscriberToken?: string;
 }
 
 interface CheckoutRefreshPricingParams {
@@ -155,13 +174,70 @@ export class Backend {
     currency?: string,
     discountCode?: string,
   ): Promise<ProductsResponse> {
-    return await performRequest<null, ProductsResponse>(
-      new GetProductsEndpoint(appUserId, productIds, currency, discountCode),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
+    const uniqueProductIds = Array.from(new Set(productIds));
+    const productIdBatches = this.batchProductIdsByUrlLength(
+      appUserId,
+      uniqueProductIds,
+      currency,
+      discountCode,
     );
+
+    const productDetails: ProductsResponse["product_details"] = [];
+    for (const productIdBatch of productIdBatches) {
+      const response = await performRequest<null, ProductsResponse>(
+        new GetProductsEndpoint(
+          appUserId,
+          productIdBatch,
+          currency,
+          discountCode,
+        ),
+        {
+          apiKey: this.API_KEY,
+          httpConfig: this.httpConfig,
+        },
+      );
+      productDetails.push(...response.product_details);
+    }
+
+    return {
+      product_details: productDetails,
+    };
+  }
+
+  private batchProductIdsByUrlLength(
+    appUserId: string,
+    productIds: string[],
+    currency?: string,
+    discountCode?: string,
+  ): string[][] {
+    const batches: string[][] = [];
+    let currentBatch: string[] = [];
+
+    for (const productId of productIds) {
+      const candidateBatch = [...currentBatch, productId];
+      const candidateUrlLength = new GetProductsEndpoint(
+        appUserId,
+        candidateBatch,
+        currency,
+        discountCode,
+      ).urlPath().length;
+
+      if (
+        currentBatch.length > 0 &&
+        candidateUrlLength > MAX_GET_PRODUCTS_URL_PATH_LENGTH
+      ) {
+        batches.push(currentBatch);
+        currentBatch = [productId];
+      } else {
+        currentBatch = candidateBatch;
+      }
+    }
+
+    if (currentBatch.length > 0) {
+      batches.push(currentBatch);
+    }
+
+    return batches;
   }
 
   async getBrandingInfo(): Promise<BrandingInfoResponse> {
@@ -203,7 +279,9 @@ export class Backend {
   }
 
   async postCheckoutStart<
-    T extends CheckoutStartResponse = CheckoutStartResponse,
+    T extends
+      | CheckoutStartResponse
+      | SubscriptionChangeCheckoutStartResponse = CheckoutStartResponse,
   >({
     appUserId,
     productId,
@@ -218,6 +296,9 @@ export class Backend {
     metadata,
     locale,
     attributionMetadata,
+    appearanceOverride,
+    productChange,
+    subscriberToken,
   }: CheckoutStartRequestParams): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -242,6 +323,11 @@ export class Backend {
         paywall_session_id?: string;
       };
       attribution_metadata?: AttributionMetadata;
+      appearance_override?: Partial<BrandingAppearance>;
+      product_change?: {
+        subscription_id?: string;
+        from_product_id?: string;
+      };
     };
 
     const requestBody: CheckoutStartRequestBody = {
@@ -302,11 +388,29 @@ export class Backend {
       requestBody.attribution_metadata = attributionMetadata;
     }
 
+    if (appearanceOverride) {
+      requestBody.appearance_override = appearanceOverride;
+    }
+
+    if (productChange) {
+      requestBody.product_change = {
+        ...(productChange.subscriptionId
+          ? { subscription_id: productChange.subscriptionId }
+          : {}),
+        ...(productChange.productIdentifier
+          ? { from_product_id: productChange.productIdentifier }
+          : {}),
+      };
+    }
+
     return (await performRequest<CheckoutStartRequestBody, T>(
       new CheckoutStartEndpoint(),
       {
         apiKey: this.API_KEY,
         body: requestBody,
+        headers: subscriberToken
+          ? { "X-RC-Subscriber-Token": subscriberToken }
+          : undefined,
         httpConfig: this.httpConfig,
       },
     )) as T;
@@ -361,28 +465,34 @@ export class Backend {
 
   async postCheckoutComplete(
     operationSessionId: string,
-    email?: string,
-    locale?: string,
-  ): Promise<CheckoutCompleteResponse> {
+    options: {
+      email?: string;
+      locale?: string;
+      subscriberToken?: string;
+    } = {},
+  ): Promise<CheckoutCompleteResponse | SubscriptionChangeCompleteResponse> {
     type CheckoutCompleteRequestBody = {
       email?: string;
       locale?: string;
     };
 
-    const requestBody: CheckoutCompleteRequestBody = {
-      email: email,
-    };
-
-    if (locale) {
-      requestBody.locale = locale;
+    const requestBody: CheckoutCompleteRequestBody = {};
+    if (options.email) {
+      requestBody.email = options.email;
+    }
+    if (options.locale) {
+      requestBody.locale = options.locale;
     }
 
     return await performRequest<
       CheckoutCompleteRequestBody,
-      CheckoutCompleteResponse
+      CheckoutCompleteResponse | SubscriptionChangeCompleteResponse
     >(new CheckoutCompleteEndpoint(operationSessionId), {
       apiKey: this.API_KEY,
       body: requestBody,
+      headers: options.subscriberToken
+        ? { "X-RC-Subscriber-Token": options.subscriberToken }
+        : undefined,
       httpConfig: this.httpConfig,
     });
   }
