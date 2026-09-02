@@ -23,6 +23,7 @@ export interface ExpressPurchaseButtonProps {
   appUserId: string;
   rcPackage: Package;
   purchaseOption: PurchaseOption;
+  externalPurchaseTokenId?: string;
   metadata: PurchaseMetadata | undefined;
   brandingInfo: BrandingInfoResponse | null;
   purchases: Purchases;

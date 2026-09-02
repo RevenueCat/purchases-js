@@ -39,6 +39,11 @@ export interface PresentPaywallParams {
   readonly customerEmail?: string;
 
   /**
+   * The RevenueCat public identifier for an Apple external purchase token.
+   */
+  readonly externalPurchaseTokenId?: string;
+
+  /**
    * The purchase metadata to be passed to the backend when a purchase is started
    * from the paywall.
    * Any information provided here will be propagated to the payment gateway and
