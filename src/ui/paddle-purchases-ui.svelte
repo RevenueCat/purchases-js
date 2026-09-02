@@ -47,6 +47,7 @@
     appUserId: string;
     purchaseOption: PurchaseOption;
     customerEmail: string | undefined;
+    externalPurchaseTokenId?: string;
     discountCode?: string;
     metadata: PurchaseMetadata | undefined;
     attributionMetadata?: AttributionMetadata;
@@ -72,6 +73,7 @@
     appUserId,
     purchaseOption,
     customerEmail,
+    externalPurchaseTokenId,
     discountCode,
     metadata,
     attributionMetadata,
@@ -202,6 +204,7 @@
         presentedOfferingContext,
         purchaseOption,
         customerEmail,
+        externalPurchaseTokenId,
         metadata,
         locale: selectedLocale,
         attributionMetadata,
