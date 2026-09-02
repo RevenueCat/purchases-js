@@ -5,7 +5,7 @@ import type {
   PurchaseMetadata,
   PurchaseOption,
 } from "../../entities/offerings";
-import type { PaywallListener } from "../../entities/paywall-listener";
+import type { PurchaseListener } from "../../entities/purchase-listener";
 import type {
   OperationSessionSuccessfulResult,
   PurchaseFlowError,
@@ -34,6 +34,6 @@ export interface ExpressPurchaseButtonProps {
   onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
   onError: (error: PurchaseFlowError) => void;
   onReady?: (walletsAvailable: boolean) => void;
-  listener?: PaywallListener;
+  listener?: PurchaseListener;
   walletButtonTheme?: WalletButtonTheme;
 }

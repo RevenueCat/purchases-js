@@ -1,4 +1,5 @@
 import type { PresentedOfferingContext } from "../entities/offerings";
+import type { PaywallInteractionEvent } from "../entities/paywall-interaction-event";
 import { generateUUID } from "../helpers/uuid-helper";
 
 export type PaywallEventType =
@@ -130,11 +131,12 @@ type PaywallCloseOrCancelEventPayload = CommonPaywallEventPayload & {
   type: "paywall_close" | "paywall_cancel";
 };
 
-type PaywallComponentInteractionEventPayload = CommonPaywallEventPayload &
-  PaywallDisplayPayload &
-  PaywallComponentInteractionPayload & {
-    type: "paywall_component_interacted";
-  };
+export type PaywallComponentInteractionEventPayload =
+  CommonPaywallEventPayload &
+    PaywallDisplayPayload &
+    PaywallComponentInteractionPayload & {
+      type: "paywall_component_interacted";
+    };
 
 export type PaywallEventPayload =
   | PaywallImpressionEventPayload
@@ -243,6 +245,42 @@ const toCommonPayload = (
   }
   return payload;
 };
+
+export const toPaywallInteractionEvent = (
+  payload: PaywallEventPayload,
+): PaywallInteractionEvent | undefined => {
+  if (payload.type !== "paywall_component_interacted") {
+    return undefined;
+  }
+  const event: Record<string, string | number | boolean> = {};
+  for (const key of INTERACTION_EVENT_KEYS) {
+    const value = payload[key];
+    if (
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean"
+    ) {
+      event[key] = value;
+    }
+  }
+  if (payload.paywall_rc_public_id) {
+    event.paywall_id = payload.paywall_rc_public_id;
+  }
+  return event as unknown as PaywallInteractionEvent;
+};
+
+const INTERACTION_EVENT_KEYS: ReadonlyArray<
+  keyof PaywallInteractionEvent & keyof PaywallComponentInteractionEventPayload
+> = [
+  "timestamp",
+  "session_id",
+  "offering_id",
+  "paywall_revision",
+  "display_mode",
+  "dark_mode",
+  "locale",
+  ...Object.values(INTERACTION_FIELD_MAP),
+];
 
 export class PaywallEvent {
   public readonly id: string;

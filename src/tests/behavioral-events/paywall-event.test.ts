@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   PaywallEvent,
+  toPaywallInteractionEvent,
   type PaywallEventData,
 } from "../../behavioural-events/paywall-event";
 
@@ -196,6 +197,58 @@ describe("PaywallEvent", () => {
       resulting_package_id: "$rc_annual",
       current_product_id: "monthly_product",
       resulting_product_id: "annual_product",
+    });
+  });
+
+  describe("toPaywallInteractionEvent", () => {
+    const interactionData: PaywallEventData = {
+      ...baseData,
+      type: "paywall_component_interacted",
+      displayMode: "full_screen",
+      darkMode: false,
+      locale: "en_US",
+      componentType: "carousel",
+      componentValue: "page_change",
+      originIndex: 0,
+      destinationIndex: 1,
+    };
+
+    it("keeps only the documented keys and maps paywall_rc_public_id to paywall_id", () => {
+      const event = toPaywallInteractionEvent(
+        new PaywallEvent(interactionData).toJSON(),
+      );
+
+      expect(event).toEqual({
+        timestamp: expect.any(Number),
+        session_id: "session-456",
+        offering_id: "offering-789",
+        paywall_id: "pw-public-id",
+        paywall_revision: 0,
+        display_mode: "full_screen",
+        dark_mode: false,
+        locale: "en_US",
+        component_type: "carousel",
+        component_value: "page_change",
+        origin_index: 0,
+        destination_index: 1,
+      });
+    });
+
+    it("omits paywall_id when the paywall has no public id", () => {
+      const event = toPaywallInteractionEvent(
+        new PaywallEvent({
+          ...interactionData,
+          paywallRcPublicId: null,
+        }).toJSON(),
+      );
+
+      expect(event).not.toHaveProperty("paywall_id");
+    });
+
+    it("returns undefined for other event types", () => {
+      expect(
+        toPaywallInteractionEvent(new PaywallEvent(baseData).toJSON()),
+      ).toBeUndefined();
     });
   });
 
