@@ -27,6 +27,11 @@
   import { validateEmail } from "../helpers/validators";
   import type { Package } from "../main";
   import type { BrandingAppearance } from "../entities/branding";
+  import {
+    isSubscriptionChangeCheckoutStartResponse,
+    type SubscriptionChangeCheckoutStartResponse,
+  } from "../networking/responses/subscription-change-response";
+  import { type ProductChangeResult } from "../entities/product-change-params";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;
@@ -35,9 +40,11 @@
     defaultLocale: string;
     customTranslations?: Record<string, Record<string, string>>;
     isInElement: boolean;
+    isSandbox: boolean;
     skipSuccessPage: boolean;
     onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
     onError: (error: PurchaseFlowError) => void;
+    onClose?: () => void;
     rcPackage: Package;
     appUserId: string;
     purchaseOption: PurchaseOption;
@@ -49,6 +56,13 @@
     paywallId?: string;
     paywallSessionId?: string;
     appearanceOverride?: Partial<BrandingAppearance>;
+    productChange?: {
+      subscriptionId?: string;
+      productIdentifier?: string;
+      subscriberToken: string;
+    };
+    onProductChangeFinished?: (result: ProductChangeResult) => void;
+    hideBackButton?: boolean;
   }
 
   const {
@@ -58,9 +72,11 @@
     defaultLocale,
     customTranslations = {},
     isInElement,
+    isSandbox: initialIsSandbox,
     skipSuccessPage = false,
     onFinished,
     onError,
+    onClose = undefined,
     rcPackage,
     appUserId,
     purchaseOption,
@@ -72,6 +88,9 @@
     paywallId,
     paywallSessionId,
     appearanceOverride,
+    productChange = undefined,
+    onProductChangeFinished = undefined,
+    hideBackButton = false,
   }: Props = $props();
   let productDetails: Product = rcPackage.webBillingProduct;
   let translator: Translator = new Translator(
@@ -88,13 +107,49 @@
   );
   setContext(brandingContextKey, brandingAppearanceStore);
 
-  let isSandbox = $state(false);
+  let checkoutResponseIsSandbox = $state<boolean | null>(null);
+  let isSandbox = $derived(checkoutResponseIsSandbox ?? initialIsSandbox);
   let operationResult = $state<OperationSessionSuccessfulResult | null>(null);
   let error = $state<PurchaseFlowError | null>(null);
   let currentPage = $state<
-    "loading" | "stripe-checkout" | "success" | "error" | "purchasing"
+    | "loading"
+    | "stripe-checkout"
+    | "success"
+    | "error"
+    | "purchasing"
+    | "upgrade-confirm"
   >("loading");
   let stripeBillingParams = $state<StripeBillingParams | null>(null);
+  let subscriptionChangeStartData =
+    $state<SubscriptionChangeCheckoutStartResponse | null>(null);
+  let isConfirmingProductChange = $state(false);
+  let productChangeConfirmError = $state<string | null>(null);
+
+  const handleConfirmProductChange = async () => {
+    if (!productChange || isConfirmingProductChange) {
+      return;
+    }
+    isConfirmingProductChange = true;
+    productChangeConfirmError = null;
+    try {
+      const result = await purchaseOperationHelper.completeProductChange({
+        subscriberToken: productChange.subscriberToken,
+      });
+      onProductChangeFinished?.(result);
+    } catch (e) {
+      const error =
+        e instanceof PurchaseFlowError
+          ? e
+          : new PurchaseFlowError(
+              PurchaseFlowErrorCode.ErrorChargingPayment,
+              "Failed to confirm product change.",
+              e instanceof Error ? e.message : String(e),
+            );
+      productChangeConfirmError = error.message;
+    } finally {
+      isConfirmingProductChange = false;
+    }
+  };
 
   const handleContinue = () => {
     if (currentPage === "stripe-checkout") {
@@ -184,7 +239,20 @@
         paywallSessionId,
         locale: selectedLocale,
         ...(appearanceOverride ? { appearanceOverride } : {}),
+        productChange: productChange
+          ? {
+              productIdentifier: productChange.productIdentifier,
+              subscriptionId: productChange.subscriptionId,
+            }
+          : undefined,
+        subscriberToken: productChange?.subscriberToken,
       });
+
+      if (isSubscriptionChangeCheckoutStartResponse(result)) {
+        subscriptionChangeStartData = result;
+        currentPage = "upgrade-confirm";
+        return;
+      }
 
       if (
         !("stripe_billing_params" in result) ||
@@ -199,7 +267,7 @@
         return;
       }
 
-      isSandbox =
+      checkoutResponseIsSandbox =
         result.stripe_billing_params.environment.toLowerCase() === "sandbox";
       stripeBillingParams = result.stripe_billing_params;
       currentPage = "stripe-checkout";
@@ -237,7 +305,14 @@
   lastError={error}
   {isInElement}
   {stripeBillingParams}
+  purchaseOptionToUse={purchaseOption}
+  {subscriptionChangeStartData}
+  {isConfirmingProductChange}
+  {productChangeConfirmError}
+  onConfirmProductChange={handleConfirmProductChange}
   onContinue={handleContinue}
   onError={handleError}
+  {onClose}
+  {hideBackButton}
   {closeWithError}
 />
