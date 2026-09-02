@@ -4,10 +4,12 @@ import { integrationTest } from "../helpers/integration-test";
 import {
   confirmPaymentComplete,
   confirmPaymentError,
+  EXTERNAL_PURCHASE_TOKEN_ID,
   getPackageCards,
   skipPaddleTestsIfDisabled,
   skipPaywallsTestIfDisabled,
   startPurchaseFlow,
+  waitForCheckoutStartRequest,
 } from "../helpers/test-helpers";
 import {
   completePaddleCheckoutForm,
@@ -59,6 +61,61 @@ integrationTest.describe("Paddle flow", () => {
   integrationTest.skip(
     !PADDLE_TEST_API_KEY,
     "Paddle E2E tests require VITE_RC_PADDLE_E2E_API_KEY.",
+  );
+
+  integrationTest(
+    "Forwards the external purchase token for a direct purchase",
+    async ({ page, userId }) => {
+      page = await navigateToPaddleLandingUrl(page, userId, {
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+
+      await expect(page.getByText("Paddle demo")).toBeVisible({
+        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+      });
+
+      const packageCards = await getPackageCards(page);
+      expect(packageCards.length).toBeGreaterThan(0);
+      const requestPromise = waitForCheckoutStartRequest(page);
+
+      await startPurchaseFlow(packageCards[0]);
+
+      const request = await requestPromise;
+      expect(request.postDataJSON().external_purchase_token_id).toBe(
+        EXTERNAL_PURCHASE_TOKEN_ID,
+      );
+    },
+  );
+
+  integrationTest(
+    "Forwards the external purchase token from an RC Paywall",
+    async ({ page, userId }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToPaddleLandingUrl(page, userId, {
+        useRcPaywall: true,
+        lang: "en",
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+
+      const packageButton = page
+        .getByRole("button", { name: /days|months|lifetime/i })
+        .first();
+      await expect(packageButton).toBeVisible({
+        timeout: PADDLE_UI_STEP_TIMEOUT_MS,
+      });
+      await packageButton.click();
+
+      const purchaseButton = page.getByRole("button", { name: /^continue$/i });
+      const requestPromise = waitForCheckoutStartRequest(page);
+
+      await purchaseButton.click();
+
+      const request = await requestPromise;
+      expect(request.postDataJSON().external_purchase_token_id).toBe(
+        EXTERNAL_PURCHASE_TOKEN_ID,
+      );
+    },
   );
 
   (["inline", "overlay"] as const).forEach((mode) => {

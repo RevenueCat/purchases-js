@@ -1,5 +1,10 @@
 import type { APIResponse } from "@playwright/test";
-import { type Page, type Locator, expect } from "@playwright/test";
+import {
+  type Page,
+  type Locator,
+  type Request,
+  expect,
+} from "@playwright/test";
 import type { StoreLoadTime } from "@revenuecat/purchases-js";
 import { BASE_URL, NON_TAX_TEST_API_KEY } from "./fixtures";
 import type { integrationTest } from "./integration-test";
@@ -26,6 +31,7 @@ export const getBackButtons = (page: Page) =>
 export const CARD_SELECTOR = ".packages div.card";
 export const PACKAGE_SELECTOR = "button.rc-pw-package";
 export const TAX_SKELETON_SELECTOR = "div[data-testid='tax-loading-skeleton']";
+export const EXTERNAL_PURCHASE_TOKEN_ID = "rcat_external_purchase_token_123";
 
 export const skipPaywallsTestIfDisabled = (test: typeof integrationTest) => {
   test.skip(
@@ -101,6 +107,7 @@ export async function navigateToLandingUrl(
     hideBackButtons?: boolean;
     discountCode?: string;
     storeLoadTime?: StoreLoadTime;
+    rc_external_purchase_token_id?: string;
   },
   apiKey?: string,
 ) {
@@ -125,6 +132,7 @@ export async function navigateToLandingUrl(
     hideCheckoutBackButton,
     discountCode,
     storeLoadTime,
+    rc_external_purchase_token_id,
   } = queryString ?? {};
 
   const params = new URLSearchParams();
@@ -173,6 +181,12 @@ export async function navigateToLandingUrl(
   if (storeLoadTime) {
     params.append("storeLoadTime", storeLoadTime);
   }
+  if (rc_external_purchase_token_id) {
+    params.append(
+      "rc_external_purchase_token_id",
+      rc_external_purchase_token_id,
+    );
+  }
 
   const rcPaywallPath = offeringId ? "rc_paywall" : "rc_paywall_no_offering";
 
@@ -181,6 +195,12 @@ export async function navigateToLandingUrl(
 
   return page;
 }
+
+export const waitForCheckoutStartRequest = (page: Page): Promise<Request> =>
+  page.waitForRequest(
+    (request) =>
+      request.method() === "POST" && request.url().includes("/checkout/start"),
+  );
 
 async function getAllElementsByLocator(
   locator: Locator,

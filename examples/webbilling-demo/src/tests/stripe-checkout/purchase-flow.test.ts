@@ -3,10 +3,12 @@ import { STRIPE_CHECKOUT_TEST_API_KEY } from "../helpers/fixtures";
 import { integrationTest } from "../helpers/integration-test";
 import {
   confirmPaymentError,
+  EXTERNAL_PURCHASE_TOKEN_ID,
   getPackageCards,
   skipPaywallsTestIfDisabled,
   skipStripeTestsIfDisabled,
   startPurchaseFlow,
+  waitForCheckoutStartRequest,
 } from "../helpers/test-helpers";
 import {
   confirmStripeCheckoutEmailPrefilled,
@@ -79,6 +81,30 @@ integrationTest.describe("Stripe Checkout flow", () => {
       await expect(
         page.getByText("Enjoy your premium experience."),
       ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
+    },
+  );
+
+  integrationTest(
+    "Forwards the external purchase token for a direct purchase",
+    async ({ page, userId }) => {
+      page = await navigateToStripeCheckoutLandingUrl(page, userId, {
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+
+      await expect(page.getByText("Stripe Checkout demo")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+
+      const packageCards = await getPackageCards(page);
+      expect(packageCards.length).toBeGreaterThan(0);
+      const requestPromise = waitForCheckoutStartRequest(page);
+
+      await startPurchaseFlow(packageCards[0]);
+
+      const request = await requestPromise;
+      expect(request.postDataJSON().external_purchase_token_id).toBe(
+        EXTERNAL_PURCHASE_TOKEN_ID,
+      );
     },
   );
 
@@ -218,6 +244,39 @@ integrationTest.describe("Stripe Checkout flow", () => {
       await expect(
         page.getByText("Enjoy your premium experience."),
       ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
+    },
+  );
+
+  integrationTest(
+    "Forwards the external purchase token from an RC Paywall",
+    async ({ page, userId }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToStripeCheckoutLandingUrl(page, userId, {
+        useRcPaywall: true,
+        lang: "en",
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+
+      await expect(page.getByText("E2E Tests for Purchases JS")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+
+      const monthlyPackage = page.getByText("monthly", { exact: true });
+      await monthlyPackage.click();
+
+      const purchaseButton = page.getByText(/Subscribe/i);
+      await expect(purchaseButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+      const requestPromise = waitForCheckoutStartRequest(page);
+
+      await purchaseButton.click();
+
+      const request = await requestPromise;
+      expect(request.postDataJSON().external_purchase_token_id).toBe(
+        EXTERNAL_PURCHASE_TOKEN_ID,
+      );
     },
   );
 
