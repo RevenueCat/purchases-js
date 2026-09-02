@@ -303,6 +303,16 @@ export class Purchases {
   /** @internal */
   private readonly inMemoryCache: InMemoryCache;
 
+  /**
+   * Unfinished offerings requests keyed by app user ID. This lets concurrent
+   * callers share one network request before its response can be cached.
+   * @internal
+   */
+  private readonly offeringsRequests = new Map<
+    string,
+    Promise<OfferingsResponse>
+  >();
+
   /** @internal */
   private cachedCurrentOffering: Offering | null = null;
 
@@ -334,6 +344,8 @@ export class Purchases {
    * */
   static setPlatformInfo(platformInfo: PlatformInfo) {
     Purchases._platformInfo = platformInfo;
+    // Platform flavor and version participate in backend offering targeting.
+    Purchases.instance?.clearOfferingsCache();
   }
 
   /**
@@ -1340,22 +1352,25 @@ export class Purchases {
   public async getOfferings(params?: GetOfferingsParams): Promise<Offerings> {
     validateCurrency(params?.currency);
     const appUserId = this._appUserId;
-    const offeringsResponse = await this.backend.getOfferings(appUserId);
+    const offeringsResponse = await this.getOfferingsResponse(appUserId);
 
     const offeringIdFilter =
       params?.offeringIdentifier === OfferingKeyword.Current
         ? offeringsResponse.current_offering_id
         : params?.offeringIdentifier;
 
-    if (offeringIdFilter) {
-      offeringsResponse.offerings = offeringsResponse.offerings.filter(
-        (offering: OfferingResponse) =>
-          offering.identifier === offeringIdFilter,
-      );
-    }
+    const responseToParse = offeringIdFilter
+      ? {
+          ...offeringsResponse,
+          offerings: offeringsResponse.offerings.filter(
+            (offering: OfferingResponse) =>
+              offering.identifier === offeringIdFilter,
+          ),
+        }
+      : offeringsResponse;
 
     const offerings = await this.getAllOfferings(
-      offeringsResponse,
+      responseToParse,
       appUserId,
       params,
     );
@@ -1369,6 +1384,16 @@ export class Purchases {
       this.cachedCurrentOffering = offerings.current;
     }
     return offerings;
+  }
+
+  /**
+   * Invalidates the cached offerings response for the current user.
+   * The next call to {@link Purchases.getOfferings} or
+   * {@link Purchases.getCurrentOfferingForPlacement} will fetch the latest
+   * offerings from the network.
+   */
+  public invalidateOfferingsCache(): void {
+    this.clearOfferingsCache(this._appUserId);
   }
 
   /**
@@ -1415,7 +1440,7 @@ export class Purchases {
     params?: GetOfferingsParams,
   ): Promise<Offering | null> {
     const appUserId = this._appUserId;
-    const offeringsResponse = await this.backend.getOfferings(appUserId);
+    const offeringsResponse = await this.getOfferingsResponse(appUserId);
     const placementData = offeringsResponse.placements ?? null;
     if (placementData == null) {
       return null;
@@ -1465,6 +1490,58 @@ export class Purchases {
     }
 
     return null;
+  }
+
+  private async getOfferingsResponse(
+    appUserId: string,
+  ): Promise<OfferingsResponse> {
+    const cachedOfferings =
+      this.inMemoryCache.getCachedOfferingsResponse(appUserId);
+    if (cachedOfferings != null) {
+      return cachedOfferings;
+    }
+
+    const existingRequest = this.offeringsRequests.get(appUserId);
+    if (existingRequest !== undefined) {
+      return await existingRequest;
+    }
+
+    const request = this.backend
+      .getOfferings(appUserId)
+      .then((offeringsResponse) => {
+        // Invalidation may remove this request or allow a newer one to start.
+        // Only the currently tracked request may update the response cache.
+        if (this.offeringsRequests.get(appUserId) === request) {
+          this.inMemoryCache.cacheOfferingsResponse(
+            appUserId,
+            offeringsResponse,
+          );
+        }
+        return offeringsResponse;
+      })
+      .finally(() => {
+        // Do not remove a newer request that may have replaced this one.
+        if (this.offeringsRequests.get(appUserId) === request) {
+          this.offeringsRequests.delete(appUserId);
+        }
+      });
+
+    this.offeringsRequests.set(appUserId, request);
+    return await request;
+  }
+
+  private clearOfferingsCache(appUserId?: string): void {
+    this.inMemoryCache.invalidateOfferingsCache(appUserId);
+    if (appUserId === undefined) {
+      this.offeringsRequests.clear();
+    } else {
+      this.offeringsRequests.delete(appUserId);
+    }
+  }
+
+  private invalidateAllCaches(): void {
+    this.offeringsRequests.clear();
+    this.inMemoryCache.invalidateAllCaches();
   }
 
   private async findOfferingById(
@@ -1611,6 +1688,7 @@ export class Purchases {
           mode: "express_purchase_button",
         });
         this.eventsTracker.trackSDKEvent(sessionEndFinishedEvent);
+        this.invalidateAllCaches();
 
         Logger.debugLog("Purchase finished");
 
@@ -1772,7 +1850,7 @@ export class Purchases {
         this.backend,
         this._appUserId,
       );
-      this.inMemoryCache.invalidateAllCaches();
+      this.invalidateAllCaches();
       return purchaseResult;
     }
 
@@ -1878,7 +1956,7 @@ export class Purchases {
       );
 
       const onProductChangeFinished = async (result: ProductChangeResult) => {
-        this.inMemoryCache.invalidateAllCaches();
+        this.invalidateAllCaches();
         unmountPurchaseUi();
         try {
           const customerInfo = await this.getCustomerInfo();
@@ -2025,7 +2103,7 @@ export class Purchases {
       );
 
       const onProductChangeFinished = async (result: ProductChangeResult) => {
-        this.inMemoryCache.invalidateAllCaches();
+        this.invalidateAllCaches();
         unmountPurchaseUi();
         try {
           const customerInfo = await this.getCustomerInfo();
@@ -2282,7 +2360,7 @@ export class Purchases {
         redemptionInfo: operationResult.redemptionInfo,
       });
       this.eventsTracker.trackSDKEvent(event);
-      this.inMemoryCache.invalidateAllCaches();
+      this.invalidateAllCaches();
       Logger.debugLog("Purchase finished");
 
       callback?.();
@@ -2352,12 +2430,14 @@ export class Purchases {
         "Posting a test store receipt is only available for RC Test Store API keys.",
       );
     }
-    return await postSimulatedStoreReceipt(
+    const purchaseResult = await postSimulatedStoreReceipt(
       product,
       this.backend,
       this._appUserId,
       undefined,
     );
+    this.invalidateAllCaches();
+    return purchaseResult;
   }
 
   /**
@@ -2396,7 +2476,9 @@ export class Purchases {
      */
     await this.getCustomerInfo();
 
-    return await this.backend.setAttributes(this._appUserId, attributes);
+    const appUserId = this._appUserId;
+    await this.backend.setAttributes(appUserId, attributes);
+    this.clearOfferingsCache(appUserId);
   }
 
   /**
@@ -2504,7 +2586,7 @@ export class Purchases {
     validateAppUserId(newAppUserId);
     this._appUserId = newAppUserId;
     await this.eventsTracker.updateUser(newAppUserId);
-    this.inMemoryCache.invalidateAllCaches();
+    this.invalidateAllCaches();
     this.cachedCurrentOffering = null;
   }
 

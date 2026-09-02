@@ -5,7 +5,7 @@ import {
   testApiKey,
   testUserId,
 } from "./base.purchases_test";
-import { APIPostRequest } from "./test-responses";
+import { APIGetRequest, APIPostRequest } from "./test-responses";
 import "./utils/to-have-been-called-exactly-once-with";
 import { Logger } from "../helpers/logger";
 import { ErrorCode, Purchases, PurchasesError } from "../main";
@@ -341,6 +341,36 @@ describe("Purchases.configure()", () => {
       },
       keepalive: true,
     });
+  });
+
+  test("refetches offerings after an express purchase is finished", async () => {
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      options.props?.onFinished({
+        redemptionInfo: null,
+        operationSessionId: "op-id",
+        storeTransactionIdentifier: "store-tx-id",
+        productIdentifier: "product-id",
+        purchaseDate: new Date(),
+      });
+      return vi.fn();
+    });
+
+    const purchases = Purchases.getSharedInstance();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    await purchases.presentExpressPurchaseButton({
+      rcPackage: packageToBuy!,
+      htmlTarget: document.createElement("div"),
+    });
+    await purchases.getOfferings();
+
+    const offeringsURL =
+      "http://localhost:8000/v1/subscribers/someAppUserId/offerings";
+    const offeringsRequests = APIGetRequest.mock.calls.filter(
+      ([request]) => request.url === offeringsURL,
+    );
+    expect(offeringsRequests).toHaveLength(2);
   });
 });
 
