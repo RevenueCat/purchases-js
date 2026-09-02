@@ -135,6 +135,7 @@ import type { VirtualCurrencies } from "./entities/virtual-currencies";
 import { toVirtualCurrencies } from "./entities/virtual-currencies";
 import type { IdentifyResult } from "./entities/identify-result";
 import { parseOfferingIntoPackageInfoPerPackage } from "./helpers/paywall-package-info-helpers";
+import { buildPaywallContextPackages } from "./helpers/paywall-context-packages-helpers";
 import type {
   ExpressPurchaseButtonUpdater,
   PresentExpressPurchaseButtonParams,
@@ -355,6 +356,15 @@ export class Purchases {
    */
   static buildInfoPerPackage(offering: Offering) {
     return parseOfferingIntoPackageInfoPerPackage(offering);
+  }
+
+  /**
+   * Map an offering's available packages to SDK PaywallPackage[] for
+   * custom-component PaywallContext. Used by presentPaywall and Workflows.
+   * @internal
+   */
+  static buildPaywallContextPackages(offering: Offering) {
+    return buildPaywallContextPackages(offering);
   }
 
   /** @internal */
@@ -964,6 +974,12 @@ export class Purchases {
 
     const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
 
+    const paywallContextOffering = {
+      identifier: offering.identifier,
+      display_name: offering.serverDescription,
+    };
+    const paywallContextPackages = buildPaywallContextPackages(offering);
+
     const listener = paywallParams.listener;
 
     const notifyPurchaseStarted = (pkg: Package) => {
@@ -1248,6 +1264,10 @@ export class Purchases {
                     workflowDataResponse.ui_config as unknown as UIConfig,
                   )
                 : undefined,
+              customVariables: paywallParams.customVariables,
+              offering: paywallContextOffering,
+              packages: paywallContextPackages,
+              isPreview: false,
               maxContentWidth: workflowDataResponse.content_max_width
                 ? String(workflowDataResponse.content_max_width)
                 : undefined,
@@ -1290,6 +1310,9 @@ export class Purchases {
             hideBackButtons: paywallParams.hideBackButtons,
             walletButtonRender,
             customVariables: paywallParams.customVariables,
+            offering: paywallContextOffering,
+            packages: paywallContextPackages,
+            isPreview: false,
             onComponentInteraction,
           },
         });
