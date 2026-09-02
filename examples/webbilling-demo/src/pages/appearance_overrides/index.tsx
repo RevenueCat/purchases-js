@@ -1,11 +1,13 @@
 import type { Package } from "@revenuecat/purchases-js";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import LogoutButton from "../../components/LogoutButton";
 import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
 import {
   configuredAppearanceOverride,
   operationAppearanceOverride,
 } from "../../util/runtime-appearance-overrides";
+import { getExternalPurchaseTokenId } from "../../util/external-purchase-token";
 
 type DemoStatus = {
   kind: "idle" | "running" | "success" | "error";
@@ -31,6 +33,8 @@ const getErrorMessage = (error: unknown) =>
 
 const AppearanceOverridesPage = () => {
   const { purchases, defaultPurchases, offering } = usePurchasesLoaderData();
+  const [searchParams] = useSearchParams();
+  const externalPurchaseTokenId = getExternalPurchaseTokenId(searchParams);
   const packages =
     offering?.availablePackages.filter((pkg) => pkg.webBillingProduct) ?? [];
   const [selectedPackageId, setSelectedPackageId] = useState(
@@ -67,6 +71,7 @@ const AppearanceOverridesPage = () => {
     return runFlow(purchaseLabels[appearanceMode], () =>
       purchaseInstance.purchase({
         rcPackage: pkg,
+        externalPurchaseTokenId,
         ...(appearanceMode === "operation"
           ? { brandingAppearanceOverride: operationAppearanceOverride }
           : {}),
@@ -83,6 +88,7 @@ const AppearanceOverridesPage = () => {
     return runFlow(paywallLabels[appearanceMode], () =>
       purchaseInstance.presentPaywall({
         offering,
+        externalPurchaseTokenId,
         ...(appearanceMode === "operation"
           ? { brandingAppearanceOverride: operationAppearanceOverride }
           : {}),
