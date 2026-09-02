@@ -244,7 +244,7 @@
         purchaseOption: nextPurchaseOption,
         presentedOfferingContext: nextProductDetails.presentedOfferingContext,
         customerEmail: nextEmail,
-        ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
+        externalPurchaseTokenId,
         metadata,
         workflowPurchaseContext,
         attributionMetadata,
@@ -274,7 +274,7 @@
             presentedOfferingContext:
               nextProductDetails.presentedOfferingContext,
             customerEmail: undefined,
-            ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
+            externalPurchaseTokenId,
             metadata,
             workflowPurchaseContext,
             attributionMetadata,

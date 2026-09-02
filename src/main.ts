@@ -834,11 +834,7 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
-        ...(paywallParams.externalPurchaseTokenId
-          ? {
-              externalPurchaseTokenId: paywallParams.externalPurchaseTokenId,
-            }
-          : {}),
+        externalPurchaseTokenId: paywallParams.externalPurchaseTokenId,
         metadata: paywallParams.metadata,
         brandingAppearanceOverride: paywallParams.brandingAppearanceOverride,
         showDiscountCodeField: paywallParams.showDiscountCodeField,
@@ -1627,7 +1623,7 @@ export class Purchases {
         eventsTracker: this.eventsTracker,
         brandingInfo: this._brandingInfo,
         purchaseOperationHelper: this.purchaseOperationHelper,
-        ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
+        externalPurchaseTokenId,
         metadata: metadata,
         customTranslations: params.labelsOverride,
         translator,
@@ -1683,7 +1679,7 @@ export class Purchases {
         customerEmail: customerEmail,
         htmlTarget: element,
         metadata,
-        ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
+        externalPurchaseTokenId,
         onButtonReady: (updater, walletsAvailable) => {
           buttonUpdater = updater;
           onReady?.(walletsAvailable);
@@ -1790,6 +1786,7 @@ export class Purchases {
       attributionMetadata,
       paywallId,
       paywallSessionId,
+      externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1878,9 +1875,7 @@ export class Purchases {
           brandingInfo,
           appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
-          ...(params.externalPurchaseTokenId
-            ? { externalPurchaseTokenId: params.externalPurchaseTokenId }
-            : {}),
+          externalPurchaseTokenId,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
@@ -1903,6 +1898,7 @@ export class Purchases {
       customerEmail,
       workflowPurchaseContext,
       attributionMetadata,
+      externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -2025,9 +2021,7 @@ export class Purchases {
           brandingInfo,
           appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
-          ...(params.externalPurchaseTokenId
-            ? { externalPurchaseTokenId: params.externalPurchaseTokenId }
-            : {}),
+          externalPurchaseTokenId,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
@@ -2054,6 +2048,7 @@ export class Purchases {
       discountCode,
       attributionMetadata,
       workflowPurchaseContext,
+      externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -2152,9 +2147,7 @@ export class Purchases {
             discountCode,
             attributionMetadata,
             workflowPurchaseContext,
-            ...(params.externalPurchaseTokenId
-              ? { externalPurchaseTokenId: params.externalPurchaseTokenId }
-              : {}),
+            externalPurchaseTokenId,
             metadata,
             unmountPaddlePurchaseUi,
             paddleService,

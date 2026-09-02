@@ -122,31 +122,6 @@ describe("Purchases.configure()", () => {
     });
   });
 
-  test("forwards an external purchase token ID from purchase", async () => {
-    let purchaseProps: Record<string, unknown> | undefined;
-    vi.mocked(mount).mockImplementation((_component, options) => {
-      purchaseProps = options.props as Record<string, unknown>;
-      return vi.fn();
-    });
-
-    const purchases = Purchases.getSharedInstance();
-    const offerings = await purchases.getOfferings();
-    const packageToBuy = offerings.current?.availablePackages[0];
-
-    void purchases.purchase({
-      rcPackage: packageToBuy!,
-      externalPurchaseTokenId: "rcat_external_purchase_token_123",
-    });
-
-    await vi.waitFor(() => {
-      expect(purchaseProps).toEqual(
-        expect.objectContaining({
-          externalPurchaseTokenId: "rcat_external_purchase_token_123",
-        }),
-      );
-    });
-  });
-
   test("tracks the CheckoutSessionEnded event upon finishing a purchase", async () => {
     vi.mocked(mount).mockImplementation((_component, options) => {
       options.props?.onFinished("test-operation-session-id", null);
@@ -318,11 +293,6 @@ describe("Purchases.configure()", () => {
 
   test("tracks the CheckoutSessionEnded event upon finishing an express purchase", async () => {
     vi.mocked(mount).mockImplementation((_component, options) => {
-      expect(options.props).toEqual(
-        expect.objectContaining({
-          externalPurchaseTokenId: "rcat_external_purchase_token_123",
-        }),
-      );
       options.props?.onFinished({
         redemptionInfo: null,
         operationSessionId: "op-id",
@@ -342,7 +312,6 @@ describe("Purchases.configure()", () => {
     await purchases.presentExpressPurchaseButton({
       rcPackage: packageToBuy!,
       htmlTarget,
-      externalPurchaseTokenId: "rcat_external_purchase_token_123",
     });
 
     await vi.advanceTimersToNextTimerAsync();

@@ -282,7 +282,7 @@ export class PaddleService {
           presentedStepId,
           urlParameters,
           customerEmail: customerEmail ?? undefined,
-          ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
+          externalPurchaseTokenId,
           metadata,
           locale,
           attributionMetadata,

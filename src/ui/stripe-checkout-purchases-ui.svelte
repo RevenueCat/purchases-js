@@ -179,7 +179,7 @@
         presentedOfferingContext:
           rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail: email,
-        ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
+        externalPurchaseTokenId,
         metadata,
         workflowPurchaseContext,
         attributionMetadata,

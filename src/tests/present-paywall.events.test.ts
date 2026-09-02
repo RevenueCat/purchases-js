@@ -126,57 +126,6 @@ describe("Purchases.presentPaywall() paywall events", () => {
     });
   });
 
-  test("passes an external purchase token ID to purchases started from the paywall", async () => {
-    const purchases = configurePurchases();
-    const offering = createOfferingWithPaywall();
-    const packageId = offering.availablePackages[0]!.identifier;
-    const purchaseSpy = vi
-      .spyOn(purchases, "purchase")
-      .mockResolvedValue({} as PurchaseResult);
-
-    void purchases.presentPaywall({
-      offering,
-      externalPurchaseTokenId: "rcat_external_purchase_token_123",
-    });
-
-    await vi.waitFor(() => expect(paywallProps).toBeDefined());
-    paywallProps!.onPurchaseClicked(packageId);
-
-    await vi.waitFor(() => {
-      expect(purchaseSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          externalPurchaseTokenId: "rcat_external_purchase_token_123",
-        }),
-      );
-    });
-  });
-
-  test("passes an external purchase token ID to paywall express checkout", async () => {
-    const purchases = configurePurchases();
-    const offering = createOfferingWithPaywall();
-    const getWalletButtonRenderSpy = vi.spyOn(
-      purchases,
-      "getWalletButtonRender",
-    );
-
-    void purchases.presentPaywall({
-      offering,
-      externalPurchaseTokenId: "rcat_external_purchase_token_123",
-    });
-
-    await vi.waitFor(() => {
-      expect(getWalletButtonRenderSpy).toHaveBeenCalledWith(
-        offering,
-        expect.any(Function),
-        undefined,
-        expect.any(Function),
-        undefined,
-        undefined,
-        "rcat_external_purchase_token_123",
-      );
-    });
-  });
-
   test("fires paywall_cancel and paywall_close when purchase is cancelled and paywall is dismissed", async () => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();

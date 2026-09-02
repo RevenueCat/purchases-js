@@ -204,7 +204,7 @@
         presentedOfferingContext,
         purchaseOption,
         customerEmail,
-        ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
+        externalPurchaseTokenId,
         metadata,
         locale: selectedLocale,
         attributionMetadata,

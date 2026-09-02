@@ -299,7 +299,7 @@
         presentedOfferingContext:
           rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail,
-        ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
+        externalPurchaseTokenId,
         metadata,
         locale: translator.selectedLocale,
       });

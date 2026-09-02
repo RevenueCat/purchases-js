@@ -304,7 +304,7 @@ export class PurchaseOperationHelper {
         paywallId,
         paywallSessionId,
         customerEmail,
-        ...(externalPurchaseTokenId ? { externalPurchaseTokenId } : {}),
+        externalPurchaseTokenId,
         metadata,
         locale,
         attributionMetadata,
