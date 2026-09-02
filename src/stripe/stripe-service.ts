@@ -50,12 +50,28 @@ export type TaxCustomerDetails = {
 };
 
 export class StripeService {
-  private static FORM_VALIDATED_CARD_ERROR_CODES = [
+  // Stripe's Payment Element renders these errors itself during client-side
+  // confirmation. Other card errors must be presented by our checkout UI.
+  // https://docs.stripe.com/payments/payment-element#errors
+  private static readonly PAYMENT_ELEMENT_AUTO_DISPLAYED_ERROR_CODES = new Set([
     "card_declined",
+    "card_velocity_exceeded",
     "expired_card",
+    "fraudulent",
+    "generic_decline",
     "incorrect_cvc",
     "incorrect_number",
-  ];
+    "incorrect_zip",
+    "insufficient_funds",
+    "invalid_cvc",
+    "invalid_expiry_month",
+    "invalid_expiry_year",
+    "live_mode_test_card",
+    "lost_card",
+    "processing_error",
+    "stolen_card",
+    "test_mode_live_card",
+  ]);
 
   /**
    * This function converts some particular locales to the ones that stripe supports.
@@ -247,13 +263,14 @@ export class StripeService {
     });
   }
 
-  static isStripeHandledFormError(error: StripeError) {
+  static isStripeHandledFormError(error: StripeError): boolean {
     const isValidationError = error.type === "validation_error";
+    const effectiveErrorCode = error.decline_code ?? error.code;
 
     const isCardError =
       error.type === "card_error" &&
-      error.code &&
-      this.FORM_VALIDATED_CARD_ERROR_CODES.includes(error.code);
+      !!effectiveErrorCode &&
+      this.PAYMENT_ELEMENT_AUTO_DISPLAYED_ERROR_CODES.has(effectiveErrorCode);
 
     return isValidationError || isCardError;
   }
