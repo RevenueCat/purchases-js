@@ -17,9 +17,19 @@ export const SKIP_STRIPE_TESTS_ON_CAPTCHA =
   process.env.VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA === "true" ||
   process.env.VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA === "1";
 
+// Live discount+tax totals drifted from $7.43 after
+// VITE_SKIP_TAX_REAL_TESTS_UNTIL=2026-08-30 expired. Repo floor so an
+// expired CircleCI project env cannot re-enable the real suite.
+const REPO_SKIP_TAX_REAL_TESTS_UNTIL = "2026-10-31";
+
 export const SKIP_TAX_REAL_TESTS = (() => {
-  const skipUntilDate = process.env.VITE_SKIP_TAX_REAL_TESTS_UNTIL;
-  if (!skipUntilDate) return false;
+  const envDate = process.env.VITE_SKIP_TAX_REAL_TESTS_UNTIL;
+  const skipUntilDate =
+    envDate &&
+    /^\d{4}-\d{2}-\d{2}$/.test(envDate) &&
+    envDate > REPO_SKIP_TAX_REAL_TESTS_UNTIL
+      ? envDate
+      : REPO_SKIP_TAX_REAL_TESTS_UNTIL;
   console.log("skipUntilDate", skipUntilDate.split("-").join(" "));
   try {
     // Validate the format is yyyy-mm-dd
