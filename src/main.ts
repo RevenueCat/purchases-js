@@ -1711,6 +1711,7 @@ export class Purchases {
       return null;
     }
 
+    this.preparedQuickPurchaseConfiguration = null;
     Logger.debugLog(
       "Apple Pay first is ready; calling paymentRequest.show() before /start",
     );
@@ -1822,6 +1823,13 @@ export class Purchases {
           }),
         );
         throw PurchasesError.getForPurchasesFlowError(purchaseFlowError);
+      })
+      .finally(() => {
+        void this.prepareForQuickPurchases().catch((error) => {
+          Logger.debugLog(
+            `Could not prepare Apple Pay for another purchase: ${String(error)}`,
+          );
+        });
       });
   }
 

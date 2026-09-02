@@ -7,6 +7,7 @@ import {
   Purchases,
   type PurchasesConfig,
   type PurchaseParams,
+  type PurchaseResult,
   PurchasesError,
   ReservedCustomerAttribute,
 } from "../main";
@@ -579,7 +580,7 @@ describe("Purchases.preload()", () => {
 });
 
 describe("Purchases.prepareForQuickPurchases()", () => {
-  test("shares preparation and presents Apple Pay before checkout start", async () => {
+  test("shares preparation, consumes it once, and prepares the next request", async () => {
     const purchases = configurePurchases();
     const handlers: { cancel?: () => void } = {};
     const order: string[] = [];
@@ -603,8 +604,19 @@ describe("Purchases.prepareForQuickPurchases()", () => {
       }),
       abort: vi.fn(),
     } as unknown as PaymentRequest;
+    const nextPaymentRequest = {
+      canMakePayment: vi.fn(async () => ({ applePay: true })),
+      on: vi.fn(),
+      off: vi.fn(),
+      update: vi.fn(),
+      show: vi.fn(),
+      abort: vi.fn(),
+    } as unknown as PaymentRequest;
     const stripe = {
-      paymentRequest: vi.fn(() => paymentRequest),
+      paymentRequest: vi
+        .fn()
+        .mockReturnValueOnce(paymentRequest)
+        .mockReturnValueOnce(nextPaymentRequest),
     } as unknown as Stripe;
     const prepareSpy = vi
       .spyOn(purchases["purchaseOperationHelper"], "prepareForQuickPurchases")
@@ -643,6 +655,58 @@ describe("Purchases.prepareForQuickPurchases()", () => {
       "errorCode",
       ErrorCode.UserCancelledError,
     );
+
+    await waitFor(() => {
+      expect(prepareSpy).toHaveBeenCalledTimes(2);
+      expect(nextPaymentRequest.canMakePayment).toHaveBeenCalledOnce();
+    });
+
+    await purchases.prepareForQuickPurchases();
+    expect(prepareSpy).toHaveBeenCalledTimes(2);
+  });
+
+  test("keeps prepared state when the purchase is not eligible", async () => {
+    const purchases = configurePurchases();
+    const paymentRequest = {
+      canMakePayment: vi.fn(async () => ({ applePay: true })),
+      on: vi.fn(),
+      off: vi.fn(),
+      update: vi.fn(),
+      show: vi.fn(),
+      abort: vi.fn(),
+    } as unknown as PaymentRequest;
+    const stripe = {
+      paymentRequest: vi.fn(() => paymentRequest),
+    } as unknown as Stripe;
+    const prepareSpy = vi
+      .spyOn(purchases["purchaseOperationHelper"], "prepareForQuickPurchases")
+      .mockResolvedValue(quickPurchasesPrepareResponse);
+    vi.spyOn(StripeService, "getStripeClient").mockResolvedValue({ stripe });
+    const fallbackResult = {} as PurchaseResult;
+    const purchasesInternal = purchases as unknown as {
+      purchaseAfterLoadingResources: (
+        params: PurchaseParams,
+      ) => Promise<PurchaseResult>;
+    };
+    const fallbackSpy = vi
+      .spyOn(purchasesInternal, "purchaseAfterLoadingResources")
+      .mockResolvedValue(fallbackResult);
+
+    await purchases.prepareForQuickPurchases();
+
+    await expect(
+      purchases.purchase({
+        rcPackage: createMonthlyPackageMock(),
+        discountCode: "SAVE10",
+        tryWithApplePay: true,
+      }),
+    ).resolves.toBe(fallbackResult);
+
+    expect(paymentRequest.show).not.toHaveBeenCalled();
+    expect(fallbackSpy).toHaveBeenCalledOnce();
+
+    await purchases.prepareForQuickPurchases();
+    expect(prepareSpy).toHaveBeenCalledOnce();
   });
 });
 
