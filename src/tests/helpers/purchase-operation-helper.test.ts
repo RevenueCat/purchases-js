@@ -22,6 +22,7 @@ import {
   type CheckoutStatusResponse,
 } from "../../networking/responses/checkout-status-response";
 import { type IEventsTracker } from "../../behavioural-events/events-tracker";
+import { PaywallEvent } from "../../behavioural-events/paywall-event";
 import {
   checkoutCompleteResponse,
   checkoutPrepareResponse,
@@ -48,7 +49,7 @@ describe("PurchaseOperationHelper", () => {
       updateUser: () => Promise.resolve(),
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
-      trackPaywallEvent: () => {},
+      trackPaywallEvent: (data) => new PaywallEvent(data),
       trackCustomPaywallImpression: () => {},
       dispose: () => {},
       flushAllEvents: () => Promise.resolve(),
