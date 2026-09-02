@@ -30,6 +30,7 @@ import {
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
+  isStripeSandboxApiKey,
   isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
@@ -1777,6 +1778,7 @@ export class Purchases {
     params: PurchaseParams,
     brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
+    const productChange = this.resolveProductChange(params);
     const {
       rcPackage,
       purchaseOption,
@@ -1851,6 +1853,29 @@ export class Purchases {
         unmountPurchaseUi,
       );
 
+      const onProductChangeFinished = async (result: ProductChangeResult) => {
+        this.inMemoryCache.invalidateAllCaches();
+        unmountPurchaseUi();
+        try {
+          const customerInfo = await this.getCustomerInfo();
+          resolve({
+            customerInfo,
+            redemptionInfo: null,
+            operationSessionId: result.operationSessionId,
+            storeTransaction: {
+              storeTransactionId: result.operationSessionId,
+              productIdentifier: result.newProductId,
+              purchaseDate: new Date(),
+            },
+            productChange: {
+              changeType: result.changeType,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+
       const onError = this.createCheckoutOnErrorHandler(
         reject,
         unmountPurchaseUi,
@@ -1860,6 +1885,7 @@ export class Purchases {
         target: certainHTMLTarget,
         props: {
           isInElement: isInElement,
+          isSandbox: this.isSandbox(),
           appUserId,
           rcPackage,
           purchaseOption: purchaseOptionToUse,
@@ -1868,7 +1894,9 @@ export class Purchases {
           attributionMetadata,
           paywallId,
           paywallSessionId,
+          productChange,
           onFinished,
+          onProductChangeFinished,
           onClose,
           onError,
           eventsTracker: this.eventsTracker,
@@ -1881,6 +1909,7 @@ export class Purchases {
           defaultLocale,
           customTranslations: params.labelsOverride,
           skipSuccessPage,
+          hideBackButton: this.shouldHideCheckoutBackButton(),
         },
       });
     });
@@ -2394,7 +2423,8 @@ export class Purchases {
   /**
    * Resolves {@link PurchaseParams.productChangeInfo} into the product-change
    * context passed to the checkout UI, or undefined when the purchase should
-   * proceed as a normal purchase (no info, no token, or non-Web Billing key).
+   * proceed as a normal purchase (no info, no token, or an API key whose
+   * gateway doesn't support product change, e.g. Paddle).
    */
   private resolveProductChange(params: PurchaseParams):
     | {
@@ -2404,7 +2434,9 @@ export class Purchases {
       }
     | undefined {
     const productChangeInfo = params.productChangeInfo;
-    if (!productChangeInfo || !isWebBillingApiKey(this._API_KEY)) {
+    const supportsProductChange =
+      isWebBillingApiKey(this._API_KEY) || isStripeApiKey(this._API_KEY);
+    if (!productChangeInfo || !supportsProductChange) {
       return undefined;
     }
 
@@ -2481,6 +2513,7 @@ export class Purchases {
   public isSandbox(): boolean {
     return (
       isWebBillingSandboxApiKey(this._API_KEY) ||
+      isStripeSandboxApiKey(this._API_KEY) ||
       isSimulatedStoreApiKey(this._API_KEY)
     );
   }
