@@ -23,6 +23,7 @@ import {
 } from "./test-responses";
 import type { PaywallData } from "@revenuecat/purchases-ui-js";
 import { http, HttpResponse } from "msw";
+import { GetProductsEndpoint } from "../networking/endpoints";
 
 describe("getOfferings", () => {
   const expectedMonthlyPackage = createMonthlyPackageMock();
@@ -870,6 +871,14 @@ describe("getOfferings", () => {
 });
 
 describe("getOfferings placements", () => {
+  const productsRequestUrl = (
+    appUserId: string,
+    productIds: string[],
+    currency?: string,
+    discountCode?: string,
+  ) =>
+    `http://localhost:8000${new GetProductsEndpoint(appUserId, productIds, currency, discountCode).urlPath()}`;
+
   test("gets fallback offering if placement id is missing", async () => {
     const purchases = configurePurchases();
     const offeringWithPlacement =
@@ -958,16 +967,15 @@ describe("getOfferings placements", () => {
 
     expect(offeringWithPlacement?.identifier).toEqual("offering_2");
     expect(APIGetRequest).toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly_2&supports_price_id=true`,
+      url: productsRequestUrl(appUserId, ["monthly_2"]),
     });
     expect(APIGetRequest).not.toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly&id=monthly_2&supports_price_id=true`,
+      url: productsRequestUrl(appUserId, ["monthly", "monthly_2"]),
     });
   });
 
   test("fetches fallback products separately when placement products are missing", async () => {
     const appUserId = "appUserIdWithMissingProducts";
-    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
     const purchases = configurePurchases(appUserId);
 
     const offeringWithPlacement =
@@ -975,19 +983,18 @@ describe("getOfferings placements", () => {
 
     expect(offeringWithPlacement?.identifier).toEqual("offering_1");
     expect(APIGetRequest).toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly_2&supports_price_id=true`,
+      url: productsRequestUrl(appUserId, ["monthly_2"]),
     });
     expect(APIGetRequest).toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly&supports_price_id=true`,
+      url: productsRequestUrl(appUserId, ["monthly"]),
     });
     expect(APIGetRequest).not.toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly&id=monthly_2&supports_price_id=true`,
+      url: productsRequestUrl(appUserId, ["monthly", "monthly_2"]),
     });
   });
 
   test("forwards currency and discount code when fetching placement products", async () => {
     const appUserId = "appUserIdWithCurrentPlacementNoFallback";
-    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
     const purchases = configurePurchases(appUserId);
 
     const offeringWithPlacement =
@@ -998,13 +1005,12 @@ describe("getOfferings placements", () => {
 
     expect(offeringWithPlacement?.identifier).toEqual("offering_2");
     expect(APIGetRequest).toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly_2&currency=USD&discount_code=SUMMER2024&supports_price_id=true`,
+      url: productsRequestUrl(appUserId, ["monthly_2"], "USD", "SUMMER2024"),
     });
   });
 
   test("fetches products once when placement and fallback use the same offering", async () => {
     const appUserId = "appUserIdWithMatchingPlacementAndFallback";
-    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
     const purchases = configurePurchases(appUserId);
 
     const offeringWithPlacement =
@@ -1012,12 +1018,12 @@ describe("getOfferings placements", () => {
 
     expect(offeringWithPlacement).toBeNull();
     expect(APIGetRequest).toHaveBeenCalledWith({
-      url: `${productsUrl}?id=monthly&supports_price_id=true`,
+      url: productsRequestUrl(appUserId, ["monthly"]),
     });
     expect(
       APIGetRequest.mock.calls.filter(
         ([request]) =>
-          request.url === `${productsUrl}?id=monthly&supports_price_id=true`,
+          request.url === productsRequestUrl(appUserId, ["monthly"]),
       ),
     ).toHaveLength(1);
   });

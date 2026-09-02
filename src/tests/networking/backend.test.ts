@@ -432,13 +432,14 @@ describe("getProducts request", () => {
         const url = new URL(request.url);
         const productIds = url.searchParams.getAll("id");
         const urlCurrency = url.searchParams.get("currency");
-        const urlDiscountCode = url.searchParams.get("discountCode");
+        const urlDiscountCode = url.searchParams.get("discount_code");
         if (
           productIds.includes("monthly") &&
           productIds.includes("monthly_2") &&
           productIds.length === 2 &&
           (urlCurrency === null || urlCurrency === currency) &&
-          (urlDiscountCode === null || urlDiscountCode === discountCode)
+          (urlDiscountCode === null || urlDiscountCode === discountCode) &&
+          url.searchParams.get("supports_price_id") === "true"
         ) {
           return httpResponse;
         }
@@ -452,25 +453,6 @@ describe("getProducts request", () => {
     expect(
       await backend.getProducts("someAppUserId", ["monthly", "monthly_2"]),
     ).toEqual(productsResponse);
-  });
-
-  test("sends the supports_price_id capability", async () => {
-    let supportsPriceId: string | null = null;
-    server.use(
-      http.get(
-        "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products",
-        ({ request }) => {
-          supportsPriceId = new URL(request.url).searchParams.get(
-            "supports_price_id",
-          );
-          return HttpResponse.json(productsResponse, { status: 200 });
-        },
-      ),
-    );
-
-    await backend.getProducts("someAppUserId", ["monthly", "monthly_2"]);
-
-    expect(supportsPriceId).toBe("true");
   });
 
   test("requests each product only once", async () => {
@@ -712,13 +694,23 @@ describe("getProducts request", () => {
 });
 
 describe("postCheckoutPrepare request", () => {
+  const prepareAPIMock = vi.fn();
+
   function setCheckoutPrepareResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/checkout/prepare", () => {
-        return httpResponse;
-      }),
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/prepare",
+        (req) => {
+          prepareAPIMock(req);
+          return httpResponse;
+        },
+      ),
     );
   }
+
+  afterEach(() => {
+    prepareAPIMock.mockReset();
+  });
 
   test("can post checkout prepare successfully", async () => {
     setCheckoutPrepareResponse(
@@ -730,6 +722,12 @@ describe("postCheckoutPrepare request", () => {
       priceId: "test_price_id",
     });
     expect(backendResponse).toEqual(checkoutPrepareResponse);
+
+    const request = prepareAPIMock.mock.calls[0][0].request;
+    expect(await request.json()).toEqual({
+      product_id: "monthly",
+      price_id: "test_price_id",
+    });
   });
 
   test("throws an error if the backend returns a server error", async () => {
