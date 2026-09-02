@@ -1,3 +1,8 @@
+## 1.57.0
+## RevenueCat SDK
+### ✨ New Features
+* PWENG-229 Thread PaywallContext packages from presentPaywall (#1098) via Franco Correa (@francocorreasosa)
+
 ## 1.56.0
 ## RevenueCat SDK
 ### ✨ New Features
