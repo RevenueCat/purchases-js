@@ -19,12 +19,12 @@ import type { CheckoutStartResponse } from "../../../networking/responses/checko
 import { get, writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
-import type {
+import type { TaxCustomerDetails } from "../../../stripe/stripe-service";
+import {
+  StripeService,
   StripeServiceError,
   StripeServiceErrorCode,
-  TaxCustomerDetails,
 } from "../../../stripe/stripe-service";
-import { StripeService } from "../../../stripe/stripe-service";
 import type {
   StripeError,
   StripePaymentElementChangeEvent,
@@ -77,7 +77,7 @@ vi.mock("../../../stripe/stripe-service", async () => {
       isStripeHandledFormError: vi.fn(),
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
-      confirmIntent: vi.fn(),
+      confirmElements: vi.fn(),
       extractTaxCustomerDetails: vi.fn(),
     },
   };
@@ -177,6 +177,7 @@ describe("PurchasesUI", () => {
       },
     });
     vi.mocked(StripeService.isStripeHandledFormError).mockReturnValue(false);
+    vi.mocked(StripeService.confirmElements).mockResolvedValue(undefined);
   });
 
   test("tracks the CheckoutPaymentFormImpression event when the payment entry is displayed and form loaded", async () => {
@@ -467,6 +468,66 @@ describe("PurchasesUI", () => {
         mode: defaultPurchaseMode,
         errorCode: "0",
         errorMessage: "Submission error",
+      },
+    });
+  });
+
+  test("shows card errors not displayed by the payment element when confirmation fails", async () => {
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          setTimeout(() => {
+            callback({
+              complete: true,
+              value: {
+                type: "card",
+              },
+              elementType: "payment",
+              empty: false,
+              collapsed: false,
+            });
+          }, 100);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+    vi.mocked(StripeService.confirmElements).mockRejectedValue(
+      new StripeServiceError(
+        StripeServiceErrorCode.UnhandledFormError,
+        "card_declined",
+        "Your card is not supported.",
+      ),
+    );
+
+    render(PaymentEntryPage, {
+      props: { ...basicProps },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersToNextTimerAsync();
+    await vi.advanceTimersToNextTimerAsync();
+
+    await fireEvent.submit(screen.getByTestId("payment-form"));
+    await vi.runAllTimersAsync();
+
+    expect(screen.getByText("Your card is not supported.")).not.toBeNull();
+    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+      eventName: SDKEventName.CheckoutPaymentFormGatewayError,
+      properties: {
+        mode: defaultPurchaseMode,
+        errorCode: "card_declined",
+        errorMessage: "Your card is not supported.",
       },
     });
   });

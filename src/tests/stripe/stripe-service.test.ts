@@ -265,25 +265,52 @@ describe("StripeService", () => {
       expect(StripeService.isStripeHandledFormError(error)).toBe(true);
     });
 
-    test("returns true for handled card error codes", () => {
-      const handledErrors = [
-        { type: "card_error", code: "card_declined" },
-        { type: "card_error", code: "expired_card" },
-        { type: "card_error", code: "incorrect_cvc" },
-        { type: "card_error", code: "incorrect_number" },
-      ];
+    test.each([
+      "card_declined",
+      "card_velocity_exceeded",
+      "expired_card",
+      "fraudulent",
+      "generic_decline",
+      "incorrect_cvc",
+      "incorrect_number",
+      "incorrect_zip",
+      "insufficient_funds",
+      "invalid_cvc",
+      "invalid_expiry_month",
+      "invalid_expiry_year",
+      "live_mode_test_card",
+      "lost_card",
+      "processing_error",
+      "stolen_card",
+      "test_mode_live_card",
+    ])(
+      "returns true for Payment Element auto-displayed error code %s",
+      (code) => {
+        const error = { type: "card_error", code } as StripeError;
 
-      handledErrors.forEach((error) => {
-        expect(
-          StripeService.isStripeHandledFormError(error as StripeError),
-        ).toBe(true);
-      });
+        expect(StripeService.isStripeHandledFormError(error)).toBe(true);
+      },
+    );
+
+    test("returns true when the decline code is displayed by the payment element", () => {
+      const error = {
+        type: "card_error",
+        code: "card_declined",
+        decline_code: "generic_decline",
+      } as StripeError;
+
+      expect(StripeService.isStripeHandledFormError(error)).toBe(true);
     });
 
-    test("returns false for unhandled error types", () => {
+    test("returns false for card errors not displayed by the payment element", () => {
       const unhandledErrors = [
         { type: "api_error", code: "card_declined" },
         { type: "card_error", code: "unknown_error" },
+        {
+          type: "card_error",
+          code: "card_declined",
+          decline_code: "card_not_supported",
+        },
       ];
 
       unhandledErrors.forEach((error) => {
@@ -315,6 +342,7 @@ describe("StripeService", () => {
       const error = {
         type: "card_error",
         code: "card_declined",
+        decline_code: "generic_decline",
         message: "Card was declined",
       } as StripeError;
 
@@ -324,6 +352,23 @@ describe("StripeService", () => {
         code: StripeServiceErrorCode.HandledFormError,
         gatewayErrorCode: "card_declined",
         message: "Card was declined",
+      });
+    });
+
+    test("maps card declines not displayed by the payment element as unhandled", () => {
+      const error = {
+        type: "card_error",
+        code: "card_declined",
+        decline_code: "card_not_supported",
+        message: "Your card is not supported.",
+      } as StripeError;
+
+      const result = StripeService.mapError(error);
+
+      expect(result).toEqual({
+        code: StripeServiceErrorCode.UnhandledFormError,
+        gatewayErrorCode: "card_declined",
+        message: "Your card is not supported.",
       });
     });
 
