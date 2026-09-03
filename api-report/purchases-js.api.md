@@ -325,6 +325,7 @@ export interface PresentedOfferingContext {
 export interface PresentExpressPurchaseButtonParams {
     customerEmail?: string;
     defaultLocale?: string;
+    externalPurchaseTokenId?: string;
     htmlTarget: HTMLElement;
     listener?: PurchaseListener;
     metadata?: PurchaseMetadata;
@@ -341,6 +342,7 @@ export interface PresentPaywallParams {
     readonly customerEmail?: string;
     readonly customVariables?: CustomVariables;
     readonly discountCode?: string;
+    readonly externalPurchaseTokenId?: string;
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
     readonly listener?: PaywallListener;
@@ -434,6 +436,7 @@ export interface PurchaseParams {
     customerEmail?: string;
     defaultLocale?: string;
     discountCode?: string;
+    externalPurchaseTokenId?: string;
     htmlTarget?: HTMLElement;
     metadata?: PurchaseMetadata;
     onDiscountCodeChanged?: (discountCode: string | null) => void;

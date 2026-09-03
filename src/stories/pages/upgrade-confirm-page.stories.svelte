@@ -1,6 +1,7 @@
 <script module lang="ts">
   import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
+  import StripeCheckoutPurchasesInner from "../../ui/stripe-checkout-purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
     brandingInfos,
@@ -21,6 +22,7 @@
     isConfirmingProductChange?: boolean;
     productChangeConfirmError?: string | null;
     isSandbox?: boolean;
+    useStripeCheckout?: boolean;
   };
 
   let { Story } = defineMeta({
@@ -47,28 +49,49 @@
   context: StoryContext<typeof PurchasesInner>,
 )}
   {@const brandingInfo = { ...brandingInfos[context.globals.brandingName] }}
-  <PurchasesInner
-    isSandbox={args.isSandbox ?? false}
-    currentPage="upgrade-confirm"
-    {brandingInfo}
-    productDetails={product}
-    purchaseOptionToUse={subscriptionOption}
-    lastError={null}
-    gatewayParams={{}}
-    managementUrl={null}
-    {purchaseOperationHelper}
-    isInElement={context.globals.viewport === "embedded"}
-    forceEnableWalletMethods={false}
-    customerEmail={null}
-    subscriptionChangeStartData={args.startData}
-    isConfirmingProductChange={args.isConfirmingProductChange ?? false}
-    productChangeConfirmError={args.productChangeConfirmError ?? null}
-    onConfirmProductChange={() => {}}
-    closeWithError={() => {}}
-    onContinue={() => {}}
-    onError={() => {}}
-    onClose={() => {}}
-  />
+  {#if args.useStripeCheckout}
+    <StripeCheckoutPurchasesInner
+      isSandbox={args.isSandbox ?? false}
+      currentPage="upgrade-confirm"
+      {brandingInfo}
+      productDetails={product}
+      purchaseOptionToUse={subscriptionOption}
+      lastError={null}
+      stripeBillingParams={null}
+      isInElement={context.globals.viewport === "embedded"}
+      subscriptionChangeStartData={args.startData}
+      isConfirmingProductChange={args.isConfirmingProductChange ?? false}
+      productChangeConfirmError={args.productChangeConfirmError ?? null}
+      onConfirmProductChange={() => {}}
+      closeWithError={() => {}}
+      onContinue={() => {}}
+      onError={() => {}}
+      onClose={() => {}}
+    />
+  {:else}
+    <PurchasesInner
+      isSandbox={args.isSandbox ?? false}
+      currentPage="upgrade-confirm"
+      {brandingInfo}
+      productDetails={product}
+      purchaseOptionToUse={subscriptionOption}
+      lastError={null}
+      gatewayParams={{}}
+      managementUrl={null}
+      {purchaseOperationHelper}
+      isInElement={context.globals.viewport === "embedded"}
+      forceEnableWalletMethods={false}
+      customerEmail={null}
+      subscriptionChangeStartData={args.startData}
+      isConfirmingProductChange={args.isConfirmingProductChange ?? false}
+      productChangeConfirmError={args.productChangeConfirmError ?? null}
+      onConfirmProductChange={() => {}}
+      closeWithError={() => {}}
+      onContinue={() => {}}
+      onError={() => {}}
+      onClose={() => {}}
+    />
+  {/if}
 {/snippet}
 
 <Story
@@ -79,6 +102,22 @@
 <Story
   name="Immediate Tax Calculated Later"
   args={{ startData: subscriptionChangeImmediateTaxPending }}
+/>
+
+<Story
+  name="Stripe App Credit With Tax"
+  args={{
+    startData: subscriptionChangeImmediateWithTax,
+    useStripeCheckout: true,
+  }}
+/>
+
+<Story
+  name="Stripe App Credit Without Tax"
+  args={{
+    startData: subscriptionChangeImmediateTaxPending,
+    useStripeCheckout: true,
+  }}
 />
 
 <Story

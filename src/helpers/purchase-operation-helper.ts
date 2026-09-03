@@ -134,6 +134,7 @@ interface CheckoutStartParams {
 
   // Customer data
   customerEmail?: string;
+  externalPurchaseTokenId?: string;
   metadata?: PurchaseMetadata;
   // Resolved from selectedLocale/defaultLocale at the public API layer.
   // Future: consider adding localeSource?: "selected" | "browser".
@@ -276,6 +277,7 @@ export class PurchaseOperationHelper {
     paywallId,
     paywallSessionId,
     customerEmail,
+    externalPurchaseTokenId,
     metadata,
     locale,
     attributionMetadata,
@@ -304,6 +306,7 @@ export class PurchaseOperationHelper {
         paywallId,
         paywallSessionId,
         customerEmail,
+        externalPurchaseTokenId,
         metadata,
         locale,
         attributionMetadata,

@@ -820,6 +820,33 @@ describe("postCheckoutStart request", () => {
     expect(result).toEqual(checkoutStartResponse);
   });
 
+  test("includes an external purchase token ID when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      externalPurchaseTokenId: "rcat_external_purchase_token_123",
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).toEqual(
+      expect.objectContaining({
+        external_purchase_token_id: "rcat_external_purchase_token_123",
+      }),
+    );
+  });
+
   test("includes a partial appearance override when provided", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
