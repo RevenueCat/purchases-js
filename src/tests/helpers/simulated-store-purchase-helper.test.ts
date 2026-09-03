@@ -137,12 +137,29 @@ describe("purchaseSimulatedStoreProduct", () => {
       customerInfo: expect.any(Object),
       redemptionInfo: null,
       operationSessionId: "test_store_operation_session_test-uuid-123",
+      customerEmail: undefined,
       storeTransaction: {
         storeTransactionId: expect.stringMatching(/^test_.*test-uuid-123$/),
         productIdentifier: "monthly_trial_intro",
         purchaseDate: expect.any(Date),
       },
     });
+  });
+
+  test("includes customerEmail from PurchaseParams when present", async () => {
+    const promise = purchaseSimulatedStoreProduct(
+      { ...mockPurchaseParams, customerEmail: "test@example.com" },
+      mockBackend,
+      "test-user-id",
+    );
+
+    const mountCall = vi.mocked(mount).mock.calls[0];
+    const props = mountCall[1].props;
+
+    await props?.onValidPurchase();
+    const result = await promise;
+
+    expect(result.customerEmail).toEqual("test@example.com");
   });
 
   test("rejects with error on failed purchase", async () => {

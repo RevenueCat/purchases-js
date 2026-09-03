@@ -29,6 +29,12 @@ export interface PurchaseResult {
   readonly storeTransaction: StoreTransaction;
 
   /**
+   * The email used for this purchase (checkout form or wallet).
+   * Undefined when the SDK did not collect one (e.g. some hosted/Paddle paths).
+   */
+  readonly customerEmail?: string;
+
+  /**
    * Attribution metadata returned by the checkout status response.
    * @internal
    */
