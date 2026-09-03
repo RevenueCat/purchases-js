@@ -552,12 +552,27 @@ export class StripeService {
         },
         new Date(introBillingStartDate ?? currentDate),
       );
-      const recurringPaymentEndDateInfo =
-        recurringPaymentEndDate.getTime() > currentDate.getTime() &&
-        (!introBillingStartDate ||
-          recurringPaymentEndDate.getTime() > introBillingStartDate.getTime())
-          ? { recurringPaymentEndDate }
-          : {};
+
+      const getRecurringPaymentEndDateInfo = () => {
+        const empty = {};
+        if (recurringPaymentEndDate.getTime() <= currentDate.getTime()) {
+          return empty;
+        }
+
+        if (!introBillingStartDate) {
+          return { recurringPaymentEndDate };
+        }
+
+        if (
+          recurringPaymentEndDate.getTime() > introBillingStartDate.getTime()
+        ) {
+          return { recurringPaymentEndDate };
+        }
+
+        return empty;
+      };
+
+      const recurringPaymentEndDateInfo = getRecurringPaymentEndDateInfo();
 
       // Apple calls this field trialBilling, but it is the only initial
       // recurring summary item available for a paid introductory phase.
