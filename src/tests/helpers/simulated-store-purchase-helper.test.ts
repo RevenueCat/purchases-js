@@ -137,6 +137,7 @@ describe("purchaseSimulatedStoreProduct", () => {
       customerInfo: expect.any(Object),
       redemptionInfo: null,
       operationSessionId: "test_store_operation_session_test-uuid-123",
+      customerEmail: undefined,
       storeTransaction: {
         storeTransactionId: expect.stringMatching(/^test_.*test-uuid-123$/),
         productIdentifier: "monthly_trial_intro",

@@ -40,6 +40,6 @@ export async function postSimulatedStoreReceipt(
     redemptionInfo: null,
     operationSessionId,
     storeTransaction,
-    ...(customerEmail ? { customerEmail } : {}),
+    customerEmail,
   };
 }
