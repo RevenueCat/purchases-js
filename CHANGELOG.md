@@ -1,3 +1,8 @@
+## 1.58.0
+## RevenueCat SDK
+### ✨ New Features
+* Return billing email on PurchaseResult (#1104) via Franco Correa (@francocorreasosa)
+
 ## 1.57.0
 ## RevenueCat SDK
 ### ✨ New Features
