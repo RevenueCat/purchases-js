@@ -65,6 +65,7 @@ export function purchaseSimulatedStoreProduct(
                 backend,
                 appUserId,
                 purchaseParams.paywallId,
+                purchaseParams.customerEmail,
               ),
             );
           } catch (error) {
