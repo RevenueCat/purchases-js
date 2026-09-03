@@ -543,18 +543,20 @@ export class StripeService {
         ? { recurringPaymentStartDate: introBillingStartDate }
         : {};
 
-      // Date where the sequence of introductory cycles ends. I.e. weekly, 4 cycles, ending one month from now.
-      const recurrentPaymentEndDate =
-        introCycleCount > 1
-          ? {
-              recurringPaymentEndDate: StripeService.nextDateForPeriod(
-                {
-                  ...introPricePhase.period,
-                  number: introPricePhase.period.number * (introCycleCount - 1),
-                },
-                new Date(introBillingStartDate ?? currentDate),
-              ),
-            }
+      // Date of the final introductory payment. Stripe only accepts this field
+      // when it is strictly in the future and after the first payment date.
+      const recurringPaymentEndDate = StripeService.nextDateForPeriod(
+        {
+          ...introPricePhase.period,
+          number: introPricePhase.period.number * (introCycleCount - 1),
+        },
+        new Date(introBillingStartDate ?? currentDate),
+      );
+      const recurringPaymentEndDateInfo =
+        recurringPaymentEndDate.getTime() > currentDate.getTime() &&
+        (!introBillingStartDate ||
+          recurringPaymentEndDate.getTime() > introBillingStartDate.getTime())
+          ? { recurringPaymentEndDate }
           : {};
 
       // Apple calls this field trialBilling, but it is the only initial
@@ -563,7 +565,7 @@ export class StripeService {
         ...baseBillingInfo,
         ...recurringPaymentIntervalUnitAndCount,
         ...recurringPaymentStartDate,
-        ...recurrentPaymentEndDate,
+        ...recurringPaymentEndDateInfo,
       };
     }
 

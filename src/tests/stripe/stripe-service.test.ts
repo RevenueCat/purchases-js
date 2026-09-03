@@ -24,6 +24,7 @@ import {
   subscriptionOptionWithDiscountOneTime,
   subscriptionOptionWithIntroPriceRecurring,
   subscriptionOptionWithSingleMonthIntroPriceRecurring,
+  subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
   subscriptionOptionWithTrialAndIntroPriceRecurring,
   trialProduct,
 } from "../../stories/fixtures";
@@ -706,6 +707,46 @@ describe("StripeService", () => {
               amount: 4_999,
               label: product.title,
               recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
+          },
+        },
+      });
+    });
+
+    test("subscription with a trial and single-cycle intro omits an end date equal to its start date", () => {
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          baseBreakdown,
+          subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+          translator,
+          managementUrl,
+          resolveDiscount(
+            baseBreakdown,
+            product,
+            subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+          ),
+        );
+
+      expect(result).toStrictEqual({
+        layout: baseLayout,
+        applePay: {
+          recurringPaymentRequest: {
+            paymentDescription: product.title,
+            managementURL: managementUrl,
+            trialBilling: {
+              amount: 149,
+              label: product.title,
+              recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentIntervalUnit: "day",
+              recurringPaymentIntervalCount: 7,
+            },
+            regularBilling: {
+              amount: 990,
+              label: product.title,
+              recurringPaymentStartDate: new Date(2025, 0, 15),
               recurringPaymentIntervalUnit: "month",
               recurringPaymentIntervalCount: 1,
             },
