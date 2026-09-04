@@ -79,6 +79,7 @@
   "error_page.error_title_stripe_missing_required_permission": "Fehlende Stripe-Berechtigung",
   "error_page.button_close": "Schließen",
   "error_page.error_message_stripe_invalid_tax_origin_address": "Der Kauf ist fehlgeschlagen, da die Steuerursprungsadresse ungültig ist. In der Produktion funktionieren Käufe ohne angewendete Steuern.",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "Der Kauf ist fehlgeschlagen, da die Steuerursprungsadresse ungültig ist.",
   "error_page.error_message_stripe_tax_not_active": "Der Kauf ist fehlgeschlagen, da Stripe Tax nicht aktiviert ist. In der Produktion funktionieren Käufe ohne angewendete Steuern.",
   "error_page.error_only_in_sandbox": "Diese Meldung wird nur in der Sandbox angezeigt.",
   "error_page.error_message_stripe_missing_required_permission": "Der Kauf ist fehlgeschlagen, da der Stripe-App eine erforderliche Berechtigung fehlt. In der Produktion funktionieren Käufe ohne angewendete Steuern.",

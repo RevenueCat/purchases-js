@@ -113,6 +113,7 @@ export enum LocalizationKeys {
   ErrorPageErrorMessageInvalidTaxLocation = "error_page.error_message_invalid_tax_location",
   ErrorPageErrorMessageStripeTaxNotActive = "error_page.error_message_stripe_tax_not_active",
   ErrorPageErrorMessageStripeInvalidTaxOriginAddress = "error_page.error_message_stripe_invalid_tax_origin_address",
+  ErrorPageErrorMessageStripeInvalidTaxOriginAddressDuringCheckout = "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout",
   ErrorPageErrorMessageStripeMissingRequiredPermission = "error_page.error_message_stripe_missing_required_permission",
   ErrorPageErrorMessageOnlyInSandbox = "error_page.error_only_in_sandbox",
   ErrorButtonTryAgain = "error_page.button_try_again",
