@@ -125,6 +125,7 @@ import { generateUUID } from "./helpers/uuid-helper";
 import {
   type PaywallComponentInteractionEventData,
   type PaywallEventType,
+  toPaywallInteractionEvent,
 } from "./behavioural-events/paywall-event";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
@@ -245,6 +246,8 @@ export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
 export type { PaywallListener } from "./entities/paywall-listener";
+export type { PaywallInteractionEvent } from "./entities/paywall-interaction-event";
+export { PAYWALL_COMPONENT_TYPES } from "./entities/paywall-interaction-event";
 export type { PurchaseListener } from "./entities/purchase-listener";
 export {
   CustomVariableValue,
@@ -1089,7 +1092,20 @@ export class Purchases {
         if (!paywallImpressionTracked || paywallCloseTracked) {
           return;
         }
-        this.eventsTracker.trackPaywallEvent(toInteractionEvent(data));
+        const event = this.eventsTracker.trackPaywallEvent(
+          toInteractionEvent(data),
+        );
+        if (!listener?.onInteraction) {
+          return;
+        }
+        const interaction = toPaywallInteractionEvent(event.toJSON());
+        if (interaction) {
+          try {
+            listener.onInteraction(interaction);
+          } catch (e) {
+            Logger.errorLog(`Error in listener.onInteraction: ${e}`);
+          }
+        }
       };
 
       const onComponentInteraction = (data: UIComponentInteractionData) => {

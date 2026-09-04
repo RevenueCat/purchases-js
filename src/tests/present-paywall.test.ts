@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { mount } from "svelte";
 import type { Offering } from "../entities/offerings";
 import type { PurchaseResult } from "../entities/purchase-result";
-import { Purchases } from "../main";
+import type { PaywallListener } from "../entities/paywall-listener";
+import type { PaywallInteractionEvent } from "../entities/paywall-interaction-event";
+import type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
+import { ErrorCode, Purchases } from "../main";
 import { configurePurchases } from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 
@@ -13,6 +16,8 @@ vi.mock("svelte", () => ({
 
 type PaywallMountProps = {
   onPurchaseClicked: (selectedPackageId: string) => void;
+  onBackClicked: () => void;
+  onComponentInteraction: (data: ComponentInteractionData) => void;
 };
 
 const createOfferingWithPaywall = (): Offering => {
@@ -112,6 +117,37 @@ describe("Purchases.presentPaywall()", () => {
         "rcat_external_purchase_token_123",
       );
     });
+  });
+
+  test("calls listener.onInteraction with the listener as receiver", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    class AnalyticsListener implements PaywallListener {
+      received: PaywallInteractionEvent[] = [];
+      onInteraction(event: PaywallInteractionEvent) {
+        this.received.push(event);
+      }
+    }
+    const listener = new AnalyticsListener();
+
+    const paywallPromise = purchases.presentPaywall({ offering, listener });
+    void paywallPromise.catch(() => undefined);
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    paywallProps!.onComponentInteraction({
+      componentType: "button",
+      componentName: "Terms",
+      componentValue: "navigate_to_terms",
+    });
+
+    await vi.waitFor(() => expect(listener.received).toHaveLength(1));
+    expect(listener.received[0].component_value).toBe("navigate_to_terms");
+
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
   });
 });
 
