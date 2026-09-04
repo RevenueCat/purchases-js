@@ -109,6 +109,7 @@ export class PurchaseFlowError extends Error {
       case BackendErrorCode.BackendGatewaySetupErrorStripeTaxNotActive:
         return PurchaseFlowErrorCode.StripeTaxNotActive;
       case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress:
+      case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddressCheckout:
         return PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress;
       case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
         return PurchaseFlowErrorCode.StripeMissingRequiredPermission;

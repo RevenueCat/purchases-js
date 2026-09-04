@@ -27,7 +27,11 @@ import {
   checkoutPrepareResponse,
   checkoutStartResponse,
 } from "../test-responses";
-import { BackendErrorCode, ErrorCode } from "../../entities/errors";
+import {
+  BackendErrorCode,
+  ErrorCode,
+  PurchasesError,
+} from "../../entities/errors";
 import { checkoutPricingResponse } from "../../stories/fixtures";
 
 describe("PurchaseOperationHelper", () => {
@@ -38,6 +42,23 @@ describe("PurchaseOperationHelper", () => {
   const testTraceId = "test-trace-id";
 
   const operationSessionId = checkoutStartResponse.operation_session_id;
+
+  test("maps the production invalid tax origin address error to the tax origin purchase flow error", () => {
+    const error = PurchaseFlowError.fromPurchasesError(
+      PurchasesError.getForBackendError(
+        BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddressCheckout,
+        "Invalid tax origin address",
+      ),
+      PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+    );
+
+    expect(error.errorCode).toBe(
+      PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress,
+    );
+    expect(error.extra?.backendErrorCode).toBe(
+      BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddressCheckout,
+    );
+  });
 
   beforeEach(() => {
     server = setupServer();

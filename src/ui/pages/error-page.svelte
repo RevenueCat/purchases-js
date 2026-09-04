@@ -3,6 +3,7 @@
     PurchaseFlowError,
     PurchaseFlowErrorCode,
   } from "../../helpers/purchase-operation-helper";
+  import { BackendErrorCode } from "../../entities/errors";
   import { getContext, onMount } from "svelte";
   import { Logger } from "../../helpers/logger.js";
   import MessageLayout from "../layout/message-layout.svelte";
@@ -131,11 +132,22 @@
           LocalizationKeys.ErrorPageErrorMessageStripeTaxNotActive,
           { errorCode: publicErrorCode },
         );
-      case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress:
-        return $translator.translate(
-          LocalizationKeys.ErrorPageErrorMessageStripeInvalidTaxOriginAddress,
+      case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress: {
+        const purchaseFailedMessage = $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageStripeInvalidTaxOriginAddressPurchaseFailed,
           { errorCode: publicErrorCode },
         );
+        if (
+          error.extra?.backendErrorCode ===
+          BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddressCheckout
+        ) {
+          return purchaseFailedMessage;
+        }
+        return `${purchaseFailedMessage} ${$translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageStripeInvalidTaxOriginAddressProduction,
+          { errorCode: publicErrorCode },
+        )}`;
+      }
       case PurchaseFlowErrorCode.StripeMissingRequiredPermission:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageStripeMissingRequiredPermission,
