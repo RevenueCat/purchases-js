@@ -60,11 +60,15 @@ export class GetProductsEndpoint implements Endpoint {
     const encodedProductIds = this.productIds
       .map(encodeURIComponent)
       .join("&id=");
-    const currencyParam = this.currency ? `&currency=${this.currency}` : "";
+    const currencyParam = this.currency
+      ? `&currency=${encodeURIComponent(this.currency)}`
+      : "";
     const discountCodeParam = this.discountCode
       ? `&discount_code=${encodeURIComponent(this.discountCode)}`
       : "";
-    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}${currencyParam}${discountCodeParam}`;
+    // Declares that this SDK echoes the returned price_id on /checkout/prepare
+    // and /checkout/start, so the backend may serve currency-substituted prices.
+    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}${currencyParam}${discountCodeParam}&supports_price_id=true`;
   }
 }
 

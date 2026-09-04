@@ -57,7 +57,7 @@ describe("getProducts endpoint", () => {
 
   test("has correct urlPath for common app user id", () => {
     expect(endpoint.urlPath()).toBe(
-      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=annual",
+      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=annual&supports_price_id=true",
     );
   });
 
@@ -68,7 +68,7 @@ describe("getProducts endpoint", () => {
         "productIdWithoutEncoding",
       ]).urlPath(),
     ).toBe(
-      "/rcbilling/v1/subscribers/some%2BUser%2Fid%23That%24Requires%26Encoding/products?id=product%2Bid%2FThat%24requires!Encoding&id=productIdWithoutEncoding",
+      "/rcbilling/v1/subscribers/some%2BUser%2Fid%23That%24Requires%26Encoding/products?id=product%2Bid%2FThat%24requires!Encoding&id=productIdWithoutEncoding&supports_price_id=true",
     );
   });
 
@@ -80,7 +80,7 @@ describe("getProducts endpoint", () => {
         "USD",
       ).urlPath(),
     ).toBe(
-      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=annual&currency=USD",
+      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=annual&currency=USD&supports_price_id=true",
     );
   });
 
@@ -93,7 +93,7 @@ describe("getProducts endpoint", () => {
         "SUMMER2024",
       ).urlPath(),
     ).toBe(
-      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=annual&discount_code=SUMMER2024",
+      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=annual&discount_code=SUMMER2024&supports_price_id=true",
     );
   });
 
@@ -106,7 +106,7 @@ describe("getProducts endpoint", () => {
         "SUMMER2024",
       ).urlPath(),
     ).toBe(
-      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=annual&currency=USD&discount_code=SUMMER2024",
+      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&id=annual&currency=USD&discount_code=SUMMER2024&supports_price_id=true",
     );
   });
 
@@ -119,7 +119,7 @@ describe("getProducts endpoint", () => {
         "code+with/special#chars",
       ).urlPath(),
     ).toBe(
-      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&discount_code=code%2Bwith%2Fspecial%23chars",
+      "/rcbilling/v1/subscribers/someAppUserId/products?id=monthly&discount_code=code%2Bwith%2Fspecial%23chars&supports_price_id=true",
     );
   });
 });
