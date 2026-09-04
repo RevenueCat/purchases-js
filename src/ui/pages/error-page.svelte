@@ -43,10 +43,16 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
-  const showOnlyInSandboxNote = $derived(
+  const isSandboxOnlyError = $derived(
     error.errorCode === PurchaseFlowErrorCode.StripeTaxNotActive ||
       error.errorCode === PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress ||
       error.errorCode === PurchaseFlowErrorCode.StripeMissingRequiredPermission,
+  );
+
+  const shouldShowCloseButton = $derived(
+    isSandboxOnlyError ||
+      error.errorCode ===
+        PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout,
   );
 
   onMount(() => {
@@ -60,7 +66,7 @@
       return $translator.translate(LocalizationKeys.ErrorPageCloseButtonTitle, {
         appName: appName ?? "App",
       });
-    } else if (showOnlyInSandboxNote) {
+    } else if (shouldShowCloseButton) {
       return $translator.translate(LocalizationKeys.ErrorButtonClose);
     } else {
       return $translator.translate(LocalizationKeys.ErrorButtonTryAgain);
@@ -86,6 +92,7 @@
           LocalizationKeys.ErrorPageErrorTitleStripeTaxNotActive,
         );
       case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress:
+      case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorTitleStripeInvalidTaxOriginAddress,
         );
@@ -132,10 +139,22 @@
           { errorCode: publicErrorCode },
         );
       case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress:
-        return $translator.translate(
-          LocalizationKeys.ErrorPageErrorMessageStripeInvalidTaxOriginAddress,
+      case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout: {
+        const purchaseFailedMessage = $translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageStripeInvalidTaxOriginAddressPurchaseFailed,
           { errorCode: publicErrorCode },
         );
+        if (
+          error.errorCode ===
+          PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout
+        ) {
+          return purchaseFailedMessage;
+        }
+        return `${purchaseFailedMessage} ${$translator.translate(
+          LocalizationKeys.ErrorPageErrorMessageStripeInvalidTaxOriginAddressProduction,
+          { errorCode: publicErrorCode },
+        )}`;
+      }
       case PurchaseFlowErrorCode.StripeMissingRequiredPermission:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageStripeMissingRequiredPermission,
@@ -183,7 +202,7 @@
   {/snippet}
 
   {#snippet message()}
-    {#if showOnlyInSandboxNote}
+    {#if isSandboxOnlyError}
       <span class="rc-sandbox-only-error">
         <Localized key={LocalizationKeys.ErrorPageErrorMessageOnlyInSandbox} />
       </span>
@@ -192,7 +211,7 @@
     {/if}
 
     {getTranslatedErrorMessage()}
-    {#if !showOnlyInSandboxNote && supportEmail}
+    {#if !isSandboxOnlyError && supportEmail}
       <Localized key={getTranslatedSupportMessageKey()} />
       <a href="mailto:{supportEmail}">{supportEmail}</a>.
     {/if}
