@@ -23,6 +23,7 @@ import {
 } from "../../networking/responses/checkout-status-response";
 import { type IEventsTracker } from "../../behavioural-events/events-tracker";
 import {
+  checkoutCompleteResponse,
   checkoutPrepareResponse,
   checkoutStartResponse,
 } from "../test-responses";
@@ -891,7 +892,220 @@ describe("PurchaseOperationHelper", () => {
       },
       customerEmail: "test-email",
     });
-    await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    const pollResult =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(pollResult.customerEmail).toBeUndefined();
+  });
+
+  test("pollCurrentPurchaseForCompletion includes the email passed to checkoutComplete", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T04:21:11Z",
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      customerEmail: "test-email",
+    });
+    await purchaseOperationHelper.checkoutComplete({
+      email: "typed@example.com",
+    });
+    const pollResult =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(pollResult.customerEmail).toEqual("typed@example.com");
+  });
+
+  test("pollCurrentPurchaseForCompletion omits customerEmail when checkoutComplete has no email", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T04:21:11Z",
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    await purchaseOperationHelper.checkoutComplete();
+    const pollResult =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(pollResult.customerEmail).toBeUndefined();
+  });
+
+  test("pollCurrentPurchaseForCompletion does not leak customerEmail to a later purchase", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T04:21:11Z",
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    await purchaseOperationHelper.checkoutComplete({
+      email: "typed@example.com",
+    });
+    const firstPoll =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(firstPoll.customerEmail).toEqual("typed@example.com");
+
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    const secondPoll =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(secondPoll.customerEmail).toBeUndefined();
+  });
+
+  test("pollCurrentPurchaseForCompletion does not leak customerEmail after abandoned checkoutComplete", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    await purchaseOperationHelper.checkoutComplete({
+      email: "typed@example.com",
+    });
+
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T04:21:11Z",
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    const pollResult =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(pollResult.customerEmail).toBeUndefined();
   });
 
   test("pollCurrentPurchaseForCompletion success with redemption info and operation session id if poll returns success", async () => {
