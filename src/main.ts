@@ -852,6 +852,7 @@ export class Purchases {
         metadata: paywallParams.metadata,
         brandingAppearanceOverride: paywallParams.brandingAppearanceOverride,
         showDiscountCodeField: paywallParams.showDiscountCodeField,
+        disableExpressCheckout: paywallParams.disableExpressCheckout,
         discountCode: paywallParams.discountCode,
         onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
         selectedLocale: checkoutLocale,
@@ -1968,6 +1969,7 @@ export class Purchases {
       defaultLocale = englishLocale,
       skipSuccessPage = false,
       showDiscountCodeField = false,
+      disableExpressCheckout = false,
       discountCode,
       onDiscountCodeChanged,
     } = params;
@@ -2093,6 +2095,7 @@ export class Purchases {
           customTranslations: params.labelsOverride,
           termsAndConditionsUrl,
           showDiscountCodeField,
+          disableExpressCheckout,
           discountCode,
           onDiscountCodeChanged,
           skipSuccessPage,

@@ -75,6 +75,7 @@
     purchaseOperationHelper: PurchaseOperationHelper;
     customerEmail: string | null;
     forceEnableWalletMethods: boolean;
+    disableExpressCheckout?: boolean;
     defaultPriceBreakdown?: PriceBreakdown;
     termsAndConditionsUrl?: string | null;
     onContinue: () => void;
@@ -116,6 +117,7 @@
     purchaseOperationHelper,
     customerEmail,
     forceEnableWalletMethods,
+    disableExpressCheckout = false,
     defaultPriceBreakdown,
     termsAndConditionsUrl,
     onContinue,
@@ -845,6 +847,7 @@
           {elementsConfiguration}
           {brandingInfo}
           {forceEnableWalletMethods}
+          {disableExpressCheckout}
           skipEmail={!!customerEmail}
           onLoadingComplete={handleStripeLoadingComplete}
           onError={handleStripeElementError}
@@ -853,7 +856,7 @@
           onAddressInfoChange={handleAddressInfoChange}
           onExpressCheckoutElementSubmit={handleExpressCheckoutElementSubmit}
           {expressCheckoutOptions}
-          allowExpressCheckout={!checkoutConsentRequired ||
+          expressCheckoutPermittedByConsent={!checkoutConsentRequired ||
             checkoutConsentAccepted}
         />
       </div>

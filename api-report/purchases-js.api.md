@@ -413,6 +413,7 @@ export interface PresentPaywallParams {
     readonly brandingAppearanceOverride?: Partial<BrandingAppearance>;
     readonly customerEmail?: string;
     readonly customVariables?: CustomVariables;
+    readonly disableExpressCheckout?: boolean;
     readonly discountCode?: string;
     readonly externalPurchaseTokenId?: string;
     readonly hideBackButtons?: boolean;
@@ -507,6 +508,7 @@ export interface PurchaseParams {
     brandingAppearanceOverride?: Partial<BrandingAppearance>;
     customerEmail?: string;
     defaultLocale?: string;
+    disableExpressCheckout?: boolean;
     discountCode?: string;
     externalPurchaseTokenId?: string;
     htmlTarget?: HTMLElement;

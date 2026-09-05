@@ -270,12 +270,21 @@ export class StripeService {
   static createPaymentElement(
     elements: StripeElements,
     appName?: string | null,
+    disableExpressCheckout = false,
   ) {
     return elements.create("payment", {
       business: appName ? { name: appName } : undefined,
       layout: {
         type: "tabs",
       },
+      ...(disableExpressCheckout
+        ? {
+            wallets: {
+              applePay: "never" as const,
+              googlePay: "never" as const,
+            },
+          }
+        : {}),
       terms: {
         applePay: "never",
         auBecsDebit: "never",

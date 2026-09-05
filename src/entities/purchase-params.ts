@@ -149,6 +149,16 @@ export interface PurchaseParams {
   showDiscountCodeField?: boolean;
 
   /**
+   * Whether to disable Stripe Express Checkout for Apple Pay and Google Pay.
+   * When set to `true`, Express Checkout is not initialized. Defaults to
+   * `false`, which lets Stripe determine wallet availability.
+   *
+   * This option only affects RevenueCat Web Billing checkout. It does not
+   * affect standalone Express Purchase buttons.
+   */
+  disableExpressCheckout?: boolean;
+
+  /**
    * @experimental
    * Initial discount code to apply at checkout.
    * For Web Billing this is displayed as applied in the checkout UI.

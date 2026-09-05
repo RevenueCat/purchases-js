@@ -40,6 +40,7 @@
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
     brandingInfo: BrandingInfoResponse | null;
     forceEnableWalletMethods: boolean;
+    disableExpressCheckout?: boolean;
     skipEmail: boolean;
     onLoadingComplete: () => void;
     onError: (error: StripeServiceError) => void;
@@ -57,7 +58,7 @@
       paymentMethod: string,
       emailValue: string,
     ) => void;
-    allowExpressCheckout?: boolean;
+    expressCheckoutPermittedByConsent?: boolean;
   }
 
   let {
@@ -69,6 +70,7 @@
     expressCheckoutOptions,
     brandingInfo,
     forceEnableWalletMethods,
+    disableExpressCheckout = false,
     skipEmail,
     onLoadingComplete,
     onError,
@@ -76,7 +78,7 @@
     onPaymentInfoChange,
     onAddressInfoChange,
     onExpressCheckoutElementSubmit,
-    allowExpressCheckout = true,
+    expressCheckoutPermittedByConsent = true,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -194,7 +196,7 @@
     if (
       emailElementReadyForSubmission &&
       paymentElementReadyForSubmission &&
-      expressCheckoutElementReadyForSubmission &&
+      (disableExpressCheckout || expressCheckoutElementReadyForSubmission) &&
       addressElementReadyForSubmission
     ) {
       Logger.debugLog(
@@ -323,15 +325,17 @@
 
 {#if elements}
   <div class="rc-elements">
-    <ExpressCheckoutElement
-      {elements}
-      onError={onStripeElementsLoadingError}
-      onReady={onExpressCheckoutElementReady}
-      onSubmit={onExpressCheckoutElementSubmit}
-      {expressCheckoutOptions}
-      {forceEnableWalletMethods}
-      {allowExpressCheckout}
-    />
+    {#if !disableExpressCheckout}
+      <ExpressCheckoutElement
+        {elements}
+        onError={onStripeElementsLoadingError}
+        onReady={onExpressCheckoutElementReady}
+        onSubmit={onExpressCheckoutElementSubmit}
+        {expressCheckoutOptions}
+        {forceEnableWalletMethods}
+        {expressCheckoutPermittedByConsent}
+      />
+    {/if}
     {#if !skipEmail}
       <LinkAuthenticationElement
         {elements}
@@ -343,6 +347,7 @@
     <PaymentElement
       {elements}
       {brandingInfo}
+      {disableExpressCheckout}
       onReady={onPaymentElementReady}
       onChange={onPaymentElementChange}
       onError={onStripeElementsLoadingError}

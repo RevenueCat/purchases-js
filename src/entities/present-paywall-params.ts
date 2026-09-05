@@ -70,6 +70,17 @@ export interface PresentPaywallParams {
   readonly showDiscountCodeField?: boolean;
 
   /**
+   * Whether to disable Stripe Express Checkout for Apple Pay and Google Pay.
+   * When set to `true`, Express Checkout is not initialized. Defaults to
+   * `false`, which lets Stripe determine wallet availability.
+   *
+   * This option only affects the RevenueCat Web Billing checkout opened from
+   * the paywall. It does not affect Express Purchase buttons rendered directly
+   * in the paywall.
+   */
+  readonly disableExpressCheckout?: boolean;
+
+  /**
    * @experimental
    * Initial discount code to apply to the checkout when one already exists
    * outside of the paywall UI, for example in the hosting page's URL.

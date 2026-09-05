@@ -48,6 +48,31 @@ describe("purchase", () => {
     });
   });
 
+  test("forwards the Express Checkout mode to the purchase UI", async () => {
+    let purchaseProps: Record<string, unknown> | undefined;
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      purchaseProps = options.props as Record<string, unknown>;
+      return vi.fn();
+    });
+
+    const purchases = configurePurchases();
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+
+    void purchases.purchase({
+      rcPackage: packageToBuy!,
+      disableExpressCheckout: true,
+    });
+
+    await vi.waitFor(() => {
+      expect(purchaseProps).toEqual(
+        expect.objectContaining({
+          disableExpressCheckout: true,
+        }),
+      );
+    });
+  });
+
   test("forwards an external purchase token ID to the express purchase UI", async () => {
     let purchaseProps: Record<string, unknown> | undefined;
     vi.mocked(mount).mockImplementation((_component, options) => {

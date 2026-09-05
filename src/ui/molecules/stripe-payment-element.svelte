@@ -19,10 +19,17 @@
     onReady: () => void | Promise<void>;
     brandingInfo: BrandingInfoResponse | null;
     elements: StripeElements;
+    disableExpressCheckout?: boolean;
   }
 
-  const { onChange, onError, onReady, brandingInfo, elements }: Props =
-    $props();
+  const {
+    onChange,
+    onError,
+    onReady,
+    brandingInfo,
+    elements,
+    disableExpressCheckout = false,
+  }: Props = $props();
 
   let paymentElement: StripePaymentElement | null = null;
   const paymentElementId = "payment-element";
@@ -39,6 +46,7 @@
       paymentElement = StripeService.createPaymentElement(
         elements,
         brandingInfo?.app_name,
+        disableExpressCheckout,
       );
       paymentElement.mount(`#${paymentElementId}`);
       paymentElement.on("ready", onReady);

@@ -65,6 +65,7 @@
     isInElement: boolean;
     skipSuccessPage: boolean;
     showDiscountCodeField: boolean;
+    disableExpressCheckout?: boolean;
     discountCode?: string;
     onDiscountCodeChanged?: (discountCode: string | null) => void;
     termsAndConditionsUrl?: string;
@@ -102,6 +103,7 @@
     isInElement,
     skipSuccessPage = false,
     showDiscountCodeField = false,
+    disableExpressCheckout = false,
     discountCode = undefined,
     onDiscountCodeChanged,
     termsAndConditionsUrl,
@@ -546,6 +548,7 @@
   {isInElement}
   {termsAndConditionsUrl}
   {showDiscountCodeField}
+  {disableExpressCheckout}
   {draftDiscountCode}
   {appliedDiscountCode}
   {discountCodeError}
