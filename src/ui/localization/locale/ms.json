@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "Sahkan jadual",
   "upgrade_confirm_page.on_file": "Dalam rekod",
   "credit_for_unused_time.title": "Kredit untuk masa tidak digunakan",
-  "credit_for_unused_time.message": "Kaedah pembayaran anda akan dicaj untuk perbezaan antara langganan, dengan kredit untuk masa tidak digunakan pada langganan {{previousProductName}} anda."
+  "credit_for_unused_time.message": "Kaedah pembayaran anda akan dicaj untuk perbezaan antara langganan, dengan kredit untuk masa tidak digunakan pada langganan {{previousProductName}} anda.",
+  "paddle_checkout.return_to": "Kembali ke {{appName}}",
+  "paddle_order_summary.billed_frequency": "dibilkan {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "{{firstPeriod}} pertama, kemudian {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "termasuk cukai",
+  "paddle_order_summary.due_on": "Perlu dibayar pada {{date}}"
 }

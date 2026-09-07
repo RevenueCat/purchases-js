@@ -936,6 +936,23 @@ describe("PaddlePurchasesUI", () => {
         ).toBeInTheDocument();
       });
 
+      test("translates the summary labels for a non-English locale", async () => {
+        // "Due on" and "billed" used to be hardcoded English, so a French
+        // checkout rendered "Due on 14 août 2026" and "billed mensuel".
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+          selectedLocale: "fr",
+        });
+
+        expect(
+          await screen.findByText("Dû le 14 août 2026"),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText("premier 1 semaine, puis 20,00 $ mensuel"),
+        ).toBeInTheDocument();
+        expect(screen.queryByText(/^Due on /)).not.toBeInTheDocument();
+      });
+
       test("describes a same-length intro that only differs in price", async () => {
         // A first month at $3 against a $20 monthly base: the durations match,
         // so only the amounts reveal the step-up.

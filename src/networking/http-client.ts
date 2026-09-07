@@ -3,7 +3,10 @@ import type { BackendErrorCode } from "../entities/errors";
 import { ErrorCode, ErrorCodeUtils, PurchasesError } from "../entities/errors";
 import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
-import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
+import {
+  isSimulatedStoreApiKey,
+  isWebBillingSandboxApiKey,
+} from "../helpers/api-key-helper";
 import type { HttpConfig } from "../entities/http-config";
 import { Purchases } from "../main";
 
@@ -154,7 +157,7 @@ export function getHeaders(
     [ACCEPT_HEADER]: "application/json",
     [PLATFORM_HEADER]: "web",
     [VERSION_HEADER]: VERSION,
-    [IS_SANDBOX_HEADER]: `${isWebBillingSandboxApiKey(apiKey)}`,
+    [IS_SANDBOX_HEADER]: `${isWebBillingSandboxApiKey(apiKey) || isSimulatedStoreApiKey(apiKey)}`,
   };
   const platformInfo = Purchases.getPlatformInfo();
   if (platformInfo) {

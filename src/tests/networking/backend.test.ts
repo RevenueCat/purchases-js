@@ -97,7 +97,7 @@ describe("httpConfig is setup correctly", () => {
     server.events.on("request:start", (req) => {
       requestPerformed = req.request;
     });
-    backend = new Backend("test_api_key");
+    backend = new Backend("rcb_api_key");
     await backend.getCustomerInfo("someAppUserId");
     const headers = requestPerformed?.headers;
     expect(headers).not.toBeNull();
@@ -107,6 +107,24 @@ describe("httpConfig is setup correctly", () => {
     expect(headers.get("X-Platform-Flavor")).toBeNull();
     expect(headers.get("X-Platform-Flavor-Version")).toBeNull();
     expect(headers.get("X-Is-Sandbox")).toEqual("false");
+  });
+
+  test.each([
+    ["rcb_sb_api_key", "true"],
+    ["test_api_key", "true"],
+    ["rcb_api_key", "false"],
+  ])("X-Is-Sandbox header for %s is %s", async (apiKey, expected) => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend(apiKey);
+    await backend.getCustomerInfo("someAppUserId");
+    expect(requestPerformed?.headers.get("X-Is-Sandbox")).toEqual(expected);
   });
 
   test("expected platformInfo headers are sent", async () => {
