@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "일정 확인",
   "upgrade_confirm_page.on_file": "등록됨",
   "credit_for_unused_time.title": "미사용 시간에 대한 크레딧",
-  "credit_for_unused_time.message": "회원님의 결제 수단으로 구독 간의 차액이 청구되며, {{previousProductName}} 구독의 미사용 시간에 대한 크레딧이 적용됩니다."
+  "credit_for_unused_time.message": "회원님의 결제 수단으로 구독 간의 차액이 청구되며, {{previousProductName}} 구독의 미사용 시간에 대한 크레딧이 적용됩니다.",
+  "paddle_checkout.return_to": "{{appName}}(으)로 돌아가기",
+  "paddle_order_summary.billed_frequency": "{{frequency}} 청구",
+  "paddle_order_summary.intro_then_recurring": "첫 {{firstPeriod}}, 이후 {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "세금 포함",
+  "paddle_order_summary.due_on": "{{date}} 결제 예정"
 }

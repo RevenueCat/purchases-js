@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "Підтвердити розклад",
   "upgrade_confirm_page.on_file": "Збережено",
   "credit_for_unused_time.title": "Кредит за невикористаний час",
-  "credit_for_unused_time.message": "З вашого способу оплати буде списано різницю між підписками, з урахуванням кредиту за невикористаний час вашої підписки на {{previousProductName}}."
+  "credit_for_unused_time.message": "З вашого способу оплати буде списано різницю між підписками, з урахуванням кредиту за невикористаний час вашої підписки на {{previousProductName}}.",
+  "paddle_checkout.return_to": "Повернутися до {{appName}}",
+  "paddle_order_summary.billed_frequency": "оплата {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "перший {{firstPeriod}}, потім {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "вкл. податок",
+  "paddle_order_summary.due_on": "До сплати {{date}}"
 }
