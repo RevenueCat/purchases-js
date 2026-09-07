@@ -216,11 +216,16 @@ jobs:
       - image: cimg/ruby:3.3.0-node
     steps:
       - checkout
+      # Not using install-dependencies on purpose: it overwrites the tracked .npmrc
+      # and creates .pnpm-store, both would trip ensure_git_status_clean in the lane.
+      # pnpm add installs what it needs. The tracked .npmrc already excludes
+      # purchases-ui-js from minimum-release-age.
+      - revenuecat/install-mise-tools:
+          tools: ruby,node
       - revenuecat/install-gem-unix-dependencies:
           cache-version: v1
       - revenuecat/trust-github-key
       - revenuecat/setup-git-credentials
-      - install-dependencies
       - run:
           name: Update purchases-ui-js to latest version
           command: bundle exec fastlane open_pr_upgrading_dependencies

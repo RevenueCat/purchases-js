@@ -162,7 +162,7 @@ lane :open_pr_upgrading_dependencies do |options|
     sh("pnpm", "add", "#{PURCHASES_UI_JS_PACKAGE}@#{latest_version}", "--save-exact")
   end
 
-  commit_all_changes(commit_message: message)
+  commit_current_changes(commit_message: message)
   push_to_git_remote(set_upstream: true, remote_branch: branch)
 
   labels = ["pr:dependencies"]

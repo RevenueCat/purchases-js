@@ -1,7 +1,3 @@
 //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
 
 minimum-release-age=1440
-
-# purchases-ui-js is our own package and gets bumped right after it is published.
-# Exclude it from the cooldown, same as the tracked .npmrc.
-minimum-release-age-exclude[]=@revenuecat/purchases-ui-js
