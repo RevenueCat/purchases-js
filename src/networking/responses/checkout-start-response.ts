@@ -8,12 +8,31 @@ export interface StripeBillingParams {
   stripe_account_id: string;
 }
 
+export interface StripeBillingApplePayParams {
+  publishable_api_key: string;
+  stripe_account_id: string;
+  account_country: string | null;
+  amount_in_micros: number;
+  currency: string;
+  expires_at: string;
+}
+
 export type CheckoutMode = "purchase" | "subscription_change";
 
 export interface WebBillingCheckoutStartResponse {
   operation_session_id: string;
   gateway_params: GatewayParams;
   stripe_billing_params: StripeBillingParams | null;
+  management_url: string;
+  paddle_billing_params: null;
+  checkout_mode: "purchase";
+}
+
+export interface StripeBillingApplePayCheckoutStartResponse {
+  operation_session_id: string;
+  gateway_params: null;
+  stripe_billing_params: null;
+  stripe_billing_apple_pay_params: StripeBillingApplePayParams;
   management_url: string;
   paddle_billing_params: null;
   checkout_mode: "purchase";
@@ -41,4 +60,5 @@ export interface PaddleCheckoutStartResponse {
 
 export type CheckoutStartResponse =
   | WebBillingCheckoutStartResponse
+  | StripeBillingApplePayCheckoutStartResponse
   | PaddleCheckoutStartResponse;

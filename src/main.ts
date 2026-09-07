@@ -48,7 +48,11 @@ import {
   validateAppUserId,
   validateProxyUrl,
 } from "./helpers/configuration-validators";
-import { type PurchaseParams } from "./entities/purchase-params";
+import type {
+  PrepareQuickPurchaseParams,
+  PurchaseParams,
+  QuickPurchasePreparationResult,
+} from "./entities/purchase-params";
 import { type ProductChangeResult } from "./entities/product-change-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import {
@@ -59,7 +63,10 @@ import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
 import type { BrandingAppearance } from "./entities/branding";
 import { requiresLoadedResources } from "./helpers/decorators";
-import { resolveTermsAndConditionsUrl } from "./helpers/checkout-consent-helper";
+import {
+  isCheckoutConsentRequired,
+  resolveTermsAndConditionsUrl,
+} from "./helpers/checkout-consent-helper";
 import {
   enrichPackagesWithPlacementContext,
   getOfferingIdForPlacement,
@@ -159,6 +166,11 @@ import {
   applyBrandingAppearanceOverride,
   mergeBrandingAppearanceOverrides,
 } from "./helpers/branding-appearance-helper";
+import {
+  type PreparedStripeBillingApplePayPurchase,
+  prepareStripeBillingApplePayPurchase,
+  presentStripeBillingApplePayPurchase,
+} from "./stripe/stripe-billing-apple-pay-purchase";
 
 type UIComponentInteractionFields = UIComponentInteractionData & {
   componentURL?: string;
@@ -227,7 +239,9 @@ export type {
   MetaCapiAttributionMetadata,
   MetaCanonicalAttributionMetadata,
   PurchaseResponseAttributionMetadata,
+  PrepareQuickPurchaseParams,
   PurchaseParams,
+  QuickPurchasePreparationResult,
 } from "./entities/purchase-params";
 export type {
   ProductChangeInfo,
@@ -259,6 +273,38 @@ export type {
 } from "./entities/present-express-purchase-button-params";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
+
+interface StripeBillingQuickPurchaseState {
+  key: string;
+  purchase: PreparedStripeBillingApplePayPurchase;
+}
+
+interface StripeBillingQuickPurchaseContext {
+  key: string;
+  params: PurchaseParams;
+  brandingInfo: BrandingInfoResponse | null;
+  purchaseOption: NonNullable<PurchaseParams["purchaseOption"]>;
+  translator: Translator;
+}
+
+function stableSerialize(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map(stableSerialize).join(",")}]`;
+  }
+  if (value !== null && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .filter(([, entryValue]) => {
+        return entryValue !== undefined && typeof entryValue !== "function";
+      })
+      .sort(([left], [right]) => left.localeCompare(right));
+    return `{${entries
+      .map(([key, entryValue]) => {
+        return `${JSON.stringify(key)}:${stableSerialize(entryValue)}`;
+      })
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -308,6 +354,16 @@ export class Purchases {
 
   /** @internal */
   private cachedCurrentOffering: Offering | null = null;
+
+  /** @internal */
+  private stripeBillingQuickPurchaseState: StripeBillingQuickPurchaseState | null =
+    null;
+
+  /** @internal */
+  private stripeBillingQuickPurchasePreparation: {
+    key: string;
+    promise: Promise<QuickPurchasePreparationResult>;
+  } | null = null;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -1550,6 +1606,211 @@ export class Purchases {
   }
 
   /**
+   * Prepares a package-specific Stripe Billing purchase so a later
+   * {@link Purchases.purchase} call can present Apple Pay directly from the
+   * customer's click.
+   *
+   * Pass the same purchase context to both methods. A changed or expired
+   * context falls back to normal Stripe Checkout.
+   */
+  @requiresLoadedResources
+  public async prepareForQuickPurchases(
+    params: PrepareQuickPurchaseParams,
+  ): Promise<QuickPurchasePreparationResult> {
+    if (!isStripeApiKey(this._API_KEY)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Package-specific quick purchases are only available with Stripe Billing API keys.",
+      );
+    }
+
+    const context = this.resolveStripeBillingQuickPurchaseContext(params);
+    if (!context) {
+      this.stripeBillingQuickPurchaseState = null;
+      return { applePayAvailable: false };
+    }
+
+    const existingState = this.stripeBillingQuickPurchaseState;
+    if (
+      existingState?.key === context.key &&
+      Number.isFinite(existingState.purchase.expiresAt) &&
+      existingState.purchase.expiresAt > Date.now()
+    ) {
+      return { applePayAvailable: true };
+    }
+
+    const existingPreparation = this.stripeBillingQuickPurchasePreparation;
+    if (existingPreparation?.key === context.key) {
+      return await existingPreparation.promise;
+    }
+
+    this.stripeBillingQuickPurchaseState = null;
+    Logger.debugLog(
+      `Preparing Stripe Billing Apple Pay for package ${context.params.rcPackage.identifier}`,
+    );
+    const promise = this.prepareStripeBillingQuickPurchase(context)
+      .then((purchase) => {
+        if (this.stripeBillingQuickPurchasePreparation?.key !== context.key) {
+          return { applePayAvailable: false };
+        }
+        this.stripeBillingQuickPurchaseState = purchase
+          ? { key: context.key, purchase }
+          : null;
+        return { applePayAvailable: purchase !== null };
+      })
+      .catch((error) => {
+        if (this.stripeBillingQuickPurchasePreparation?.key === context.key) {
+          this.stripeBillingQuickPurchaseState = null;
+        }
+        throw error;
+      })
+      .finally(() => {
+        if (this.stripeBillingQuickPurchasePreparation?.key === context.key) {
+          this.stripeBillingQuickPurchasePreparation = null;
+        }
+      });
+    this.stripeBillingQuickPurchasePreparation = {
+      key: context.key,
+      promise,
+    };
+    return await promise;
+  }
+
+  /** @internal */
+  private async prepareStripeBillingQuickPurchase(
+    context: StripeBillingQuickPurchaseContext,
+  ): Promise<PreparedStripeBillingApplePayPurchase | null> {
+    const { params, brandingInfo, purchaseOption, translator } = context;
+    const product = params.rcPackage.webBillingProduct;
+    const operationHelper = new PurchaseOperationHelper(
+      this.backend,
+      this.eventsTracker,
+    );
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+    const startResponse = await operationHelper.checkoutStart({
+      appUserId: this._appUserId,
+      productId: product.identifier,
+      purchaseOption,
+      presentedOfferingContext: product.presentedOfferingContext,
+      workflowPurchaseContext: params.workflowPurchaseContext,
+      paywallId: params.paywallId,
+      paywallSessionId: params.paywallSessionId,
+      customerEmail: params.customerEmail,
+      externalPurchaseTokenId: params.externalPurchaseTokenId,
+      metadata,
+      locale: translator.selectedLocale,
+      attributionMetadata: params.attributionMetadata,
+      appearanceOverride: params.brandingAppearanceOverride,
+      purchaseFlow: "apple_pay",
+    });
+
+    const purchase = await prepareStripeBillingApplePayPurchase({
+      startResponse,
+      product,
+      purchaseOption,
+      brandingInfo,
+      translator,
+      purchaseOperationHelper: operationHelper,
+    });
+    Logger.debugLog(
+      purchase
+        ? "Stripe Billing Apple Pay purchase is ready"
+        : "Apple Pay is unavailable; purchase will use Stripe Checkout",
+    );
+    return purchase;
+  }
+
+  /** @internal */
+  private resolveStripeBillingQuickPurchaseContext(
+    params: PrepareQuickPurchaseParams | PurchaseParams,
+  ): StripeBillingQuickPurchaseContext | null {
+    const appearanceOverride = mergeBrandingAppearanceOverrides(
+      this._brandingAppearanceOverride,
+      params.brandingAppearanceOverride,
+    );
+    const effectiveParams: PurchaseParams = appearanceOverride
+      ? { ...params, brandingAppearanceOverride: appearanceOverride }
+      : params;
+    const brandingInfo = applyBrandingAppearanceOverride(
+      this._brandingInfo,
+      appearanceOverride,
+    );
+    const product = effectiveParams.rcPackage.webBillingProduct;
+    const purchaseOption =
+      effectiveParams.purchaseOption ?? product.defaultPurchaseOption;
+    const termsAndConditionsUrl = resolveTermsAndConditionsUrl({
+      brandingInfo,
+      termsAndConditionsUrl: effectiveParams.termsAndConditionsUrl,
+    });
+    const skipReasons: string[] = [];
+    if (this.resolveProductChange(effectiveParams)) {
+      skipReasons.push("product change requested");
+    }
+    if (effectiveParams.discountCode || effectiveParams.showDiscountCodeField) {
+      skipReasons.push("discount code flow requested");
+    }
+    if (
+      isCheckoutConsentRequired({
+        brandingInfo,
+        termsAndConditionsUrl,
+        productDetails: product,
+      })
+    ) {
+      skipReasons.push("checkout consent required");
+    }
+    if (skipReasons.length > 0) {
+      Logger.debugLog(
+        `Stripe Billing Apple Pay skipped: ${skipReasons.join(", ")}; using checkout`,
+      );
+      return null;
+    }
+
+    const selectedLocale =
+      effectiveParams.selectedLocale ??
+      effectiveParams.defaultLocale ??
+      englishLocale;
+    const defaultLocale = effectiveParams.defaultLocale ?? englishLocale;
+    const translator = new Translator(
+      effectiveParams.labelsOverride ?? {},
+      selectedLocale,
+      defaultLocale,
+    );
+    const key = stableSerialize({
+      apiKey: this._API_KEY,
+      appUserId: this._appUserId,
+      packageId: effectiveParams.rcPackage.identifier,
+      productId: product.identifier,
+      purchaseOptionId: purchaseOption.id,
+      priceId: purchaseOption.priceId,
+      presentedOfferingContext: product.presentedOfferingContext,
+      customerEmail: effectiveParams.customerEmail,
+      externalPurchaseTokenId: effectiveParams.externalPurchaseTokenId,
+      workflowPurchaseContext: effectiveParams.workflowPurchaseContext,
+      attributionMetadata: effectiveParams.attributionMetadata,
+      paywallId: effectiveParams.paywallId,
+      paywallSessionId: effectiveParams.paywallSessionId,
+      metadata: effectiveParams.metadata,
+      selectedLocale,
+      defaultLocale,
+      brandingAppearanceOverride: appearanceOverride,
+      labelsOverride: effectiveParams.labelsOverride,
+      termsAndConditionsUrl,
+      skipSuccessPage: effectiveParams.skipSuccessPage,
+    });
+
+    return {
+      key,
+      params: effectiveParams,
+      brandingInfo,
+      purchaseOption,
+      translator,
+    };
+  }
+
+  /**
    * Method to perform a purchase for a given package. You can obtain the
    * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
@@ -1764,8 +2025,119 @@ export class Purchases {
    * @returns a Promise for the customer and redemption info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
-  @requiresLoadedResources
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
+    if (params.tryWithApplePay) {
+      const quickPurchase = this.tryPreparedStripeBillingQuickPurchase(params);
+      if (quickPurchase) {
+        return quickPurchase;
+      }
+    }
+
+    return this.purchaseAfterLoadingResources({
+      ...params,
+      tryWithApplePay: false,
+    });
+  }
+
+  /** @internal */
+  private tryPreparedStripeBillingQuickPurchase(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> | null {
+    if (!isStripeApiKey(this._API_KEY)) {
+      return null;
+    }
+
+    const context = this.resolveStripeBillingQuickPurchaseContext(params);
+    const state = this.stripeBillingQuickPurchaseState;
+    if (
+      !context ||
+      !state ||
+      state.key !== context.key ||
+      !Number.isFinite(state.purchase.expiresAt) ||
+      state.purchase.expiresAt <= Date.now()
+    ) {
+      this.stripeBillingQuickPurchaseState = null;
+      Logger.debugLog(
+        "Apple Pay first requested without matching prepared state; using Stripe Checkout",
+      );
+      return null;
+    }
+
+    this.stripeBillingQuickPurchaseState = null;
+    Logger.debugLog(
+      "Stripe Billing Apple Pay is prepared; presenting it from the purchase click",
+    );
+    const appUserId = this._appUserId;
+    const product = context.params.rcPackage.webBillingProduct;
+    this.eventsTracker.trackSDKEvent(
+      createCheckoutSessionStartEvent({
+        appearance: context.brandingInfo?.appearance,
+        rcPackage: context.params.rcPackage,
+        purchaseOptionToUse: context.purchaseOption,
+        customerEmail: context.params.customerEmail,
+      }),
+    );
+
+    return presentStripeBillingApplePayPurchase({
+      preparedPurchase: state.purchase,
+      customerEmail: context.params.customerEmail,
+      translator: context.translator,
+      eventsTracker: this.eventsTracker,
+    })
+      .then(async (result) => {
+        if (result.status === "unavailable") {
+          return await this.purchaseAfterLoadingResources({
+            ...params,
+            tryWithApplePay: false,
+          });
+        }
+        if (result.status === "cancelled") {
+          this.eventsTracker.trackSDKEvent(
+            createCheckoutSessionEndClosedEvent(),
+          );
+          throw new PurchasesError(ErrorCode.UserCancelledError);
+        }
+
+        this.eventsTracker.trackSDKEvent(
+          createCheckoutSessionEndFinishedEvent({
+            redemptionInfo: result.operationResult.redemptionInfo,
+          }),
+        );
+        this.inMemoryCache.invalidateAllCaches();
+        return {
+          customerInfo: await this._getCustomerInfoForUserId(appUserId),
+          redemptionInfo: result.operationResult.redemptionInfo,
+          operationSessionId: result.operationResult.operationSessionId,
+          attributionMetadata: result.operationResult.attributionMetadata,
+          customerEmail: result.operationResult.customerEmail,
+          storeTransaction: {
+            storeTransactionId:
+              result.operationResult.storeTransactionIdentifier,
+            productIdentifier: product.identifier,
+            purchaseDate: result.operationResult.purchaseDate,
+          },
+        };
+      })
+      .catch((error: unknown) => {
+        if (error instanceof PurchasesError) {
+          throw error;
+        }
+        const purchaseFlowError = error as PurchaseFlowError;
+        this.eventsTracker.trackSDKEvent(
+          createCheckoutSessionEndErroredEvent({
+            errorCode: purchaseFlowError.errorCode?.toString(),
+            errorMessage: purchaseFlowError.message,
+          }),
+        );
+        throw PurchasesError.getForPurchasesFlowError(purchaseFlowError);
+      });
+  }
+
+  /** @internal */
+  @requiresLoadedResources
+  private async purchaseAfterLoadingResources(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> {
     const appearanceOverride = mergeBrandingAppearanceOverrides(
       this._brandingAppearanceOverride,
       params.brandingAppearanceOverride,
@@ -2514,6 +2886,8 @@ export class Purchases {
 
   private async replaceUserId(newAppUserId: string): Promise<void> {
     validateAppUserId(newAppUserId);
+    this.stripeBillingQuickPurchaseState = null;
+    this.stripeBillingQuickPurchasePreparation = null;
     this._appUserId = newAppUserId;
     await this.eventsTracker.updateUser(newAppUserId);
     this.inMemoryCache.invalidateAllCaches();

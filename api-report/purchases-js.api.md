@@ -387,6 +387,9 @@ export interface PlatformInfo {
 }
 
 // @public
+export type PrepareQuickPurchaseParams = Omit<PurchaseParams, "htmlTarget" | "tryWithApplePay">;
+
+// @public
 export interface PresentedOfferingContext {
     readonly offeringIdentifier: string;
     readonly placementIdentifier: string | null;
@@ -518,7 +521,7 @@ export interface PurchaseParams {
     showDiscountCodeField?: boolean;
     skipSuccessPage?: boolean;
     termsAndConditionsUrl?: string;
-    /* Excluded from this release type: productChangeInfo */
+    tryWithApplePay?: boolean;
 }
 
 // @public
@@ -548,6 +551,8 @@ export class Purchases {
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
     /* Excluded from this release type: cachedCurrentOffering */
+    /* Excluded from this release type: stripeBillingQuickPurchaseState */
+    /* Excluded from this release type: stripeBillingQuickPurchasePreparation */
     /* Excluded from this release type: instance */
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
@@ -571,6 +576,7 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
+    prepareForQuickPurchases(params: PrepareQuickPurchaseParams): Promise<QuickPurchasePreparationResult>;
     presentExpressPurchaseButton(params: PresentExpressPurchaseButtonParams): Promise<PurchaseResult>;
     presentPaywall(paywallParams: PresentPaywallParams): Promise<PaywallPurchaseResult>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
@@ -617,6 +623,12 @@ export class PurchasesError extends Error {
 export interface PurchasesErrorExtra {
     readonly backendErrorCode?: number;
     readonly statusCode?: number;
+}
+
+// @public
+export interface QuickPurchasePreparationResult {
+    // (undocumented)
+    applePayAvailable: boolean;
 }
 
 // @public
