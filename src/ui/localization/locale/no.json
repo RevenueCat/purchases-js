@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "Bekreft plan",
   "upgrade_confirm_page.on_file": "Lagret",
   "credit_for_unused_time.title": "Tilgodehavende for ubrukt tid",
-  "credit_for_unused_time.message": "Betalingsmåten din vil bli belastet for differansen mellom abonnementene, med et tilgodehavende for ubrukt tid på ditt {{previousProductName}}-abonnement."
+  "credit_for_unused_time.message": "Betalingsmåten din vil bli belastet for differansen mellom abonnementene, med et tilgodehavende for ubrukt tid på ditt {{previousProductName}}-abonnement.",
+  "paddle_checkout.return_to": "Tilbake til {{appName}}",
+  "paddle_order_summary.billed_frequency": "faktureres {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "første {{firstPeriod}}, deretter {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "inkl. mva",
+  "paddle_order_summary.due_on": "Forfaller {{date}}"
 }

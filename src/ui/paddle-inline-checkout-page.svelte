@@ -71,7 +71,13 @@
         onclick={onClose}
       >
         <Icon name="back" />
-        <span>{appName ? `Return to ${appName}` : "Back"}</span>
+        <span
+          >{appName
+            ? $translator.translate(LocalizationKeys.PaddleCheckoutReturnTo, {
+                appName,
+              })
+            : $translator.translate(LocalizationKeys.NavbarBackButton)}</span
+        >
       </button>
     {/if}
   {/snippet}

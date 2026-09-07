@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "Bekräfta schema",
   "upgrade_confirm_page.on_file": "Sparad",
   "credit_for_unused_time.title": "Kredit för oanvänd tid",
-  "credit_for_unused_time.message": "Din betalningsmetod kommer att debiteras för skillnaden mellan prenumerationerna, med en kredit för oanvänd tid på din {{previousProductName}}-prenumeration."
+  "credit_for_unused_time.message": "Din betalningsmetod kommer att debiteras för skillnaden mellan prenumerationerna, med en kredit för oanvänd tid på din {{previousProductName}}-prenumeration.",
+  "paddle_checkout.return_to": "Tillbaka till {{appName}}",
+  "paddle_order_summary.billed_frequency": "faktureras {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "första {{firstPeriod}}, därefter {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "inkl. moms",
+  "paddle_order_summary.due_on": "Förfaller {{date}}"
 }

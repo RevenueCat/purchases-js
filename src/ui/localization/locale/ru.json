@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "Подтвердить расписание",
   "upgrade_confirm_page.on_file": "Сохранено",
   "credit_for_unused_time.title": "Зачет за неиспользованное время",
-  "credit_for_unused_time.message": "С вашего способа оплаты будет списана сумма за разницу между подписками, с зачетом неиспользованного времени по вашей подписке {{previousProductName}}."
+  "credit_for_unused_time.message": "С вашего способа оплаты будет списана сумма за разницу между подписками, с зачетом неиспользованного времени по вашей подписке {{previousProductName}}.",
+  "paddle_checkout.return_to": "Вернуться в {{appName}}",
+  "paddle_order_summary.billed_frequency": "оплата {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "первый {{firstPeriod}}, затем {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "вкл. налог",
+  "paddle_order_summary.due_on": "К оплате {{date}}"
 }

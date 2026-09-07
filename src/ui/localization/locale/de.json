@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "Zeitplan bestätigen",
   "upgrade_confirm_page.on_file": "Hinterlegt",
   "credit_for_unused_time.title": "Gutschrift für ungenutzte Zeit",
-  "credit_for_unused_time.message": "Ihre Zahlungsmethode wird für die Differenz zwischen den Abonnements belastet, mit einer Gutschrift für ungenutzte Zeit für Ihr {{previousProductName}}-Abonnement."
+  "credit_for_unused_time.message": "Ihre Zahlungsmethode wird für die Differenz zwischen den Abonnements belastet, mit einer Gutschrift für ungenutzte Zeit für Ihr {{previousProductName}}-Abonnement.",
+  "paddle_checkout.return_to": "Zurück zu {{appName}}",
+  "paddle_order_summary.billed_frequency": "Abrechnung {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "erste(r) {{firstPeriod}}, danach {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "inkl. Steuern",
+  "paddle_order_summary.due_on": "Fällig am {{date}}"
 }

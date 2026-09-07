@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "Confirmer la planification",
   "upgrade_confirm_page.on_file": "Enregistré",
   "credit_for_unused_time.title": "Crédit pour temps non utilisé",
-  "credit_for_unused_time.message": "Votre mode de paiement sera débité de la différence entre les abonnements, avec un crédit pour le temps non utilisé sur votre abonnement {{previousProductName}}."
+  "credit_for_unused_time.message": "Votre mode de paiement sera débité de la différence entre les abonnements, avec un crédit pour le temps non utilisé sur votre abonnement {{previousProductName}}.",
+  "paddle_checkout.return_to": "Retour à {{appName}}",
+  "paddle_order_summary.billed_frequency": "facturé {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "premier {{firstPeriod}}, puis {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "TTC",
+  "paddle_order_summary.due_on": "Dû le {{date}}"
 }
