@@ -386,6 +386,151 @@ describe("Purchases.presentPaywall() paywall events", () => {
     );
   });
 
+  test("notifies listener.onInteraction with the documented interaction event", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const onInteraction = vi.fn();
+
+    const paywallPromise = purchases.presentPaywall({
+      offering,
+      listener: { onInteraction },
+    });
+    void paywallPromise.catch(() => undefined);
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    paywallProps!.onComponentInteraction({
+      componentType: "package",
+      componentName: "Monthly",
+      componentValue: "$rc_monthly",
+      originPackageId: "$rc_monthly",
+      destinationPackageId: "$rc_monthly",
+    });
+
+    await vi.waitFor(() => expect(onInteraction).toHaveBeenCalledTimes(1));
+    expect(onInteraction).toHaveBeenCalledWith({
+      timestamp: expect.any(Number),
+      session_id: expect.any(String),
+      offering_id: "paywall-offering-id",
+      paywall_id: "paywall-public-id",
+      paywall_revision: expect.any(Number),
+      display_mode: "full_screen",
+      dark_mode: expect.any(Boolean),
+      locale: expect.any(String),
+      component_type: "package",
+      component_name: "Monthly",
+      component_value: "$rc_monthly",
+      origin_package_id: "$rc_monthly",
+      destination_package_id: "$rc_monthly",
+      origin_product_id: "monthly",
+      destination_product_id: "monthly",
+    });
+
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+  });
+
+  test("notifies listener.onInteraction when analytics collection is disabled", async () => {
+    const purchases = configurePurchases(undefined, undefined, undefined, {
+      collectAnalyticsEvents: false,
+    });
+    const offering = createOfferingWithPaywall();
+    const onInteraction = vi.fn();
+
+    const paywallPromise = purchases.presentPaywall({
+      offering,
+      listener: { onInteraction },
+    });
+    void paywallPromise.catch(() => undefined);
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    paywallProps!.onComponentInteraction({
+      componentType: "button",
+      componentValue: "restore_purchases",
+    });
+
+    await vi.waitFor(() => expect(onInteraction).toHaveBeenCalledTimes(1));
+    expect(onInteraction.mock.calls[0][0]).toMatchObject({
+      component_type: "button",
+      component_value: "restore_purchases",
+    });
+
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+  });
+
+  test("does not notify listener.onInteraction after the paywall closed", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const onInteraction = vi.fn();
+
+    const paywallPromise = purchases.presentPaywall({
+      offering,
+      listener: { onInteraction },
+    });
+    void paywallPromise.catch(() => undefined);
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+
+    paywallProps!.onComponentInteraction({
+      componentType: "button",
+      componentValue: "restore_purchases",
+    });
+
+    expect(onInteraction).not.toHaveBeenCalled();
+  });
+
+  test("still tracks the interaction when listener.onInteraction throws", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+    const errorLogSpy = vi
+      .spyOn(Logger, "errorLog")
+      .mockImplementation(() => {});
+    const onInteraction = vi.fn(() => {
+      throw new Error("developer bug");
+    });
+
+    const paywallPromise = purchases.presentPaywall({
+      offering,
+      listener: { onInteraction },
+    });
+    void paywallPromise.catch(() => undefined);
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    paywallProps!.onComponentInteraction({
+      componentType: "button",
+      componentValue: "restore_purchases",
+    });
+
+    await vi.waitFor(() => expect(onInteraction).toHaveBeenCalledTimes(1));
+    expect(trackPaywallEventSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "paywall_component_interacted" }),
+    );
+    expect(errorLogSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Error in listener.onInteraction"),
+    );
+
+    paywallProps!.onBackClicked();
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+  });
+
   test("does not open a second tab for text link callbacks when ui-js keeps native navigation", async () => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();
