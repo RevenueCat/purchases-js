@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   PaywallEvent,
   toPaywallInteractionEvent,
+  type PaywallComponentInteractionEventData,
   type PaywallEventData,
 } from "../../behavioural-events/paywall-event";
 
@@ -201,7 +202,7 @@ describe("PaywallEvent", () => {
   });
 
   describe("toPaywallInteractionEvent", () => {
-    const interactionData: PaywallEventData = {
+    const interactionData: PaywallComponentInteractionEventData = {
       ...baseData,
       type: "paywall_component_interacted",
       displayMode: "full_screen",
@@ -214,12 +215,10 @@ describe("PaywallEvent", () => {
     };
 
     it("keeps only the documented keys and maps paywall_rc_public_id to paywall_id", () => {
-      const event = toPaywallInteractionEvent(
-        new PaywallEvent(interactionData).toJSON(),
-      );
+      const event = toPaywallInteractionEvent(interactionData, 1234);
 
       expect(event).toEqual({
-        timestamp: expect.any(Number),
+        timestamp: 1234,
         session_id: "session-456",
         offering_id: "offering-789",
         paywall_id: "pw-public-id",
@@ -235,20 +234,12 @@ describe("PaywallEvent", () => {
     });
 
     it("omits paywall_id when the paywall has no public id", () => {
-      const event = toPaywallInteractionEvent(
-        new PaywallEvent({
-          ...interactionData,
-          paywallRcPublicId: null,
-        }).toJSON(),
-      );
+      const event = toPaywallInteractionEvent({
+        ...interactionData,
+        paywallRcPublicId: null,
+      });
 
       expect(event).not.toHaveProperty("paywall_id");
-    });
-
-    it("returns undefined for other event types", () => {
-      expect(
-        toPaywallInteractionEvent(new PaywallEvent(baseData).toJSON()),
-      ).toBeUndefined();
     });
   });
 

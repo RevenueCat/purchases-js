@@ -24,10 +24,6 @@ import {
   PurchaseOperationHelper,
 } from "../helpers/purchase-operation-helper";
 import type { IEventsTracker } from "../behavioural-events/events-tracker";
-import {
-  PaywallEvent,
-  type PaywallEventData,
-} from "../behavioural-events/paywall-event";
 import { subscriptionChangeImmediateWithTax } from "../stories/fixtures";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
@@ -558,7 +554,7 @@ describe("product change checkout networking", () => {
     updateUser: () => Promise.resolve(),
     trackSDKEvent: () => {},
     trackExternalEvent: () => {},
-    trackPaywallEvent: (data: PaywallEventData) => new PaywallEvent(data),
+    trackPaywallEvent: () => {},
     trackCustomPaywallImpression: () => {},
     dispose: () => {},
     flushAllEvents: () => Promise.resolve(),

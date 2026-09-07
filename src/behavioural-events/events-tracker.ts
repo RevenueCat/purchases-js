@@ -51,7 +51,7 @@ export interface IEventsTracker {
 
   trackExternalEvent(props: TrackEventProps): void;
 
-  trackPaywallEvent(data: PaywallEventData): PaywallEvent;
+  trackPaywallEvent(data: PaywallEventData): void;
 
   trackCustomPaywallImpression(props: TrackCustomPaywallImpressionProps): void;
 
@@ -108,13 +108,13 @@ export default class EventsTracker implements IEventsTracker {
     this.trackEvent({ ...props });
   }
 
-  public trackPaywallEvent(data: PaywallEventData): PaywallEvent {
-    const event = new PaywallEvent(data);
+  public trackPaywallEvent(data: PaywallEventData): void {
     if (this.isSilent) {
       Logger.verboseLog("Skipping event tracking, the EventsTracker is silent");
-      return event;
+      return;
     }
     try {
+      const event = new PaywallEvent(data);
       Logger.debugLog(
         `[PaywallEvent] Queuing ${data.type} (queue size: ${this.eventsQueue.length + 1}, url: ${this.eventsUrl})`,
       );
@@ -128,7 +128,6 @@ export default class EventsTracker implements IEventsTracker {
         `Error while tracking paywall event ${data.type}: ${error}`,
       );
     }
-    return event;
   }
 
   public trackCustomPaywallImpression(

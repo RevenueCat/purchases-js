@@ -14,7 +14,6 @@ import {
   type CheckoutStatusResponse,
 } from "../../networking/responses/checkout-status-response";
 import { type IEventsTracker } from "../../behavioural-events/events-tracker";
-import { PaywallEvent } from "../../behavioural-events/paywall-event";
 import type { PaddleCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 import {
   PurchaseFlowError,
@@ -263,7 +262,7 @@ describe("PaddleService", () => {
       updateUser: () => Promise.resolve(),
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
-      trackPaywallEvent: (data) => new PaywallEvent(data),
+      trackPaywallEvent: () => {},
       trackCustomPaywallImpression: () => {},
       dispose: () => {},
       flushAllEvents: () => Promise.resolve(),
@@ -1000,7 +999,7 @@ describe("PaddleService", () => {
         updateUser: () => Promise.resolve(),
         trackSDKEvent: () => {},
         trackExternalEvent: () => {},
-        trackPaywallEvent: (data) => new PaywallEvent(data),
+        trackPaywallEvent: () => {},
         trackCustomPaywallImpression: () => {},
         dispose: () => {},
         flushAllEvents: () => Promise.resolve(),

@@ -131,12 +131,11 @@ type PaywallCloseOrCancelEventPayload = CommonPaywallEventPayload & {
   type: "paywall_close" | "paywall_cancel";
 };
 
-export type PaywallComponentInteractionEventPayload =
-  CommonPaywallEventPayload &
-    PaywallDisplayPayload &
-    PaywallComponentInteractionPayload & {
-      type: "paywall_component_interacted";
-    };
+type PaywallComponentInteractionEventPayload = CommonPaywallEventPayload &
+  PaywallDisplayPayload &
+  PaywallComponentInteractionPayload & {
+    type: "paywall_component_interacted";
+  };
 
 export type PaywallEventPayload =
   | PaywallImpressionEventPayload
@@ -247,40 +246,17 @@ const toCommonPayload = (
 };
 
 export const toPaywallInteractionEvent = (
-  payload: PaywallEventPayload,
-): PaywallInteractionEvent | undefined => {
-  if (payload.type !== "paywall_component_interacted") {
-    return undefined;
-  }
-  const event: Record<string, string | number | boolean> = {};
-  for (const key of INTERACTION_EVENT_KEYS) {
-    const value = payload[key];
-    if (
-      typeof value === "string" ||
-      typeof value === "number" ||
-      typeof value === "boolean"
-    ) {
-      event[key] = value;
-    }
-  }
-  if (payload.paywall_rc_public_id) {
-    event.paywall_id = payload.paywall_rc_public_id;
-  }
-  return event as unknown as PaywallInteractionEvent;
-};
-
-const INTERACTION_EVENT_KEYS: ReadonlyArray<
-  keyof PaywallInteractionEvent & keyof PaywallComponentInteractionEventPayload
-> = [
-  "timestamp",
-  "session_id",
-  "offering_id",
-  "paywall_revision",
-  "display_mode",
-  "dark_mode",
-  "locale",
-  ...Object.values(INTERACTION_FIELD_MAP),
-];
+  data: PaywallComponentInteractionEventData,
+  timestamp: number = Date.now(),
+): PaywallInteractionEvent => ({
+  timestamp,
+  session_id: data.sessionId,
+  offering_id: data.offeringId,
+  ...(data.paywallRcPublicId ? { paywall_id: data.paywallRcPublicId } : {}),
+  paywall_revision: data.paywallRevision,
+  ...toDisplayPayload(data),
+  ...toComponentInteractionPayload(data),
+});
 
 export class PaywallEvent {
   public readonly id: string;

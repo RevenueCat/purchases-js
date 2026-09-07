@@ -1092,19 +1092,15 @@ export class Purchases {
         if (!paywallImpressionTracked || paywallCloseTracked) {
           return;
         }
-        const event = this.eventsTracker.trackPaywallEvent(
-          toInteractionEvent(data),
-        );
+        const eventData = toInteractionEvent(data);
+        this.eventsTracker.trackPaywallEvent(eventData);
         if (!listener?.onInteraction) {
           return;
         }
-        const interaction = toPaywallInteractionEvent(event.toJSON());
-        if (interaction) {
-          try {
-            listener.onInteraction(interaction);
-          } catch (e) {
-            Logger.errorLog(`Error in listener.onInteraction: ${e}`);
-          }
+        try {
+          listener.onInteraction(toPaywallInteractionEvent(eventData));
+        } catch (e) {
+          Logger.errorLog(`Error in listener.onInteraction: ${e}`);
         }
       };
 
