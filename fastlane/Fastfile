@@ -7,6 +7,7 @@ files_to_update_on_latest_stable_releases = {
   './scripts/docs/index.html' => ['purchases-js-docs/{x}/']
 }
 repo_name = 'purchases-js'
+PURCHASES_UI_JS_PACKAGE = '@revenuecat/purchases-ui-js'
 changelog_latest_path = './CHANGELOG.latest.md'
 changelog_path = './CHANGELOG.md'
 
@@ -129,12 +130,78 @@ lane :tag_current_branch do |options|
   push_git_tags(tag: version_number)
 end
 
+desc "Updates purchases-ui-js to the latest version published to npm and opens a PR"
+lane :open_pr_upgrading_dependencies do |options|
+  ensure_git_status_clean
+
+  dry_run = options[:dry_run]
+
+  current_version = current_purchases_ui_js_version
+  latest_version = latest_npm_version(PURCHASES_UI_JS_PACKAGE)
+
+  UI.message("ℹ️  #{PURCHASES_UI_JS_PACKAGE} current: #{current_version}, latest on npm: #{latest_version}")
+
+  if Gem::Version.new(latest_version) <= Gem::Version.new(current_version)
+    UI.success("#{PURCHASES_UI_JS_PACKAGE} is already at its latest version: #{current_version} 💪")
+    next
+  end
+
+  type_of_bump = detect_bump_type(current_version: current_version, new_version_number: latest_version)
+
+  if dry_run
+    UI.message("ℹ️  Nothing more to do since dry_run: true. Would update #{PURCHASES_UI_JS_PACKAGE} #{current_version} => #{latest_version} (#{type_of_bump})")
+    next
+  end
+
+  branch = "update-purchases-ui-js-#{latest_version}"
+  message = "[AUTOMATIC] purchases-ui-js #{current_version} => #{latest_version}"
+
+  create_or_checkout_branch(branch_name: branch)
+
+  Dir.chdir(get_root_folder) do
+    sh("pnpm", "add", "#{PURCHASES_UI_JS_PACKAGE}@#{latest_version}", "--save-exact")
+  end
+
+  commit_all_changes(commit_message: message)
+  push_to_git_remote(set_upstream: true, remote_branch: branch)
+
+  labels = ["pr:dependencies"]
+  labels << "pr:force_minor" if type_of_bump == :minor
+
+  create_pr_if_necessary(
+    title: message,
+    body: message,
+    repo_name: repo_name,
+    base_branch: "main",
+    head_branch: branch,
+    github_pr_token: ENV["GITHUB_PULL_REQUEST_API_TOKEN"],
+    labels: labels,
+    team_reviewers: []
+  )
+end
+
 ###############################################################################
 # Helper functions 🤜🤛                                                      #
 ###############################################################################
 
 def current_version_number
   File.read("../.version").strip
+end
+
+def current_purchases_ui_js_version
+  package_json = File.read(File.join(get_root_folder, "package.json"))
+  match = package_json.match(/"#{Regexp.escape(PURCHASES_UI_JS_PACKAGE)}": "([^"]+)"/)
+  UI.user_error!("Could not find #{PURCHASES_UI_JS_PACKAGE} in package.json") unless match
+  match[1]
+end
+
+def latest_npm_version(package)
+  version = Dir.chdir(get_root_folder) do
+    # npm warns on stderr about pnpm-only keys in .npmrc, keep only stdout
+    sh("pnpm view #{package} version 2>/dev/null", log: false).strip
+  end
+  UI.user_error!("Could not read latest version of #{package} from npm: '#{version}'") unless version.match?(/\A\d+\.\d+\.\d+/)
+  version
 end
 
 def get_root_folder
