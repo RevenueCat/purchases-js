@@ -7,7 +7,7 @@ import type { PaywallInteractionEvent } from "./paywall-interaction-event";
  */
 export type PaywallListener = PurchaseListener & {
   /**
-   * Called when the user interacts with a paywall control, also when analytics collection is disabled.
+   * Called when the user interacts with a paywall control.
    * Exceptions thrown here are logged and do not affect the paywall.
    */
   onInteraction?: (event: PaywallInteractionEvent) => void;

@@ -1,8 +1,7 @@
 import type { ComponentInteractionType } from "../behavioural-events/paywall-event";
 
 /**
- * A paywall control interaction, as passed to `PaywallListener.onInteraction`. Keys are the documented
- * snake_case event properties so the object can be forwarded to analytics SDKs as-is; keys that do not apply
+ * A paywall control interaction, as passed to `PaywallListener.onInteraction`. Keys that do not apply
  * are omitted.
  * @public
  */
