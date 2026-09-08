@@ -2,6 +2,7 @@ import type { PaymentRequest, Stripe } from "@stripe/stripe-js";
 import { http, HttpResponse } from "msw";
 import { describe, expect, test, vi } from "vitest";
 
+import { BackendErrorCode } from "../entities/errors";
 import { ErrorCode, type PurchaseParams, type PurchaseResult } from "../main";
 import type { StripeBillingApplePayCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import { StripeService } from "../stripe/stripe-service";
@@ -27,6 +28,73 @@ const applePayStartResponse =
   });
 
 describe("Purchases Stripe Billing quick purchases", () => {
+  test("uses normal checkout when quick purchase is unavailable", async () => {
+    server.use(
+      http.post("http://localhost:8000/rcbilling/v1/checkout/start", () => {
+        return HttpResponse.json(
+          {
+            code: BackendErrorCode.BackendQuickPurchaseUnavailable,
+            message: "Quick purchase is unavailable for this purchase.",
+          },
+          { status: 422 },
+        );
+      }),
+    );
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "strp_test_api_key",
+    );
+    const params = { rcPackage: createMonthlyPackageMock() };
+
+    await expect(purchases.prepareForQuickPurchases(params)).resolves.toEqual({
+      applePayAvailable: false,
+    });
+
+    const fallbackResult = {} as PurchaseResult;
+    const internal = purchases as unknown as {
+      purchaseAfterLoadingResources: (
+        params: PurchaseParams,
+      ) => Promise<PurchaseResult>;
+    };
+    const fallback = vi
+      .spyOn(internal, "purchaseAfterLoadingResources")
+      .mockResolvedValue(fallbackResult);
+
+    await expect(
+      purchases.purchase({ ...params, tryWithApplePay: true }),
+    ).resolves.toBe(fallbackResult);
+    expect(fallback).toHaveBeenCalledOnce();
+  });
+
+  test("does not hide other quick purchase preparation errors", async () => {
+    server.use(
+      http.post("http://localhost:8000/rcbilling/v1/checkout/start", () => {
+        return HttpResponse.json(
+          {
+            code: BackendErrorCode.BackendInvalidAPIKey,
+            message: "API key was wrong",
+          },
+          { status: 401 },
+        );
+      }),
+    );
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "strp_test_api_key",
+    );
+
+    await expect(
+      purchases.prepareForQuickPurchases({
+        rcPackage: createMonthlyPackageMock(),
+      }),
+    ).rejects.toHaveProperty(
+      "extra.backendErrorCode",
+      BackendErrorCode.BackendInvalidAPIKey,
+    );
+  });
+
   test("shares exact preparation and shows Apple Pay synchronously once", async () => {
     const startRequests: Record<string, unknown>[] = [];
     server.use(

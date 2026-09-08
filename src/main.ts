@@ -11,6 +11,7 @@ import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte"
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
+  BackendErrorCode,
   ErrorCode,
   PurchasesError,
   UninitializedPurchasesError,
@@ -36,7 +37,7 @@ import {
 } from "./helpers/api-key-helper";
 import {
   type OperationSessionSuccessfulResult,
-  type PurchaseFlowError,
+  PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
@@ -61,6 +62,7 @@ import {
 } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
+import type { StripeBillingApplePayCheckoutStartResponse } from "./networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "./entities/branding";
 import { requiresLoadedResources } from "./helpers/decorators";
 import {
@@ -1690,22 +1692,37 @@ export class Purchases {
       ? autoParseUTMParams()
       : {};
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
-    const startResponse = await operationHelper.checkoutStart({
-      appUserId: this._appUserId,
-      productId: product.identifier,
-      purchaseOption,
-      presentedOfferingContext: product.presentedOfferingContext,
-      workflowPurchaseContext: params.workflowPurchaseContext,
-      paywallId: params.paywallId,
-      paywallSessionId: params.paywallSessionId,
-      customerEmail: params.customerEmail,
-      externalPurchaseTokenId: params.externalPurchaseTokenId,
-      metadata,
-      locale: translator.selectedLocale,
-      attributionMetadata: params.attributionMetadata,
-      appearanceOverride: params.brandingAppearanceOverride,
-      purchaseFlow: "apple_pay",
-    });
+    let startResponse: StripeBillingApplePayCheckoutStartResponse;
+    try {
+      startResponse = await operationHelper.checkoutStart({
+        appUserId: this._appUserId,
+        productId: product.identifier,
+        purchaseOption,
+        presentedOfferingContext: product.presentedOfferingContext,
+        workflowPurchaseContext: params.workflowPurchaseContext,
+        paywallId: params.paywallId,
+        paywallSessionId: params.paywallSessionId,
+        customerEmail: params.customerEmail,
+        externalPurchaseTokenId: params.externalPurchaseTokenId,
+        metadata,
+        locale: translator.selectedLocale,
+        attributionMetadata: params.attributionMetadata,
+        appearanceOverride: params.brandingAppearanceOverride,
+        purchaseFlow: "apple_pay",
+      });
+    } catch (error) {
+      if (
+        error instanceof PurchaseFlowError &&
+        error.extra?.backendErrorCode ===
+          BackendErrorCode.BackendQuickPurchaseUnavailable
+      ) {
+        Logger.debugLog(
+          "Stripe Billing Apple Pay is unavailable for this purchase; using checkout",
+        );
+        return null;
+      }
+      throw error;
+    }
 
     const purchase = await prepareStripeBillingApplePayPurchase({
       startResponse,
