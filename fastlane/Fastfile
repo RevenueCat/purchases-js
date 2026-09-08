@@ -166,7 +166,11 @@ lane :open_pr_upgrading_dependencies do |options|
   push_to_git_remote(set_upstream: true, remote_branch: branch)
 
   labels = ["pr:dependencies"]
-  labels << "pr:force_minor" if type_of_bump == :minor
+  if type_of_bump == :minor
+    labels << "pr:force_minor"
+  elsif type_of_bump == :patch
+    labels << "pr:force_patch"
+  end
 
   create_pr_if_necessary(
     title: message,
