@@ -24,7 +24,7 @@ aliases:
 parameters:
   action:
     type: enum
-    enum: [ default, bump, update_error_codes ]
+    enum: [ default, bump, update_error_codes, dependency-update ]
     default: default
   version:
     type: string
@@ -210,6 +210,23 @@ jobs:
                 --exit-once-uploaded
             fi
 
+  dependency-update:
+    description: "Opens a PR updating purchases-ui-js to the latest version published to npm"
+    docker:
+      - image: cimg/ruby:3.3.0-node
+    steps:
+      - checkout
+      # No install-dependencies: it dirties the tree (.npmrc, .pnpm-store) and the lane needs it clean.
+      - revenuecat/install-mise-tools:
+          tools: ruby,node
+      - revenuecat/install-gem-unix-dependencies:
+          cache-version: v1
+      - revenuecat/trust-github-key
+      - revenuecat/setup-git-credentials
+      - run:
+          name: Update purchases-ui-js to latest version
+          command: bundle exec fastlane open_pr_upgrading_dependencies
+
   test-e2e:
     docker:
       - image: mcr.microsoft.com/playwright:v1.56.1-jammy
@@ -273,6 +290,8 @@ workflows:
             equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
         - not:
             equal: [ update_error_codes, << pipeline.parameters.action >> ]
+        - not:
+            equal: [ dependency-update, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/danger:
           ruby_version: "3.3.0"
@@ -313,6 +332,16 @@ workflows:
                 name: Extract API
                 command: pnpm run extract-api
 
+  dependency-update:
+    when:
+      or:
+        - and:
+            - equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
+            - equal: [ "dependency-update", << pipeline.schedule.name >> ]
+        - equal: [ dependency-update, << pipeline.parameters.action >> ]
+    jobs:
+      - dependency-update
+
   test-deploy:
     when:
       and:
@@ -320,6 +349,8 @@ workflows:
             equal: [ scheduled_pipeline, << pipeline.trigger_source >> ]
         - not:
             equal: [ update_error_codes, << pipeline.parameters.action >> ]
+        - not:
+            equal: [ dependency-update, << pipeline.parameters.action >> ]
     jobs:
       - test
       - test-e2e
