@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "חיוב {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}} ראשון, לאחר מכן {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "כולל מס",
-  "paddle_order_summary.due_on": "לתשלום ב-{{date}}"
+  "paddle_order_summary.due_on": "לתשלום ב-{{date}}",
+  "payment_entry_page.payment_method_error": "לא הצלחנו להשתמש באמצעי תשלום זה. אנא בדוק את הפרטים שלך או נסה אמצעי תשלום אחר.",
+  "payment_entry_page.payment_method_error_card_not_supported": "סוג כרטיס זה אינו מקובל. נסה כרטיס אחר."
 }

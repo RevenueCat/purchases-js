@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "účtováno {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "první {{firstPeriod}}, poté {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "vč. daně",
-  "paddle_order_summary.due_on": "Splatné {{date}}"
+  "paddle_order_summary.due_on": "Splatné {{date}}",
+  "payment_entry_page.payment_method_error": "Tuto platební metodu jsme nemohli použít. Zkontrolujte své údaje nebo zkuste jinou platební metodu.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Tento typ karty není akceptován. Zkuste jinou kartu."
 }

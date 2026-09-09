@@ -19,12 +19,12 @@ import type { CheckoutStartResponse } from "../../../networking/responses/checko
 import { get, writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
-import type {
+import type { TaxCustomerDetails } from "../../../stripe/stripe-service";
+import {
+  StripeService,
   StripeServiceError,
   StripeServiceErrorCode,
-  TaxCustomerDetails,
 } from "../../../stripe/stripe-service";
-import { StripeService } from "../../../stripe/stripe-service";
 import type {
   StripeError,
   StripePaymentElementChangeEvent,
@@ -77,7 +77,7 @@ vi.mock("../../../stripe/stripe-service", async () => {
       isStripeHandledFormError: vi.fn(),
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
-      confirmIntent: vi.fn(),
+      confirmElements: vi.fn(),
       extractTaxCustomerDetails: vi.fn(),
     },
   };
@@ -166,6 +166,7 @@ const createCompleteAddressElementMock = () => ({
 describe("PurchasesUI", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReset();
 
     vi.mocked(StripeService.initializeStripe).mockResolvedValue({
       // @ts-expect-error - This is a mock
@@ -836,6 +837,221 @@ describe("PurchasesUI", () => {
     // And it publishes the details to the shared store so the parent can reuse
     // them on discount-code refreshes.
     expect(get(lastTaxCustomerDetailsStore)).toEqual(taxCustomerDetails);
+  });
+
+  const cardNotSupportedErrorMessage =
+    "This card type isn't accepted. Try a different card.";
+  const genericPaymentMethodErrorMessage =
+    "We couldn't use this payment method. Check your details or try a different payment method.";
+
+  async function renderConfirmationTokenFlow() {
+    let paymentChangeCallback:
+      | ((event: StripePaymentElementChangeEvent) => void)
+      | undefined;
+    const expressCheckoutElement = {
+      mount: vi.fn(),
+      on: (eventType: string, callback: (event?: unknown) => void) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback({ availablePaymentMethods: null }), 0);
+        }
+      },
+      destroy: vi.fn(),
+    } as unknown as ReturnType<
+      typeof StripeService.createExpressCheckoutElement
+    >;
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValue(
+      expressCheckoutElement,
+    );
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          paymentChangeCallback = callback as (
+            event: StripePaymentElementChangeEvent,
+          ) => void;
+          setTimeout(() => {
+            paymentChangeCallback?.({
+              complete: true,
+              value: { type: "card" },
+              elementType: "payment",
+              empty: false,
+              collapsed: false,
+            });
+          }, 100);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+
+    const onError = vi.fn();
+    const component = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        customerEmail: "test@test.com",
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+        onError,
+      },
+      context: defaultContext,
+    });
+
+    // Let the element change event schedule its debounced tax refresh.
+    await vi.advanceTimersByTimeAsync(100);
+
+    return { component, onError, paymentChangeCallback };
+  }
+
+  async function renderConfirmationTokenError(error: StripeServiceError) {
+    vi.mocked(StripeService.extractTaxCustomerDetails).mockRejectedValue(error);
+
+    const result = await renderConfirmationTokenFlow();
+    await vi.advanceTimersByTimeAsync(500);
+
+    return result;
+  }
+
+  test("shows and clears an owned confirmation-token error message", async () => {
+    const { onError, paymentChangeCallback } =
+      await renderConfirmationTokenError(
+        new StripeServiceError(
+          StripeServiceErrorCode.ConfirmationTokenError,
+          "card_declined",
+          "Stripe's raw error message",
+          "card_not_supported",
+        ),
+      );
+
+    expect(screen.getByText(cardNotSupportedErrorMessage)).not.toBeNull();
+    expect(screen.queryByText("Stripe's raw error message")).toBeNull();
+    expect(screen.getByTestId("payment-form")).not.toBeNull();
+    expect(onError).not.toHaveBeenCalled();
+
+    paymentChangeCallback?.({
+      complete: true,
+      value: { type: "card" },
+      elementType: "payment",
+      empty: false,
+      collapsed: false,
+    });
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(screen.queryByText(cardNotSupportedErrorMessage)).toBeNull();
+  });
+
+  test("shows the safe fallback for other confirmation-token errors", async () => {
+    const { onError } = await renderConfirmationTokenError(
+      new StripeServiceError(
+        StripeServiceErrorCode.ConfirmationTokenError,
+        "card_declined",
+        "Stripe's raw error message",
+        "insufficient_funds",
+      ),
+    );
+
+    expect(screen.getByText(genericPaymentMethodErrorMessage)).not.toBeNull();
+    expect(screen.queryByText("Stripe's raw error message")).toBeNull();
+    expect(onError).not.toHaveBeenCalled();
+  });
+
+  test("clears an owned confirmation-token error when a retry skips tax recalculation", async () => {
+    const { component, onError } = await renderConfirmationTokenError(
+      new StripeServiceError(
+        StripeServiceErrorCode.ConfirmationTokenError,
+        "card_declined",
+        "Stripe's raw error message",
+        "card_not_supported",
+      ),
+    );
+
+    await component.rerender({
+      ...basicProps,
+      customerEmail: "test@test.com",
+      brandingInfo: {
+        ...brandingInfo,
+        gateway_tax_collection_enabled: true,
+      },
+      defaultPriceBreakdown: {
+        currency: "USD",
+        totalAmountInMicros: 1000000,
+        totalExcludingTaxInMicros: 1000000,
+        taxCalculationStatus: "disabled",
+        taxAmountInMicros: null,
+        taxBreakdown: null,
+      },
+      onError,
+    });
+
+    expect(screen.getByText(cardNotSupportedErrorMessage)).not.toBeNull();
+
+    await fireEvent.submit(screen.getByTestId("payment-form"));
+
+    expect(screen.queryByText(cardNotSupportedErrorMessage)).toBeNull();
+  });
+
+  test("clears an older refresh error after the current refresh succeeds", async () => {
+    let rejectFirstExtraction: (error: StripeServiceError) => void = () => {};
+    const firstExtraction = new Promise<{
+      customerDetails: TaxCustomerDetails;
+      confirmationTokenId: string;
+    }>((_resolve, reject) => {
+      rejectFirstExtraction = reject;
+    });
+    vi.mocked(StripeService.extractTaxCustomerDetails)
+      .mockReturnValueOnce(firstExtraction)
+      .mockResolvedValueOnce({
+        customerDetails: {
+          countryCode: "US",
+          postalCode: "94107",
+          state: "CA",
+          city: "San Francisco",
+          addressLine1: "354 Oyster Point Blvd",
+          addressLine2: "Floor 2",
+        },
+        confirmationTokenId: "ctoken-id",
+      });
+
+    const { paymentChangeCallback } = await renderConfirmationTokenFlow();
+
+    // Start the first refresh, then schedule its replacement while the first
+    // confirmation-token request is still pending.
+    await vi.advanceTimersByTimeAsync(500);
+    paymentChangeCallback?.({
+      complete: true,
+      value: { type: "card" },
+      elementType: "payment",
+      empty: false,
+      collapsed: false,
+    });
+
+    // The older request fails before the replacement's debounce expires, so
+    // its error is briefly displayed.
+    rejectFirstExtraction(
+      new StripeServiceError(
+        StripeServiceErrorCode.ConfirmationTokenError,
+        "card_declined",
+        "Stripe's raw error message",
+        "card_not_supported",
+      ),
+    );
+    await vi.advanceTimersByTimeAsync(0);
+    expect(screen.getByText(cardNotSupportedErrorMessage)).not.toBeNull();
+
+    // The replacement refresh succeeds and owns the current form state, so the
+    // older error must no longer be shown.
+    await vi.advanceTimersByTimeAsync(500);
+    expect(screen.queryByText(cardNotSupportedErrorMessage)).toBeNull();
   });
 
   test("does not recalculate taxes while the full billing address is incomplete", async () => {

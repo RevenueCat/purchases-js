@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "számlázás {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "első {{firstPeriod}}, majd {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "adóval",
-  "paddle_order_summary.due_on": "Esedékes: {{date}}"
+  "paddle_order_summary.due_on": "Esedékes: {{date}}",
+  "payment_entry_page.payment_method_error": "Nem tudtuk használni ezt a fizetési módot. Ellenőrizze adatait, vagy próbáljon meg egy másik fizetési módot.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Ezt a kártyatípust nem fogadjuk el. Próbáljon meg egy másik kártyát."
 }

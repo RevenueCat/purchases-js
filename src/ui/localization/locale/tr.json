@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "{{frequency}} faturalandırılır",
   "paddle_order_summary.intro_then_recurring": "ilk {{firstPeriod}}, ardından {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "vergi dahil",
-  "paddle_order_summary.due_on": "Son ödeme: {{date}}"
+  "paddle_order_summary.due_on": "Son ödeme: {{date}}",
+  "payment_entry_page.payment_method_error": "Bu ödeme yöntemini kullanamadık. Bilgilerinizi kontrol edin veya farklı bir ödeme yöntemi deneyin.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Bu kart türü kabul edilmiyor. Farklı bir kart deneyin."
 }

@@ -11,6 +11,7 @@
     shouldCollectFullAddress,
   } from "../../networking/responses/branding-response";
   import IconError from "../atoms/icons/icon-error.svelte";
+  import Icon from "../atoms/icon.svelte";
   import MessageLayout from "../layout/message-layout.svelte";
 
   import { translatorContextKey } from "../localization/constants";
@@ -205,6 +206,7 @@
   );
   let selectedPaymentMethod: string | undefined = $state(undefined);
   let modalErrorMessage: string | undefined = $state(undefined);
+  let paymentMethodErrorMessage: string | undefined = $state(undefined);
   let clientSecret: string | undefined = $state(undefined);
   let processing = $state(false);
   let abortController: AbortController | null = $state(null);
@@ -444,7 +446,7 @@
   function handleEmailChange(complete: boolean, emailValue: string) {
     email = emailValue;
     isEmailComplete = complete;
-    scheduleRefreshTaxes();
+    handleCheckoutDetailsChanged();
   }
 
   function handlePaymentInfoChange({
@@ -459,7 +461,7 @@
     selectedPaymentMethod = paymentMethod;
     isPaymentInfoComplete = complete;
     selectedCountry = countryCode;
-    scheduleRefreshTaxes();
+    handleCheckoutDetailsChanged();
   }
 
   function handleAddressInfoChange(
@@ -478,6 +480,11 @@
       addressLine1: address.line1 ?? undefined,
       addressLine2: address.line2 ?? undefined,
     });
+    handleCheckoutDetailsChanged();
+  }
+
+  function handleCheckoutDetailsChanged(): void {
+    paymentMethodErrorMessage = undefined;
     scheduleRefreshTaxes();
   }
 
@@ -511,6 +518,8 @@
 
     if (processing) return;
     if (checkoutConsentRequired && !checkoutConsentAccepted) return;
+
+    paymentMethodErrorMessage = undefined;
 
     const event = createCheckoutPaymentFormSubmitEvent({
       selectedPaymentMethod: selectedPaymentMethod ?? null,
@@ -702,6 +711,7 @@
     } = await StripeService.extractTaxCustomerDetails(elements, stripe);
 
     signal?.throwIfAborted();
+    paymentMethodErrorMessage = undefined;
 
     const lastTaxCustomerDetails = lastCalculatedTaxCustomerDetails;
     const sameDetails =
@@ -787,6 +797,13 @@
     eventsTracker.trackSDKEvent(event);
 
     if (error.code === StripeServiceErrorCode.HandledFormError) {
+    } else if (error.code === StripeServiceErrorCode.ConfirmationTokenError) {
+      const localizationKey =
+        error.gatewayErrorCode === "card_declined" &&
+        error.gatewayDeclineCode === "card_not_supported"
+          ? LocalizationKeys.PaymentEntryPagePaymentMethodErrorCardNotSupported
+          : LocalizationKeys.PaymentEntryPagePaymentMethodError;
+      paymentMethodErrorMessage = $translator.translate(localizationKey);
     } else if (error.code === StripeServiceErrorCode.UnhandledFormError) {
       modalErrorMessage = error.message;
     } else {
@@ -856,6 +873,14 @@
           allowExpressCheckout={!checkoutConsentRequired ||
             checkoutConsentAccepted}
         />
+        {#if paymentMethodErrorMessage}
+          <div class="rcb-payment-method-error" role="alert">
+            <span class="rcb-payment-method-error-icon" aria-hidden="true">
+              <Icon name="warning" />
+            </span>
+            <span>{paymentMethodErrorMessage}</span>
+          </div>
+        {/if}
       </div>
 
       <div
@@ -938,6 +963,22 @@
     /* The standard height of the payment form from Stripe */
     /* Added to avoid the card getting smaller while loading */
     min-height: 210px;
+  }
+
+  .rcb-payment-method-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: var(--rc-spacing-gapLarge-mobile);
+    color: var(--rc-color-error);
+    font: var(--rc-text-bodySmall-mobile);
+  }
+
+  .rcb-payment-method-error-icon {
+    display: block;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
   }
 
   .rc-checkout-form-container.invisible {

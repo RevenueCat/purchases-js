@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "thanh toán {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}} đầu tiên, sau đó {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "đã gồm thuế",
-  "paddle_order_summary.due_on": "Đến hạn ngày {{date}}"
+  "paddle_order_summary.due_on": "Đến hạn ngày {{date}}",
+  "payment_entry_page.payment_method_error": "Chúng tôi không thể sử dụng phương thức thanh toán này. Vui lòng kiểm tra lại thông tin chi tiết hoặc thử một phương thức thanh toán khác.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Loại thẻ này không được chấp nhận. Vui lòng thử một thẻ khác."
 }

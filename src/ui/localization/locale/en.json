@@ -54,6 +54,8 @@
   "payment_entry_page.button_with_price": "Pay {{formattedPrice}}",
   "payment_entry_page.button_payment_method": "Pay {{formattedPrice}} with {{paymentMethod}}",
   "payment_entry_page.express_checkout_divider": "OR PAY BY CARD",
+  "payment_entry_page.payment_method_error": "We couldn't use this payment method. Check your details or try a different payment method.",
+  "payment_entry_page.payment_method_error_card_not_supported": "This card type isn't accepted. Try a different card.",
   "loading_page.processing_payment": "Processing payment",
   "loading_page.keep_page_open": "The process is almost done. Keep this page open.",
   "success_page.purchase_successful": "Payment complete",

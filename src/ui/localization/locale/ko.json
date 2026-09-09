@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "{{frequency}} 청구",
   "paddle_order_summary.intro_then_recurring": "첫 {{firstPeriod}}, 이후 {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "세금 포함",
-  "paddle_order_summary.due_on": "{{date}} 결제 예정"
+  "paddle_order_summary.due_on": "{{date}} 결제 예정",
+  "payment_entry_page.payment_method_error": "이 결제 수단을 사용할 수 없습니다. 정보를 확인하거나 다른 결제 수단을 이용해 주세요.",
+  "payment_entry_page.payment_method_error_card_not_supported": "이 카드 유형은 허용되지 않습니다. 다른 카드를 이용해 주세요."
 }

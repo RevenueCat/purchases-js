@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "dibilkan {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}} pertama, kemudian {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "termasuk cukai",
-  "paddle_order_summary.due_on": "Perlu dibayar pada {{date}}"
+  "paddle_order_summary.due_on": "Perlu dibayar pada {{date}}",
+  "payment_entry_page.payment_method_error": "Kami tidak dapat menggunakan kaedah pembayaran ini. Semak butiran anda atau cuba kaedah pembayaran lain.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Jenis kad ini tidak diterima. Cuba kad lain."
 }

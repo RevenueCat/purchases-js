@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "zaračunano {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "prvi {{firstPeriod}}, nato {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "z davkom",
-  "paddle_order_summary.due_on": "Zapade {{date}}"
+  "paddle_order_summary.due_on": "Zapade {{date}}",
+  "payment_entry_page.payment_method_error": "Te plačilne metode nismo mogli uporabiti. Preverite svoje podatke ali poskusite z drugo plačilno metodo.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Ta vrsta kartice ni sprejeta. Poskusite z drugo kartico."
 }

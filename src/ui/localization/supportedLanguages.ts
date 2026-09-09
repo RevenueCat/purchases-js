@@ -89,6 +89,8 @@ export enum LocalizationKeys {
   PaymentEntryPageButtonWithPrice = "payment_entry_page.button_with_price",
   PaymentEntryPageButtonPaymentMethod = "payment_entry_page.button_payment_method",
   PaymentEntryPageExpressCheckoutDivider = "payment_entry_page.express_checkout_divider",
+  PaymentEntryPagePaymentMethodError = "payment_entry_page.payment_method_error",
+  PaymentEntryPagePaymentMethodErrorCardNotSupported = "payment_entry_page.payment_method_error_card_not_supported",
   SuccessPagePurchaseSuccessful = "success_page.purchase_successful",
   SuccessPageButtonClose = "success_page.button_close",
   LoadingPageProcessingPayment = "loading_page.processing_payment",

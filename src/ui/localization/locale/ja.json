@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "{{frequency}}請求",
   "paddle_order_summary.intro_then_recurring": "最初の{{firstPeriod}}、その後{{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "税込",
-  "paddle_order_summary.due_on": "{{date}}に請求"
+  "paddle_order_summary.due_on": "{{date}}に請求",
+  "payment_entry_page.payment_method_error": "このお支払い方法はご利用いただけませんでした。詳細をご確認いただくか、別のお支払い方法をお試しください。",
+  "payment_entry_page.payment_method_error_card_not_supported": "このカードタイプはご利用いただけません。別のカードをお試しください。"
 }
