@@ -10,6 +10,7 @@ import {
   confirmStripeEmailFieldVisible,
   enterCreditCardDetails,
   enterEmail,
+  EXTERNAL_PURCHASE_TOKEN_ID,
   getBackButtons,
   getEmailFromUserId,
   getPackageCards,
@@ -17,6 +18,7 @@ import {
   performPurchase,
   skipPaywallsTestIfDisabled,
   startPurchaseFlow,
+  waitForCheckoutStartRequest,
 } from "./helpers/test-helpers";
 import { integrationTest } from "./helpers/integration-test";
 import {
@@ -31,6 +33,36 @@ test.describe("Purchase flow", () => {
     async ({ page, userId, email }) => {
       page = await navigateToLandingUrl(page, userId);
       const packageCards = await getPackageCards(page);
+      await performPurchase(page, packageCards[1], email);
+    },
+  );
+
+  integrationTest(
+    "Forwards the external purchase token for a direct purchase",
+    async ({ page, userId }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+      const packageCards = await getPackageCards(page);
+      const requestPromise = waitForCheckoutStartRequest(page);
+
+      await startPurchaseFlow(packageCards[1]);
+
+      const request = await requestPromise;
+      expect(request.postDataJSON().external_purchase_token_id).toBe(
+        EXTERNAL_PURCHASE_TOKEN_ID,
+      );
+    },
+  );
+
+  integrationTest(
+    "Purchases a subscription product with an external purchase token",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+      const packageCards = await getPackageCards(page);
+
       await performPurchase(page, packageCards[1], email);
     },
   );
@@ -102,6 +134,58 @@ test.describe("Purchase flow", () => {
       await expect(purchaseButton).toBeVisible();
 
       // Target the parent element of the purchase button since the function targets the button itself
+      await performPurchase(page, purchaseButton.locator("../../.."), email);
+    },
+  );
+
+  integrationTest(
+    "Forwards the external purchase token from an RC Paywall",
+    async ({ page, userId }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToLandingUrl(page, userId, {
+        offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+        useRcPaywall: true,
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+      const title = page.getByText("E2E Tests for Purchases JS");
+      await expect(title).toBeVisible();
+
+      const weekly = page.getByText("weekly", { exact: true });
+      await weekly.click();
+
+      const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });
+      await expect(purchaseButton).toBeVisible();
+      const requestPromise = waitForCheckoutStartRequest(page);
+
+      await purchaseButton.click();
+
+      const request = await requestPromise;
+      expect(request.postDataJSON().external_purchase_token_id).toBe(
+        EXTERNAL_PURCHASE_TOKEN_ID,
+      );
+    },
+  );
+
+  integrationTest(
+    "Purchases from an RC Paywall with an external purchase token",
+    async ({ page, userId, email }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToLandingUrl(page, userId, {
+        offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+        useRcPaywall: true,
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+      const title = page.getByText("E2E Tests for Purchases JS");
+      await expect(title).toBeVisible();
+
+      const weekly = page.getByText("weekly", { exact: true });
+      await weekly.click();
+
+      const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });
+      await expect(purchaseButton).toBeVisible();
+
       await performPurchase(page, purchaseButton.locator("../../.."), email);
     },
   );

@@ -47,6 +47,8 @@
     appUserId: string;
     purchaseOption: PurchaseOption;
     customerEmail: string | undefined;
+    externalPurchaseTokenId?: string;
+    discountCode?: string;
     metadata: PurchaseMetadata | undefined;
     attributionMetadata?: AttributionMetadata;
     workflowPurchaseContext?: WorkflowPurchaseContext;
@@ -71,6 +73,8 @@
     appUserId,
     purchaseOption,
     customerEmail,
+    externalPurchaseTokenId,
+    discountCode,
     metadata,
     attributionMetadata,
     workflowPurchaseContext,
@@ -200,6 +204,7 @@
         presentedOfferingContext,
         purchaseOption,
         customerEmail,
+        externalPurchaseTokenId,
         metadata,
         locale: selectedLocale,
         attributionMetadata,
@@ -244,6 +249,7 @@
             productDetails.presentedOfferingContext.offeringIdentifier,
           customerEmail,
           locale: selectedLocale || defaultLocale,
+          ...(discountCode && { discountCode }),
         },
         ...(useInlineCheckout && {
           displayMode: "inline" as const,

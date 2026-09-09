@@ -29,6 +29,7 @@ type LandingQuery = {
   nickname?: string;
   hideBackButtons?: boolean;
   discountCode?: string;
+  rc_external_purchase_token_id?: string;
 };
 
 export async function navigateToPaddleLandingUrl(

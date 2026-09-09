@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "Planning bevestigen",
   "upgrade_confirm_page.on_file": "Geregistreerd",
   "credit_for_unused_time.title": "Tegoed voor ongebruikte tijd",
-  "credit_for_unused_time.message": "Uw betaalmethode wordt belast voor het verschil tussen abonnementen, met een tegoed voor ongebruikte tijd van uw {{previousProductName}}-abonnement."
+  "credit_for_unused_time.message": "Uw betaalmethode wordt belast voor het verschil tussen abonnementen, met een tegoed voor ongebruikte tijd van uw {{previousProductName}}-abonnement.",
+  "paddle_checkout.return_to": "Terug naar {{appName}}",
+  "paddle_order_summary.billed_frequency": "gefactureerd {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "eerste {{firstPeriod}}, daarna {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "incl. btw",
+  "paddle_order_summary.due_on": "Verschuldigd op {{date}}"
 }

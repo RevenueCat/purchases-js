@@ -134,6 +134,7 @@ interface CheckoutStartParams {
 
   // Customer data
   customerEmail?: string;
+  externalPurchaseTokenId?: string;
   metadata?: PurchaseMetadata;
   // Resolved from selectedLocale/defaultLocale at the public API layer.
   // Future: consider adding localeSource?: "selected" | "browser".
@@ -173,10 +174,12 @@ export interface OperationSessionSuccessfulResult {
   productIdentifier: string;
   purchaseDate: Date;
   attributionMetadata?: PurchaseResponseAttributionMetadata;
+  customerEmail?: string;
 }
 
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
+  private completedCustomerEmail: string | undefined = undefined;
   private readonly backend: Backend;
   private readonly eventsTracker: IEventsTracker;
   private readonly maxNumberAttempts: number;
@@ -274,6 +277,7 @@ export class PurchaseOperationHelper {
     paywallId,
     paywallSessionId,
     customerEmail,
+    externalPurchaseTokenId,
     metadata,
     locale,
     attributionMetadata,
@@ -302,6 +306,7 @@ export class PurchaseOperationHelper {
         paywallId,
         paywallSessionId,
         customerEmail,
+        externalPurchaseTokenId,
         metadata,
         locale,
         attributionMetadata,
@@ -310,6 +315,7 @@ export class PurchaseOperationHelper {
         subscriberToken,
       });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
+      this.completedCustomerEmail = undefined;
       return checkoutStartResponse;
     } catch (error) {
       if (error instanceof PurchasesError) {
@@ -412,6 +418,7 @@ export class PurchaseOperationHelper {
           "Unexpected subscription-change response for purchase checkout.",
         );
       }
+      this.completedCustomerEmail = options.email || undefined;
       return response;
     } catch (error) {
       if (error instanceof PurchaseFlowError) {
@@ -518,7 +525,8 @@ export class PurchaseOperationHelper {
                   this.waitMSBetweenAttempts,
                 );
                 break;
-              case CheckoutSessionStatus.Succeeded:
+              case CheckoutSessionStatus.Succeeded: {
+                const customerEmail = this.completedCustomerEmail;
                 this.clearPurchaseInProgress();
                 if (
                   !storeTransactionIdentifier ||
@@ -541,8 +549,10 @@ export class PurchaseOperationHelper {
                   purchaseDate: purchaseDate,
                   attributionMetadata:
                     operationResponse.attribution_metadata ?? undefined,
+                  customerEmail,
                 });
                 return;
+              }
               case CheckoutSessionStatus.Failed:
                 this.clearPurchaseInProgress();
                 handleCheckoutSessionFailed(
@@ -566,5 +576,6 @@ export class PurchaseOperationHelper {
 
   private clearPurchaseInProgress() {
     this.operationSessionId = null;
+    this.completedCustomerEmail = undefined;
   }
 }

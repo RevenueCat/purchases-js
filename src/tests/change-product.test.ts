@@ -16,7 +16,7 @@ import {
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { expectPromiseToError } from "./test-helpers";
 import { Backend } from "../networking/backend";
-import { Purchases } from "../main";
+import { Purchases, type PurchaseParams } from "../main";
 import { defaultHttpConfig } from "../entities/http-config";
 import {
   PurchaseFlowError,
@@ -28,6 +28,8 @@ import { subscriptionChangeImmediateWithTax } from "../stories/fixtures";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 
+const STRIPE_API_KEY = "strp_sb_test_api_key";
+const PADDLE_API_KEY = "pdl_test_api_key";
 const SUBSCRIBER_TOKEN_1 = "eyJhbGciOiJSUzI1NiJ9.subscriber.token.1";
 const SUBSCRIBER_TOKEN_2 = "eyJhbGciOiJSUzI1NiJ9.subscriber.token.2";
 const FROM_PRODUCT_IDENTIFIER = "premium_monthly";
@@ -43,6 +45,33 @@ const purchaseModeStartResponse: WebBillingCheckoutStartResponse = {
   management_url: "https://example.com/manage",
   paddle_billing_params: null,
   checkout_mode: "purchase",
+};
+
+const stripePurchaseModeStartResponse: WebBillingCheckoutStartResponse = {
+  operation_session_id: "rcbopsess_stripe_purchase_mode",
+  gateway_params: {
+    publishable_api_key: "pk_test",
+    stripe_account_id: "acct_test",
+  },
+  stripe_billing_params: {
+    client_secret: "cs_test_secret",
+    environment: "sandbox",
+    publishable_api_key: "pk_test",
+    stripe_account_id: "acct_test",
+  },
+  management_url: "https://example.com/manage",
+  paddle_billing_params: null,
+  checkout_mode: "purchase",
+};
+
+type ProductChangeGate = {
+  resolveProductChange: (params: PurchaseParams) =>
+    | {
+        subscriptionId?: string;
+        productIdentifier?: string;
+        subscriberToken: string;
+      }
+    | undefined;
 };
 
 function expectStartCalledWith(
@@ -330,6 +359,139 @@ describe("Purchases.purchase productChangeInfo", () => {
     // The session created by /checkout/start is reused; no second start call.
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(startCallCount).toBe(1);
+  });
+
+  test("forwards product change to checkout start for Stripe app api keys", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      STRIPE_API_KEY,
+    );
+
+    const startSpy = vi
+      .spyOn(PurchaseOperationHelper.prototype, "checkoutStart")
+      .mockResolvedValue(subscriptionChangeImmediateWithTax);
+
+    void purchases.purchase({
+      rcPackage: packageToBuy,
+      productChangeInfo: {
+        subscriptionId: "subabc123",
+        productIdentifier: FROM_PRODUCT_IDENTIFIER,
+        subscriberToken: SUBSCRIBER_TOKEN_1,
+      },
+    });
+
+    await vi.waitFor(() => {
+      expectStartCalledWith(startSpy, {
+        subscriptionId: "subabc123",
+        productIdentifier: FROM_PRODUCT_IDENTIFIER,
+        subscriberToken: SUBSCRIBER_TOKEN_1,
+      });
+    });
+  });
+
+  test("rejects API-key shaped subscriber tokens for Stripe app api keys", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      STRIPE_API_KEY,
+    );
+
+    await expectPromiseToError(
+      purchases.purchase({
+        rcPackage: packageToBuy,
+        productChangeInfo: {
+          subscriptionId: "subabc123",
+          subscriberToken: "strp_test_api_key",
+        },
+      }),
+      new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Invalid subscriber token.",
+      ),
+    );
+  });
+
+  test("continues as a normal Stripe purchase in the same session when backend starts a purchase checkout", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      STRIPE_API_KEY,
+    );
+
+    let startCallCount = 0;
+    let requestBody: {
+      product_change?: {
+        subscription_id?: string;
+        from_product_id?: string;
+      };
+    } = {};
+
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/start",
+        async ({ request }) => {
+          startCallCount += 1;
+          requestBody = (await request.json()) as typeof requestBody;
+          return HttpResponse.json(stripePurchaseModeStartResponse, {
+            status: 201,
+          });
+        },
+      ),
+    );
+
+    void purchases.purchase({
+      rcPackage: packageToBuy,
+      productChangeInfo: {
+        subscriberToken: SUBSCRIBER_TOKEN_1,
+      },
+    });
+
+    await vi.waitFor(() => {
+      expect(startCallCount).toBe(1);
+    });
+    expect(requestBody.product_change).toEqual({});
+
+    // The session created by /checkout/start is reused; no second start call.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(startCallCount).toBe(1);
+  });
+});
+
+describe("productChangeInfo gateway gate", () => {
+  const productChangeParams: PurchaseParams = {
+    rcPackage: packageToBuy,
+    productChangeInfo: {
+      subscriptionId: "subabc123",
+      subscriberToken: SUBSCRIBER_TOKEN_1,
+    },
+  };
+
+  const resolveFor = (apiKey: string) => {
+    const purchases = configurePurchases(testUserId, "rcSource", apiKey);
+    return (purchases as unknown as ProductChangeGate).resolveProductChange(
+      productChangeParams,
+    );
+  };
+
+  test("resolves product change for Web Billing api keys", () => {
+    expect(resolveFor(testApiKey)).toEqual({
+      subscriptionId: "subabc123",
+      productIdentifier: undefined,
+      subscriberToken: SUBSCRIBER_TOKEN_1,
+    });
+  });
+
+  test("resolves product change for Stripe app api keys", () => {
+    expect(resolveFor(STRIPE_API_KEY)).toEqual({
+      subscriptionId: "subabc123",
+      productIdentifier: undefined,
+      subscriberToken: SUBSCRIBER_TOKEN_1,
+    });
+  });
+
+  test("does not resolve product change for Paddle api keys", () => {
+    expect(resolveFor(PADDLE_API_KEY)).toBeUndefined();
   });
 });
 

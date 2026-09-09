@@ -1,4 +1,5 @@
 import type { PresentedOfferingContext } from "../entities/offerings";
+import type { PaywallInteractionEvent } from "../entities/paywall-interaction-event";
 import { generateUUID } from "../helpers/uuid-helper";
 
 export type PaywallEventType =
@@ -243,6 +244,19 @@ const toCommonPayload = (
   }
   return payload;
 };
+
+export const toPaywallInteractionEvent = (
+  data: PaywallComponentInteractionEventData,
+  timestamp: number = Date.now(),
+): PaywallInteractionEvent => ({
+  timestamp,
+  session_id: data.sessionId,
+  offering_id: data.offeringId,
+  ...(data.paywallRcPublicId ? { paywall_id: data.paywallRcPublicId } : {}),
+  paywall_revision: data.paywallRevision,
+  ...toDisplayPayload(data),
+  ...toComponentInteractionPayload(data),
+});
 
 export class PaywallEvent {
   public readonly id: string;

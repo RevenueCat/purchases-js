@@ -136,8 +136,18 @@
     !billedFrequencyLabel
       ? null
       : stepsUpToRecurring && firstPeriodLabel
-        ? `first ${firstPeriodLabel}, then ${formatAmount(recurringMicros!)} ${billedFrequencyLabel}`
-        : `billed ${billedFrequencyLabel}`,
+        ? $translator.translate(
+            LocalizationKeys.PaddleOrderSummaryIntroThenRecurring,
+            {
+              firstPeriod: firstPeriodLabel,
+              price: formatAmount(recurringMicros!),
+              frequency: billedFrequencyLabel,
+            },
+          )
+        : $translator.translate(
+            LocalizationKeys.PaddleOrderSummaryBilledFrequency,
+            { frequency: billedFrequencyLabel },
+          ),
   );
 
   const productName = $derived(totals?.productName ?? productDetails.title);
@@ -173,7 +183,11 @@
     <div class="rcb-paddle-summary-amount-row">
       <span class="rcb-paddle-summary-amount">{formatAmount(totalMicros)}</span>
       {#if hasTax}
-        <span class="rcb-paddle-summary-muted">inc. tax</span>
+        <span class="rcb-paddle-summary-muted"
+          >{$translator.translate(
+            LocalizationKeys.PaddleOrderSummaryIncTax,
+          )}</span
+        >
       {/if}
     </div>
     {#if billedSummaryLabel}
@@ -228,7 +242,10 @@
       </div>
       {#if recurringMicros !== null && nextBillingLabel}
         <div class="rcb-paddle-summary-row">
-          <span class="rcb-paddle-summary-muted">Due on {nextBillingLabel}</span
+          <span class="rcb-paddle-summary-muted"
+            >{$translator.translate(LocalizationKeys.PaddleOrderSummaryDueOn, {
+              date: nextBillingLabel,
+            })}</span
           >
           <span>{formatAmount(recurringMicros)}</span>
         </div>

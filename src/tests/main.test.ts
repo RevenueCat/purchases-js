@@ -238,6 +238,24 @@ describe("Purchases.configure()", () => {
     loggerSpy.mockRestore();
   });
 
+  test("identifies stripe sandbox api keys as sandbox", () => {
+    const purchases = Purchases.configure({
+      apiKey: "strp_sb_valid_key",
+      appUserId: testUserId,
+    });
+
+    expect(purchases.isSandbox()).toBe(true);
+  });
+
+  test("does not identify production stripe api keys as sandbox", () => {
+    const purchases = Purchases.configure({
+      apiKey: "strp_valid_key",
+      appUserId: testUserId,
+    });
+
+    expect(purchases.isSandbox()).toBe(false);
+  });
+
   test("does not throw error if given valid web billing api key", () => {
     const loggerSpy = vi.spyOn(Logger, "enableConsoleLogForDebugMessages");
 
@@ -1216,6 +1234,44 @@ describe("Purchases.purchase()", () => {
           productIdentifier: "monthly",
           purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
         },
+      }),
+    );
+  });
+
+  test("passes customerEmail through the purchase result", async () => {
+    const purchases = configurePurchases();
+    const customerInfo = { originalAppUserId: "test-user-id" } as CustomerInfo;
+    type PurchasesWithCustomerInfoGetter = Purchases & {
+      _getCustomerInfoForUserId: (appUserId: string) => Promise<CustomerInfo>;
+    };
+    const purchasesWithCustomerInfoGetter =
+      purchases as PurchasesWithCustomerInfoGetter;
+    vi.spyOn(
+      purchasesWithCustomerInfoGetter,
+      "_getCustomerInfoForUserId",
+    ).mockResolvedValue(customerInfo);
+
+    const resolve = vi.fn();
+    const onFinished = purchases["createCheckoutOnFinishedHandler"](
+      resolve,
+      "test-app-user-id",
+      createMonthlyPackageMock(),
+    );
+
+    await onFinished({
+      redemptionInfo: null,
+      operationSessionId: "test-operation-session-id",
+      storeTransactionIdentifier: "test-store-transaction-id",
+      productIdentifier: "test-product-id",
+      purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
+      customerEmail: "typed@example.com",
+    });
+
+    expect(resolve).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customerInfo,
+        customerEmail: "typed@example.com",
+        operationSessionId: "test-operation-session-id",
       }),
     );
   });

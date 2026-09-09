@@ -3,6 +3,7 @@ import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
 import { Purchases } from "@revenuecat/purchases-js";
 import { isPaddleApiKey, isStripeApiKey } from "../../util/PurchasesLoader";
+import { appendExternalPurchaseTokenId } from "../../util/external-purchase-token";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const LoginPage: React.FC = () => {
   const [nickname, setNickname] = useState("");
   const [appUserId, setAppUserId] = useState("");
   const [offeringId, setOfferingId] = useState("");
+  const [externalPurchaseTokenId, setExternalPurchaseTokenId] = useState("");
   const [useCustomLogger, setUseCustomLogger] = useState(true);
 
   const navigateToAppUserIDPaywall = (
@@ -27,6 +29,7 @@ const LoginPage: React.FC = () => {
       if (offeringId.trim()) {
         params.append("offeringId", offeringId.trim());
       }
+      appendExternalPurchaseTokenId(params, externalPurchaseTokenId);
       // Add custom logger preference
       params.append("useCustomLogger", useCustomLogger.toString());
 
@@ -59,6 +62,13 @@ const LoginPage: React.FC = () => {
               placeholder="Offering identifier (leave blank for default offering)"
               value={offeringId}
               onChange={(e) => setOfferingId(e.target.value)}
+              className="input-field"
+            />
+            <input
+              type="text"
+              placeholder="External purchase token ID (optional)"
+              value={externalPurchaseTokenId}
+              onChange={(e) => setExternalPurchaseTokenId(e.target.value)}
               className="input-field"
             />
             <input
@@ -112,6 +122,7 @@ const LoginPage: React.FC = () => {
               if (offeringId.trim()) {
                 params.append("offeringId", offeringId.trim());
               }
+              appendExternalPurchaseTokenId(params, externalPurchaseTokenId);
               const queryString = params.toString();
               window.location.assign(
                 `/appearance-overrides/${encodeURIComponent(userId)}${queryString ? `?${queryString}` : ""}`,

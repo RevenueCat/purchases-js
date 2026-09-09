@@ -161,6 +161,11 @@ export enum LocalizationKeys {
   UpgradeConfirmPageEmail = "upgrade_confirm_page.email",
   UpgradeConfirmPagePaymentMethod = "upgrade_confirm_page.payment_method",
   UpgradeConfirmPageBillingAddress = "upgrade_confirm_page.billing_address",
+  PaddleCheckoutReturnTo = "paddle_checkout.return_to",
+  PaddleOrderSummaryBilledFrequency = "paddle_order_summary.billed_frequency",
+  PaddleOrderSummaryIntroThenRecurring = "paddle_order_summary.intro_then_recurring",
+  PaddleOrderSummaryIncTax = "paddle_order_summary.inc_tax",
+  PaddleOrderSummaryDueOn = "paddle_order_summary.due_on",
 }
 
 export const supportedLanguages: Record<

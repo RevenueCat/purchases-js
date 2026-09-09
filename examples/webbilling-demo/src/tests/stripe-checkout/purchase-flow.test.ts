@@ -3,10 +3,12 @@ import { STRIPE_CHECKOUT_TEST_API_KEY } from "../helpers/fixtures";
 import { integrationTest } from "../helpers/integration-test";
 import {
   confirmPaymentError,
+  EXTERNAL_PURCHASE_TOKEN_ID,
   getPackageCards,
   skipPaywallsTestIfDisabled,
   skipStripeTestsIfDisabled,
   startPurchaseFlow,
+  waitForCheckoutStartRequest,
 } from "../helpers/test-helpers";
 import {
   confirmStripeCheckoutEmailPrefilled,
@@ -48,6 +50,72 @@ integrationTest.describe("Stripe Checkout flow", () => {
       const fullName = `E2E ${userId.replace(/_/g, " ")}`;
 
       page = await navigateToStripeCheckoutLandingUrl(page, userId);
+
+      await expect(page.getByText("Stripe Checkout demo")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+
+      const packageCards = await getPackageCards(page);
+      expect(packageCards.length).toBeGreaterThan(0);
+
+      await startPurchaseFlow(packageCards[0]);
+      await completeStripeCheckoutEmbeddedForm(page, email, fullName);
+      await confirmPaymentCompleteOrSkipOnCaptcha(
+        integrationTest,
+        page,
+        STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      );
+
+      const continueButton = page.getByRole("button", { name: /continue/i });
+      await expect(continueButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+
+      await Promise.all([
+        page.waitForURL(/\/success\//, {
+          timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+        }),
+        continueButton.click(),
+      ]);
+
+      await expect(
+        page.getByText("Enjoy your premium experience."),
+      ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
+    },
+  );
+
+  integrationTest(
+    "Forwards the external purchase token for a direct purchase",
+    async ({ page, userId }) => {
+      page = await navigateToStripeCheckoutLandingUrl(page, userId, {
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+
+      await expect(page.getByText("Stripe Checkout demo")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+
+      const packageCards = await getPackageCards(page);
+      expect(packageCards.length).toBeGreaterThan(0);
+      const requestPromise = waitForCheckoutStartRequest(page);
+
+      await startPurchaseFlow(packageCards[0]);
+
+      const request = await requestPromise;
+      expect(request.postDataJSON().external_purchase_token_id).toBe(
+        EXTERNAL_PURCHASE_TOKEN_ID,
+      );
+    },
+  );
+
+  integrationTest(
+    "Purchases a product with an external purchase token",
+    async ({ page, userId, email }) => {
+      const fullName = `E2E ${userId.replace(/_/g, " ")}`;
+
+      page = await navigateToStripeCheckoutLandingUrl(page, userId, {
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
 
       await expect(page.getByText("Stripe Checkout demo")).toBeVisible({
         timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
@@ -176,6 +244,96 @@ integrationTest.describe("Stripe Checkout flow", () => {
         useRcPaywall: true,
         lang: "en",
         email,
+      });
+
+      await expect(page.getByText("E2E Tests for Purchases JS")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+      await expect(
+        page.getByText(
+          "Testing current Offering is picked when no offering is passed",
+        ),
+      ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
+
+      const monthlyPackage = page.getByText("monthly", { exact: true });
+      await monthlyPackage.click();
+
+      const purchaseButton = page.getByText(/Subscribe/i);
+      await expect(purchaseButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+      await purchaseButton.click();
+
+      await completeStripeCheckoutEmbeddedForm(page, email, fullName, false);
+      await confirmPaymentCompleteOrSkipOnCaptcha(
+        integrationTest,
+        page,
+        STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      );
+
+      const continueButton = page.getByRole("button", { name: /continue/i });
+      await expect(continueButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+
+      await Promise.all([
+        page.waitForURL(/\/success\//, {
+          timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+        }),
+        continueButton.click(),
+      ]);
+
+      await expect(
+        page.getByText("Enjoy your premium experience."),
+      ).toBeVisible({ timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS });
+    },
+  );
+
+  integrationTest(
+    "Forwards the external purchase token from an RC Paywall",
+    async ({ page, userId }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToStripeCheckoutLandingUrl(page, userId, {
+        useRcPaywall: true,
+        lang: "en",
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+
+      await expect(page.getByText("E2E Tests for Purchases JS")).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+
+      const monthlyPackage = page.getByText("monthly", { exact: true });
+      await monthlyPackage.click();
+
+      const purchaseButton = page.getByText(/Subscribe/i);
+      await expect(purchaseButton).toBeVisible({
+        timeout: STRIPE_CHECKOUT_UI_STEP_TIMEOUT_MS,
+      });
+      const requestPromise = waitForCheckoutStartRequest(page);
+
+      await purchaseButton.click();
+
+      const request = await requestPromise;
+      expect(request.postDataJSON().external_purchase_token_id).toBe(
+        EXTERNAL_PURCHASE_TOKEN_ID,
+      );
+    },
+  );
+
+  integrationTest(
+    "Purchases from an RC Paywall with an external purchase token",
+    async ({ page, userId, email }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      const fullName = `E2E ${userId.replace(/_/g, " ")}`;
+
+      page = await navigateToStripeCheckoutLandingUrl(page, userId, {
+        useRcPaywall: true,
+        lang: "en",
+        email,
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
       });
 
       await expect(page.getByText("E2E Tests for Purchases JS")).toBeVisible({

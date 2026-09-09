@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "Potwierdź harmonogram",
   "upgrade_confirm_page.on_file": "Zapisane",
   "credit_for_unused_time.title": "Uznanie za niewykorzystany czas",
-  "credit_for_unused_time.message": "Twoja metoda płatności zostanie obciążona za różnicę między subskrypcjami, z uwzględnieniem niewykorzystanego czasu z Twojej subskrypcji {{previousProductName}}."
+  "credit_for_unused_time.message": "Twoja metoda płatności zostanie obciążona za różnicę między subskrypcjami, z uwzględnieniem niewykorzystanego czasu z Twojej subskrypcji {{previousProductName}}.",
+  "paddle_checkout.return_to": "Powrót do {{appName}}",
+  "paddle_order_summary.billed_frequency": "rozliczane {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "pierwszy {{firstPeriod}}, następnie {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "z podatkiem",
+  "paddle_order_summary.due_on": "Płatne {{date}}"
 }

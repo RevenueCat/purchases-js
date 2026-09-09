@@ -29,6 +29,7 @@
     onRemoveDiscountCode: (() => void | Promise<void>) | undefined;
     pendingTaxLabel?: string | null;
     totalRowLabel?: string | null;
+    detailsExpandedByDefault?: boolean;
   }
 
   let {
@@ -47,6 +48,7 @@
     onRemoveDiscountCode,
     pendingTaxLabel = null,
     totalRowLabel = null,
+    detailsExpandedByDefault = true,
   }: Props = $props();
 
   const trialEndDate = $derived(
@@ -303,7 +305,10 @@
 {/snippet}
 
 {#if showDetailsControls}
-  <PricingDropdown {showDiscountCodeField}>
+  <PricingDropdown
+    {showDiscountCodeField}
+    isExpanded={detailsExpandedByDefault}
+  >
     {@render pricingTable()}
   </PricingDropdown>
 {:else}

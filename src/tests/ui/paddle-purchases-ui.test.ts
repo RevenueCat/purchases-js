@@ -430,6 +430,28 @@ describe("PaddlePurchasesUI", () => {
     await expect(unmountPaddlePurchaseUi).toHaveBeenCalled();
   });
 
+  test("passes discountCode to purchase when provided", async () => {
+    const paddleServiceMock = createPaddleServiceMock();
+    const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+    render(PaddlePurchasesUI, {
+      props: {
+        ...baseProps,
+        paddleService: paddleServiceMock,
+        discountCode: "SAVE10",
+      },
+      context: defaultContext,
+    });
+
+    await waitFor(() => {
+      expect(purchaseSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: expect.objectContaining({ discountCode: "SAVE10" }),
+        }),
+      );
+    });
+  });
+
   test("passes customerEmail and metadata to startCheckout", async () => {
     const paddleServiceMock = createPaddleServiceMock();
     const startCheckoutSpy = vi.spyOn(paddleServiceMock, "startCheckout");
@@ -912,6 +934,23 @@ describe("PaddlePurchasesUI", () => {
         expect(
           await screen.findByText("Due on 14 August 2026"),
         ).toBeInTheDocument();
+      });
+
+      test("translates the summary labels for a non-English locale", async () => {
+        // "Due on" and "billed" used to be hardcoded English, so a French
+        // checkout rendered "Due on 14 août 2026" and "billed mensuel".
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+          selectedLocale: "fr",
+        });
+
+        expect(
+          await screen.findByText("Dû le 14 août 2026"),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText("premier 1 semaine, puis 20,00 $ mensuel"),
+        ).toBeInTheDocument();
+        expect(screen.queryByText(/^Due on /)).not.toBeInTheDocument();
       });
 
       test("describes a same-length intro that only differs in price", async () => {

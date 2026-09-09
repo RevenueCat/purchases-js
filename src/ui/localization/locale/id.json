@@ -125,5 +125,10 @@
   "upgrade_confirm_page.confirm_schedule": "Konfirmasi jadwal",
   "upgrade_confirm_page.on_file": "Tersimpan",
   "credit_for_unused_time.title": "Kredit Waktu Tidak Terpakai",
-  "credit_for_unused_time.message": "Metode pembayaran Anda akan ditagih untuk selisih antara langganan, dengan kredit untuk waktu yang tidak terpakai pada langganan {{previousProductName}} Anda."
+  "credit_for_unused_time.message": "Metode pembayaran Anda akan ditagih untuk selisih antara langganan, dengan kredit untuk waktu yang tidak terpakai pada langganan {{previousProductName}} Anda.",
+  "paddle_checkout.return_to": "Kembali ke {{appName}}",
+  "paddle_order_summary.billed_frequency": "ditagih {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "{{firstPeriod}} pertama, lalu {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "termasuk pajak",
+  "paddle_order_summary.due_on": "Jatuh tempo {{date}}"
 }

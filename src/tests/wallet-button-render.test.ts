@@ -116,4 +116,40 @@ describe("Purchases.getWalletButtonRender()", () => {
     await vi.waitFor(() => expect(buttonProps).toBeDefined());
     expect(buttonProps!.metadata).toEqual(metadata);
   });
+
+  test("forwards customerEmail from the operation result to onSuccess", async () => {
+    await renderButton();
+
+    buttonProps!.onFinished({
+      redemptionInfo: null,
+      operationSessionId: "test-operation-session-id",
+      storeTransactionIdentifier: "test-store-transaction-id",
+      productIdentifier: monthlyPackage.webBillingProduct.identifier,
+      purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
+      customerEmail: "typed@example.com",
+    });
+
+    await vi.waitFor(() => expect(onSuccess).toHaveBeenCalled());
+    expect(onSuccess.mock.calls[0]![0].customerEmail).toBe("typed@example.com");
+  });
+
+  test("forwards an external purchase token ID to the express purchase button", async () => {
+    const render = purchases.getWalletButtonRender(
+      offering,
+      onSuccess,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      "rcat_external_purchase_token_123",
+    );
+    render!(document.createElement("div"), {
+      selectedPackageId: monthlyPackage.identifier,
+      onReady: vi.fn(),
+    });
+    await vi.waitFor(() => expect(buttonProps).toBeDefined());
+    expect(buttonProps!.externalPurchaseTokenId).toBe(
+      "rcat_external_purchase_token_123",
+    );
+  });
 });

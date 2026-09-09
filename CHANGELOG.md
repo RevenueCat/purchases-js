@@ -1,3 +1,52 @@
+## 1.59.0
+## RevenueCat SDK
+### ✨ New Features
+* Bump purchases-ui-js to 4.8.22 (#1126) via Facundo Menzella (@facumenzella)
+### 🐞 Bugfixes
+* fix(paddle): localize hardcoded strings in the inline checkout (#1125) via Roger Solé (@rogersole)
+* fix: send X-Is-Sandbox header when using a Test Store API key (#1120) via Álvaro Brey (@AlvaroBrey)
+
+### 🔄 Other Changes
+* ci: bump external PR notifications workflow to v8 (#1119) via Álvaro Brey (@AlvaroBrey)
+* ci: notify external PRs feed on PRs from outside the org (#1118) via Álvaro Brey (@AlvaroBrey)
+
+## 1.58.0
+## RevenueCat SDK
+### ✨ New Features
+* Return billing email on PurchaseResult (#1104) via Franco Correa (@francocorreasosa)
+### 🐞 Bugfixes
+* Fix Apple Pay presentation for paid introductory offers (#1059) via Nicola Sacco (@nicfix)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* DX-999 | bump purchases-ui-js version to 4.8.21 (#1115) via Sufi Gaffar (@sufigaffar)
+
+## 1.57.0
+## RevenueCat SDK
+### ✨ New Features
+* PWENG-229 Thread PaywallContext packages from presentPaywall (#1098) via Franco Correa (@francocorreasosa)
+
+## 1.56.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-4653] Forward external purchase token IDs to checkout (#1106) via Nicola Sacco (@nicfix)
+### 📦 Dependency Updates
+* chore: bumped vite and axios versions in the demo app (#1108) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* Support Stripe app product upgrades (#1093) via Burdock (@lburdock)
+* Skip stale real tax e2e until 2026-10-31 (#1107) via Franco Correa (@francocorreasosa)
+
+## 1.55.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(paddle): forward discountCode to Paddle Checkout (#1102) via Víctor Ferrer García (@vicfergar)
+* feat: add trackCustomPaywallImpression() function (#1092) via Will Taylor (@fire-at-will)
+
+### 🔄 Other Changes
+* Product-change checkout tweaks (#1100) via James O'Donnell (@james-od)
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `7dd9ab9` to `6db1da0` (#1101) via dependabot[bot] (@dependabot[bot])
+
 ## 1.54.0
 ## RevenueCat SDK
 ### ✨ New Features

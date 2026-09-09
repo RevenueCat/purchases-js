@@ -13,6 +13,7 @@ export async function postSimulatedStoreReceipt(
   backend: Backend,
   appUserId: string,
   paywallId?: string,
+  customerEmail?: string,
 ): Promise<PurchaseResult> {
   const purchaseDate = new Date();
   const fetchToken = `test_${purchaseDate.getTime()}_${generateUUID()}`;
@@ -42,5 +43,6 @@ export async function postSimulatedStoreReceipt(
     redemptionInfo: null,
     operationSessionId,
     storeTransaction,
+    customerEmail,
   };
 }

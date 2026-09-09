@@ -97,7 +97,7 @@ describe("httpConfig is setup correctly", () => {
     server.events.on("request:start", (req) => {
       requestPerformed = req.request;
     });
-    backend = new Backend("test_api_key");
+    backend = new Backend("rcb_api_key");
     await backend.getCustomerInfo("someAppUserId");
     const headers = requestPerformed?.headers;
     expect(headers).not.toBeNull();
@@ -109,34 +109,24 @@ describe("httpConfig is setup correctly", () => {
     expect(headers.get("X-Is-Sandbox")).toEqual("false");
   });
 
-  test("includes the sandbox header for non-Amazon API key types", async () => {
-    server.use(
-      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () =>
-        HttpResponse.json(customerInfoResponse, { status: 200 }),
-      ),
+  test.each([
+    ["rcb_sb_api_key", "true"],
+    ["test_api_key", "true"],
+    ["rcb_api_key", "false"],
+    ["pdl_valid_key", "false"],
+    ["strp_valid_key", "false"],
+  ])("X-Is-Sandbox header for %s is %s", async (apiKey, expected) => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
     );
 
-    const requests: Request[] = [];
+    let requestPerformed: Request | undefined;
     server.events.on("request:start", (req) => {
-      requests.push(req.request);
+      requestPerformed = req.request;
     });
-    const apiKeys = [
-      { apiKey: "rcb_valid_key", isSandbox: false },
-      { apiKey: "rcb_sb_valid_key", isSandbox: true },
-      { apiKey: "pdl_valid_key", isSandbox: false },
-      { apiKey: "strp_valid_key", isSandbox: false },
-      { apiKey: "test_valid_key", isSandbox: false },
-    ];
-
-    for (const { apiKey, isSandbox } of apiKeys) {
-      backend = new Backend(apiKey);
-      await backend.getCustomerInfo("someAppUserId");
-
-      const latestRequest = requests.at(-1);
-      expect(latestRequest?.headers.get("X-Is-Sandbox")).toEqual(
-        `${isSandbox}`,
-      );
-    }
+    backend = new Backend(apiKey);
+    await backend.getCustomerInfo("someAppUserId");
+    expect(requestPerformed?.headers.get("X-Is-Sandbox")).toEqual(expected);
   });
 
   test("expected platformInfo headers are sent", async () => {
@@ -884,6 +874,33 @@ describe("postCheckoutStart request", () => {
     });
 
     expect(result).toEqual(checkoutStartResponse);
+  });
+
+  test("includes an external purchase token ID when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      externalPurchaseTokenId: "rcat_external_purchase_token_123",
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).toEqual(
+      expect.objectContaining({
+        external_purchase_token_id: "rcat_external_purchase_token_123",
+      }),
+    );
   });
 
   test("includes a partial appearance override when provided", async () => {

@@ -5,6 +5,7 @@ import { RC_ENDPOINT, VERSION } from "../helpers/constants";
 import { StatusCodes } from "http-status-codes";
 import {
   isAmazonApiKey,
+  isSimulatedStoreApiKey,
   isWebBillingSandboxApiKey,
 } from "../helpers/api-key-helper";
 import type { HttpConfig } from "../entities/http-config";
@@ -159,7 +160,7 @@ export function getHeaders(
     [PLATFORM_HEADER]: isAmazon ? "amazon" : "web",
     [VERSION_HEADER]: VERSION,
     ...(!isAmazon && {
-      [IS_SANDBOX_HEADER]: `${isWebBillingSandboxApiKey(apiKey)}`,
+      [IS_SANDBOX_HEADER]: `${isWebBillingSandboxApiKey(apiKey) || isSimulatedStoreApiKey(apiKey)}`,
     }),
   };
   const platformInfo = Purchases.getPlatformInfo();

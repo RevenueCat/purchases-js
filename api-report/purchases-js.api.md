@@ -280,7 +280,79 @@ export enum PackageType {
 }
 
 // @public
-export type PaywallListener = PurchaseListener;
+export const PAYWALL_COMPONENT_TYPES: {
+    readonly TAB: "tab";
+    readonly SWITCH: "switch";
+    readonly CAROUSEL: "carousel";
+    readonly BUTTON: "button";
+    readonly TEXT: "text";
+    readonly PACKAGE: "package";
+    readonly PACKAGE_SELECTION_SHEET: "package_selection_sheet";
+    readonly PURCHASE_BUTTON: "purchase_button";
+};
+
+// @public
+export interface PaywallInteractionEvent {
+    // (undocumented)
+    readonly component_name?: string;
+    // (undocumented)
+    readonly component_type: string;
+    // (undocumented)
+    readonly component_url?: string;
+    // (undocumented)
+    readonly component_value: string;
+    // (undocumented)
+    readonly current_package_id?: string;
+    // (undocumented)
+    readonly current_product_id?: string;
+    // (undocumented)
+    readonly dark_mode?: boolean;
+    // (undocumented)
+    readonly default_index?: number;
+    // (undocumented)
+    readonly default_package_id?: string;
+    // (undocumented)
+    readonly default_product_id?: string;
+    // (undocumented)
+    readonly destination_context_name?: string;
+    // (undocumented)
+    readonly destination_index?: number;
+    // (undocumented)
+    readonly destination_package_id?: string;
+    // (undocumented)
+    readonly destination_product_id?: string;
+    // (undocumented)
+    readonly display_mode?: string;
+    // (undocumented)
+    readonly locale?: string;
+    // (undocumented)
+    readonly offering_id: string;
+    // (undocumented)
+    readonly origin_context_name?: string;
+    // (undocumented)
+    readonly origin_index?: number;
+    // (undocumented)
+    readonly origin_package_id?: string;
+    // (undocumented)
+    readonly origin_product_id?: string;
+    // (undocumented)
+    readonly paywall_id?: string;
+    // (undocumented)
+    readonly paywall_revision: number;
+    // (undocumented)
+    readonly resulting_package_id?: string;
+    // (undocumented)
+    readonly resulting_product_id?: string;
+    // (undocumented)
+    readonly session_id: string;
+    // (undocumented)
+    readonly timestamp: number;
+}
+
+// @public
+export type PaywallListener = PurchaseListener & {
+    onInteraction?: (event: PaywallInteractionEvent) => void;
+};
 
 // @public
 export interface PaywallPurchaseResult extends PurchaseResult {
@@ -325,6 +397,7 @@ export interface PresentedOfferingContext {
 export interface PresentExpressPurchaseButtonParams {
     customerEmail?: string;
     defaultLocale?: string;
+    externalPurchaseTokenId?: string;
     htmlTarget: HTMLElement;
     listener?: PurchaseListener;
     metadata?: PurchaseMetadata;
@@ -341,6 +414,7 @@ export interface PresentPaywallParams {
     readonly customerEmail?: string;
     readonly customVariables?: CustomVariables;
     readonly discountCode?: string;
+    readonly externalPurchaseTokenId?: string;
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
     readonly listener?: PaywallListener;
@@ -434,6 +508,7 @@ export interface PurchaseParams {
     customerEmail?: string;
     defaultLocale?: string;
     discountCode?: string;
+    externalPurchaseTokenId?: string;
     htmlTarget?: HTMLElement;
     metadata?: PurchaseMetadata;
     onDiscountCodeChanged?: (discountCode: string | null) => void;
@@ -448,6 +523,7 @@ export interface PurchaseParams {
 
 // @public
 export interface PurchaseResult {
+    readonly customerEmail?: string;
     readonly customerInfo: CustomerInfo;
     readonly operationSessionId: string;
     readonly redemptionInfo: RedemptionInfo | null;

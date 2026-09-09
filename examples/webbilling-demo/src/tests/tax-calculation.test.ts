@@ -129,7 +129,7 @@ const trackPricingRefreshRequests = async (page: Page, mockMode: boolean) => {
       integrationTest.skip(
         !mockMode && SKIP_TAX_REAL_TESTS,
         `Tax calculation ${mockMode ? "mocked" : "real"} tests are disabled.
-        To enable, set VITE_SKIP_TAX_REAL_TESTS_UNTIL=2025-02-21 in the environment variables.`,
+        To enable, set VITE_SKIP_TAX_REAL_TESTS_UNTIL later than the repo floor in integration-test.ts.`,
       );
 
       integrationTest.skip(
@@ -688,7 +688,7 @@ const DEBOUNCE_FLUSH_MS = 1500;
       integrationTest.skip(
         !mockMode && SKIP_TAX_REAL_TESTS,
         `Real tax calculation tests are disabled.
-        To enable, set VITE_SKIP_TAX_REAL_TESTS_UNTIL=2025-02-21 in the environment variables.`,
+        To enable, set VITE_SKIP_TAX_REAL_TESTS_UNTIL later than the repo floor in integration-test.ts.`,
       );
 
       // Stripe Address Element interactions are only reliable in Chromium.

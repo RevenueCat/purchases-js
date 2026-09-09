@@ -125,5 +125,10 @@
   "upgrade_confirm_page.on_file": "On file",
   "upgrade_confirm_page.email": "Email",
   "upgrade_confirm_page.payment_method": "Payment method",
-  "upgrade_confirm_page.billing_address": "Billing address"
+  "upgrade_confirm_page.billing_address": "Billing address",
+  "paddle_checkout.return_to": "Return to {{appName}}",
+  "paddle_order_summary.billed_frequency": "billed {{frequency}}",
+  "paddle_order_summary.intro_then_recurring": "first {{firstPeriod}}, then {{price}} {{frequency}}",
+  "paddle_order_summary.inc_tax": "inc. tax",
+  "paddle_order_summary.due_on": "Due on {{date}}"
 }

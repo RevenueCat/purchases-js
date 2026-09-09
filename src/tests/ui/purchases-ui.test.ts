@@ -327,6 +327,27 @@ describe("PurchasesUI", () => {
     });
   });
 
+  test("passes an external purchase token ID to checkoutStart", async () => {
+    const checkoutStartSpy = vi
+      .spyOn(purchaseOperationHelperMock, "checkoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    render(PurchasesUI, {
+      props: {
+        ...basicProps,
+        externalPurchaseTokenId: "rcat_external_purchase_token_123",
+      },
+    });
+
+    await new Promise(process.nextTick);
+
+    expect(checkoutStartSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        externalPurchaseTokenId: "rcat_external_purchase_token_123",
+      }),
+    );
+  });
+
   test("passes undefined workflowPurchaseContext to checkoutStart when not provided", async () => {
     const checkoutStartSpy = vi
       .spyOn(purchaseOperationHelperMock, "checkoutStart")

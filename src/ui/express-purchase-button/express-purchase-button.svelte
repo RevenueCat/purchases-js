@@ -45,6 +45,7 @@
     appUserId,
     rcPackage,
     purchaseOption,
+    externalPurchaseTokenId,
     metadata,
     brandingInfo,
     eventsTracker,
@@ -298,6 +299,7 @@
         presentedOfferingContext:
           rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail,
+        externalPurchaseTokenId,
         metadata,
         locale: translator.selectedLocale,
       });

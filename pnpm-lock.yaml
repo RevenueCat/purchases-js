@@ -29,8 +29,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       "@revenuecat/purchases-ui-js":
-        specifier: 4.8.19
-        version: 4.8.19(svelte@5.46.4)
+        specifier: 4.8.22
+        version: 4.8.22(svelte@5.46.4)
       "@storybook/addon-essentials":
         specifier: ^8.6.15
         version: 8.6.15(@types/react@19.0.10)(storybook@8.6.15(prettier@3.4.2))
@@ -2062,19 +2062,19 @@ packages:
     peerDependencies:
       react-native: "*"
 
-  "@revenuecat/purchases-ui-js@4.8.19":
+  "@revenuecat/purchases-ui-js@4.8.22":
     resolution:
       {
-        integrity: sha512-MJ9kLnekG9nFvQchqQe556R1DHn1g4krXgwd9CBZvMo8PPga4cRIzU1rjgkSESK18KMWw/wiUQ1pTcNAAC5SYg==,
+        integrity: sha512-0GmZTAEDQIqA5IoCw+aWkLpyB7iWLZ/7NldeWOU+fhHElBmMUho3mhY8CIfJEOSDItrXdQMyd34UMd5AERPzhw==,
       }
     engines: { node: ^22.18 || ^24.11 }
     peerDependencies:
       svelte: ^5.46.4
 
-  "@revenuecat/workflow-web-components-sdk@0.1.4":
+  "@revenuecat/workflow-web-components-sdk@0.1.7":
     resolution:
       {
-        integrity: sha512-8LGZkqNNE7MgziVSnH6s6yjVkK32g6Rzi92UYy9o5bhtBuYwtz5+qRVh+QG5cU+AVfaUCAMjm2Ep7iBwHNW7mw==,
+        integrity: sha512-lg8Ysk9aBV5O7Cwn4GUlrnquUC+KJAhf2/kzfDLXs9MiGOJIFuooYdIp/V32Q4WnhngtbKlazFhVVzKd2w8nJQ==,
       }
     engines: { node: ">=18" }
 
@@ -11013,13 +11013,13 @@ snapshots:
       nullthrows: 1.1.1
       react-native: 0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.3.1)
 
-  "@revenuecat/purchases-ui-js@4.8.19(svelte@5.46.4)":
+  "@revenuecat/purchases-ui-js@4.8.22(svelte@5.46.4)":
     dependencies:
-      "@revenuecat/workflow-web-components-sdk": 0.1.4
+      "@revenuecat/workflow-web-components-sdk": 0.1.7
       qrcode: 1.5.4
       svelte: 5.46.4
 
-  "@revenuecat/workflow-web-components-sdk@0.1.4": {}
+  "@revenuecat/workflow-web-components-sdk@0.1.7": {}
 
   "@rollup/pluginutils@5.1.4(rollup@4.41.1)":
     dependencies:

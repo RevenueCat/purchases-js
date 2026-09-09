@@ -3,8 +3,12 @@
   import ErrorPage from "./pages/error-page.svelte";
   import StripeCheckoutPage from "./pages/stripe-checkout-page.svelte";
   import FullscreenTemplate from "./layout/fullscreen-template.svelte";
+  import Template from "./layout/template.svelte";
+  import BrandingHeader from "./molecules/branding-header.svelte";
+  import UpgradeConfirmPage from "./pages/upgrade-confirm-page.svelte";
+  import UpgradeProductInfo from "./organisms/upgrade-product-info.svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
-  import type { BrandingAppearance, Product } from "../main";
+  import type { BrandingAppearance, Product, PurchaseOption } from "../main";
   import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
   import Typography from "./atoms/typography.svelte";
   import Spinner from "./atoms/spinner.svelte";
@@ -15,6 +19,7 @@
   import { type Writable } from "svelte/store";
   import ColLayout from "./layout/col-layout.svelte";
   import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
+  import type { SubscriptionChangeCheckoutStartResponse } from "../networking/responses/subscription-change-response";
   import { Theme } from "./theme/theme";
   import { toProductInfoColors } from "./theme/utils";
   import { brandingContextKey } from "./constants";
@@ -25,16 +30,24 @@
       | "stripe-checkout"
       | "success"
       | "error"
-      | "purchasing";
+      | "purchasing"
+      | "upgrade-confirm";
     brandingInfo: BrandingInfoResponse | null;
     productDetails: Product;
     isSandbox: boolean;
     lastError: PurchaseFlowError | null;
     isInElement: boolean;
     stripeBillingParams: StripeBillingParams | null;
+    purchaseOptionToUse: PurchaseOption;
+    subscriptionChangeStartData: SubscriptionChangeCheckoutStartResponse | null;
+    isConfirmingProductChange: boolean;
+    productChangeConfirmError: string | null;
+    onConfirmProductChange: () => void;
     onContinue: () => void;
     onError: (error: PurchaseFlowError) => void;
+    onClose?: () => void;
     closeWithError: () => void;
+    hideBackButton?: boolean;
   }
 
   const {
@@ -45,9 +58,16 @@
     lastError,
     isInElement,
     stripeBillingParams,
+    purchaseOptionToUse,
+    subscriptionChangeStartData,
+    isConfirmingProductChange,
+    productChangeConfirmError,
+    onConfirmProductChange,
     onContinue,
     onError,
+    onClose = undefined,
     closeWithError,
+    hideBackButton = false,
   }: Props = $props();
 
   const brandingAppearanceStore =
@@ -68,50 +88,80 @@
   const translator: Writable<Translator> = getContext(translatorContextKey);
 </script>
 
-<FullscreenTemplate {brandingInfo} {isInElement} {isSandbox}>
-  {#snippet mainContent()}
-    {#if currentPage === "stripe-checkout"}
-      {#if stripeBillingParams}
-        <div
-          class="stripe-checkout-wrapper"
-          style="{colorVariables}; background-color: {productInfoBg}"
-        >
-          <StripeCheckoutPage {stripeBillingParams} {onContinue} {onError} />
-        </div>
-      {/if}
-    {:else if currentPage === "loading" || currentPage === "purchasing"}
-      <div class="rcb-ui-loading-container">
-        <ColLayout gap="medium" align="center">
-          <Spinner color="var(--rc-color-grey-text-dark)" />
-          {#if currentPage === "purchasing"}
-            <Typography size="heading-md"
-              >{$translator.translate(
-                LocalizationKeys.LoadingPageProcessingPayment,
-              )}</Typography
-            >
-
-            <Typography size="body-small"
-              >{$translator.translate(
-                LocalizationKeys.LoadingPageKeepPageOpen,
-              )}</Typography
-            >
-          {/if}
-        </ColLayout>
-      </div>
-    {:else if currentPage === "success"}
-      <SuccessPage {onContinue} fullWidth={true} />
-    {:else if currentPage === "error"}
-      <ErrorPage
-        {lastError}
-        {productDetails}
-        supportEmail={brandingInfo?.support_email ?? null}
-        onDismiss={closeWithError}
-        appName={brandingInfo?.app_name ?? null}
-        fullWidth={true}
+{#if currentPage === "upgrade-confirm" && subscriptionChangeStartData}
+  <Template {brandingInfo} {isInElement} {isSandbox} {onClose}>
+    {#snippet navbarHeaderContent()}
+      <BrandingHeader
+        {brandingInfo}
+        {onClose}
+        showCloseButton={!isInElement && !!onClose && !hideBackButton}
       />
-    {/if}
-  {/snippet}
-</FullscreenTemplate>
+    {/snippet}
+    {#snippet navbarBodyContent()}
+      <UpgradeProductInfo
+        startData={subscriptionChangeStartData}
+        unusedTimeAdjustmentVariant="credit"
+        unresolvedTaxCalculationStatus="disabled"
+      />
+    {/snippet}
+    {#snippet mainContent()}
+      <UpgradeConfirmPage
+        startData={subscriptionChangeStartData}
+        confirming={isConfirmingProductChange}
+        confirmError={productChangeConfirmError}
+        brandingAppearance={derivedBrandingAppearance}
+        {brandingInfo}
+        purchaseOption={purchaseOptionToUse}
+        onConfirm={onConfirmProductChange}
+      />
+    {/snippet}
+  </Template>
+{:else}
+  <FullscreenTemplate {brandingInfo} {isInElement} {isSandbox}>
+    {#snippet mainContent()}
+      {#if currentPage === "stripe-checkout"}
+        {#if stripeBillingParams}
+          <div
+            class="stripe-checkout-wrapper"
+            style="{colorVariables}; background-color: {productInfoBg}"
+          >
+            <StripeCheckoutPage {stripeBillingParams} {onContinue} {onError} />
+          </div>
+        {/if}
+      {:else if currentPage === "loading" || currentPage === "purchasing"}
+        <div class="rcb-ui-loading-container">
+          <ColLayout gap="medium" align="center">
+            <Spinner color="var(--rc-color-grey-text-dark)" />
+            {#if currentPage === "purchasing"}
+              <Typography size="heading-md"
+                >{$translator.translate(
+                  LocalizationKeys.LoadingPageProcessingPayment,
+                )}</Typography
+              >
+
+              <Typography size="body-small"
+                >{$translator.translate(
+                  LocalizationKeys.LoadingPageKeepPageOpen,
+                )}</Typography
+              >
+            {/if}
+          </ColLayout>
+        </div>
+      {:else if currentPage === "success"}
+        <SuccessPage {onContinue} fullWidth={true} />
+      {:else if currentPage === "error"}
+        <ErrorPage
+          {lastError}
+          {productDetails}
+          supportEmail={brandingInfo?.support_email ?? null}
+          onDismiss={closeWithError}
+          appName={brandingInfo?.app_name ?? null}
+          fullWidth={true}
+        />
+      {/if}
+    {/snippet}
+  </FullscreenTemplate>
+{/if}
 
 <style>
   .rcb-ui-loading-container {
