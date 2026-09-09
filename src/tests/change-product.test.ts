@@ -84,8 +84,8 @@ function expectStartCalledWith(
 ) {
   expect(startSpy).toHaveBeenCalledWith(
     expect.objectContaining({
-      productId: packageToBuy.webBillingProduct.identifier,
-      purchaseOption: packageToBuy.webBillingProduct.defaultPurchaseOption,
+      productId: packageToBuy.product.identifier,
+      purchaseOption: packageToBuy.product.defaultPurchaseOption,
       productChange: {
         subscriptionId: expected.subscriptionId,
         productIdentifier: expected.productIdentifier,
@@ -156,7 +156,7 @@ describe("Purchases.purchase productChangeInfo", () => {
     await vi.waitFor(() => {
       expect(startSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          productId: packageToBuy.webBillingProduct.identifier,
+          productId: packageToBuy.product.identifier,
           productChange: undefined,
           subscriberToken: undefined,
         }),

@@ -107,8 +107,8 @@ const gatewayParams: GatewayParams = {
 const basicProps: ComponentProps<PaymentEntryPage> = {
   gatewayParams: gatewayParams,
   processing: false,
-  productDetails: rcPackage.webBillingProduct,
-  purchaseOption: rcPackage.webBillingProduct.defaultPurchaseOption,
+  productDetails: rcPackage.product,
+  purchaseOption: rcPackage.product.defaultPurchaseOption,
   brandingInfo: brandingInfo,
   purchaseOperationHelper: purchaseOperationHelperMock,
   customerEmail: null,

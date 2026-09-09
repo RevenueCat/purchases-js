@@ -23,7 +23,7 @@ describe("Purchases.trackCustomPaywallImpression", () => {
       availablePackages: offering.availablePackages.map((pkg) => ({
         ...pkg,
         webBillingProduct: {
-          ...pkg.webBillingProduct,
+          ...pkg.product,
           presentedOfferingContext: {
             offeringIdentifier: "placement-offering",
             placementIdentifier: "home_banner",
@@ -60,7 +60,7 @@ describe("Purchases.trackCustomPaywallImpression", () => {
       availablePackages: offering.availablePackages.map((pkg) => ({
         ...pkg,
         webBillingProduct: {
-          ...pkg.webBillingProduct,
+          ...pkg.product,
           presentedOfferingContext: {
             offeringIdentifier: "placement-offering",
             placementIdentifier: "home_banner",

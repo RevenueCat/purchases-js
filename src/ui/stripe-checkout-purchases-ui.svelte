@@ -94,7 +94,7 @@
     onProductChangeFinished = undefined,
     hideBackButton = false,
   }: Props = $props();
-  let productDetails: Product = rcPackage.webBillingProduct;
+  let productDetails: Product = rcPackage.product;
   let translator: Translator = new Translator(
     customTranslations,
     selectedLocale,
@@ -231,8 +231,7 @@
         appUserId,
         productId,
         purchaseOption,
-        presentedOfferingContext:
-          rcPackage.webBillingProduct.presentedOfferingContext,
+        presentedOfferingContext: rcPackage.product.presentedOfferingContext,
         customerEmail: email,
         externalPurchaseTokenId,
         metadata,

@@ -37,7 +37,7 @@ describe("postSimulatedStoreReceipt", () => {
 
   beforeEach(() => {
     const mockPackage = createMonthlyPackageWithTrialAndIntroPriceMock();
-    mockProduct = mockPackage.webBillingProduct;
+    mockProduct = mockPackage.product;
 
     vi.mocked(mockBackend.postReceipt).mockResolvedValue({
       subscriber: {
@@ -105,7 +105,7 @@ describe("postSimulatedStoreReceipt", () => {
 
   test("handles consumable products", async () => {
     const consumablePackage = createConsumablePackageMock();
-    const consumableProduct = consumablePackage.webBillingProduct;
+    const consumableProduct = consumablePackage.product;
 
     const result = await postSimulatedStoreReceipt(
       consumableProduct,
