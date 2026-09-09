@@ -174,8 +174,6 @@ const PaywallPage: React.FC = () => {
   const skipSuccessPage = searchParams.get("skipSuccessPage") === "true";
   const showDiscountCodeField =
     searchParams.get("showDiscountCodeField") === "true";
-  const disableExpressCheckout =
-    searchParams.get("disableExpressCheckout") === "true";
   const attributesSetRef = useRef(false);
 
   useEffect(() => {
@@ -240,7 +238,6 @@ const PaywallPage: React.FC = () => {
           rcPackage: pkg,
           purchaseOption: option,
           showDiscountCodeField,
-          disableExpressCheckout,
           selectedLocale: lang || navigator.language,
           customerEmail: email || undefined,
           externalPurchaseTokenId,

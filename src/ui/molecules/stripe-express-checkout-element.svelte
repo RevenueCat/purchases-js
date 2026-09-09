@@ -43,7 +43,7 @@
     forceEnableWalletMethods: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
     hideCheckoutSeparator?: boolean;
-    expressCheckoutPermittedByConsent?: boolean;
+    allowExpressCheckout?: boolean;
   }
 
   const {
@@ -56,7 +56,7 @@
     forceEnableWalletMethods,
     expressCheckoutOptions,
     hideCheckoutSeparator = false,
-    expressCheckoutPermittedByConsent = true,
+    allowExpressCheckout = true,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -73,7 +73,7 @@
   const onClickCallback = async (
     event: StripeExpressCheckoutElementClickEvent,
   ) => {
-    if (!expressCheckoutPermittedByConsent) {
+    if (!allowExpressCheckout) {
       return;
     }
     const { business: _business, ...options } = expressCheckoutOptions ?? {};
@@ -131,11 +131,11 @@
 
 <div
   id={expressCheckoutElementId}
-  class:rcb-express-checkout-hidden={!expressCheckoutPermittedByConsent ||
+  class:rcb-express-checkout-hidden={!allowExpressCheckout ||
     hideExpressCheckoutElement}
-  aria-hidden={!expressCheckoutPermittedByConsent || hideExpressCheckoutElement}
+  aria-hidden={!allowExpressCheckout || hideExpressCheckoutElement}
 ></div>
-{#if !hideCheckoutSeparator && expressCheckoutPermittedByConsent && !hideExpressCheckoutElement}
+{#if !hideCheckoutSeparator && allowExpressCheckout && !hideExpressCheckoutElement}
   <TextSeparator
     text={$translator.translate(
       LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,

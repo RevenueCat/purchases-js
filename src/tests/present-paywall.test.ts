@@ -93,31 +93,6 @@ describe("Purchases.presentPaywall()", () => {
     });
   });
 
-  test("forwards the Express Checkout mode to purchases started from the paywall", async () => {
-    const purchases = configurePurchases();
-    const offering = createOfferingWithPaywall();
-    const packageId = offering.availablePackages[0]!.identifier;
-    const purchaseSpy = vi
-      .spyOn(purchases, "purchase")
-      .mockResolvedValue({} as PurchaseResult);
-
-    void purchases.presentPaywall({
-      offering,
-      disableExpressCheckout: true,
-    });
-
-    await vi.waitFor(() => expect(paywallProps).toBeDefined());
-    paywallProps!.onPurchaseClicked(packageId);
-
-    await vi.waitFor(() => {
-      expect(purchaseSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          disableExpressCheckout: true,
-        }),
-      );
-    });
-  });
-
   test("forwards an external purchase token ID to paywall express checkout", async () => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();

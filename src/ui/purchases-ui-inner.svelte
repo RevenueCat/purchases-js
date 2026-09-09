@@ -38,7 +38,6 @@
     defaultPriceBreakdown?: PriceBreakdown;
     termsAndConditionsUrl?: string;
     showDiscountCodeField?: boolean;
-    disableExpressCheckout?: boolean;
     draftDiscountCode?: string;
     appliedDiscountCode?: string | null;
     discountCodeError?: string | null;
@@ -80,7 +79,6 @@
     defaultPriceBreakdown,
     termsAndConditionsUrl,
     showDiscountCodeField = false,
-    disableExpressCheckout = false,
     draftDiscountCode = "",
     appliedDiscountCode = null,
     discountCodeError = null,
@@ -184,7 +182,6 @@
         {managementUrl}
         {customerEmail}
         {forceEnableWalletMethods}
-        {disableExpressCheckout}
         {defaultPriceBreakdown}
         {termsAndConditionsUrl}
         {onContinue}

@@ -398,28 +398,6 @@ describe("StripeService", () => {
         terms: expect.any(Object),
       });
     });
-
-    test("disables wallets in the payment element when Express Checkout is disabled", () => {
-      const mockElements: Partial<StripeElements> = {
-        create: vi.fn(),
-      };
-
-      StripeService.createPaymentElement(
-        mockElements as StripeElements,
-        "Test App",
-        true,
-      );
-
-      expect(mockElements.create).toHaveBeenCalledWith(
-        "payment",
-        expect.objectContaining({
-          wallets: {
-            applePay: "never",
-            googlePay: "never",
-          },
-        }),
-      );
-    });
   });
 
   describe("createAddressElement", () => {

@@ -196,69 +196,6 @@ describe("PurchasesUI", () => {
     });
   });
 
-  test("initializes Express Checkout by default", async () => {
-    vi.mocked(StripeService.createExpressCheckoutElement).mockClear();
-
-    render(PaymentEntryPage, {
-      props: { ...basicProps, forceEnableWalletMethods: false },
-      context: defaultContext,
-    });
-
-    await vi.advanceTimersToNextTimerAsync();
-
-    expect(StripeService.createExpressCheckoutElement).toHaveBeenCalledWith(
-      expect.anything(),
-      false,
-      undefined,
-    );
-  });
-
-  test("does not initialize Express Checkout when it is disabled", async () => {
-    vi.mocked(StripeService.createExpressCheckoutElement).mockClear();
-    vi.mocked(StripeService.createPaymentElement).mockClear();
-    const readyElement = {
-      on: (eventType: string, callback: () => void) => {
-        if (eventType === "ready") {
-          setTimeout(() => callback(), 0);
-        }
-      },
-      mount: vi.fn(),
-      destroy: vi.fn(),
-    };
-    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
-      // @ts-expect-error - This is a mock
-      readyElement,
-    );
-    vi.mocked(StripeService.createLinkAuthenticationElement).mockReturnValue(
-      // @ts-expect-error - This is a mock
-      readyElement,
-    );
-
-    render(PaymentEntryPage, {
-      props: {
-        ...basicProps,
-        disableExpressCheckout: true,
-        forceEnableWalletMethods: true,
-      },
-      context: defaultContext,
-    });
-
-    await vi.runAllTimersAsync();
-
-    expect(StripeService.createExpressCheckoutElement).not.toHaveBeenCalled();
-    expect(StripeService.createPaymentElement).toHaveBeenCalledWith(
-      expect.anything(),
-      brandingInfo.app_name,
-      true,
-    );
-    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
-      eventName: SDKEventName.CheckoutPaymentFormImpression,
-      properties: {
-        mode: defaultPurchaseMode,
-      },
-    });
-  });
-
   test("tracks the PaymentEntrySubmit event when the payment entry is submitted", async () => {
     const paymentElement = {
       on: (
