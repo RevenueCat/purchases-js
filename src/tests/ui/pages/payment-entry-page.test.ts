@@ -33,6 +33,7 @@ import type { ComponentProps } from "svelte";
 import type { GatewayParams } from "../../../networking/responses/stripe-elements";
 import type { CheckoutPricingResponse } from "../../../networking/responses/checkout-pricing-response";
 import { defaultPurchaseMode } from "../../../behavioural-events/event";
+import { Logger } from "../../../helpers/logger";
 
 vi.mock("../../../stripe/stripe-service", async () => {
   const actual = await vi.importActual<{
@@ -1211,5 +1212,78 @@ describe("PurchasesUI", () => {
       await fireEvent.click(screen.getByTestId("CheckoutConsentCheckbox"));
       expect(payButton.disabled).toBe(false);
     });
+  });
+
+  test("logs Stripe Element readiness relative to loading start", async () => {
+    const createElementReadyAfter = (delay: number, readyEvent?: object) => ({
+      mount: vi.fn(),
+      on: (eventType: string, callback: (event?: object) => void) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(readyEvent), delay);
+        }
+      },
+      destroy: vi.fn(),
+    });
+
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(10),
+    );
+    vi.mocked(StripeService.createLinkAuthenticationElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(20),
+    );
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(30, {
+        availablePaymentMethods: { applePay: true },
+      }),
+    );
+    const debugLogSpy = vi
+      .spyOn(Logger, "debugLog")
+      .mockImplementation(() => undefined);
+
+    render(PaymentEntryPage, {
+      props: { ...basicProps },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersByTimeAsync(0);
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      "[Stripe Elements] Loading started. Elements: Link Authentication, Payment, Express Checkout.",
+    );
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Stripe initialized after \d+ms\.$/,
+      ),
+    );
+
+    await vi.advanceTimersByTimeAsync(10);
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Payment Element completed after \d+ms\.$/,
+      ),
+    );
+
+    await vi.advanceTimersByTimeAsync(10);
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Link Authentication Element completed after \d+ms\.$/,
+      ),
+    );
+
+    await vi.advanceTimersByTimeAsync(10);
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Express Checkout Element completed after \d+ms\.$/,
+      ),
+    );
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Loading completed after \d+ms\.$/,
+      ),
+    );
+
+    debugLogSpy.mockRestore();
   });
 });

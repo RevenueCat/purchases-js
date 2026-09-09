@@ -29,6 +29,7 @@
   } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
+  import { Logger } from "../../helpers/logger";
 
   interface Props {
     stripe: Stripe | null;
@@ -119,6 +120,36 @@
   let viewport: "mobile" | "desktop" = $state("mobile");
   let resizeTimeout: number | undefined = $state(undefined);
 
+  const stripeElementsLoadingStartedAt = performance.now();
+
+  const getPendingStripeElements = () => {
+    const pendingElements: string[] = [];
+
+    if (!emailElementReadyForSubmission) {
+      pendingElements.push("Link Authentication");
+    }
+    if (!paymentElementReadyForSubmission) {
+      pendingElements.push("Payment");
+    }
+    if (!expressCheckoutElementReadyForSubmission) {
+      pendingElements.push("Express Checkout");
+    }
+    if (!addressElementReadyForSubmission) {
+      pendingElements.push("Address");
+    }
+
+    return pendingElements;
+  };
+
+  const getStripeElementsElapsedTime = () =>
+    Math.round(performance.now() - stripeElementsLoadingStartedAt);
+
+  const logStripeElementReady = (element: string) => {
+    Logger.debugLog(
+      `[Stripe Elements] ${element} completed after ${getStripeElementsElapsedTime()}ms.`,
+    );
+  };
+
   // Maybe extract this to a hook
   function updateStripeVariables() {
     const isMobile =
@@ -151,6 +182,10 @@
   }
 
   const onStripeElementsLoadingError = (error: StripeServiceError) => {
+    const pendingElements = getPendingStripeElements();
+    Logger.debugLog(
+      `[Stripe Elements] Loading failed after ${getStripeElementsElapsedTime()}ms. ${pendingElements.length > 0 ? `Elements still pending: ${pendingElements.join(", ")}.` : "No elements were pending."}`,
+    );
     onError(error);
     onLoadingComplete();
   };
@@ -162,6 +197,9 @@
       expressCheckoutElementReadyForSubmission &&
       addressElementReadyForSubmission
     ) {
+      Logger.debugLog(
+        `[Stripe Elements] Loading completed after ${getStripeElementsElapsedTime()}ms.`,
+      );
       onLoadingComplete();
     }
   };
@@ -169,6 +207,7 @@
   const onLinkAuthenticationElementReady = async () => {
     if (!emailElementReadyForSubmission) {
       emailElementReadyForSubmission = true;
+      logStripeElementReady("Link Authentication Element");
       maybeCompleteLoading();
     }
   };
@@ -176,6 +215,7 @@
   const onExpressCheckoutElementReady = async () => {
     if (!expressCheckoutElementReadyForSubmission) {
       expressCheckoutElementReadyForSubmission = true;
+      logStripeElementReady("Express Checkout Element");
       maybeCompleteLoading();
     }
   };
@@ -183,6 +223,7 @@
   const onPaymentElementReady = async () => {
     if (!paymentElementReadyForSubmission) {
       paymentElementReadyForSubmission = true;
+      logStripeElementReady("Payment Element");
       maybeCompleteLoading();
     }
   };
@@ -190,6 +231,7 @@
   const onAddressElementReady = async () => {
     if (!addressElementReadyForSubmission) {
       addressElementReadyForSubmission = true;
+      logStripeElementReady("Address Element");
       maybeCompleteLoading();
     }
   };
@@ -233,6 +275,9 @@
   });
 
   onMount(async () => {
+    Logger.debugLog(
+      `[Stripe Elements] Loading started. Elements: ${getPendingStripeElements().join(", ")}.`,
+    );
     updateStripeVariables();
 
     if (stripe) return;
@@ -254,8 +299,14 @@
       .then(({ stripe: stripeInstance, elements: elementsInstance }) => {
         stripe = stripeInstance;
         elements = elementsInstance;
+        Logger.debugLog(
+          `[Stripe Elements] Stripe initialized after ${getStripeElementsElapsedTime()}ms.`,
+        );
       })
       .catch((error) => {
+        Logger.debugLog(
+          `[Stripe Elements] Stripe initialization failed after ${getStripeElementsElapsedTime()}ms.`,
+        );
         onError(error);
       });
   });
