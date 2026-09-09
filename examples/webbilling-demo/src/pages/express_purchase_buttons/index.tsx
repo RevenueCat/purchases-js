@@ -71,9 +71,9 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 
   return (
     <div className="card">
-      <Badge product={pkg.product} />
+      <Badge webBillingProduct={pkg.product} />
       <div className="cardContent">
-        <PriceContainer product={pkg.product} offering={offering} />
+        <PriceContainer webBillingProduct={pkg.product} offering={offering} />
 
         <div>
           <div className="productName">{pkg.product.title}</div>
