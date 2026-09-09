@@ -212,10 +212,7 @@ jobs:
           command: pnpm run test
       - run:
           name: Build
-          command: pnpm run build
-      - run:
-          name: Confirm Amazon AppStore SDK is only present in the Vega entry point
-          command: pnpm run verify:entry-point-boundaries
+          command: VERIFY_ENTRY_POINT_BOUNDARIES=true pnpm run build
       - run:
           name: Extract API using api-extractor
           command: pnpm run extract-api

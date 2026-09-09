@@ -1,10 +1,17 @@
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
+import { env } from "node:process";
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import {
+  vegaOnlyModules,
+  verifyEntryPointBoundaries,
+} from "./vite.entry-point-boundaries.plugin.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const shouldVerifyEntryPointBoundaries =
+  env.VERIFY_ENTRY_POINT_BOUNDARIES === "true";
 
 /**
  * Produces the Vega-only build exposed as `@revenuecat/purchases-js/vega`.
@@ -23,13 +30,13 @@ export default defineConfig({
       fileName: (format) => `Purchases.vega.${format}.js`,
     },
     rollupOptions: {
-      external: [
-        "@amazon-devices/kepler-compatibility",
-        "@amazon-devices/kepler-file-system",
-        "@amazon-devices/keplerscript-appstore-iap-lib",
-        "react-native",
-      ],
+      external: vegaOnlyModules,
     },
   },
-  plugins: [svelte({ compilerOptions: { css: "injected" } })],
+  plugins: [
+    svelte({ compilerOptions: { css: "injected" } }),
+    ...(shouldVerifyEntryPointBoundaries
+      ? [verifyEntryPointBoundaries({ isVegaBuild: true })]
+      : []),
+  ],
 });

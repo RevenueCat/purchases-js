@@ -51,7 +51,6 @@
     "format": "prettier --write .",
     "pack-build": "npm run build && npm pack",
     "test": "vitest run",
-    "verify:entry-point-boundaries": "node scripts/verify-entry-point-boundaries.mjs",
     "test:watch": "vitest watch",
     "test:typecheck": "tsc --project tsconfig.test.json",
     "typecheck": "tsc --noEmit",
