@@ -3,6 +3,7 @@ import { LogLevel, type LogHandler } from "../entities/logging";
 export class Logger {
   private static logLevel: LogLevel = LogLevel.Silent;
   private static logHandler: LogHandler | null = null;
+  private static useConsoleLogForDebugMessages = false;
 
   static setLogLevel(logLevel: LogLevel) {
     this.logLevel = logLevel;
@@ -10,6 +11,11 @@ export class Logger {
 
   static setLogHandler(handler: LogHandler | null) {
     this.logHandler = handler;
+  }
+
+  /** @internal */
+  static enableConsoleLogForDebugMessages() {
+    this.useConsoleLogForDebugMessages = true;
   }
 
   static log(message: string, logLevel: LogLevel = this.logLevel): void {
@@ -36,10 +42,18 @@ export class Logger {
         console.info(messageWithTag);
         break;
       case LogLevel.Debug:
-        console.debug(messageWithTag);
+        if (this.useConsoleLogForDebugMessages) {
+          console.log(messageWithTag);
+        } else {
+          console.debug(messageWithTag);
+        }
         break;
       case LogLevel.Verbose:
-        console.debug(messageWithTag);
+        if (this.useConsoleLogForDebugMessages) {
+          console.log(messageWithTag);
+        } else {
+          console.debug(messageWithTag);
+        }
         break;
     }
   }

@@ -14,6 +14,11 @@ export default defineConfig({
       name: "Purchases",
       fileName: (format) => `Purchases.${format}.js`,
     },
+    rollupOptions: {
+      // This native-only dependency contains Flow syntax. It must be loaded by
+      // the Vega runtime, rather than parsed and bundled into the web SDK.
+      external: ["@amazon-devices/keplerscript-appstore-iap-lib"],
+    },
   },
   plugins: [
     dts({
