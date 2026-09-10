@@ -32,9 +32,11 @@
 
   const agreementParts = $derived.by(() => {
     const agreement = $translator.translate(
-      LocalizationKeys.PaymentEntryPageCheckoutConsentAgreement,
+      appName
+        ? LocalizationKeys.PaymentEntryPageCheckoutConsentAgreement
+        : LocalizationKeys.PaymentEntryPageCheckoutConsentAgreementWithoutAppName,
       {
-        appName: appName ?? "",
+        appName,
         termsOfService: TERMS_PLACEHOLDER,
       },
     );
