@@ -1,0 +1,39 @@
+{
+  "name": "@revenuecat/purchases-js-vega",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/Purchases.vega.umd.js",
+  "module": "./dist/Purchases.vega.es.js",
+  "react-native": "./dist/Purchases.vega.es.js",
+  "types": "./dist/Purchases.vega.es.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/Purchases.vega.es.d.ts",
+      "import": "./dist/Purchases.vega.es.js",
+      "require": "./dist/Purchases.vega.umd.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json && vite build --config vite.config.js"
+  },
+  "peerDependencies": {
+    "@amazon-devices/kepler-compatibility": "1.0.5",
+    "@amazon-devices/kepler-file-system": "0.0.7",
+    "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
+    "react-native": ">=0.72.0"
+  },
+  "devDependencies": {
+    "@amazon-devices/kepler-compatibility": "1.0.5",
+    "@amazon-devices/kepler-file-system": "0.0.7",
+    "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
+    "react-native": "0.72.0"
+  },
+  "dependencies": {
+    "@revenuecat/purchases-ui-js": "4.8.22"
+  }
+}

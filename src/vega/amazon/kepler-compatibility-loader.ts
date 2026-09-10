@@ -1,4 +1,4 @@
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import { ErrorCode, PurchasesError } from "../../entities/errors";
 
 /**
  * Shared Kepler File System compatibility contract used by VegaDeviceCache.
@@ -13,7 +13,7 @@ const missingKeplerFileSystemExistsSupportCheck: KeplerFileSystemExistsSupportCh
   () => {
     throw new PurchasesError(
       ErrorCode.ConfigurationError,
-      "Kepler compatibility APIs are supported only by the @revenuecat/purchases-js/vega entry point.",
+      "Kepler compatibility APIs are supported only by the @revenuecat/purchases-js-vega package.",
     );
   };
 

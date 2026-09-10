@@ -161,7 +161,7 @@ import {
   mergeBrandingAppearanceOverrides,
 } from "./helpers/branding-appearance-helper";
 import type { BillingWrapper } from "./helpers/billing-wrapper";
-import { AmazonBillingWrapper } from "./amazon/amazon-billing-wrapper";
+import { getBillingProvider } from "./helpers/billing-provider";
 import type { RestorePurchasesResult } from "./entities/restore-purchases-result";
 import type { SyncPurchasesResult } from "./entities/sync-purchases-result";
 
@@ -641,12 +641,12 @@ export class Purchases {
       eventName: SDKEventName.SDKInitialized,
     });
     if (isAmazonApiKey(this._API_KEY)) {
-      this.amazonBillingWrapper = new AmazonBillingWrapper(
-        this.backend,
-        this._API_KEY,
-        () => this._appUserId,
-        () => this.isAnonymous(),
-      );
+      this.amazonBillingWrapper = getBillingProvider()!.createBillingWrapper({
+        backend: this.backend,
+        apiKey: this._API_KEY,
+        getAppUserId: () => this._appUserId,
+        getIsAnonymous: () => this.isAnonymous(),
+      });
     }
   }
 

@@ -68,12 +68,12 @@ import {
 } from "../../amazon/react-native-app-state-loader";
 import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
 import { VegaDeviceCache } from "../../amazon/vega-device-cache";
-import { ErrorCode } from "../../entities/errors";
-import type { PurchasesError } from "../../entities/errors";
-import { Logger } from "../../helpers/logger";
-import type { Backend } from "../../networking/backend";
-import { customerInfoResponse } from "../test-responses";
-import { createMonthlyPackageMock } from "../mocks/offering-mock-provider";
+import { ErrorCode } from "../../../entities/errors";
+import type { PurchasesError } from "../../../entities/errors";
+import { Logger } from "../../../helpers/logger";
+import type { Backend } from "../../../networking/backend";
+import { customerInfoResponse } from "../../../tests/test-responses";
+import { createMonthlyPackageMock } from "../../../tests/mocks/offering-mock-provider";
 
 const amazonApiKey = "amazon-api-key";
 const getNoAppUserId = () => undefined;
@@ -382,7 +382,7 @@ describe("AmazonBillingWrapper", () => {
     ).rejects.toMatchObject({
       errorCode: ErrorCode.ConfigurationError,
       message:
-        "Amazon Appstore is supported only by the @revenuecat/purchases-js/vega entry point.",
+        "Amazon Appstore is supported only by the @revenuecat/purchases-js-vega package.",
     });
 
     expect(getProductData).not.toHaveBeenCalled();

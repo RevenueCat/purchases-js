@@ -30,7 +30,7 @@
     "./src/**/*.svelte",
     "src/main.test.tsx",
   ],
-  "exclude": ["node_modules", "./src/tests", "./**/*.test.ts"],
+  "exclude": ["node_modules", "./src/tests", "./src/vega", "./**/*.test.ts"],
   "typedocOptions": {
     "entryPoints": ["src/main.ts"],
     "out": "docs",

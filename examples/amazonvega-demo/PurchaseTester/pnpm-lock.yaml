@@ -19,9 +19,9 @@ importers:
       '@amazon-devices/react-native-kepler':
         specifier: ^2.0.0
         version: 2.0.9000000000(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0)
-      '@revenuecat/purchases-js':
-        specifier: file:../../..
-        version: file:../../..(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))
+      '@revenuecat/purchases-js-vega':
+        specifier: file:../../../src/vega
+        version: file:../../../src/vega(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(svelte@5.57.0)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -1828,19 +1828,29 @@ packages:
     peerDependencies:
       react-native: '*'
 
-  '@revenuecat/purchases-js@file:../../..':
-    resolution: {directory: ../../.., type: directory}
+  '@revenuecat/purchases-js-vega@file:../../../src/vega':
+    resolution: {directory: ../../../src/vega, type: directory}
     peerDependencies:
       '@amazon-devices/kepler-compatibility': 1.0.5
       '@amazon-devices/kepler-file-system': 0.0.7
       '@amazon-devices/keplerscript-appstore-iap-lib': 2.12.16
-    peerDependenciesMeta:
-      '@amazon-devices/kepler-compatibility':
-        optional: true
-      '@amazon-devices/kepler-file-system':
-        optional: true
-      '@amazon-devices/keplerscript-appstore-iap-lib':
-        optional: true
+      react-native: '>=0.72.0'
+
+  '@revenuecat/purchases-ui-js@4.8.22':
+    resolution:
+      {
+        integrity: sha512-0GmZTAEDQIqA5IoCw+aWkLpyB7iWLZ/7NldeWOU+fhHElBmMUho3mhY8CIfJEOSDItrXdQMyd34UMd5AERPzhw==,
+      }
+    engines: {node: ^22.18 || ^24.11}
+    peerDependencies:
+      svelte: ^5.46.4
+
+  '@revenuecat/workflow-web-components-sdk@0.1.8':
+    resolution:
+      {
+        integrity: sha512-c3CbxzyHVB7GWLFSaY9RCm0tXF2Wq8mDXNG9924N6r6CxecAsDVcvwTPurs8OaslSr0hkvYNEj4/OOjG1e32BA==,
+      }
+    engines: {node: '>=18'}
 
   '@rnx-kit/tools-node@2.1.2':
     resolution:
@@ -1902,6 +1912,14 @@ packages:
         integrity: sha512-BPS4ynJW/o92PUR4wgriz2Ud5gpST5vz6GQfMixEDK0Z8ZCUv2M7SkBLykH56T++Xs+8ln9zTGbOvNGIe02/jw==,
       }
 
+  '@sveltejs/acorn-typescript@1.0.13':
+    resolution:
+      {
+        integrity: sha512-wgKggnhZVL9Bfx1OaKKTrYY9BFRk6C8UAkQNUcIv1+llzYrIqy+RZm5HPKzn0NpEBvTVhTqB4kQyllZywsRBRQ==,
+      }
+    peerDependencies:
+      acorn: ^8.9.0
+
   '@testing-library/react-native@7.2.0':
     resolution:
       {
@@ -1941,6 +1959,12 @@ packages:
     resolution:
       {
         integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==,
+      }
+
+  '@types/estree@1.0.9':
+    resolution:
+      {
+        integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==,
       }
 
   '@types/graceful-fs@4.1.9':
@@ -2248,6 +2272,13 @@ packages:
         integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==,
       }
 
+  aria-query@5.3.1:
+    resolution:
+      {
+        integrity: sha512-Z/ZeOgVl7bcSYZ/u/rh0fOpvEpq//LZmdbkXyc7syVzjPAhfOa9ebsdTSjEBDU4vs5nC98Kfduj1uFo0qyET3g==,
+      }
+    engines: {node: '>= 0.4'}
+
   array-buffer-byte-length@1.0.2:
     resolution:
       {
@@ -2347,6 +2378,13 @@ packages:
     resolution:
       {
         integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==,
+      }
+    engines: {node: '>= 0.4'}
+
+  axobject-query@4.1.0:
+    resolution:
+      {
+        integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==,
       }
     engines: {node: '>= 0.4'}
 
@@ -2686,6 +2724,13 @@ packages:
       }
     engines: {node: '>=0.8'}
 
+  clsx@2.1.1:
+    resolution:
+      {
+        integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==,
+      }
+    engines: {node: '>=6'}
+
   co@4.6.0:
     resolution:
       {
@@ -2974,12 +3019,24 @@ packages:
       }
     engines: {node: '>=8'}
 
+  devalue@5.9.2:
+    resolution:
+      {
+        integrity: sha512-po4PAY5c53tw5XMocSnf8A/5OHhbbUftpr93aEN6BBoAdntUmK7vu7wOATqvt7cXO7m1Cl4gMVn6p7n6n4mj0w==,
+      }
+
   diff-sequences@28.1.1:
     resolution:
       {
         integrity: sha512-FU0iFaH/E23a+a718l8Qa/19bF9p06kgE0KipMOMadwa3SjnaElKzPaUC0vnibs6/B/9ni97s61mcejk8W1fQw==,
       }
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
+
+  dijkstrajs@1.0.3:
+    resolution:
+      {
+        integrity: sha512-qiSlmBq9+BCdCA/L46dw8Uy93mloxsPSbwnm5yrKn2vMPiy8KyAskTF6zuV/j5BMsmOGZDPs7KjU+mjb670kfA==,
+      }
 
   dir-glob@3.0.1:
     resolution:
@@ -3299,6 +3356,12 @@ packages:
     deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
+  esm-env@1.2.2:
+    resolution:
+      {
+        integrity: sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA==,
+      }
+
   espree@9.6.1:
     resolution:
       {
@@ -3320,6 +3383,17 @@ packages:
         integrity: sha512-Ap6G0WQwcU/LHsvLwON1fAQX9Zp0A2Y6Y/cJBl9r/JbW90Zyg4/zbG6zzKa2OTALELarYHmKu0GhpM5EO+7T0g==,
       }
     engines: {node: '>=0.10'}
+
+  esrap@2.3.7:
+    resolution:
+      {
+        integrity: sha512-n2nf7fZR3c9yXf0BPEuHuXqT+KW0SJVj4cN5FMEkpCZ3scLjOQWpiccyCxVzCC2q1wubTghuEGzngJY/7Ah0Ow==,
+      }
+    peerDependencies:
+      '@typescript-eslint/types': ^8.2.0
+    peerDependenciesMeta:
+      '@typescript-eslint/types':
+        optional: true
 
   esrecurse@4.3.0:
     resolution:
@@ -4068,6 +4142,12 @@ packages:
       }
     engines: {node: '>=0.10.0'}
 
+  is-reference@3.0.3:
+    resolution:
+      {
+        integrity: sha512-ixkJoqQvAP88E6wLydLGGqCJsrFUnqoH6HnaczB8XmDH1oaWU+xxdptvikTgaEhtZ53Ky6YXiBuUI2WXLMCwjw==,
+      }
+
   is-regex@1.2.1:
     resolution:
       {
@@ -4642,6 +4722,12 @@ packages:
       }
     engines: {node: '>=4'}
 
+  locate-character@3.0.0:
+    resolution:
+      {
+        integrity: sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA==,
+      }
+
   locate-path@3.0.0:
     resolution:
       {
@@ -4731,6 +4817,12 @@ packages:
     resolution:
       {
         integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==,
+      }
+
+  magic-string@0.30.21:
+    resolution:
+      {
+        integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==,
       }
 
   make-dir@2.1.0:
@@ -5625,6 +5717,13 @@ packages:
         integrity: sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ==,
       }
 
+  pngjs@5.0.0:
+    resolution:
+      {
+        integrity: sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw==,
+      }
+    engines: {node: '>=10.13.0'}
+
   possible-typed-array-names@1.1.0:
     resolution:
       {
@@ -5706,6 +5805,14 @@ packages:
         integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==,
       }
     engines: {node: '>=6'}
+
+  qrcode@1.5.4:
+    resolution:
+      {
+        integrity: sha512-1ca71Zgiu6ORjHqFBDpnSMTR2ReToX4l1Au1VFLyVeBTFavzQnv5JxMFr3ukHVKpSrSA2MCk0lNJSykjUfz7Zg==,
+      }
+    engines: {node: '>=10.13.0'}
+    hasBin: true
 
   queue-microtask@1.2.3:
     resolution:
@@ -6497,6 +6604,13 @@ packages:
       }
     engines: {node: '>= 0.4'}
 
+  svelte@5.57.0:
+    resolution:
+      {
+        integrity: sha512-NdbDn7fl4be1ViUG0oq/lvG6OZy3oENolV2ONjiqqsfVoeAfzaQAKUcEX3MrQod/Bebv1PgwET9rfXhgn9s4Kg==,
+      }
+    engines: {node: '>=18'}
+
   temp@0.8.4:
     resolution:
       {
@@ -7040,6 +7154,12 @@ packages:
         integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==,
       }
     engines: {node: '>=10'}
+
+  zimmerframe@1.1.5:
+    resolution:
+      {
+        integrity: sha512-msJxIvYDYcoNL+PJsu+7qmpDWsYmAxTY+2TNYXXF0hzBzBk0BMecOqDOG/EckUoKCuKwObfbugIl8QpqHDXeFA==,
+      }
 
 snapshots:
   '@amazon-devices/js-bundle-system-allow-list@0.0.22':
@@ -8797,11 +8917,23 @@ snapshots:
       nullthrows: 1.1.1
       react-native: 0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0)
 
-  '@revenuecat/purchases-js@file:../../..(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))':
-    optionalDependencies:
+  '@revenuecat/purchases-js-vega@file:../../../src/vega(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(svelte@5.57.0)':
+    dependencies:
       '@amazon-devices/kepler-compatibility': 1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       '@amazon-devices/kepler-file-system': 0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       '@amazon-devices/keplerscript-appstore-iap-lib': 2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
+      '@revenuecat/purchases-ui-js': 4.8.22(svelte@5.57.0)
+      react-native: 0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0)
+    transitivePeerDependencies:
+      - svelte
+
+  '@revenuecat/purchases-ui-js@4.8.22(svelte@5.57.0)':
+    dependencies:
+      '@revenuecat/workflow-web-components-sdk': 0.1.8
+      qrcode: 1.5.4
+      svelte: 5.57.0
+
+  '@revenuecat/workflow-web-components-sdk@0.1.8': {}
 
   '@rnx-kit/tools-node@2.1.2': {}
 
@@ -8833,6 +8965,10 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 1.8.6
 
+  '@sveltejs/acorn-typescript@1.0.13(acorn@8.18.0)':
+    dependencies:
+      acorn: 8.18.0
+
   '@testing-library/react-native@7.2.0(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react-test-renderer@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
       pretty-format: 26.6.2
@@ -8862,6 +8998,8 @@ snapshots:
   '@types/babel__traverse@7.28.0':
     dependencies:
       '@babel/types': 7.29.8
+
+  '@types/estree@1.0.9': {}
 
   '@types/graceful-fs@4.1.9':
     dependencies:
@@ -9066,6 +9204,8 @@ snapshots:
 
   argparse@2.0.1: {}
 
+  aria-query@5.3.1: {}
+
   array-buffer-byte-length@1.0.2:
     dependencies:
       call-bound: 1.0.4
@@ -9142,6 +9282,8 @@ snapshots:
   available-typed-arrays@1.0.7:
     dependencies:
       possible-typed-array-names: 1.1.0
+
+  axobject-query@4.1.0: {}
 
   babel-core@7.0.0-bridge.0(@babel/core@7.29.7):
     dependencies:
@@ -9405,6 +9547,8 @@ snapshots:
 
   clone@1.0.4: {}
 
+  clsx@2.1.1: {}
+
   co@4.6.0: {}
 
   collect-v8-coverage@1.0.3: {}
@@ -9561,7 +9705,11 @@ snapshots:
 
   detect-newline@3.1.0: {}
 
+  devalue@5.9.2: {}
+
   diff-sequences@28.1.1: {}
+
+  dijkstrajs@1.0.3: {}
 
   dir-glob@3.0.1:
     dependencies:
@@ -9855,6 +10003,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  esm-env@1.2.2: {}
+
   espree@9.6.1:
     dependencies:
       acorn: 8.18.0
@@ -9866,6 +10016,10 @@ snapshots:
   esquery@1.7.0:
     dependencies:
       estraverse: 5.3.0
+
+  esrap@2.3.7:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   esrecurse@4.3.0:
     dependencies:
@@ -10289,6 +10443,10 @@ snapshots:
   is-plain-object@2.0.4:
     dependencies:
       isobject: 3.0.1
+
+  is-reference@3.0.3:
+    dependencies:
+      '@types/estree': 1.0.9
 
   is-regex@1.2.1:
     dependencies:
@@ -10848,6 +11006,8 @@ snapshots:
       pify: 3.0.0
       strip-bom: 3.0.0
 
+  locate-character@3.0.0: {}
+
   locate-path@3.0.0:
     dependencies:
       p-locate: 3.0.0
@@ -10895,6 +11055,10 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
+
+  magic-string@0.30.21:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   make-dir@2.1.0:
     dependencies:
@@ -11712,6 +11876,8 @@ snapshots:
       mlly: 1.8.2
       pathe: 2.0.3
 
+  pngjs@5.0.0: {}
+
   possible-typed-array-names@1.1.0: {}
 
   prelude-ls@1.2.1: {}
@@ -11760,6 +11926,12 @@ snapshots:
       react-is: 16.13.1
 
   punycode@2.3.1: {}
+
+  qrcode@1.5.4:
+    dependencies:
+      dijkstrajs: 1.0.3
+      pngjs: 5.0.0
+      yargs: 15.4.1
 
   queue-microtask@1.2.3: {}
 
@@ -12306,6 +12478,26 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
+  svelte@5.57.0:
+    dependencies:
+      '@jridgewell/remapping': 2.3.5
+      '@jridgewell/sourcemap-codec': 1.5.5
+      '@sveltejs/acorn-typescript': 1.0.13(acorn@8.18.0)
+      '@types/estree': 1.0.9
+      acorn: 8.18.0
+      aria-query: 5.3.1
+      axobject-query: 4.1.0
+      clsx: 2.1.1
+      devalue: 5.9.2
+      esm-env: 1.2.2
+      esrap: 2.3.7
+      is-reference: 3.0.3
+      locate-character: 3.0.0
+      magic-string: 0.30.21
+      zimmerframe: 1.1.5
+    transitivePeerDependencies:
+      - '@typescript-eslint/types'
+
   temp@0.8.4:
     dependencies:
       rimraf: 2.6.3
@@ -12629,3 +12821,5 @@ snapshots:
       yargs-parser: 21.1.1
 
   yocto-queue@0.1.0: {}
+
+  zimmerframe@1.1.5: {}

@@ -1,5 +1,5 @@
 import type { AppStateStatus } from "react-native";
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import { ErrorCode, PurchasesError } from "../../entities/errors";
 
 /** A subscription returned by React Native's AppState listener. */
 export interface AppStateSubscription {
@@ -21,7 +21,7 @@ const missingReactNativeAppStateLoader: ReactNativeAppStateLoader =
   async () => {
     throw new PurchasesError(
       ErrorCode.ConfigurationError,
-      "React Native AppState is supported only by the @revenuecat/purchases-js/vega entry point.",
+      "React Native AppState is supported only by the @revenuecat/purchases-js-vega package.",
     );
   };
 
