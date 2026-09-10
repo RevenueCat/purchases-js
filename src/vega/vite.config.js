@@ -1,24 +1,18 @@
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 import { defineConfig } from "vite";
+import dts from "vite-plugin-dts";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-/**
- * Produces the Vega-only build exposed as `@revenuecat/purchases-js/vega`.
- *
- * This configuration is intentionally separate from the default build: Vite
- * accepts one build configuration at a time, and the two entry points have
- * different dependency boundaries. The Amazon package stays external here so
- * the Vega bundle keeps a static module import that the Vega runtime resolves.
- */
 export default defineConfig({
+  envDir: resolve(__dirname, "../.."),
   build: {
-    emptyOutDir: false,
+    emptyOutDir: true,
     lib: {
-      entry: resolve(__dirname, "src/vega.ts"),
+      entry: resolve(__dirname, "index.ts"),
       name: "Purchases",
       fileName: (format) => `Purchases.vega.${format}.js`,
     },
@@ -31,5 +25,11 @@ export default defineConfig({
       ],
     },
   },
-  plugins: [svelte({ compilerOptions: { css: "injected" } })],
+  plugins: [
+    svelte({ compilerOptions: { css: "injected" } }),
+    dts({
+      tsconfigPath: resolve(__dirname, "tsconfig.json"),
+      rollupTypes: true,
+    }),
+  ],
 });

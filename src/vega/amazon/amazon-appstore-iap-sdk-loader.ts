@@ -1,25 +1,18 @@
 import type * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import { ErrorCode, PurchasesError } from "../../entities/errors";
 
-/**
- * Shared Amazon AppStore IAP SDK loader contract used by AmazonBillingWrapper.
- *
- * Keeping this as an injected dependency lets the default purchases-js module
- * include the shared wrapper without importing the Flow-based Amazon IAP
- * package. The Vega module installs an implementation that loads the
- * native Amazon module before re-exporting the public SDK API.
- */
+/** Native SDK loader installed by the Vega package entry point. */
 export type AmazonAppstoreIAPSDK = typeof AmazonVegaSdk;
 export type AmazonAppstoreIAPSDKLoader = () => Promise<AmazonAppstoreIAPSDK>;
 
 // The default implementation intentionally throws an error. This loader is replaced
 // with a complete implementation as a side effect of
-// importing `@revenuecat/purchases-js/vega`.
+// importing `@revenuecat/purchases-js-vega`.
 const missingAmazonAppstoreIAPSDKLoader: AmazonAppstoreIAPSDKLoader =
   async () => {
     throw new PurchasesError(
       ErrorCode.ConfigurationError,
-      "Amazon Appstore is supported only by the @revenuecat/purchases-js/vega entry point.",
+      "Amazon Appstore is supported only by the @revenuecat/purchases-js-vega package.",
     );
   };
 

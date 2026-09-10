@@ -1,5 +1,5 @@
 import type { KeplerFileSystem as AmazonKeplerFileSystem } from "@amazon-devices/kepler-file-system";
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import { ErrorCode, PurchasesError } from "../../entities/errors";
 
 /**
  * Shared Kepler File System loader contract used by VegaDeviceCache.
@@ -15,7 +15,7 @@ export type KeplerFileSystemLoader = () => Promise<KeplerFileSystem>;
 const missingKeplerFileSystemLoader: KeplerFileSystemLoader = async () => {
   throw new PurchasesError(
     ErrorCode.ConfigurationError,
-    "Kepler File System is supported only by the @revenuecat/purchases-js/vega entry point.",
+    "Kepler File System is supported only by the @revenuecat/purchases-js-vega package.",
   );
 };
 

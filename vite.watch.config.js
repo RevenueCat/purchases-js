@@ -1,8 +1,7 @@
 import { defineConfig, mergeConfig } from "vite";
 import defaultConfig from "./vite.config.js";
 
-// The default build clears dist. Watch builds run alongside the Vega watcher,
-// so they must preserve the other entry point's artifacts.
+// Preserve existing web artifacts while rebuilding in watch mode.
 export default mergeConfig(
   defaultConfig,
   defineConfig({

@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "../**/*.ts",
+    "../**/*.svelte",
+    "../../global.d.ts"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "dist",
+    "tests",
+    "../tests",
+    "../**/*.test.ts"
+  ]
+}

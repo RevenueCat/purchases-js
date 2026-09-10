@@ -37,10 +37,10 @@ vi.mock("react-native", () => ({
 import { loadAmazonAppstoreIAPSDK } from "../amazon/amazon-appstore-iap-sdk-loader";
 import { loadKeplerFileSystem } from "../amazon/kepler-file-system-loader";
 import { loadReactNativeAppState } from "../amazon/react-native-app-state-loader";
-import { defaultHttpConfig } from "../entities/http-config";
-import { Purchases } from "../vega";
-import { testUserId } from "./base.purchases_test";
-import { APIGetRequest } from "./test-responses";
+import { defaultHttpConfig } from "../../entities/http-config";
+import { Purchases } from "../index";
+import { testUserId } from "../../tests/base.purchases_test";
+import { APIGetRequest } from "../../tests/test-responses";
 
 /**
  * The Vega entry point configures the loader as an import side effect. This
@@ -90,6 +90,18 @@ describe("Vega entry point", () => {
     expect(() => Purchases.configure("rcb_valid_key", testUserId)).toThrowError(
       "Vega applications must be configured with an Amazon Appstore API key.",
     );
+  });
+
+  test("does not load web branding when preloading", async () => {
+    const purchases = Purchases.configure({
+      apiKey: "amzn_valid_key",
+      appUserId: testUserId,
+      httpConfig: defaultHttpConfig,
+    });
+    await purchases.preload();
+    expect(APIGetRequest).not.toHaveBeenCalledWith({
+      url: "http://localhost:8000/rcbilling/v1/branding",
+    });
   });
 
   test("uses the Amazon IAP SDK for offerings with an Amazon API key", async () => {

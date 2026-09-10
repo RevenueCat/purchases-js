@@ -28,12 +28,17 @@ import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
-import { AmazonBillingWrapper } from "../amazon/amazon-billing-wrapper";
-import { resetAmazonAppstoreIAPSDKLoader } from "../amazon/amazon-appstore-iap-sdk-loader";
+import { AmazonBillingWrapper } from "../vega/amazon/amazon-billing-wrapper";
+import { resetAmazonAppstoreIAPSDKLoader } from "../vega/amazon/amazon-appstore-iap-sdk-loader";
 import { Logger } from "../helpers/logger";
+import {
+  registerBillingProvider,
+  resetBillingProvider,
+} from "../helpers/billing-provider";
 
 beforeEach(() => {
   resetAmazonAppstoreIAPSDKLoader();
+  resetBillingProvider();
 });
 
 describe("Purchases.configure() legacy", () => {
@@ -224,18 +229,12 @@ describe("Purchases.configure()", () => {
     ).toThrowError(PurchasesError);
   });
 
-  test("does not throw error if given valid Amazon API key", () => {
-    const loggerSpy = vi.spyOn(Logger, "enableConsoleLogForDebugMessages");
-
+  test("requires the Vega package for an Amazon API key", () => {
     expect(() =>
-      Purchases.configure({
-        apiKey: "amzn_valid_key",
-        appUserId: testUserId,
-      }),
-    ).not.toThrow();
-
-    expect(loggerSpy).toHaveBeenCalledOnce();
-    loggerSpy.mockRestore();
+      Purchases.configure({ apiKey: "amzn_valid_key", appUserId: testUserId }),
+    ).toThrowError(
+      "Amazon Appstore requires the @revenuecat/purchases-js-vega package.",
+    );
   });
 
   test("identifies stripe sandbox api keys as sandbox", () => {
@@ -349,6 +348,18 @@ describe("Purchases.configure()", () => {
 });
 
 describe("billing wrapper selection", () => {
+  beforeEach(() => {
+    registerBillingProvider({
+      validateApiKey: () => {},
+      createBillingWrapper: ({
+        backend,
+        apiKey,
+        getAppUserId,
+        getIsAnonymous,
+      }) =>
+        new AmazonBillingWrapper(backend, apiKey, getAppUserId, getIsAnonymous),
+    });
+  });
   test("syncs pending Amazon purchases at initialization", async () => {
     const syncPendingPurchasesInBackground = vi
       .spyOn(
@@ -398,7 +409,7 @@ describe("billing wrapper selection", () => {
     await expect(purchases.getOfferings()).rejects.toMatchObject({
       errorCode: ErrorCode.ConfigurationError,
       message:
-        "Amazon Appstore is supported only by the @revenuecat/purchases-js/vega entry point.",
+        "Amazon Appstore is supported only by the @revenuecat/purchases-js-vega package.",
     });
   });
 
@@ -419,6 +430,18 @@ describe("billing wrapper selection", () => {
 });
 
 describe("Purchases.syncPurchases and Purchases.restorePurchases", () => {
+  beforeEach(() => {
+    registerBillingProvider({
+      validateApiKey: () => {},
+      createBillingWrapper: ({
+        backend,
+        apiKey,
+        getAppUserId,
+        getIsAnonymous,
+      }) =>
+        new AmazonBillingWrapper(backend, apiKey, getAppUserId, getIsAnonymous),
+    });
+  });
   test.each([
     ["syncPurchases", "syncPurchases"],
     ["restorePurchases", "restorePurchases"],
@@ -869,6 +892,18 @@ describe("Purchases.identifyUser", () => {
 });
 
 describe("Purchases.purchase()", () => {
+  beforeEach(() => {
+    registerBillingProvider({
+      validateApiKey: () => {},
+      createBillingWrapper: ({
+        backend,
+        apiKey,
+        getAppUserId,
+        getIsAnonymous,
+      }) =>
+        new AmazonBillingWrapper(backend, apiKey, getAppUserId, getIsAnonymous),
+    });
+  });
   type PurchaseRouterMethods = {
     performPaddlePurchase: (
       params: PurchaseParams,

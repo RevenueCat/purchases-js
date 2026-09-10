@@ -23,9 +23,9 @@
     "@amazon-devices/kepler-file-system": "0.0.7",
     "@amazon-devices/react-native-kepler": "^2.0.0",
     "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
-    "@revenuecat/purchases-js": "file:../../..",
     "react": "18.2.0",
-    "react-native": "0.72.0"
+    "react-native": "0.72.0",
+    "@revenuecat/purchases-js-vega": "file:../../../src/vega"
   },
   "devDependencies": {
     "@amazon-devices/kepler-cli-platform": "^0",

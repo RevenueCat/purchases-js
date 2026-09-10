@@ -1,6 +1,5 @@
 /**
- * Makes sure Amazon AppStore support is included only in the Vega entry
- * point of the SDK.
+ * Makes sure Amazon AppStore support is included only in the Vega package.
  *
  * This checks the files we publish, so web, React Native web, and Flutter web
  * apps do not receive Amazon/Vega-specific dependencies.
@@ -12,8 +11,8 @@ const amazonModule = "@amazon-devices/keplerscript-appstore-iap-lib";
 const fileSystemModule = "@amazon-devices/kepler-file-system";
 const defaultArtifacts = ["dist/Purchases.es.js", "dist/Purchases.umd.js"];
 const vegaArtifacts = [
-  "dist/Purchases.vega.es.js",
-  "dist/Purchases.vega.umd.js",
+  "src/vega/dist/Purchases.vega.es.js",
+  "src/vega/dist/Purchases.vega.umd.js",
 ];
 
 for (const artifact of defaultArtifacts) {
@@ -46,6 +45,11 @@ for (const artifact of vegaArtifacts) {
   );
 }
 
-console.log(
-  "Confirmed that Amazon AppStore support is only in the Vega entry point.",
-);
+const webPackage = JSON.parse(readFileSync("package.json", "utf8"));
+const vegaPackage = JSON.parse(readFileSync("src/vega/package.json", "utf8"));
+assert.equal(webPackage.exports["./vega"], undefined);
+for (const dependency of Object.keys(vegaPackage.peerDependencies)) {
+  assert.equal(webPackage.dependencies?.[dependency], undefined);
+  assert.equal(webPackage.peerDependencies?.[dependency], undefined);
+}
+console.log("Confirmed separate web and Vega package boundaries.");
