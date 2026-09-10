@@ -111,9 +111,17 @@
 
   let paymentElementReadyForSubmission = $state(false);
   let emailElementReadyForSubmission = $state(skipEmail);
-  let expressCheckoutElementReadyForSubmission = $state(false);
   let addressElementReadyForSubmission = $state(
     !shouldCollectFullAddress(brandingInfo),
+  );
+  let expressCheckoutElementReadyForSubmission = false;
+
+  // These three elements must be ready before the payment form will be displayed.
+  // A loading indicator will be displayed until they are ready.
+  const areRequiredElementsReadyForFormDisplay = $derived(
+    emailElementReadyForSubmission &&
+      paymentElementReadyForSubmission &&
+      addressElementReadyForSubmission,
   );
 
   let stripeVariables: undefined | Appearance["variables"] = $state(undefined);
@@ -190,13 +198,14 @@
     onLoadingComplete();
   };
 
+  const onExpressCheckoutElementLoadingError = (error: StripeServiceError) => {
+    Logger.debugLog(
+      `[Stripe Elements] Express Checkout Element failed after ${getStripeElementsElapsedTime()}ms and was hidden. ${error.message}`,
+    );
+  };
+
   const maybeCompleteLoading = () => {
-    if (
-      emailElementReadyForSubmission &&
-      paymentElementReadyForSubmission &&
-      expressCheckoutElementReadyForSubmission &&
-      addressElementReadyForSubmission
-    ) {
+    if (areRequiredElementsReadyForFormDisplay) {
       Logger.debugLog(
         `[Stripe Elements] Loading completed after ${getStripeElementsElapsedTime()}ms.`,
       );
@@ -216,7 +225,6 @@
     if (!expressCheckoutElementReadyForSubmission) {
       expressCheckoutElementReadyForSubmission = true;
       logStripeElementReady("Express Checkout Element");
-      maybeCompleteLoading();
     }
   };
 
@@ -325,7 +333,7 @@
   <div class="rc-elements">
     <ExpressCheckoutElement
       {elements}
-      onError={onStripeElementsLoadingError}
+      onError={onExpressCheckoutElementLoadingError}
       onReady={onExpressCheckoutElementReady}
       onSubmit={onExpressCheckoutElementSubmit}
       {expressCheckoutOptions}
