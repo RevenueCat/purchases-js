@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "Xác nhận lịch trình",
   "upgrade_confirm_page.on_file": "Đã lưu",
   "credit_for_unused_time.title": "Hoàn tiền cho thời gian chưa sử dụng",
-  "credit_for_unused_time.message": "Phương thức thanh toán của bạn sẽ bị tính phí cho khoản chênh lệch giữa các gói đăng ký, với khoản hoàn tiền cho thời gian chưa sử dụng trên gói đăng ký {{previousProductName}} của bạn.",
+  "credit_for_unused_time.message": "Thời gian chưa sử dụng còn lại trên gói đăng ký hiện tại của bạn sẽ được khấu trừ vào lần mua hàng này.",
   "paddle_checkout.return_to": "Quay lại {{appName}}",
   "paddle_order_summary.billed_frequency": "thanh toán {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}} đầu tiên, sau đó {{price}} {{frequency}}",

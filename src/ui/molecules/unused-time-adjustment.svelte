@@ -7,7 +7,7 @@
   import Typography from "../atoms/typography.svelte";
 
   interface Props {
-    previousProductName: string;
+    previousProductName?: string;
     variant?: "refund" | "credit";
   }
 
@@ -35,9 +35,10 @@
   </div>
   <div class="rcb-unused-time-adjustment-message">
     <Typography size="caption-default">
-      {$translator.translate(messageKey, {
-        previousProductName,
-      })}
+      {$translator.translate(
+        messageKey,
+        variant === "refund" ? { previousProductName } : undefined,
+      )}
     </Typography>
   </div>
 </div>

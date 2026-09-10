@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "शेड्यूल की पुष्टि करें",
   "upgrade_confirm_page.on_file": "फाइल पर",
   "credit_for_unused_time.title": "अप्रयुक्त समय का क्रेडिट",
-  "credit_for_unused_time.message": "आपकी भुगतान विधि से सब्सक्रिप्शन के बीच के अंतर के लिए शुल्क लिया जाएगा, जिसमें आपकी {{previousProductName}} सब्सक्रिप्शन के अप्रयुक्त समय का क्रेडिट शामिल होगा।",
+  "credit_for_unused_time.message": "आपकी मौजूदा सदस्यता का कोई भी अप्रयुक्त समय आपकी खरीद में छूट के रूप में समायोजित किया जाएगा।",
   "paddle_checkout.return_to": "{{appName}} पर वापस जाएँ",
   "paddle_order_summary.billed_frequency": "बिलिंग {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "पहला {{firstPeriod}}, फिर {{price}} {{frequency}}",

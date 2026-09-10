@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "Potvrdite raspored",
   "upgrade_confirm_page.on_file": "U evidenciji",
   "credit_for_unused_time.title": "Kredit za neiskorišteno vrijeme",
-  "credit_for_unused_time.message": "Vaš način plaćanja bit će naplaćen za razliku između pretplata, uz kredit za neiskorišteno vrijeme na vašoj pretplati {{previousProductName}}.",
+  "credit_for_unused_time.message": "Svako neiskorišteno vrijeme na vašoj postojećoj pretplati bit će odbijeno od vaše kupnje.",
   "paddle_checkout.return_to": "Natrag na {{appName}}",
   "paddle_order_summary.billed_frequency": "naplaćuje se {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "prvi {{firstPeriod}}, zatim {{price}} {{frequency}}",
