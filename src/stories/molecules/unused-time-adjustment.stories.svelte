@@ -38,6 +38,7 @@
 <Story
   name="Credit"
   args={{
+    previousProductName: "Pro Monthly",
     variant: "credit",
   }}
 />
