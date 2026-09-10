@@ -141,10 +141,6 @@ importers:
         version: 3.2.4(@types/node@22.10.5)(jiti@2.7.0)(jsdom@25.0.1)(msw@2.7.0(@types/node@22.10.5)(typescript@5.8.2))(terser@5.50.0)(yaml@2.9.0)
 
   src/vega:
-    dependencies:
-      "@revenuecat/purchases-ui-js":
-        specifier: 4.8.22
-        version: 4.8.22(svelte@5.46.4)
     devDependencies:
       "@amazon-devices/kepler-compatibility":
         specifier: 1.0.5

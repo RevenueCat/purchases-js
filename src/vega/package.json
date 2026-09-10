@@ -32,8 +32,5 @@
     "@amazon-devices/kepler-file-system": "0.0.7",
     "@amazon-devices/keplerscript-appstore-iap-lib": "2.12.16",
     "react-native": "0.72.0"
-  },
-  "dependencies": {
-    "@revenuecat/purchases-ui-js": "4.8.22"
   }
 }
