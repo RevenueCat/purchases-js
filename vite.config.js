@@ -18,6 +18,7 @@ export default defineConfig({
   plugins: [
     dts({
       rollupTypes: true,
+      bundledPackages: ["@revenuecat/purchases-ui-js"],
     }),
     svelte({ compilerOptions: { css: "injected" } }),
   ],
