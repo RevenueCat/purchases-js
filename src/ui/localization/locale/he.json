@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "אשר שינוי מועד",
   "upgrade_confirm_page.on_file": "שמור",
   "credit_for_unused_time.title": "זיכוי על זמן שלא נוצל",
-  "credit_for_unused_time.message": "אמצעי התשלום שלך יחויב על ההפרש בין המנויים, תוך התחשבות בזיכוי על זמן שלא נוצל במנוי ה-{{previousProductName}} שלך.",
+  "credit_for_unused_time.message": "כל זמן שלא נוצל מהמנוי הקיים שלך יקוזז מהרכישה שלך.",
   "paddle_checkout.return_to": "חזרה אל {{appName}}",
   "paddle_order_summary.billed_frequency": "חיוב {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}} ראשון, לאחר מכן {{price}} {{frequency}}",
