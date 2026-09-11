@@ -1,6 +1,13 @@
 import { describe, expect, test, vi } from "vitest";
 import { VegaDeviceCache } from "../../amazon/vega-device-cache";
-import type { KeplerFileSystem } from "../../amazon/kepler-file-system-loader";
+const { nativeFileSystem, isPresentOnOS } = vi.hoisted(() => ({
+  nativeFileSystem: {},
+  isPresentOnOS: vi.fn(),
+}));
+vi.mock("@amazon-devices/kepler-file-system", () => ({
+  KeplerFileSystem: nativeFileSystem,
+}));
+vi.mock("@amazon-devices/kepler-compatibility", () => ({ isPresentOnOS }));
 
 const cachePath = "/data/com.revenuecat.purchases.amzn_api_key.tokens";
 
@@ -23,11 +30,9 @@ function createCache(supportsFileSystemExists = true) {
       return content.length;
     }),
   };
-  const cache = new VegaDeviceCache(
-    "amzn_api_key",
-    async () => fileSystem as unknown as KeplerFileSystem,
-    vi.fn(() => supportsFileSystemExists),
-  );
+  Object.assign(nativeFileSystem, fileSystem);
+  isPresentOnOS.mockReset().mockReturnValue(supportsFileSystemExists);
+  const cache = new VegaDeviceCache("amzn_api_key");
 
   return { cache, fileSystem, files };
 }
@@ -38,6 +43,10 @@ describe("VegaDeviceCache", () => {
 
     await expect(cache.getPreviouslySentReceiptIds()).resolves.toEqual(
       new Set(),
+    );
+    expect(isPresentOnOS).toHaveBeenCalledExactlyOnceWith(
+      "@amazon-devices/kepler-file-system",
+      "0.0.7",
     );
     expect(fileSystem.exists).toHaveBeenCalledExactlyOnceWith(cachePath);
     expect(fileSystem.readFileAsString).not.toHaveBeenCalled();
@@ -50,6 +59,7 @@ describe("VegaDeviceCache", () => {
     await expect(cache.getPreviouslySentReceiptIds()).resolves.toEqual(
       new Set(["receipt-id"]),
     );
+    expect(fileSystem.exists).not.toHaveBeenCalled();
     expect(fileSystem.readFileAsString).toHaveBeenCalledTimes(2);
     expect(fileSystem.readFileAsString).toHaveBeenCalledWith(
       cachePath,
