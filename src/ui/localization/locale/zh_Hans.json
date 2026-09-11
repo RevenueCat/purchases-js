@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "确认安排",
   "upgrade_confirm_page.on_file": "已存档",
   "credit_for_unused_time.title": "未用时长抵扣",
-  "credit_for_unused_time.message": "您的付款方式将收取订阅之间的差价，同时抵扣您{{previousProductName}}订阅的未用时长。",
+  "credit_for_unused_time.message": "您现有订阅中未使用的时长将从您的购买中抵扣。",
   "paddle_checkout.return_to": "返回{{appName}}",
   "paddle_order_summary.billed_frequency": "{{frequency}}计费",
   "paddle_order_summary.intro_then_recurring": "首个{{firstPeriod}}，之后 {{price}} {{frequency}}",

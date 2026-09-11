@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "ยืนยันกำหนดการ",
   "upgrade_confirm_page.on_file": "ในระบบ",
   "credit_for_unused_time.title": "เครดิตสำหรับเวลาที่ไม่ได้ใช้",
-  "credit_for_unused_time.message": "วิธีการชำระเงินของคุณจะถูกเรียกเก็บเงินสำหรับส่วนต่างระหว่างการสมัครสมาชิก พร้อมเครดิตสำหรับเวลาที่ไม่ได้ใช้ในการสมัครสมาชิก {{previousProductName}} ของคุณ",
+  "credit_for_unused_time.message": "เวลาที่ยังไม่ได้ใช้จากการสมัครสมาชิกเดิมของคุณจะถูกนำมาหักลดจากการซื้อของคุณ",
   "paddle_checkout.return_to": "กลับไปที่ {{appName}}",
   "paddle_order_summary.billed_frequency": "เรียกเก็บ{{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}}แรก จากนั้น {{price}} {{frequency}}",

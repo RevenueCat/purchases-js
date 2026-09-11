@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "Ütemezés megerősítése",
   "upgrade_confirm_page.on_file": "Rögzítve",
   "credit_for_unused_time.title": "Jóváírás fel nem használt időre",
-  "credit_for_unused_time.message": "Fizetési módját az előfizetések közötti különbséggel terheljük meg, jóváírással a(z) {{previousProductName}} előfizetésén fel nem használt időért.",
+  "credit_for_unused_time.message": "A meglévő előfizetésed fel nem használt ideje kedvezményként jóváíródik a vásárlásodból.",
   "paddle_checkout.return_to": "Vissza: {{appName}}",
   "paddle_order_summary.billed_frequency": "számlázás {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "első {{firstPeriod}}, majd {{price}} {{frequency}}",

@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "Potvrdit plán",
   "upgrade_confirm_page.on_file": "Uloženo",
   "credit_for_unused_time.title": "Kredit za nevyužitý čas",
-  "credit_for_unused_time.message": "Vaše platební metoda bude naúčtována za rozdíl mezi předplatnými, s kreditem za nevyužitý čas z vašeho předplatného {{previousProductName}}.",
+  "credit_for_unused_time.message": "Jakýkoli nevyužitý čas z vašeho stávajícího předplatného bude odečten z vaší platby.",
   "paddle_checkout.return_to": "Zpět na {{appName}}",
   "paddle_order_summary.billed_frequency": "účtováno {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "první {{firstPeriod}}, poté {{price}} {{frequency}}",
