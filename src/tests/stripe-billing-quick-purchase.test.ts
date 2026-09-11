@@ -2,7 +2,7 @@ import type { PaymentRequest, Stripe } from "@stripe/stripe-js";
 import { http, HttpResponse } from "msw";
 import { describe, expect, test, vi } from "vitest";
 
-import { BackendErrorCode, PurchasesError } from "../entities/errors";
+import { BackendErrorCode } from "../entities/errors";
 import { ErrorCode, type PurchaseParams, type PurchaseResult } from "../main";
 import type { StripeBillingApplePayCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import { StripeService } from "../stripe/stripe-service";
@@ -28,46 +28,146 @@ const applePayStartResponse =
   });
 
 describe("Purchases Stripe Billing quick purchases", () => {
-  test("uses normal checkout when quick purchase is unavailable", async () => {
-    server.use(
-      http.post("http://localhost:8000/rcbilling/v1/checkout/start", () => {
-        return HttpResponse.json(
-          {
-            code: BackendErrorCode.BackendQuickPurchaseUnavailable,
-            message: "Quick purchase is unavailable for this purchase.",
-          },
-          { status: 422 },
-        );
-      }),
-    );
-    const purchases = configurePurchases(
-      testUserId,
-      "rcSource",
-      "strp_test_api_key",
-    );
-    const params = { rcPackage: createMonthlyPackageMock() };
+  test.each([
+    "show",
+    "context",
+    "start analytics",
+    "listeners",
+    "fallback analytics",
+  ])(
+    "opens normal checkout when %s fails before authorization",
+    async (failure) => {
+      server.use(
+        http.post("http://localhost:8000/rcbilling/v1/checkout/start", () =>
+          HttpResponse.json(applePayStartResponse()),
+        ),
+      );
+      const paymentRequest = {
+        canMakePayment: vi.fn().mockResolvedValue({ applePay: true }),
+        on: vi.fn(),
+        off: vi.fn(),
+        show: vi.fn(() => {
+          throw new Error("User activation unavailable");
+        }),
+      } as unknown as PaymentRequest;
+      vi.spyOn(StripeService, "getStripeClient").mockResolvedValue({
+        stripe: {
+          paymentRequest: vi.fn(() => paymentRequest),
+        } as unknown as Stripe,
+      });
+      const purchases = configurePurchases(
+        testUserId,
+        "rcSource",
+        "strp_test_api_key",
+      );
+      const params = { rcPackage: createMonthlyPackageMock() };
+      await expect(purchases.prepareForQuickPurchases(params)).resolves.toEqual(
+        {
+          applePayAvailable: true,
+        },
+      );
+      const internal = purchases as unknown as {
+        resolveStripeBillingQuickPurchaseContext: (
+          params: PurchaseParams,
+        ) => unknown;
+        eventsTracker: { trackSDKEvent: (event: unknown) => void };
+        purchaseAfterLoadingResources: (
+          params: PurchaseParams,
+        ) => Promise<PurchaseResult>;
+      };
+      if (failure === "context") {
+        vi.spyOn(
+          internal,
+          "resolveStripeBillingQuickPurchaseContext",
+        ).mockImplementationOnce(() => {
+          throw new Error("Context failed");
+        });
+      }
+      if (failure === "listeners") {
+        vi.mocked(paymentRequest.on).mockImplementationOnce(() => {
+          throw new Error("Listener failed");
+        });
+      }
+      if (failure === "start analytics" || failure === "fallback analytics") {
+        const tracking = vi.spyOn(internal.eventsTracker, "trackSDKEvent");
+        if (failure === "fallback analytics")
+          tracking.mockImplementationOnce(() => {});
+        tracking.mockImplementationOnce(() => {
+          throw new Error("Analytics failed");
+        });
+      }
+      const fallbackResult = {} as PurchaseResult;
+      const fallback = vi
+        .spyOn(internal, "purchaseAfterLoadingResources")
+        .mockResolvedValue(fallbackResult);
+      await expect(
+        purchases.purchase({ ...params, tryWithApplePay: true }),
+      ).resolves.toBe(fallbackResult);
+      expect(fallback).toHaveBeenCalledExactlyOnceWith({
+        ...params,
+        tryWithApplePay: false,
+      });
+    },
+  );
+  test.each(["unavailable", "missing", "null", "network", "backend"])(
+    "uses normal checkout when preparation returns %s",
+    async (failure) => {
+      server.use(
+        http.post("http://localhost:8000/rcbilling/v1/checkout/start", () => {
+          if (failure === "network") return HttpResponse.error();
+          if (failure === "backend")
+            return HttpResponse.json({ message: "Failed" }, { status: 500 });
+          if (failure === "missing" || failure === "null") {
+            const response = {
+              ...applePayStartResponse(),
+              stripe_billing_apple_pay_params: undefined,
+            };
+            return HttpResponse.json(
+              failure === "null"
+                ? { ...response, stripe_billing_apple_pay_params: null }
+                : response,
+            );
+          }
+          return HttpResponse.json(
+            {
+              code: BackendErrorCode.BackendQuickPurchaseUnavailable,
+              message: "Quick purchase is unavailable for this purchase.",
+            },
+            { status: 422 },
+          );
+        }),
+      );
+      const purchases = configurePurchases(
+        testUserId,
+        "rcSource",
+        "strp_test_api_key",
+      );
+      const params = { rcPackage: createMonthlyPackageMock() };
 
-    await expect(purchases.prepareForQuickPurchases(params)).resolves.toEqual({
-      applePayAvailable: false,
-    });
+      await expect(purchases.prepareForQuickPurchases(params)).resolves.toEqual(
+        {
+          applePayAvailable: false,
+        },
+      );
 
-    const fallbackResult = {} as PurchaseResult;
-    const internal = purchases as unknown as {
-      purchaseAfterLoadingResources: (
-        params: PurchaseParams,
-      ) => Promise<PurchaseResult>;
-    };
-    const fallback = vi
-      .spyOn(internal, "purchaseAfterLoadingResources")
-      .mockResolvedValue(fallbackResult);
+      const fallbackResult = {} as PurchaseResult;
+      const internal = purchases as unknown as {
+        purchaseAfterLoadingResources: (
+          params: PurchaseParams,
+        ) => Promise<PurchaseResult>;
+      };
+      const fallback = vi
+        .spyOn(internal, "purchaseAfterLoadingResources")
+        .mockResolvedValue(fallbackResult);
 
-    await expect(
-      purchases.purchase({ ...params, tryWithApplePay: true }),
-    ).resolves.toBe(fallbackResult);
-    expect(fallback).toHaveBeenCalledOnce();
-  });
+      await expect(
+        purchases.purchase({ ...params, tryWithApplePay: true }),
+      ).resolves.toBe(fallbackResult);
+      expect(fallback).toHaveBeenCalledOnce();
+    },
+  );
 
-  test("does not hide other quick purchase preparation errors", async () => {
+  test("returns unavailable for backend preparation errors", async () => {
     server.use(
       http.post("http://localhost:8000/rcbilling/v1/checkout/start", () => {
         return HttpResponse.json(
@@ -88,14 +188,10 @@ describe("Purchases Stripe Billing quick purchases", () => {
     const preparation = purchases.prepareForQuickPurchases({
       rcPackage: createMonthlyPackageMock(),
     });
-    await expect(preparation).rejects.toBeInstanceOf(PurchasesError);
-    await expect(preparation).rejects.toHaveProperty(
-      "errorCode",
-      ErrorCode.StoreProblemError,
-    );
+    await expect(preparation).resolves.toEqual({ applePayAvailable: false });
   });
 
-  test("returns a public network error when preparation cannot reach the backend", async () => {
+  test("returns unavailable when preparation cannot reach the backend", async () => {
     server.use(
       http.post("http://localhost:8000/rcbilling/v1/checkout/start", () =>
         HttpResponse.error(),
@@ -109,11 +205,7 @@ describe("Purchases Stripe Billing quick purchases", () => {
     const preparation = purchases.prepareForQuickPurchases({
       rcPackage: createMonthlyPackageMock(),
     });
-    await expect(preparation).rejects.toBeInstanceOf(PurchasesError);
-    await expect(preparation).rejects.toHaveProperty(
-      "errorCode",
-      ErrorCode.NetworkError,
-    );
+    await expect(preparation).resolves.toEqual({ applePayAvailable: false });
   });
 
   test("shares exact preparation and shows Apple Pay synchronously once", async () => {

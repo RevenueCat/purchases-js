@@ -67,15 +67,15 @@ export async function prepareStripeBillingApplePayPurchase({
   translator: Translator;
   purchaseOperationHelper: PurchaseOperationHelper;
 }): Promise<PreparedStripeBillingApplePayPurchase | null> {
-  const params = startResponse.stripe_billing_apple_pay_params;
-  if (!params.account_country) {
-    Logger.debugLog(
-      "Stripe account country is unavailable; quick purchases will use checkout",
-    );
-    return null;
-  }
-
   try {
+    const params = startResponse.stripe_billing_apple_pay_params;
+    if (!params?.account_country) {
+      Logger.debugLog(
+        "Stripe account country is unavailable; quick purchases will use checkout",
+      );
+      return null;
+    }
+
     const { stripe } = await StripeService.getStripeClient(
       params.stripe_account_id,
       params.publishable_api_key,
@@ -177,12 +177,14 @@ export function presentStripeBillingApplePayPurchase({
         });
     };
 
-    paymentRequest.on("cancel", cancelHandler);
-    paymentRequest.on("paymentmethod", paymentMethodHandler);
-
     try {
+      paymentRequest.on("cancel", cancelHandler);
+      paymentRequest.on("paymentmethod", paymentMethodHandler);
       paymentRequest.show();
     } catch (error) {
+      if (paymentAuthorized || settled) {
+        return;
+      }
       Logger.debugLog(
         `Apple Pay presentation failed, using checkout: ${String(error)}`,
       );

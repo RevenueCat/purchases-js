@@ -1665,10 +1665,10 @@ export class Purchases {
         if (this.stripeBillingQuickPurchasePreparation?.key === context.key) {
           this.stripeBillingQuickPurchaseState = null;
         }
-        if (error instanceof PurchaseFlowError) {
-          throw PurchasesError.getForPurchasesFlowError(error);
-        }
-        throw error;
+        Logger.debugLog(
+          `Apple Pay preparation failed, using checkout: ${String(error)}`,
+        );
+        return { applePayAvailable: false };
       })
       .finally(() => {
         if (this.stripeBillingQuickPurchasePreparation?.key === context.key) {
@@ -2048,9 +2048,18 @@ export class Purchases {
    */
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
     if (params.tryWithApplePay) {
-      const quickPurchase = this.tryPreparedStripeBillingQuickPurchase(params);
-      if (quickPurchase) {
-        return quickPurchase;
+      try {
+        const quickPurchase =
+          this.tryPreparedStripeBillingQuickPurchase(params);
+        if (quickPurchase) {
+          // Do not catch rejections after the customer authorizes a payment.
+          return quickPurchase;
+        }
+      } catch (error) {
+        this.stripeBillingQuickPurchaseState = null;
+        Logger.debugLog(
+          `Apple Pay could not start, using checkout: ${String(error)}`,
+        );
       }
     }
 
@@ -2107,6 +2116,19 @@ export class Purchases {
     })
       .then(async (result) => {
         if (result.status === "unavailable") {
+          try {
+            this.eventsTracker.trackSDKEvent(
+              createCheckoutSessionEndErroredEvent({
+                errorMessage:
+                  "Apple Pay presentation unavailable; using checkout",
+                errorCode: null,
+              }),
+            );
+          } catch (error) {
+            Logger.debugLog(
+              `Apple Pay fallback analytics failed: ${String(error)}`,
+            );
+          }
           return await this.purchaseAfterLoadingResources({
             ...params,
             tryWithApplePay: false,
