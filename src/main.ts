@@ -890,9 +890,30 @@ export class Purchases {
       });
     };
 
+    const buildPaywallPurchaseParams = (
+      pkg: Package,
+      checkoutLocale: string,
+    ): PrepareQuickPurchaseParams => ({
+      rcPackage: pkg,
+      customerEmail: paywallParams.customerEmail,
+      externalPurchaseTokenId: paywallParams.externalPurchaseTokenId,
+      metadata: paywallParams.metadata,
+      brandingAppearanceOverride: paywallParams.brandingAppearanceOverride,
+      showDiscountCodeField: paywallParams.showDiscountCodeField,
+      discountCode: paywallParams.discountCode,
+      onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
+      selectedLocale: checkoutLocale,
+      defaultLocale:
+        offering.paywallComponents?.default_locale ?? englishLocale,
+      paywallId: offering.paywallComponents?.id,
+      paywallSessionId,
+      productChangeInfo: paywallParams.productChangeInfo,
+    });
+
     const startPurchaseFlow = async (
       selectedPackageId: string,
       checkoutLocale: string = finalLocale,
+      tryWithApplePay = false,
     ): Promise<PaywallPurchaseResult> => {
       const pkg = offering.availablePackages.find(
         (p) => p.identifier === selectedPackageId,
@@ -903,25 +924,32 @@ export class Purchases {
       }
 
       const purchaseResult = await this.purchase({
-        rcPackage: pkg,
+        ...buildPaywallPurchaseParams(pkg, checkoutLocale),
         htmlTarget: paywallParams.purchaseHtmlTarget,
-        customerEmail: paywallParams.customerEmail,
-        externalPurchaseTokenId: paywallParams.externalPurchaseTokenId,
-        metadata: paywallParams.metadata,
-        brandingAppearanceOverride: paywallParams.brandingAppearanceOverride,
-        showDiscountCodeField: paywallParams.showDiscountCodeField,
-        discountCode: paywallParams.discountCode,
-        onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
-        selectedLocale: checkoutLocale,
-        defaultLocale:
-          offering.paywallComponents?.default_locale ?? englishLocale,
-        paywallId: offering.paywallComponents?.id,
-        paywallSessionId,
-        productChangeInfo: paywallParams.productChangeInfo,
+        tryWithApplePay,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
     };
+
+    const prepareWalletPurchase =
+      (checkoutLocale: string) =>
+      async (selectedPackageId: string): Promise<boolean> => {
+        if (!isStripeApiKey(this._API_KEY)) return false;
+        const pkg = offering.packagesById[selectedPackageId];
+        if (!pkg) return false;
+        try {
+          const { applePayAvailable } = await this.prepareForQuickPurchases(
+            buildPaywallPurchaseParams(pkg, checkoutLocale),
+          );
+          return applePayAvailable;
+        } catch (error) {
+          Logger.debugLog(
+            `Wallet purchase preparation failed: ${String(error)}`,
+          );
+          return false;
+        }
+      };
 
     let lastNavigationInteraction: {
       componentType: UIComponentInteractionData["componentType"];
@@ -1246,6 +1274,26 @@ export class Purchases {
         };
       };
 
+      const onWalletPurchaseClicked =
+        (checkoutLocale: string) =>
+        (selectedPackageId: string): Promise<void> => {
+          if (purchaseInFlight) return Promise.resolve();
+          purchaseInFlight = true;
+
+          const pkg = offering.packagesById[selectedPackageId];
+          if (pkg) {
+            notifyPurchaseStarted(pkg);
+          }
+
+          // No await before startPurchaseFlow: the Apple Pay sheet needs the click's user activation.
+          return startPurchaseFlow(selectedPackageId, checkoutLocale, true)
+            .then(onSuccess)
+            .catch(onError("Error performing wallet purchase"))
+            .finally(() => {
+              purchaseInFlight = false;
+            });
+        };
+
       const walletButtonRender = this.getWalletButtonRender(
         offering,
         onSuccess,
@@ -1312,6 +1360,9 @@ export class Purchases {
               variablesPerPackage,
               infoPerPackage,
               walletButtonRender,
+              prepareWalletPurchase: prepareWalletPurchase(finalWorkflowLocale),
+              onWalletPurchaseClicked:
+                onWalletPurchaseClicked(finalWorkflowLocale),
               onPurchaseClicked:
                 createPurchaseClickHandler(finalWorkflowLocale),
               onClose: closePaywall,
@@ -1379,6 +1430,8 @@ export class Purchases {
             infoPerPackage,
             hideBackButtons: paywallParams.hideBackButtons,
             walletButtonRender,
+            prepareWalletPurchase: prepareWalletPurchase(finalLocale),
+            onWalletPurchaseClicked: onWalletPurchaseClicked(finalLocale),
             customVariables: paywallParams.customVariables,
             offering: paywallContextOffering,
             packages: paywallContextPackages,
