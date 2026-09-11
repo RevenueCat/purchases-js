@@ -34,36 +34,14 @@ vi.mock("react-native", () => ({
   AppState: appState,
 }));
 
-import { loadAmazonAppstoreIAPSDK } from "../amazon/amazon-appstore-iap-sdk-loader";
-import { loadKeplerFileSystem } from "../amazon/kepler-file-system-loader";
-import { loadReactNativeAppState } from "../amazon/react-native-app-state-loader";
 import { defaultHttpConfig } from "../../entities/http-config";
 import { Purchases } from "../index";
 import { testUserId } from "../../tests/base.purchases_test";
 import { APIGetRequest } from "../../tests/test-responses";
 
-/**
- * The Vega entry point configures the loader as an import side effect. This
- * test keeps that contract separate from the standard-entry tests, which run
- * deliberately without an Amazon SDK loader.
- */
-describe("Vega entry point", () => {
+describe("Vega module", () => {
   beforeEach(() => {
     purchasingService.getProductData.mockReset();
-  });
-
-  test("wires the Amazon Appstore IAP SDK loader", async () => {
-    const sdk = await loadAmazonAppstoreIAPSDK();
-
-    expect(sdk.PurchasingService).toBe(purchasingService);
-  });
-
-  test("wires the Kepler File System loader", async () => {
-    expect(await loadKeplerFileSystem()).toBe(keplerFileSystem);
-  });
-
-  test("wires the React Native AppState loader", async () => {
-    expect(await loadReactNativeAppState()).toBe(appState);
   });
 
   test("configures with an Amazon API key", () => {

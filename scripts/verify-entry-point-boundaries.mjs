@@ -7,25 +7,39 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const amazonModule = "@amazon-devices/keplerscript-appstore-iap-lib";
-const fileSystemModule = "@amazon-devices/kepler-file-system";
-const defaultArtifacts = ["dist/Purchases.es.js", "dist/Purchases.umd.js"];
+const nativeDependencies = [
+  "@amazon-devices/keplerscript-appstore-iap-lib",
+  "@amazon-devices/kepler-file-system",
+  "@amazon-devices/kepler-compatibility",
+  "react-native",
+];
+const defaultArtifacts = [
+  "dist/Purchases.es.js",
+  "dist/Purchases.umd.js",
+  "dist/Purchases.es.d.ts",
+];
 const vegaArtifacts = [
   "src/vega/dist/Purchases.vega.es.js",
   "src/vega/dist/Purchases.vega.umd.js",
 ];
 
+// Match complete module specifiers, not names of other packages such as
+// react-native-url-polyfill mentioned in bundled diagnostic messages.
+function referencesDependency(contents, dependency) {
+  return ['"', "'"].some((quote) =>
+    contents.includes(`${quote}${dependency}${quote}`),
+  );
+}
+
 for (const artifact of defaultArtifacts) {
   const contents = readFileSync(artifact, "utf8");
 
-  assert.ok(
-    !contents.includes(amazonModule),
-    `${artifact} should not include Amazon AppStore support`,
-  );
-  assert.ok(
-    !contents.includes(fileSystemModule),
-    `${artifact} should not include Vega File System support`,
-  );
+  for (const dependency of nativeDependencies) {
+    assert.ok(
+      !referencesDependency(contents, dependency),
+      `${artifact} should not reference ${dependency}`,
+    );
+  }
   assert.ok(
     !contents.includes("Purchases.vega"),
     `${artifact} should not include the Vega code.`,
@@ -35,14 +49,12 @@ for (const artifact of defaultArtifacts) {
 for (const artifact of vegaArtifacts) {
   const contents = readFileSync(artifact, "utf8");
 
-  assert.ok(
-    contents.includes(amazonModule),
-    `${artifact} should include Amazon AppStore support`,
-  );
-  assert.ok(
-    contents.includes(fileSystemModule),
-    `${artifact} should include Vega File System support`,
-  );
+  for (const dependency of nativeDependencies) {
+    assert.ok(
+      referencesDependency(contents, dependency),
+      `${artifact} should reference ${dependency}`,
+    );
+  }
 }
 
 const webPackage = JSON.parse(readFileSync("package.json", "utf8"));

@@ -1,12 +1,5 @@
-import {
-  loadKeplerFileSystem,
-  type KeplerFileSystem,
-  type KeplerFileSystemLoader,
-} from "./kepler-file-system-loader";
-import {
-  isKeplerFileSystemExistsSupported as defaultKeplerFileSystemExistsSupportCheck,
-  type KeplerFileSystemExistsSupportCheck,
-} from "./kepler-compatibility-loader";
+import { KeplerFileSystem } from "@amazon-devices/kepler-file-system";
+import { isPresentOnOS } from "@amazon-devices/kepler-compatibility";
 
 type ReceiptCache = string[];
 
@@ -30,11 +23,7 @@ export class VegaDeviceCache {
   private readonly tokensCachePath: string;
   private writeQueue: Promise<void> = Promise.resolve();
 
-  public constructor(
-    private readonly apiKey: string,
-    private readonly fileSystemLoader: KeplerFileSystemLoader = loadKeplerFileSystem,
-    private readonly isKeplerFileSystemExistsSupported: KeplerFileSystemExistsSupportCheck = defaultKeplerFileSystemExistsSupportCheck,
-  ) {
+  public constructor(private readonly apiKey: string) {
     // As of KeplerFileSystem SDK version 0.24, there is no way to create a directory, and any attempts
     // to write to one throw a com.amazon.kepler.file_system.NotFoundError error. Therefore, we write
     // our cache files to the /data directory.
@@ -56,7 +45,7 @@ export class VegaDeviceCache {
         return;
       }
 
-      const fileSystem = await this.fileSystemLoader();
+      const fileSystem = KeplerFileSystem;
       const updatedReceiptIds = [...receiptIds, receiptId];
       if (await this.doesCacheFileExist(fileSystem)) {
         await fileSystem.removeFile(this.tokensCachePath);
@@ -87,11 +76,11 @@ export class VegaDeviceCache {
   }
 
   private async doesCacheFileExist(
-    fileSystem: KeplerFileSystem,
+    fileSystem: typeof KeplerFileSystem,
   ): Promise<boolean> {
     // `exists` arrived in Kepler File System 0.0.7. On older Vega OS versions,
     // use a read attempt to determine whether the cache file is present.
-    if (this.isKeplerFileSystemExistsSupported()) {
+    if (isPresentOnOS("@amazon-devices/kepler-file-system", "0.0.7")) {
       return await fileSystem.exists(this.tokensCachePath);
     }
 
@@ -108,7 +97,7 @@ export class VegaDeviceCache {
   }
 
   private async getReceiptIds(): Promise<ReceiptCache> {
-    const fileSystem = await this.fileSystemLoader();
+    const fileSystem = KeplerFileSystem;
     if (!(await this.doesCacheFileExist(fileSystem))) {
       return [];
     }

@@ -27,15 +27,9 @@ import { toCustomerInfo } from "../../entities/customer-info";
 import type { CustomerInfo } from "../../entities/customer-info";
 import type { RestorePurchasesResult } from "../../entities/restore-purchases-result";
 import type { SyncPurchasesResult } from "../../entities/sync-purchases-result";
-import {
-  loadAmazonAppstoreIAPSDK,
-  type AmazonAppstoreIAPSDK,
-} from "./amazon-appstore-iap-sdk-loader";
+import * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
+import { AppState } from "react-native";
 import { VegaDeviceCache } from "./vega-device-cache";
-import {
-  loadReactNativeAppState,
-  type AppStateSubscription,
-} from "./react-native-app-state-loader";
 
 type ReceiptWithStoreUserId = {
   receipt: Receipt;
@@ -48,9 +42,10 @@ type ReceiptWithStoreUserId = {
  */
 export class AmazonBillingWrapper implements BillingWrapper {
   private readonly deviceCache: VegaDeviceCache;
-  private appStateSubscription: AppStateSubscription | undefined;
+  private appStateSubscription:
+    | ReturnType<typeof AppState.addEventListener>
+    | undefined;
   private pendingSync: Promise<void> | undefined;
-  private closed = false;
 
   constructor(
     private readonly backend: Backend,
@@ -60,15 +55,10 @@ export class AmazonBillingWrapper implements BillingWrapper {
   ) {
     this.deviceCache = new VegaDeviceCache(apiKey);
     void this.syncPendingPurchasesInBackground();
-    void this.observeAppState();
+    this.observeAppState();
   }
 
-  private amazonAppstoreIAPSDKPromise:
-    | Promise<AmazonAppstoreIAPSDK>
-    | undefined;
-
   public close(): void {
-    this.closed = true;
     this.appStateSubscription?.remove();
     this.appStateSubscription = undefined;
   }
@@ -81,20 +71,15 @@ export class AmazonBillingWrapper implements BillingWrapper {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _discountCode?: string,
   ): Promise<ProductsResponse> {
-    const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
-    return await this.getProductsFromAmazonAppstoreIapLib(
-      amazonAppstoreIAPSDK,
-      productIds,
-    );
+    return await this.getProductsFromAmazonAppstoreIapLib(productIds);
   }
 
   async purchase(
     params: PurchaseParams,
     appUserId: string,
   ): Promise<PurchaseResult> {
-    const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
     const { PurchasingService, PurchaseResponseCode, ProductType } =
-      amazonAppstoreIAPSDK;
+      AmazonVegaSdk;
     const { rcPackage } = params;
     const sku = rcPackage.webBillingProduct.identifier;
 
@@ -253,7 +238,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
     );
 
     for (const { receipt, storeUserId } of receiptsToSync) {
-      const productId = await this.productIdForReceipt(receipt);
+      const productId = this.productIdForReceipt(receipt);
       try {
         await this.backend.postReceipt(
           appUserId,
@@ -286,7 +271,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
     const receiptsToPost = await this.fetchReceipts(isRestore);
 
     for (const { receipt, storeUserId } of receiptsToPost) {
-      const productId = await this.productIdForReceipt(receipt);
+      const productId = this.productIdForReceipt(receipt);
 
       await this.backend.postReceipt(
         appUserId,
@@ -325,9 +310,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
   private async fetchReceipts(
     isRestore: boolean,
   ): Promise<ReceiptWithStoreUserId[]> {
-    const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
-    const { PurchasingService, PurchaseUpdatesResponseCode } =
-      amazonAppstoreIAPSDK;
+    const { PurchasingService, PurchaseUpdatesResponseCode } = AmazonVegaSdk;
     const receipts: ReceiptWithStoreUserId[] = [];
 
     let doneFetching = false;
@@ -413,20 +396,19 @@ export class AmazonBillingWrapper implements BillingWrapper {
     );
   }
 
-  private async productIdForReceipt(receipt: Receipt): Promise<string> {
-    const { ProductType } = await this.getAmazonAppstoreIAPSDK();
+  private productIdForReceipt(receipt: Receipt): string {
+    const { ProductType } = AmazonVegaSdk;
     return receipt.productType == ProductType.SUBSCRIPTION
       ? receipt.termSku
       : receipt.sku;
   }
 
   private async notifyFulfillment(receiptId: string): Promise<boolean> {
-    const amazonAppstoreIAPSDK = await this.getAmazonAppstoreIAPSDK();
     const {
       PurchasingService,
       FulfillmentResult,
       NotifyFulfillmentResponseCode,
-    } = amazonAppstoreIAPSDK;
+    } = AmazonVegaSdk;
 
     Logger.infoLog(
       `Notifying Amazon Store of fulfillment for receipt ID ${receiptId}`,
@@ -472,16 +454,11 @@ export class AmazonBillingWrapper implements BillingWrapper {
     }
   }
 
-  private getAmazonAppstoreIAPSDK(): Promise<AmazonAppstoreIAPSDK> {
-    return (this.amazonAppstoreIAPSDKPromise ??= loadAmazonAppstoreIAPSDK());
-  }
-
   private async getProductsFromAmazonAppstoreIapLib(
-    amazonAppstoreIapLib: AmazonAppstoreIAPSDK,
     productIds: string[],
   ): Promise<ProductsResponse> {
     const { PurchasingService, ProductDataResponseCode, ProductType } =
-      amazonAppstoreIapLib;
+      AmazonVegaSdk;
 
     const purchasesErrorForProductDataResponse = (
       productDataResponse: ProductDataResponse,
@@ -687,11 +664,9 @@ export class AmazonBillingWrapper implements BillingWrapper {
     return { product_details: productDetails };
   }
 
-  private async observeAppState(): Promise<void> {
+  private observeAppState(): void {
     try {
-      const appState = await loadReactNativeAppState();
-      if (this.closed) return;
-
+      const appState = AppState;
       let previousState = appState.currentState;
       this.appStateSubscription = appState.addEventListener(
         "change",
