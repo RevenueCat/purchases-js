@@ -22,6 +22,7 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress:
       case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
       case BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly:
+      case BackendErrorCode.BackendQuickPurchaseUnavailable:
         return ErrorCode.StoreProblemError;
       case BackendErrorCode.BackendCannotTransferPurchase:
         return ErrorCode.ReceiptAlreadyInUseError;
@@ -136,6 +137,7 @@ export enum BackendErrorCode {
   BackendGatewaySetupErrorMissingRequiredPermission = 7900,
   BackendGatewaySetupErrorSandboxModeOnly = 7901,
   BackendInvalidPaddleAPIKey = 7967,
+  BackendQuickPurchaseUnavailable = 8172,
 }
 
 /**

@@ -16,7 +16,10 @@ const LoginPage: React.FC = () => {
 
   const navigateToAppUserIDPaywall = (
     appUserId?: string,
-    destination: "paywall" | "rc_paywall" = "paywall",
+    destination:
+      | "paywall"
+      | "rc_paywall"
+      | "stripe_billing_apple_pay" = "paywall",
   ) => {
     if (appUserId) {
       const params = new URLSearchParams();
@@ -143,6 +146,17 @@ const LoginPage: React.FC = () => {
               );
             }}
           />
+          {isStripeApiKey ? (
+            <Button
+              caption="Stripe Billing Apple Pay demo"
+              onClick={() => {
+                navigateToAppUserIDPaywall(
+                  appUserId || Purchases.generateRevenueCatAnonymousAppUserId(),
+                  "stripe_billing_apple_pay",
+                );
+              }}
+            />
+          ) : null}
         </div>
       </form>
       <p className="notice">
