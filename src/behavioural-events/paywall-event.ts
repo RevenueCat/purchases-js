@@ -16,7 +16,8 @@ export type ComponentInteractionType =
   | "text"
   | "package"
   | "package_selection_sheet"
-  | "purchase_button";
+  | "purchase_button"
+  | "wallet_button";
 
 export interface ComponentInteractionData {
   componentType: ComponentInteractionType;
