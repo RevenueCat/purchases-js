@@ -438,6 +438,64 @@ describe("StripeService", () => {
   });
 
   describe("extractTaxCustomerDetails", () => {
+    test("maps recoverable errors for display by the surrounding form", async () => {
+      const mockElements = {} as StripeElements;
+      const mockStripe = {
+        createConfirmationToken: vi.fn().mockResolvedValue({
+          error: {
+            type: "card_error",
+            code: "card_declined",
+            decline_code: "card_not_supported",
+            message: "Your card is not supported.",
+          },
+        }),
+      } as unknown as Stripe;
+
+      await expect(
+        StripeService.extractTaxCustomerDetails(mockElements, mockStripe),
+      ).rejects.toEqual({
+        code: StripeServiceErrorCode.ConfirmationTokenError,
+        gatewayDeclineCode: "card_not_supported",
+        gatewayErrorCode: "card_declined",
+        message: "Your card is not supported.",
+      });
+    });
+
+    test("maps non-card errors to the customer-safe surrounding-form fallback", async () => {
+      const mockElements = {} as StripeElements;
+      const mockStripe = {
+        createConfirmationToken: vi.fn().mockResolvedValue({
+          error: {
+            type: "api_error",
+            code: "api_error",
+            message: "Something went wrong.",
+          },
+        }),
+      } as unknown as Stripe;
+
+      await expect(
+        StripeService.extractTaxCustomerDetails(mockElements, mockStripe),
+      ).rejects.toEqual({
+        code: StripeServiceErrorCode.ConfirmationTokenError,
+        gatewayErrorCode: "api_error",
+        message: "Something went wrong.",
+      });
+    });
+
+    test("maps confirmation-token processing errors for display by the surrounding form", () => {
+      const result = StripeService.mapConfirmationTokenError({
+        type: "card_error",
+        code: "processing_error",
+        message: "An error occurred while processing your card.",
+      } as StripeError);
+
+      expect(result).toEqual({
+        code: StripeServiceErrorCode.ConfirmationTokenError,
+        gatewayErrorCode: "processing_error",
+        message: "An error occurred while processing your card.",
+      });
+    });
+
     test("returns the full billing address from the confirmation token", async () => {
       const mockElements = {} as StripeElements;
       const mockStripe = {

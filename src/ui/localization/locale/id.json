@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "ditagih {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}} pertama, lalu {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "termasuk pajak",
-  "paddle_order_summary.due_on": "Jatuh tempo {{date}}"
+  "paddle_order_summary.due_on": "Jatuh tempo {{date}}",
+  "payment_entry_page.payment_method_error": "Kami tidak dapat menggunakan metode pembayaran ini. Periksa detail Anda atau coba metode pembayaran lain.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Jenis kartu ini tidak diterima. Coba kartu lain."
 }

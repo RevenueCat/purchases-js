@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "เรียกเก็บ{{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}}แรก จากนั้น {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "รวมภาษี",
-  "paddle_order_summary.due_on": "ครบกำหนดวันที่ {{date}}"
+  "paddle_order_summary.due_on": "ครบกำหนดวันที่ {{date}}",
+  "payment_entry_page.payment_method_error": "เราไม่สามารถใช้วิธีการชำระเงินนี้ได้ โปรดตรวจสอบรายละเอียดของคุณหรือลองใช้วิธีการชำระเงินอื่น",
+  "payment_entry_page.payment_method_error_card_not_supported": "ไม่รองรับบัตรประเภทนี้ โปรดลองใช้บัตรอื่น"
 }

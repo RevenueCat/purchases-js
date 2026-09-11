@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "{{frequency}}计费",
   "paddle_order_summary.intro_then_recurring": "首个{{firstPeriod}}，之后 {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "含税",
-  "paddle_order_summary.due_on": "{{date}}到期"
+  "paddle_order_summary.due_on": "{{date}}到期",
+  "payment_entry_page.payment_method_error": "我们无法使用此付款方式。请检查您的信息或尝试其他付款方式。",
+  "payment_entry_page.payment_method_error_card_not_supported": "不支持此卡类型。请尝试其他卡。"
 }

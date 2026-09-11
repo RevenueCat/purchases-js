@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "facturat {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "primer {{firstPeriod}}, després {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "impostos inclosos",
-  "paddle_order_summary.due_on": "Venciment el {{date}}"
+  "paddle_order_summary.due_on": "Venciment el {{date}}",
+  "payment_entry_page.payment_method_error": "No hem pogut utilitzar aquest mètode de pagament. Comprova les teves dades o prova un mètode de pagament diferent.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Aquest tipus de targeta no s'accepta. Prova una targeta diferent."
 }

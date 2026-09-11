@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "facturado {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "primer {{firstPeriod}}, después {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "impuestos incl.",
-  "paddle_order_summary.due_on": "Vence el {{date}}"
+  "paddle_order_summary.due_on": "Vence el {{date}}",
+  "payment_entry_page.payment_method_error": "No pudimos usar este método de pago. Verifica tus datos o prueba un método de pago diferente.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Este tipo de tarjeta no es aceptado. Prueba con una tarjeta diferente."
 }

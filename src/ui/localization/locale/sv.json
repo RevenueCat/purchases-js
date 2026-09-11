@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "faktureras {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "första {{firstPeriod}}, därefter {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "inkl. moms",
-  "paddle_order_summary.due_on": "Förfaller {{date}}"
+  "paddle_order_summary.due_on": "Förfaller {{date}}",
+  "payment_entry_page.payment_method_error": "Vi kunde inte använda denna betalningsmetod. Kontrollera dina uppgifter eller prova en annan betalningsmetod.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Denna korttyp accepteras inte. Prova ett annat kort."
 }

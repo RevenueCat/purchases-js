@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "gefactureerd {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "eerste {{firstPeriod}}, daarna {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "incl. btw",
-  "paddle_order_summary.due_on": "Verschuldigd op {{date}}"
+  "paddle_order_summary.due_on": "Verschuldigd op {{date}}",
+  "payment_entry_page.payment_method_error": "We konden deze betaalmethode niet gebruiken. Controleer uw gegevens of probeer een andere betaalmethode.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Dit kaarttype wordt niet geaccepteerd. Probeer een andere kaart."
 }

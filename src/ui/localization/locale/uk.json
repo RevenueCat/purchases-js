@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "оплата {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "перший {{firstPeriod}}, потім {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "вкл. податок",
-  "paddle_order_summary.due_on": "До сплати {{date}}"
+  "paddle_order_summary.due_on": "До сплати {{date}}",
+  "payment_entry_page.payment_method_error": "Ми не змогли використати цей спосіб оплати. Перевірте свої дані або спробуйте інший спосіб оплати.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Цей тип картки не приймається. Спробуйте іншу картку."
 }

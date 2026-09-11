@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "{{frequency}}計費",
   "paddle_order_summary.intro_then_recurring": "首個{{firstPeriod}}，之後 {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "含稅",
-  "paddle_order_summary.due_on": "{{date}}到期"
+  "paddle_order_summary.due_on": "{{date}}到期",
+  "payment_entry_page.payment_method_error": "我們無法使用此付款方式。請檢查您的資料，或嘗試其他付款方式。",
+  "payment_entry_page.payment_method_error_card_not_supported": "此卡片類型不被接受。請嘗試其他卡片。"
 }

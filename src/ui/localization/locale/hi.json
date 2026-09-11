@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "बिलिंग {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "पहला {{firstPeriod}}, फिर {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "कर सहित",
-  "paddle_order_summary.due_on": "{{date}} को देय"
+  "paddle_order_summary.due_on": "{{date}} को देय",
+  "payment_entry_page.payment_method_error": "हम इस भुगतान विधि का उपयोग नहीं कर सके। कृपया अपने विवरण जांचें या कोई भिन्न भुगतान विधि आज़माएँ।",
+  "payment_entry_page.payment_method_error_card_not_supported": "यह कार्ड प्रकार स्वीकार्य नहीं है। कोई भिन्न कार्ड आज़माएँ।"
 }

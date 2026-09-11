@@ -130,5 +130,7 @@
   "paddle_order_summary.billed_frequency": "facturat {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "prima {{firstPeriod}}, apoi {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "incl. taxe",
-  "paddle_order_summary.due_on": "Scadent la {{date}}"
+  "paddle_order_summary.due_on": "Scadent la {{date}}",
+  "payment_entry_page.payment_method_error": "Nu am putut utiliza această metodă de plată. Verificați detaliile sau încercați o altă metodă de plată.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Acest tip de card nu este acceptat. Încercați un alt card."
 }
