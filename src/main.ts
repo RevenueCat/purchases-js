@@ -1,4 +1,5 @@
 import type {
+  DiscountPhase,
   Offering,
   Offerings,
   Package,
@@ -41,6 +42,7 @@ import {
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
+import { withPaddleDiscountsOnOffering } from "./paddle/paddle-discount-preview";
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {
@@ -431,6 +433,75 @@ export class Purchases {
   /** @internal */
   static getPlatformInfo(): PlatformInfo | undefined {
     return Purchases._platformInfo;
+  }
+
+  /**
+   * Resolve Paddle discounts configured on paywall package components and
+   * return a copy of `offering` where those packages carry the discounted
+   * price as their `discount` phase, so {@link Purchases.buildVariablesPerPackage}
+   * and {@link Purchases.buildInfoPerPackage} surface it (`product.offer_price`,
+   * `promo_offer` condition). Uses `Paddle.PricePreview` under the hood.
+   *
+   * Returns the offering untouched for non-Paddle apps or when the map is
+   * empty. Packages whose preview fails or applies no discount are left as-is.
+   * Used to support Paywalls in Workflows.
+   * @internal
+   */
+  async applyPaddleDiscountsToOffering(
+    offering: Offering,
+    discountIdsByPackage: Record<string, string>,
+  ): Promise<Offering> {
+    const entries = Object.entries(discountIdsByPackage).filter(
+      ([packageId, discountId]) =>
+        Boolean(discountId) && offering.packagesById[packageId] !== undefined,
+    );
+    if (entries.length === 0 || !isPaddleApiKey(this._API_KEY)) {
+      return offering;
+    }
+
+    const paddleService = new PaddleService(this.backend, this.eventsTracker);
+    const [firstPackageId] = entries[0];
+    const firstProduct =
+      offering.packagesById[firstPackageId].webBillingProduct;
+    try {
+      await paddleService.initializeForPreview(
+        firstProduct.identifier,
+        firstProduct.defaultPurchaseOption,
+      );
+    } catch (error) {
+      Logger.errorLog(
+        `Could not initialize Paddle for price preview: ${error}`,
+      );
+      return offering;
+    }
+
+    const discountsByPackage: Record<string, DiscountPhase> = {};
+    await Promise.all(
+      entries.map(async ([packageId, discountId]) => {
+        const product = offering.packagesById[packageId].webBillingProduct;
+        try {
+          const discount = await paddleService.previewDiscount({
+            priceId: product.identifier,
+            discountId,
+            currencyCode: product.price.currency,
+            fallbackPeriodDuration: product.normalPeriodDuration,
+          });
+          if (discount) {
+            discountsByPackage[packageId] = discount;
+          } else {
+            Logger.debugLog(
+              `Paddle discount ${discountId} did not apply to package ${packageId}`,
+            );
+          }
+        } catch (error) {
+          Logger.errorLog(
+            `Paddle price preview failed for package ${packageId}: ${error}`,
+          );
+        }
+      }),
+    );
+
+    return withPaddleDiscountsOnOffering(offering, discountsByPackage);
   }
 
   /**
@@ -2526,6 +2597,7 @@ export class Purchases {
       purchaseOption,
       customerEmail,
       discountCode,
+      discountId,
       attributionMetadata,
       workflowPurchaseContext,
       externalPurchaseTokenId,
@@ -2625,6 +2697,7 @@ export class Purchases {
             purchaseOption: purchaseOptionToUse,
             customerEmail,
             discountCode,
+            discountId,
             attributionMetadata,
             workflowPurchaseContext,
             externalPurchaseTokenId,

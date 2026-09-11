@@ -1,5 +1,6 @@
 import type {
   CheckoutOpenOptions,
+  CurrencyCode,
   DisplayMode,
   Paddle,
   PaddleEventData,
@@ -35,6 +36,8 @@ import { handleCheckoutSessionFailed } from "../helpers/checkout-error-handler";
 import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { PaddleCheckoutSettings } from "../networking/responses/paddle-checkout-settings";
 import type { IEventsTracker } from "../behavioural-events/events-tracker";
+import type { DiscountPhase } from "../entities/offerings";
+import { toDiscountPhaseFromPricePreview } from "./paddle-discount-preview";
 
 interface PaddlePurchaseParams {
   rcPackage: Package;
@@ -44,6 +47,16 @@ interface PaddlePurchaseParams {
   customerEmail?: string;
   locale?: string;
   discountCode?: string;
+  /** Paddle discount id (`dsc_...`). Takes precedence over `discountCode`. */
+  discountId?: string;
+}
+
+interface PaddlePreviewDiscountParams {
+  /** Paddle price id (`pri_...`). For Paddle apps this is the RC product identifier. */
+  priceId: string;
+  /** Paddle discount id (`dsc_...`). */
+  discountId: string;
+  currencyCode?: string;
 }
 
 /**
@@ -92,6 +105,7 @@ interface BuildPaddleCheckoutOptionsParams {
   locale: string;
   customerEmail?: string;
   discountCode?: string;
+  discountId?: string;
   checkoutSettings?: PaddleCheckoutSettings;
   displayMode?: PaddleCheckoutDisplayMode;
   theme?: PaddleCheckoutTheme;
@@ -108,6 +122,7 @@ export function buildPaddleCheckoutOptions({
   locale,
   customerEmail,
   discountCode,
+  discountId,
   checkoutSettings = {},
   displayMode = "overlay",
   theme = "light",
@@ -141,7 +156,8 @@ export function buildPaddleCheckoutOptions({
     transactionId,
     settings,
     ...(customerEmail && { customer: { email: customerEmail } }),
-    ...(discountCode && { discountCode }),
+    // Paddle accepts either a discount id or a discount code, never both.
+    ...(discountId ? { discountId } : discountCode ? { discountCode } : {}),
   };
 }
 
@@ -256,6 +272,57 @@ export class PaddleService {
     }
   }
 
+  /**
+   * Initializes Paddle.js without starting a transaction, using the client
+   * token returned by the checkout prepare endpoint. Lets callers run price
+   * previews before any checkout exists.
+   */
+  async initializeForPreview(
+    productId: string,
+    purchaseOption: PurchaseOption,
+  ): Promise<Paddle> {
+    if (this.paddleInstance?.Initialized) {
+      return this.paddleInstance;
+    }
+    const prepareResponse = await this.backend.postCheckoutPrepare(
+      productId,
+      purchaseOption,
+    );
+    const paddleParams = prepareResponse.paddle_billing_params;
+    if (!paddleParams) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "Checkout prepare response has no Paddle params",
+      );
+    }
+    return this.initializePaddle(
+      paddleParams.client_side_token,
+      paddleParams.is_sandbox,
+    );
+  }
+
+  /**
+   * Runs `Paddle.PricePreview` for a single price with a discount applied and
+   * maps the result to a {@link DiscountPhase}. Resolves to `null` when Paddle
+   * applies no discount (unknown, expired or not applicable to the price).
+   */
+  async previewDiscount({
+    priceId,
+    discountId,
+    currencyCode,
+    fallbackPeriodDuration = null,
+  }: PaddlePreviewDiscountParams & {
+    fallbackPeriodDuration?: string | null;
+  }): Promise<DiscountPhase | null> {
+    const paddleInstance = this.getPaddleInstance();
+    const response = await paddleInstance.PricePreview({
+      items: [{ priceId, quantity: 1 }],
+      discountId,
+      ...(currencyCode && { currencyCode: currencyCode as CurrencyCode }),
+    });
+    return toDiscountPhaseFromPricePreview(response, fallbackPeriodDuration);
+  }
+
   async startCheckout({
     appUserId,
     productId,
@@ -323,7 +390,7 @@ export class PaddleService {
     onCheckoutCompleted,
   }: PaddlePurchase): Promise<OperationSessionSuccessfulResult> {
     const paddleInstance = this.getPaddleInstance();
-    const { customerEmail, locale = "en", discountCode } = params;
+    const { customerEmail, locale = "en", discountCode, discountId } = params;
 
     const forwardTotals = (data: PaddleEventData["data"]) => {
       if (onCheckoutTotals && data?.totals) {
@@ -401,6 +468,7 @@ export class PaddleService {
         locale,
         customerEmail,
         discountCode,
+        discountId,
         checkoutSettings,
         displayMode,
         theme,
