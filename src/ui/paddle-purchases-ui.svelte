@@ -49,6 +49,7 @@
     customerEmail: string | undefined;
     externalPurchaseTokenId?: string;
     discountCode?: string;
+    discountId?: string;
     metadata: PurchaseMetadata | undefined;
     attributionMetadata?: AttributionMetadata;
     workflowPurchaseContext?: WorkflowPurchaseContext;
@@ -75,6 +76,7 @@
     customerEmail,
     externalPurchaseTokenId,
     discountCode,
+    discountId,
     metadata,
     attributionMetadata,
     workflowPurchaseContext,
@@ -250,6 +252,7 @@
           customerEmail,
           locale: selectedLocale || defaultLocale,
           ...(discountCode && { discountCode }),
+          ...(discountId && { discountId }),
         },
         ...(useInlineCheckout && {
           displayMode: "inline" as const,

@@ -248,6 +248,25 @@ describe("buildPaddleCheckoutOptions", () => {
     });
     expect(withoutDiscount).not.toHaveProperty("discountCode");
   });
+
+  test("prefers discountId over discountCode", () => {
+    const withId = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      discountId: "dsc_01test",
+    });
+    expect(withId.discountId).toBe("dsc_01test");
+    expect(withId).not.toHaveProperty("discountCode");
+
+    const withBoth = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      discountCode: "SAVE10",
+      discountId: "dsc_01test",
+    });
+    expect(withBoth.discountId).toBe("dsc_01test");
+    expect(withBoth).not.toHaveProperty("discountCode");
+  });
 });
 
 describe("PaddleService", () => {
@@ -408,6 +427,159 @@ describe("PaddleService", () => {
     test("is a no-op when Paddle is not initialized", () => {
       expect(() => paddleService.closeCheckout()).not.toThrow();
       expect(mockPaddleInstance.Checkout?.close).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("initializeForPreview", () => {
+    const checkoutPrepareEndpoint =
+      "http://localhost:8000/rcbilling/v1/checkout/prepare";
+    const purchaseOption = { id: "base_option", priceId: "test-price-id" };
+
+    test("initializes Paddle from the checkout prepare response", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+      let capturedBody: Record<string, unknown> | undefined;
+      server.use(
+        http.post(checkoutPrepareEndpoint, async (req) => {
+          capturedBody = (await req.request.json()) as Record<string, unknown>;
+          return HttpResponse.json(
+            {
+              stripe_gateway_params: null,
+              paypal_gateway_params: null,
+              paddle_billing_params: {
+                client_side_token: "test-preview-token",
+                is_sandbox: false,
+              },
+            },
+            { status: StatusCodes.OK },
+          );
+        }),
+      );
+
+      const result = await paddleService.initializeForPreview(
+        "pri_01test",
+        purchaseOption,
+      );
+
+      expect(capturedBody).toEqual({
+        product_id: "pri_01test",
+        price_id: "test-price-id",
+      });
+      expect(initPaddle).toHaveBeenCalledWith({
+        token: "test-preview-token",
+        version: "v1",
+        environment: "production",
+      });
+      expect(result).toBe(mockPaddleInstance);
+    });
+
+    test("throws when the prepare response has no Paddle params", async () => {
+      server.use(
+        http.post(checkoutPrepareEndpoint, () =>
+          HttpResponse.json(
+            {
+              stripe_gateway_params: null,
+              paypal_gateway_params: null,
+              paddle_billing_params: null,
+            },
+            { status: StatusCodes.OK },
+          ),
+        ),
+      );
+
+      await expect(
+        paddleService.initializeForPreview("pri_01test", purchaseOption),
+      ).rejects.toThrow(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Checkout prepare response has no Paddle params",
+        ),
+      );
+    });
+
+    test("skips the network call when Paddle is already initialized", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+      await paddleService.initializePaddle("test-token", true);
+      server.use(
+        http.post(checkoutPrepareEndpoint, () => {
+          throw new Error("should not be called");
+        }),
+      );
+
+      const result = await paddleService.initializeForPreview(
+        "pri_01test",
+        purchaseOption,
+      );
+
+      expect(result).toBe(mockPaddleInstance);
+    });
+  });
+
+  describe("previewDiscount", () => {
+    test("calls Paddle.PricePreview with the price, discount and currency", async () => {
+      const pricePreview = vi.fn().mockResolvedValue({
+        data: {
+          currencyCode: "USD",
+          discountId: "dsc_01test",
+          details: {
+            lineItems: [
+              {
+                price: { billingCycle: { interval: "month", frequency: 1 } },
+                totals: {
+                  subtotal: "300",
+                  discount: "60",
+                  tax: "0",
+                  total: "240",
+                },
+                discounts: [
+                  {
+                    discount: {
+                      id: "dsc_01test",
+                      description: "Launch promo",
+                      type: "percentage",
+                      amount: "20",
+                      currencyCode: null,
+                      recur: false,
+                      maximumRecurringIntervals: null,
+                    },
+                    total: "60",
+                    formattedTotal: "$0.60",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      });
+      vi.mocked(initPaddle).mockResolvedValue({
+        ...mockPaddleInstance,
+        PricePreview: pricePreview,
+      } as unknown as Paddle);
+      await paddleService.initializePaddle("test-token", true);
+
+      const phase = await paddleService.previewDiscount({
+        priceId: "pri_01test",
+        discountId: "dsc_01test",
+        currencyCode: "USD",
+        fallbackPeriodDuration: "P1M",
+      });
+
+      expect(pricePreview).toHaveBeenCalledWith({
+        items: [{ priceId: "pri_01test", quantity: 1 }],
+        discountId: "dsc_01test",
+        currencyCode: "USD",
+      });
+      expect(phase?.price.amountMicros).toBe(2_400_000);
+      expect(phase?.percentage).toBe(20);
+      expect(phase?.name).toBe("Launch promo");
+    });
+
+    test("throws when Paddle is not initialized", async () => {
+      await expect(
+        paddleService.previewDiscount({
+          priceId: "pri_01test",
+          discountId: "dsc_01test",
+        }),
+      ).rejects.toThrow("Paddle not initialized.");
     });
   });
 
@@ -653,6 +825,25 @@ describe("PaddleService", () => {
         expect.objectContaining({
           transactionId: "test-transaction-id",
           discountCode: "SAVE10",
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test("passes discountId to Paddle when provided", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: { ...purchaseParams, discountId: "dsc_01test" },
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          transactionId: "test-transaction-id",
+          discountId: "dsc_01test",
         }),
       );
 
