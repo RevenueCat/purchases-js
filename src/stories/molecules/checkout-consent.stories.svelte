@@ -29,6 +29,11 @@
 <Story name="Checked" args={{ ...defaultArgs, checked: true }} />
 
 <Story
+  name="Without App Name"
+  args={{ ...defaultArgs, appName: null, checked: false }}
+/>
+
+<Story
   name="Long App Name"
   args={{
     ...defaultArgs,
