@@ -49,6 +49,9 @@ importers:
       "@testing-library/svelte":
         specifier: ^5.2.6
         version: 5.2.7(svelte@5.46.4)(vite@6.4.1(@types/node@22.10.5)(jiti@2.7.0)(yaml@2.9.0))(vitest@4.1.11(@types/node@22.10.5)(jsdom@25.0.1)(msw@2.7.0(@types/node@22.10.5)(typescript@5.8.2))(vite@6.4.1(@types/node@22.10.5)(jiti@2.7.0)(yaml@2.9.0)))
+      "@types/node":
+        specifier: ^22.10.5
+        version: 22.10.5
       "@typescript-eslint/eslint-plugin":
         specifier: ^6.21.0
         version: 6.21.0(@typescript-eslint/parser@8.19.1(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1)(typescript@5.8.2)
