@@ -56,16 +56,22 @@ import {
   PurchaseUpdatesResponseCode,
   ProductType,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
-import * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
-import {
-  resetAmazonAppstoreIAPSDKLoader,
-  setAmazonAppstoreIAPSDKLoader,
-} from "../../amazon/amazon-appstore-iap-sdk-loader";
-import {
-  resetReactNativeAppStateLoader,
-  setReactNativeAppStateLoader,
-  type ReactNativeAppState,
-} from "../../amazon/react-native-app-state-loader";
+import type { AppState } from "react-native";
+type ReactNativeAppState = Pick<
+  typeof AppState,
+  "currentState" | "addEventListener"
+>;
+const { nativeAppState } = vi.hoisted(() => ({
+  nativeAppState: {
+    currentState: "active" as string | null,
+    addEventListener: vi.fn(),
+  },
+}));
+vi.mock("react-native", () => ({ AppState: nativeAppState }));
+vi.mock("@amazon-devices/kepler-file-system", () => ({ KeplerFileSystem: {} }));
+vi.mock("@amazon-devices/kepler-compatibility", () => ({
+  isPresentOnOS: vi.fn(() => true),
+}));
 import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
 import { VegaDeviceCache } from "../../amazon/vega-device-cache";
 import { ErrorCode } from "../../../entities/errors";
@@ -174,8 +180,8 @@ const createBackend = () =>
 
 describe("AmazonBillingWrapper", () => {
   beforeEach(() => {
-    setAmazonAppstoreIAPSDKLoader(async () => AmazonVegaSdk);
-    resetReactNativeAppStateLoader();
+    nativeAppState.currentState = "active";
+    nativeAppState.addEventListener = vi.fn(() => ({ remove: vi.fn() }));
     getProductData.mockReset();
     getPurchaseUpdates.mockReset();
     notifyFulfillment.mockReset();
@@ -210,6 +216,40 @@ describe("AmazonBillingWrapper", () => {
     ).toBe("/data/com.revenuecat.purchases.amazon-api-key.tokens");
   });
 
+  test("removes the AppState listener when closed immediately after construction", () => {
+    const remove = vi.fn();
+    nativeAppState.addEventListener.mockReturnValue({ remove });
+    const wrapper = new AmazonBillingWrapper(
+      createBackend(),
+      amazonApiKey,
+      getNoAppUserId,
+      getIsNotAnonymous,
+    );
+
+    expect(nativeAppState.addEventListener).toHaveBeenCalledOnce();
+    wrapper.close();
+    wrapper.close();
+    expect(remove).toHaveBeenCalledOnce();
+  });
+
+  test("warns without failing initialization when AppState registration throws", () => {
+    const warnLog = vi.spyOn(Logger, "warnLog");
+    nativeAppState.addEventListener.mockImplementation(() => {
+      throw new Error("listener unavailable");
+    });
+
+    const wrapper = new AmazonBillingWrapper(
+      createBackend(),
+      amazonApiKey,
+      getNoAppUserId,
+      getIsNotAnonymous,
+    );
+    expect(warnLog).toHaveBeenCalledExactlyOnceWith(
+      "Failed to observe Vega app state for Amazon purchase syncing: Error: listener unavailable",
+    );
+    wrapper.close();
+  });
+
   test("syncs pending receipts when the Vega app returns to the foreground", async () => {
     let onAppStateChange: ((state: string) => void) | undefined;
     const subscription = { remove: vi.fn() };
@@ -222,7 +262,7 @@ describe("AmazonBillingWrapper", () => {
         },
       ),
     };
-    setReactNativeAppStateLoader(async () => appState);
+    Object.assign(nativeAppState, appState);
     getPurchaseUpdates.mockResolvedValue(
       purchaseUpdatesResponse({ receiptList: [] }),
     );
@@ -251,7 +291,7 @@ describe("AmazonBillingWrapper", () => {
 
   test("reuses an in-flight pending-purchase sync", async () => {
     let onAppStateChange: ((state: string) => void) | undefined;
-    setReactNativeAppStateLoader(async () => ({
+    Object.assign(nativeAppState, {
       currentState: "background",
       addEventListener: vi.fn(
         (_type: "change", listener: (state: string) => void) => {
@@ -259,7 +299,7 @@ describe("AmazonBillingWrapper", () => {
           return { remove: vi.fn() };
         },
       ),
-    }));
+    });
     let resolvePurchaseUpdates:
       | ((value: ReturnType<typeof purchaseUpdatesResponse>) => void)
       | undefined;
@@ -292,7 +332,7 @@ describe("AmazonBillingWrapper", () => {
 
   test("handles failures from a coalesced pending-purchase sync once", async () => {
     let onAppStateChange: ((state: string) => void) | undefined;
-    setReactNativeAppStateLoader(async () => ({
+    Object.assign(nativeAppState, {
       currentState: "background",
       addEventListener: vi.fn(
         (_type: "change", listener: (state: string) => void) => {
@@ -300,7 +340,7 @@ describe("AmazonBillingWrapper", () => {
           return { remove: vi.fn() };
         },
       ),
-    }));
+    });
     let rejectPurchaseUpdates: ((reason?: unknown) => void) | undefined;
     getPurchaseUpdates.mockReturnValue(
       new Promise((_, reject) => {
@@ -367,25 +407,6 @@ describe("AmazonBillingWrapper", () => {
 
     await expect(pendingSync).resolves.toBeUndefined();
     wrapper.close();
-  });
-
-  test("fails clearly when the Amazon SDK loader has not been wired up", async () => {
-    resetAmazonAppstoreIAPSDKLoader();
-
-    await expect(
-      new AmazonBillingWrapper(
-        createBackend(),
-        amazonApiKey,
-        getNoAppUserId,
-        getIsNotAnonymous,
-      ).getProducts("user", ["monthly"]),
-    ).rejects.toMatchObject({
-      errorCode: ErrorCode.ConfigurationError,
-      message:
-        "Amazon Appstore is supported only by the @revenuecat/purchases-js-vega package.",
-    });
-
-    expect(getProductData).not.toHaveBeenCalled();
   });
 
   test("syncs, fulfills, and caches only previously unsynced receipts in the background", async () => {

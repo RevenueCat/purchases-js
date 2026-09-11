@@ -28,17 +28,26 @@ import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
-import { AmazonBillingWrapper } from "../vega/amazon/amazon-billing-wrapper";
-import { resetAmazonAppstoreIAPSDKLoader } from "../vega/amazon/amazon-appstore-iap-sdk-loader";
+import type { BillingWrapper } from "../helpers/billing-wrapper";
 import { Logger } from "../helpers/logger";
 import {
   registerBillingProvider,
   resetBillingProvider,
 } from "../helpers/billing-provider";
 
+const createBillingWrapperMock = () =>
+  ({
+    close: vi.fn<BillingWrapper["close"]>(),
+    getProducts: vi.fn<BillingWrapper["getProducts"]>(),
+    purchase: vi.fn<BillingWrapper["purchase"]>(),
+    syncPurchases: vi.fn<BillingWrapper["syncPurchases"]>(),
+    restorePurchases: vi.fn<BillingWrapper["restorePurchases"]>(),
+  }) satisfies BillingWrapper;
+let billingWrapper = createBillingWrapperMock();
+
 beforeEach(() => {
-  resetAmazonAppstoreIAPSDKLoader();
   resetBillingProvider();
+  billingWrapper = createBillingWrapperMock();
 });
 
 describe("Purchases.configure() legacy", () => {
@@ -351,45 +360,11 @@ describe("billing wrapper selection", () => {
   beforeEach(() => {
     registerBillingProvider({
       validateApiKey: () => {},
-      createBillingWrapper: ({
-        backend,
-        apiKey,
-        getAppUserId,
-        getIsAnonymous,
-      }) =>
-        new AmazonBillingWrapper(backend, apiKey, getAppUserId, getIsAnonymous),
+      createBillingWrapper: () => billingWrapper,
     });
   });
-  test("syncs pending Amazon purchases at initialization", async () => {
-    const syncPendingPurchasesInBackground = vi
-      .spyOn(
-        AmazonBillingWrapper.prototype as unknown as {
-          syncPendingPurchasesInBackground: () => Promise<void>;
-        },
-        "syncPendingPurchasesInBackground",
-      )
-      .mockResolvedValue();
-    const purchases = configurePurchases(
-      testUserId,
-      "rcSource",
-      "amzn_valid_key",
-    );
-
-    await vi.waitFor(() => {
-      expect(syncPendingPurchasesInBackground).toHaveBeenCalledOnce();
-    });
-
-    purchases.close();
-  });
-
   test("closes the existing Amazon billing wrapper when reconfiguring", () => {
-    vi.spyOn(
-      AmazonBillingWrapper.prototype as unknown as {
-        syncPendingPurchasesInBackground: () => Promise<void>;
-      },
-      "syncPendingPurchasesInBackground",
-    ).mockResolvedValue();
-    const close = vi.spyOn(AmazonBillingWrapper.prototype, "close");
+    const close = vi.spyOn(billingWrapper, "close");
 
     configurePurchases(testUserId, "rcSource", "amzn_valid_key");
     const purchases = configurePurchases(testUserId, "rcSource", testApiKey);
@@ -399,26 +374,9 @@ describe("billing wrapper selection", () => {
     purchases.close();
   });
 
-  test("requires the Vega entry point for offerings with an Amazon API key", async () => {
-    const purchases = configurePurchases(
-      testUserId,
-      "rcSource",
-      "amzn_valid_key",
-    );
-
-    await expect(purchases.getOfferings()).rejects.toMatchObject({
-      errorCode: ErrorCode.ConfigurationError,
-      message:
-        "Amazon Appstore is supported only by the @revenuecat/purchases-js-vega package.",
-    });
-  });
-
   test("uses web billing for offerings with a non-Amazon API key", async () => {
     const purchases = configurePurchases();
-    const getAmazonProducts = vi.spyOn(
-      AmazonBillingWrapper.prototype,
-      "getProducts",
-    );
+    const getAmazonProducts = vi.spyOn(billingWrapper, "getProducts");
 
     await purchases.getOfferings();
 
@@ -433,13 +391,7 @@ describe("Purchases.syncPurchases and Purchases.restorePurchases", () => {
   beforeEach(() => {
     registerBillingProvider({
       validateApiKey: () => {},
-      createBillingWrapper: ({
-        backend,
-        apiKey,
-        getAppUserId,
-        getIsAnonymous,
-      }) =>
-        new AmazonBillingWrapper(backend, apiKey, getAppUserId, getIsAnonymous),
+      createBillingWrapper: () => billingWrapper,
     });
   });
   test.each([
@@ -455,10 +407,10 @@ describe("Purchases.syncPurchases and Purchases.restorePurchases", () => {
       );
       const expectedResult = { customerInfo: {} as CustomerInfo };
       const syncPurchasesSpy = vi
-        .spyOn(AmazonBillingWrapper.prototype, "syncPurchases")
+        .spyOn(billingWrapper, "syncPurchases")
         .mockResolvedValue(expectedResult);
       const restorePurchasesSpy = vi
-        .spyOn(AmazonBillingWrapper.prototype, "restorePurchases")
+        .spyOn(billingWrapper, "restorePurchases")
         .mockResolvedValue(expectedResult);
 
       await expect(purchases[method]()).resolves.toBe(expectedResult);
@@ -480,14 +432,8 @@ describe("Purchases.syncPurchases and Purchases.restorePurchases", () => {
     "%s rejects for non-Amazon API keys without calling the Amazon wrapper",
     async (method) => {
       const purchases = configurePurchases();
-      const syncPurchasesSpy = vi.spyOn(
-        AmazonBillingWrapper.prototype,
-        "syncPurchases",
-      );
-      const restorePurchasesSpy = vi.spyOn(
-        AmazonBillingWrapper.prototype,
-        "restorePurchases",
-      );
+      const syncPurchasesSpy = vi.spyOn(billingWrapper, "syncPurchases");
+      const restorePurchasesSpy = vi.spyOn(billingWrapper, "restorePurchases");
 
       await expect(purchases[method]()).rejects.toMatchObject({
         errorCode: ErrorCode.ConfigurationError,
@@ -514,9 +460,7 @@ describe("Purchases.syncPurchases and Purchases.restorePurchases", () => {
         ErrorCode.StoreProblemError,
         "Amazon unavailable",
       );
-      vi.spyOn(AmazonBillingWrapper.prototype, wrapperMethod).mockRejectedValue(
-        error,
-      );
+      vi.spyOn(billingWrapper, wrapperMethod).mockRejectedValue(error);
 
       await expect(purchases[method]()).rejects.toBe(error);
     },
@@ -895,13 +839,7 @@ describe("Purchases.purchase()", () => {
   beforeEach(() => {
     registerBillingProvider({
       validateApiKey: () => {},
-      createBillingWrapper: ({
-        backend,
-        apiKey,
-        getAppUserId,
-        getIsAnonymous,
-      }) =>
-        new AmazonBillingWrapper(backend, apiKey, getAppUserId, getIsAnonymous),
+      createBillingWrapper: () => billingWrapper,
     });
   });
   type PurchaseRouterMethods = {
@@ -1156,7 +1094,7 @@ describe("Purchases.purchase()", () => {
     );
     const params = { rcPackage: createMonthlyPackageMock() };
     const amazonPurchaseSpy = vi
-      .spyOn(AmazonBillingWrapper.prototype, "purchase")
+      .spyOn(billingWrapper, "purchase")
       .mockResolvedValue({} as never);
     const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
     const performPaddlePurchaseSpy = vi.spyOn(
@@ -1192,7 +1130,7 @@ describe("Purchases.purchase()", () => {
     const params = { rcPackage: createMonthlyPackageMock() };
     let completeAmazonPurchase: () => void;
     const amazonPurchaseSpy = vi
-      .spyOn(AmazonBillingWrapper.prototype, "purchase")
+      .spyOn(billingWrapper, "purchase")
       .mockImplementation(
         () =>
           new Promise((resolve) => {
