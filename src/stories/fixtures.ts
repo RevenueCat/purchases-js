@@ -532,6 +532,7 @@ export const purchaseFlowErrors = {
   alreadyPurchasedError: new PurchaseFlowError(5),
   stripeNotActive: new PurchaseFlowError(6),
   stripeInvalidTaxOriginAddress: new PurchaseFlowError(7),
+  stripeInvalidTaxOriginAddressDuringCheckout: new PurchaseFlowError(10),
   stripeMissingRequiredPermission: new PurchaseFlowError(8),
   paddleMissingRequiredPermission: new PurchaseFlowError(9),
 };

@@ -51,6 +51,7 @@ export enum PurchaseFlowErrorCode {
   StripeInvalidTaxOriginAddress = 7,
   StripeMissingRequiredPermission = 8,
   InvalidPaddleAPIKeyError = 9,
+  StripeInvalidTaxOriginAddressDuringCheckout = 10,
 }
 
 export class PurchaseFlowError extends Error {
@@ -110,6 +111,8 @@ export class PurchaseFlowError extends Error {
         return PurchaseFlowErrorCode.StripeTaxNotActive;
       case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress:
         return PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress;
+      case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddressDuringCheckout:
+        return PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout;
       case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
         return PurchaseFlowErrorCode.StripeMissingRequiredPermission;
       case BackendErrorCode.BackendInvalidPaddleAPIKey:

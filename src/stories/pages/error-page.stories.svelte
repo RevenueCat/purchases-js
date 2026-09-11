@@ -91,8 +91,14 @@
   args={{ lastError: purchaseFlowErrors.stripeNotActive }}
 />
 <Story
-  name="Stripe Invalid Tax Origin Address"
+  name="Stripe Invalid Tax Origin Address - Recoverable"
   args={{ lastError: purchaseFlowErrors.stripeInvalidTaxOriginAddress }}
+/>
+<Story
+  name="Stripe Invalid Tax Origin Address - Unrecoverable"
+  args={{
+    lastError: purchaseFlowErrors.stripeInvalidTaxOriginAddressDuringCheckout,
+  }}
 />
 <Story
   name="Stripe Missing Required Permission"
