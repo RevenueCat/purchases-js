@@ -205,6 +205,7 @@ export interface PurchaseParams {
    * Stripe Billing checkout.
    *
    * Defaults to `false`.
+   * @internal
    */
   tryWithApplePay?: boolean;
 }
@@ -214,7 +215,7 @@ export interface PurchaseParams {
  *
  * Pass the same values to {@link Purchases.purchase}; changing purchase
  * context invalidates the prepared Apple Pay request and uses normal checkout.
- * @public
+ * @internal
  */
 export type PrepareQuickPurchaseParams = Omit<
   PurchaseParams,
@@ -224,7 +225,7 @@ export type PrepareQuickPurchaseParams = Omit<
 /**
  * Result returned after checking whether Apple Pay can be used for a prepared
  * package-specific purchase.
- * @public
+ * @internal
  */
 export interface QuickPurchasePreparationResult {
   applePayAvailable: boolean;

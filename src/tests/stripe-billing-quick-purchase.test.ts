@@ -2,7 +2,7 @@ import type { PaymentRequest, Stripe } from "@stripe/stripe-js";
 import { http, HttpResponse } from "msw";
 import { describe, expect, test, vi } from "vitest";
 
-import { BackendErrorCode } from "../entities/errors";
+import { BackendErrorCode, PurchasesError } from "../entities/errors";
 import { ErrorCode, type PurchaseParams, type PurchaseResult } from "../main";
 import type { StripeBillingApplePayCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import { StripeService } from "../stripe/stripe-service";
@@ -85,13 +85,34 @@ describe("Purchases Stripe Billing quick purchases", () => {
       "strp_test_api_key",
     );
 
-    await expect(
-      purchases.prepareForQuickPurchases({
-        rcPackage: createMonthlyPackageMock(),
-      }),
-    ).rejects.toHaveProperty(
-      "extra.backendErrorCode",
-      BackendErrorCode.BackendInvalidAPIKey,
+    const preparation = purchases.prepareForQuickPurchases({
+      rcPackage: createMonthlyPackageMock(),
+    });
+    await expect(preparation).rejects.toBeInstanceOf(PurchasesError);
+    await expect(preparation).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.StoreProblemError,
+    );
+  });
+
+  test("returns a public network error when preparation cannot reach the backend", async () => {
+    server.use(
+      http.post("http://localhost:8000/rcbilling/v1/checkout/start", () =>
+        HttpResponse.error(),
+      ),
+    );
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "strp_test_api_key",
+    );
+    const preparation = purchases.prepareForQuickPurchases({
+      rcPackage: createMonthlyPackageMock(),
+    });
+    await expect(preparation).rejects.toBeInstanceOf(PurchasesError);
+    await expect(preparation).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.NetworkError,
     );
   });
 

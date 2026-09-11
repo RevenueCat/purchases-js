@@ -1614,6 +1614,7 @@ export class Purchases {
    *
    * Pass the same purchase context to both methods. A changed or expired
    * context falls back to normal Stripe Checkout.
+   * @internal
    */
   @requiresLoadedResources
   public async prepareForQuickPurchases(
@@ -1663,6 +1664,9 @@ export class Purchases {
       .catch((error) => {
         if (this.stripeBillingQuickPurchasePreparation?.key === context.key) {
           this.stripeBillingQuickPurchaseState = null;
+        }
+        if (error instanceof PurchaseFlowError) {
+          throw PurchasesError.getForPurchasesFlowError(error);
         }
         throw error;
       })
