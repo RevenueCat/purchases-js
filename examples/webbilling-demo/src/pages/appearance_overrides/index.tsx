@@ -36,7 +36,7 @@ const AppearanceOverridesPage = () => {
   const [searchParams] = useSearchParams();
   const externalPurchaseTokenId = getExternalPurchaseTokenId(searchParams);
   const packages =
-    offering?.availablePackages.filter((pkg) => pkg.webBillingProduct) ?? [];
+    offering?.availablePackages.filter((pkg) => pkg.product) ?? [];
   const [selectedPackageId, setSelectedPackageId] = useState(
     packages[0]?.identifier ?? "",
   );
@@ -185,7 +185,7 @@ const AppearanceOverridesPage = () => {
         >
           {packages.map((pkg) => (
             <option key={pkg.identifier} value={pkg.identifier}>
-              {pkg.webBillingProduct?.title ?? pkg.identifier}
+              {pkg.product?.title ?? pkg.identifier}
             </option>
           ))}
         </select>

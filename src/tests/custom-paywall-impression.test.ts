@@ -20,17 +20,21 @@ describe("Purchases.trackCustomPaywallImpression", () => {
     const offeringWithContext = {
       ...offering,
       identifier: "placement-offering",
-      availablePackages: offering.availablePackages.map((pkg) => ({
-        ...pkg,
-        webBillingProduct: {
-          ...pkg.webBillingProduct,
+      availablePackages: offering.availablePackages.map((pkg) => {
+        const product = {
+          ...pkg.product,
           presentedOfferingContext: {
             offeringIdentifier: "placement-offering",
             placementIdentifier: "home_banner",
             targetingContext: { revision: 3, ruleId: "rule_abc123" },
           },
-        },
-      })),
+        };
+        return {
+          ...pkg,
+          product,
+          webBillingProduct: product,
+        };
+      }),
     };
 
     purchases.trackCustomPaywallImpression({
@@ -57,17 +61,21 @@ describe("Purchases.trackCustomPaywallImpression", () => {
     const offeringWithContext = {
       ...offering,
       identifier: "placement-offering",
-      availablePackages: offering.availablePackages.map((pkg) => ({
-        ...pkg,
-        webBillingProduct: {
-          ...pkg.webBillingProduct,
+      availablePackages: offering.availablePackages.map((pkg) => {
+        const product = {
+          ...pkg.product,
           presentedOfferingContext: {
             offeringIdentifier: "placement-offering",
             placementIdentifier: "home_banner",
             targetingContext: { revision: 3, ruleId: "rule_abc123" },
           },
-        },
-      })),
+        };
+        return {
+          ...pkg,
+          product,
+          webBillingProduct: product,
+        };
+      }),
     };
 
     purchases.trackCustomPaywallImpression({ offering: offeringWithContext });
