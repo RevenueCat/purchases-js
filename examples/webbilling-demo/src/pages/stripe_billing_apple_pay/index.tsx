@@ -1,6 +1,7 @@
 import type {
   Package,
   PurchaseResult,
+  // @ts-expect-error QuickPurchasePreparationResult is internal; this demo exercises the API.
   QuickPurchasePreparationResult,
 } from "@revenuecat/purchases-js";
 import { PurchasesError } from "@revenuecat/purchases-js";
@@ -45,6 +46,7 @@ const StripeBillingApplePayPage: React.FC = () => {
     setPreparationState("preparing");
     setMessage(null);
     purchases
+      // @ts-expect-error prepareForQuickPurchases is internal; this demo exercises the API.
       .prepareForQuickPurchases({
         rcPackage: selectedPackage,
         selectedLocale,
@@ -91,6 +93,7 @@ const StripeBillingApplePayPage: React.FC = () => {
         rcPackage: selectedPackage,
         selectedLocale,
         customerEmail,
+        // @ts-expect-error tryWithApplePay is internal; this demo exercises the API.
         tryWithApplePay: true,
       });
       setMessage(
