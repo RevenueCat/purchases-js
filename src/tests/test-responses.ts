@@ -1,6 +1,6 @@
 import { http, HttpResponse, type RequestHandler } from "msw";
 import type { OfferingsResponse } from "../networking/responses/offerings-response";
-import { vi } from "vitest";
+import { vi, type Mock } from "vitest";
 import type {
   ProductResponse,
   ProductsResponse,
@@ -982,8 +982,8 @@ export interface GetRequest {
   url: string;
 }
 
-export const APIGetRequest = vi.fn();
-export const APIPostRequest = vi.fn();
+export const APIGetRequest: Mock = vi.fn();
+export const APIPostRequest: Mock = vi.fn();
 
 export const eventsURL = "http://localhost:8000/v1/events";
 

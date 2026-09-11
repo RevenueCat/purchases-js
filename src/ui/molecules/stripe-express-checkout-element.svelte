@@ -62,6 +62,7 @@
   const translator = getContext<Writable<Translator>>(translatorContextKey);
 
   let expressCheckoutElement: StripeExpressCheckoutElement | null = null;
+  let expressCheckoutElementReady = $state(false);
   let hideExpressCheckoutElement = $state(false);
   // Allows having more than one in the page.
   const expressCheckoutElementId = `express-checkout-element-${generateUUID()}`;
@@ -81,11 +82,16 @@
     event.resolve(options as ClickResolveDetails);
   };
 
+  const handleLoadingError = async (error: StripeServiceError) => {
+    hideExpressCheckoutElement = true;
+    await onError(error);
+  };
+
   const onLoadErrorCallback = async (event: {
     elementType: "expressCheckout";
     error: StripeError;
   }) => {
-    await onError(StripeService.mapInitializationError(event.error));
+    await handleLoadingError(StripeService.mapInitializationError(event.error));
   };
 
   const onConfirmCallback = async (
@@ -101,6 +107,7 @@
   const onReadyCallback = async (
     event: StripeExpressCheckoutElementReadyEvent,
   ) => {
+    expressCheckoutElementReady = true;
     hideExpressCheckoutElement = !event.availablePaymentMethods;
     onReady && onReady(event);
   };
@@ -119,7 +126,9 @@
       expressCheckoutElement.on("click", onClickCallback);
       expressCheckoutElement.on("cancel", onCancelCallback);
     } catch (e) {
-      onError(StripeService.mapInitializationError(e as StripeError));
+      handleLoadingError(
+        StripeService.mapInitializationError(e as StripeError),
+      );
     }
   });
 
@@ -135,7 +144,7 @@
     hideExpressCheckoutElement}
   aria-hidden={!allowExpressCheckout || hideExpressCheckoutElement}
 ></div>
-{#if !hideCheckoutSeparator && allowExpressCheckout && !hideExpressCheckoutElement}
+{#if !hideCheckoutSeparator && allowExpressCheckout && expressCheckoutElementReady && !hideExpressCheckoutElement}
   <TextSeparator
     text={$translator.translate(
       LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
