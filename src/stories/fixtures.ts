@@ -13,13 +13,14 @@ import { PeriodUnit } from "../helpers/duration-helper";
 import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
-import type { CheckoutCalculateTaxResponse } from "../networking/responses/checkout-calculate-tax-response";
+import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";
 import {
   StripeElementsMode,
   StripeElementsSetupFutureUsage,
 } from "../networking/responses/stripe-elements";
 import type { PriceBreakdown } from "../ui/ui-types";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
+import type { SubscriptionChangeCheckoutStartResponse } from "../networking/responses/subscription-change-response";
 import { getPriceBreakdownTaxDisabled } from "./helpers/get-price-breakdown";
 import { formatPrice } from "../helpers/price-labels";
 
@@ -119,13 +120,16 @@ const discountOneTime: DiscountPhase = {
   periodDuration: "P1M",
   timeWindow: null,
   durationMode: "one_time",
-  price: getPrice(895),
-  name: "One-time Discount 20%",
+  price: getPrice(100),
+  name: "One-time Discount to $1",
   period: {
     number: 1,
     unit: PeriodUnit.Month,
   },
   cycleCount: 1,
+  discountType: "percentage",
+  percentage: 20,
+  fixedAmount: null,
 };
 
 const discountTimeWindow: DiscountPhase = {
@@ -133,13 +137,16 @@ const discountTimeWindow: DiscountPhase = {
   periodDuration: "P3M",
   durationMode: "time_window",
   price: getPrice(799),
-  name: "Holiday Sale 20%",
+  name: "Holiday Sale $7.99",
   // Calculated from the time window
   period: {
     number: 1,
     unit: PeriodUnit.Month,
   },
   cycleCount: 3,
+  discountType: "percentage",
+  percentage: 20,
+  fixedAmount: null,
 };
 
 const discountForever: DiscountPhase = {
@@ -153,6 +160,9 @@ const discountForever: DiscountPhase = {
     unit: PeriodUnit.Month,
   },
   cycleCount: 0,
+  discountType: "percentage",
+  percentage: 30,
+  fixedAmount: null,
 };
 
 /**
@@ -189,6 +199,20 @@ export const nonSubscriptionOptionWithDiscount = createNonSubscriptionOption({
   priceId: "nonsub_price_discount",
   discount: discountOneTime,
 });
+
+export const nonSubscriptionOptionWithFixedAmountDiscount =
+  createNonSubscriptionOption({
+    id: "nonsub_option_id_fixed_amount_discount",
+    priceId: "nonsub_price_fixed_amount_discount",
+    discount: discountOneTime,
+  });
+
+export const nonSubscriptionOptionWithTimeWindowDiscount =
+  createNonSubscriptionOption({
+    id: "nonsub_option_id_time_window_discount",
+    priceId: "nonsub_price_time_window_discount",
+    discount: discountTimeWindow,
+  });
 
 /**
  * Subscription fixtures
@@ -327,12 +351,51 @@ export const subscriptionOptionWithDiscountOneTime = createSubscriptionOption({
   discount: discountOneTime,
 });
 
+export const subscriptionOptionWithFixedAmountDiscount =
+  createSubscriptionOption({
+    id: "option_id_discount_one_time_fixed_amount",
+    priceId: "price_discount_one_time_fixed_amount",
+    discount: discountOneTime,
+  });
+
 // Discount (Time window)
 export const subscriptionOptionWithDiscount = createSubscriptionOption({
   id: "option_id_discount_time_window",
   priceId: "price_discount_time_window",
   discount: discountTimeWindow,
 });
+
+// Discount (Time window) - 3 month window, weekly billing cycle
+export const subscriptionOptionWithWeeklyBillingAndThreeMonthDiscount =
+  createSubscriptionOption({
+    id: "option_id_discount_time_window_weekly",
+    priceId: "price_discount_time_window_weekly",
+    base: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1W",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Week,
+      },
+    },
+    discount: discountTimeWindow,
+  });
+
+// Discount (Time window) - 6 month window, yearly billing cycle
+export const subscriptionOptionWithYearlyBillingAndSixMonthDiscount =
+  createSubscriptionOption({
+    id: "option_id_discount_time_window_yearly",
+    priceId: "price_discount_time_window_yearly",
+    base: {
+      ...subscriptionOptionBasePrice,
+      periodDuration: "P1Y",
+      period: {
+        number: 1,
+        unit: PeriodUnit.Year,
+      },
+    },
+    discount: discountTimeWindow,
+  });
 
 // Discount (Forever)
 export const subscriptionOptionWithDiscountForever = createSubscriptionOption({
@@ -455,6 +518,8 @@ export const brandingInfo: BrandingInfoResponse = {
   app_wordmark_webp: null,
   appearance: null,
   gateway_tax_collection_enabled: false,
+  full_address_collection_mode: "if_required",
+  require_checkout_consent: false,
   brand_font_config: null,
 };
 
@@ -493,6 +558,7 @@ const accountId = import.meta.env.VITE_STORYBOOK_ACCOUNT_ID;
 
 export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
   operation_session_id: "rcbopsess_test_test_test",
+  stripe_billing_params: null,
   gateway_params: {
     publishable_api_key: publishableApiKey,
     stripe_account_id: accountId,
@@ -500,9 +566,10 @@ export const checkoutStartResponse: WebBillingCheckoutStartResponse = {
   },
   management_url: "https://manage.revenuecat.com/test_test_test",
   paddle_billing_params: null,
+  checkout_mode: "purchase",
 };
 
-export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
+export const checkoutPricingResponse: CheckoutPricingResponse = {
   operation_session_id: "operation-session-id",
   currency: "USD",
   total_amount_in_micros: 9990000 + 400000,
@@ -521,11 +588,27 @@ export const checkoutCalculateTaxResponse: CheckoutCalculateTaxResponse = {
       amount: 999 + 40,
     },
   },
+  selected_purchase_option: {
+    id: "option_id_1",
+    price_id: "price_1",
+    base: {
+      period_duration: "P1M",
+      cycle_count: 0,
+      price: {
+        amount_micros: 9990000,
+        currency: "USD",
+      },
+    },
+    trial: null,
+    intro_price: null,
+    discount: null,
+  },
 };
 
 export const checkoutCompleteResponse: CheckoutCompleteResponse = {
   operation_session_id: "operation-session-id",
   gateway_params: {},
+  checkout_mode: "purchase",
 };
 
 export const defaultContext = {
@@ -688,3 +771,145 @@ export const priceBreakdownTaxExclusiveWithMultipleTaxItems: PriceBreakdown = {
     },
   ],
 };
+
+/**
+ * Upgrade / subscription-change checkout fixtures
+ */
+
+const subscriptionChangeFromProduct = {
+  product_id: "basic_monthly",
+  display_name: "Basic Monthly",
+  price_in_micros: 9990000,
+  currency: "USD",
+  period_duration: "P1M",
+};
+
+const subscriptionChangeToProduct = {
+  product_id: "premium_yearly",
+  display_name: "Premium Yearly",
+  price_in_micros: 99990000,
+  currency: "USD",
+  period_duration: "P1Y",
+};
+
+const subscriptionChangePaymentMethod = {
+  type: "card",
+  last_4: "4242",
+  brand: "visa",
+  exp_month: 12,
+  exp_year: 2030,
+};
+
+const subscriptionChangeBillingAddress = {
+  country_code: "US",
+  postal_code: "10001",
+};
+
+const immediatePriceBreakdownWithTax = {
+  currency: "USD",
+  total_amount_in_micros: 5000000 + 400000,
+  tax_amount_in_micros: 400000,
+  total_excluding_tax_in_micros: 5000000,
+  original_amount_in_micros: null,
+};
+
+const immediatePriceBreakdownTaxPending = {
+  ...immediatePriceBreakdownWithTax,
+  tax_amount_in_micros: null,
+  total_amount_in_micros: 5000000,
+};
+
+const deferredRenewalPriceWithTax = {
+  currency: "USD",
+  total_amount_in_micros: 9990000 + 799200,
+  tax_amount_in_micros: 799200,
+  total_excluding_tax_in_micros: 9990000,
+  original_amount_in_micros: null,
+};
+
+const deferredRenewalPriceTaxPending = {
+  ...deferredRenewalPriceWithTax,
+  tax_amount_in_micros: null,
+  total_amount_in_micros: 9990000,
+};
+
+/** Immediate upgrade: due today with estimated tax, payment method + address on file. */
+export const subscriptionChangeImmediateWithTax: SubscriptionChangeCheckoutStartResponse =
+  {
+    operation_session_id: "rcbopsess_story_immediate_tax",
+    change_type: "immediate",
+    checkout_mode: "subscription_change",
+    from_product: subscriptionChangeFromProduct,
+    to_product: subscriptionChangeToProduct,
+    price_breakdown: immediatePriceBreakdownWithTax,
+    estimated_renewal_price: null,
+    email: "customer@example.com",
+    payment_method: subscriptionChangePaymentMethod,
+    billing_address: subscriptionChangeBillingAddress,
+  };
+
+/** Immediate upgrade: tax will be calculated later. */
+export const subscriptionChangeImmediateTaxPending: SubscriptionChangeCheckoutStartResponse =
+  {
+    ...subscriptionChangeImmediateWithTax,
+    operation_session_id: "rcbopsess_story_immediate_tax_pending",
+    price_breakdown: immediatePriceBreakdownTaxPending,
+  };
+
+/** Immediate upgrade with only the required product/email fields. */
+export const subscriptionChangeImmediateMinimal: SubscriptionChangeCheckoutStartResponse =
+  {
+    operation_session_id: "rcbopsess_story_immediate_minimal",
+    change_type: "immediate",
+    checkout_mode: "subscription_change",
+    from_product: {
+      ...subscriptionChangeFromProduct,
+      display_name: null,
+    },
+    to_product: {
+      ...subscriptionChangeToProduct,
+      display_name: null,
+    },
+    price_breakdown: immediatePriceBreakdownWithTax,
+    estimated_renewal_price: null,
+    email: "customer@example.com",
+    payment_method: null,
+    billing_address: null,
+  };
+
+export const subscriptionChangeImmediateLongNames: SubscriptionChangeCheckoutStartResponse =
+  {
+    ...subscriptionChangeImmediateWithTax,
+    operation_session_id: "rcbopsess_story_immediate_long_names",
+    from_product: {
+      ...subscriptionChangeFromProduct,
+      display_name: "someverylongproductnamesomevery someverylongproductname",
+    },
+    to_product: {
+      ...subscriptionChangeToProduct,
+      display_name: "somevery longproductname someverylongproductname",
+    },
+  };
+
+/** Deferred change: no charge now, next-renewal estimate with tax. */
+export const subscriptionChangeDeferredWithTax: SubscriptionChangeCheckoutStartResponse =
+  {
+    operation_session_id: "rcbopsess_story_deferred_tax",
+    change_type: "deferred",
+    checkout_mode: "subscription_change",
+    from_product: subscriptionChangeToProduct,
+    to_product: subscriptionChangeFromProduct,
+    price_breakdown: null,
+    estimated_renewal_price: deferredRenewalPriceWithTax,
+    email: "customer@example.com",
+    payment_method: subscriptionChangePaymentMethod,
+    billing_address: subscriptionChangeBillingAddress,
+  };
+
+/** Deferred change: next-renewal tax calculated later. */
+export const subscriptionChangeDeferredTaxPending: SubscriptionChangeCheckoutStartResponse =
+  {
+    ...subscriptionChangeDeferredWithTax,
+    operation_session_id: "rcbopsess_story_deferred_tax_pending",
+    estimated_renewal_price: deferredRenewalPriceTaxPending,
+  };

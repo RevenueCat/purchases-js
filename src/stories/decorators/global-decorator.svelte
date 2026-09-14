@@ -6,6 +6,7 @@
   import { writable, type Writable } from "svelte/store";
   import { brandingInfos } from "../fixtures";
   import { brandingContextKey } from "../../ui/constants";
+  import type { BrandingAppearance } from "../../entities/branding";
 </script>
 
 <script lang="ts">
@@ -25,8 +26,11 @@
   const translator = new Translator({}, initiaLocale, initiaLocale);
   const translatorStore: Writable<Translator> = writable(translator);
   const brandingInfo = brandingInfos[globals.brandingName];
+  const brandingAppearanceStore: Writable<BrandingAppearance | null> = writable(
+    brandingInfo.appearance ?? null,
+  );
 
-  setContext(brandingContextKey, brandingInfo.appearance);
+  setContext(brandingContextKey, brandingAppearanceStore);
   setContext(translatorContextKey, translatorStore);
   setContext(eventsTrackerContextKey, { trackSDKEvent: () => {} });
 
@@ -34,6 +38,9 @@
     const newLocale = globals.locale;
     const newTranslator = new Translator({}, newLocale, newLocale);
     translatorStore.set(newTranslator);
+
+    const newBrandingInfo = brandingInfos[globals.brandingName];
+    brandingAppearanceStore.set(newBrandingInfo.appearance ?? null);
   });
 </script>
 

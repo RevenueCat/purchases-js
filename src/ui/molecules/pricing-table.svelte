@@ -6,10 +6,9 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { type PriceBreakdown } from "../ui-types";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
-  import {
-    type PricingPhase,
-    type DiscountPhase,
-  } from "../../entities/offerings";
+  import { type PricingPhase } from "../../entities/offerings";
+  import type { ResolvedDiscountBreakdown } from "../../helpers/discount-breakdown-helper";
+  import DiscountInput from "./discount-input.svelte";
   import PricingDropdown from "./pricing-dropdown.svelte";
   import Skeleton from "../atoms/skeleton.svelte";
   import Typography from "../atoms/typography.svelte";
@@ -18,16 +17,38 @@
     priceBreakdown: PriceBreakdown;
     trialPhase: PricingPhase | null;
     basePhase: PricingPhase | null;
-    promotionalPricePhase: PricingPhase | DiscountPhase | null;
-    hasDiscount: boolean;
+    resolvedDiscount: ResolvedDiscountBreakdown | null;
+    showDiscountCodeField: boolean;
+    discountCode: string;
+    appliedDiscountCode: string | null;
+    discountCodeError: string | null;
+    isUpdatingDiscountCode: boolean;
+    isDiscountCodeControlsEnabled: boolean;
+    onDiscountCodeChange: ((discountCode: string) => void) | undefined;
+    onApplyDiscountCode: (() => void | Promise<void>) | undefined;
+    onRemoveDiscountCode: (() => void | Promise<void>) | undefined;
+    pendingTaxLabel?: string | null;
+    totalRowLabel?: string | null;
+    detailsExpandedByDefault?: boolean;
   }
 
-  const {
+  let {
     priceBreakdown,
     trialPhase,
     basePhase,
-    promotionalPricePhase,
-    hasDiscount,
+    resolvedDiscount,
+    showDiscountCodeField,
+    discountCode,
+    appliedDiscountCode,
+    discountCodeError,
+    isUpdatingDiscountCode,
+    isDiscountCodeControlsEnabled,
+    onDiscountCodeChange,
+    onApplyDiscountCode,
+    onRemoveDiscountCode,
+    pendingTaxLabel = null,
+    totalRowLabel = null,
+    detailsExpandedByDefault = true,
   }: Props = $props();
 
   const trialEndDate = $derived(
@@ -38,26 +59,32 @@
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
+  const isTaxCalculationPending = $derived(
+    priceBreakdown.taxCalculationStatus === "loading" ||
+      priceBreakdown.taxCalculationStatus === "pending",
+  );
+
   const showTaxBreakdown = $derived(
     priceBreakdown.taxCalculationStatus !== "unavailable" &&
       priceBreakdown.taxCalculationStatus !== "disabled" &&
-      priceBreakdown.taxBreakdown &&
-      priceBreakdown.taxBreakdown.length > 0,
+      (isTaxCalculationPending ||
+        (priceBreakdown.taxBreakdown?.length ?? 0) > 0),
+  );
+
+  const showDetailsControls = $derived(
+    showDiscountCodeField || showTaxBreakdown,
   );
 
   const subtotalAmount = $derived(
-    basePhase?.price?.amountMicros ?? priceBreakdown.totalAmountInMicros,
+    priceBreakdown.originalAmountInMicros ??
+      basePhase?.price?.amountMicros ??
+      priceBreakdown.totalAmountInMicros,
   );
 
-  const discountAmount = $derived.by(() => {
-    if (!hasDiscount) return 0;
-
-    const base = basePhase?.price?.amountMicros;
-    const promo = promotionalPricePhase?.price?.amountMicros;
-    if (base == null || promo == null) return 0;
-
-    return base - promo;
-  });
+  const discountAmount = $derived(
+    resolvedDiscount?.discountAmountInMicros ?? 0,
+  );
+  const discountSuffix = $derived(resolvedDiscount?.suffix ?? null);
 
   const totalDueToday = $derived(
     trialEndDate ? 0 : priceBreakdown.totalAmountInMicros,
@@ -66,7 +93,7 @@
 
 {#snippet pricingTable()}
   <div class="rcb-pricing-table">
-    {#if hasDiscount}
+    {#if resolvedDiscount && !showDiscountCodeField}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
           <div class="rcb-pricing-table-value">
@@ -88,11 +115,9 @@
             <Typography size="body-small">
               {$translator.translate(
                 LocalizationKeys.PricingTableDiscount,
-              )}{promotionalPricePhase &&
-              "name" in promotionalPricePhase &&
-              promotionalPricePhase.name
-                ? `: ${promotionalPricePhase.name}`
-                : ""}
+              )}{resolvedDiscount.displayName
+                ? `: ${resolvedDiscount.displayName}`
+                : ""}{discountSuffix ? ` (${discountSuffix})` : ""}
             </Typography>
           </div>
         </div>
@@ -106,6 +131,62 @@
       <div class="rcb-pricing-table-separator"></div>
     {/if}
 
+    {#if showDiscountCodeField}
+      {#if !appliedDiscountCode}
+        <DiscountInput
+          {showDiscountCodeField}
+          {discountCode}
+          {appliedDiscountCode}
+          {discountSuffix}
+          {discountCodeError}
+          {isUpdatingDiscountCode}
+          {isDiscountCodeControlsEnabled}
+          {onDiscountCodeChange}
+          {onApplyDiscountCode}
+          {onRemoveDiscountCode}
+        />
+      {:else}
+        <div class="rcb-pricing-table-row">
+          <div class="rcb-pricing-table-header">
+            <div class="rcb-pricing-table-value">
+              <Typography size="body-small">
+                {$translator.translate(LocalizationKeys.PricingTableSubtotal)}
+              </Typography>
+            </div>
+          </div>
+          <div class="rcb-pricing-table-value">
+            <Typography size="body-small">
+              {$translator.formatPrice(subtotalAmount, priceBreakdown.currency)}
+            </Typography>
+          </div>
+        </div>
+        <div
+          class="rcb-pricing-table-row rcb-pricing-table-row-applied-discount"
+        >
+          <DiscountInput
+            {showDiscountCodeField}
+            {discountCode}
+            {appliedDiscountCode}
+            {discountSuffix}
+            {discountCodeError}
+            {isUpdatingDiscountCode}
+            {isDiscountCodeControlsEnabled}
+            {onDiscountCodeChange}
+            {onApplyDiscountCode}
+            {onRemoveDiscountCode}
+          />
+          <div class="rcb-pricing-table-value">
+            <Typography size="body-small">
+              -{$translator.formatPrice(
+                discountAmount,
+                priceBreakdown.currency,
+              )}
+            </Typography>
+          </div>
+        </div>
+      {/if}
+    {/if}
+
     {#if showTaxBreakdown}
       <div class="rcb-pricing-table-row">
         <div class="rcb-pricing-table-header">
@@ -115,10 +196,19 @@
         </div>
         <div class="rcb-pricing-table-value">
           <Typography size="body-small">
-            {$translator.formatPrice(
-              priceBreakdown.totalExcludingTaxInMicros,
-              priceBreakdown.currency,
-            )}
+            {#if priceBreakdown.taxCalculationStatus === "loading"}
+              <Skeleton>
+                {$translator.formatPrice(
+                  priceBreakdown.totalExcludingTaxInMicros,
+                  priceBreakdown.currency,
+                )}
+              </Skeleton>
+            {:else}
+              {$translator.formatPrice(
+                priceBreakdown.totalExcludingTaxInMicros,
+                priceBreakdown.currency,
+              )}
+            {/if}
           </Typography>
         </div>
       </div>
@@ -145,9 +235,10 @@
           </div>
           <div class="rcb-pricing-table-value">
             <Typography size="body-small">
-              {$translator.translate(
-                LocalizationKeys.PricingTableEnterBillingAddressToCalculate,
-              )}
+              {pendingTaxLabel ??
+                $translator.translate(
+                  LocalizationKeys.PricingTableEnterBillingAddressToCalculate,
+                )}
             </Typography>
           </div>
         </div>
@@ -170,7 +261,8 @@
           </div>
         {/each}
       {/if}
-
+    {/if}
+    {#if showTaxBreakdown || appliedDiscountCode}
       <div class="rcb-pricing-table-separator"></div>
     {/if}
 
@@ -199,7 +291,8 @@
     <div class="rcb-pricing-table-row rcb-header">
       <div class="rcb-pricing-table-header">
         <Typography size="body-small">
-          {$translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
+          {totalRowLabel ??
+            $translator.translate(LocalizationKeys.PricingTableTotalDueToday)}
         </Typography>
       </div>
       <div class="rcb-pricing-table-value">
@@ -211,8 +304,11 @@
   </div>
 {/snippet}
 
-{#if showTaxBreakdown}
-  <PricingDropdown>
+{#if showDetailsControls}
+  <PricingDropdown
+    {showDiscountCodeField}
+    isExpanded={detailsExpandedByDefault}
+  >
     {@render pricingTable()}
   </PricingDropdown>
 {:else}
@@ -231,6 +327,10 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+
+  .rcb-pricing-table-row-applied-discount {
+    align-items: flex-end;
   }
 
   .rcb-pricing-table-separator {

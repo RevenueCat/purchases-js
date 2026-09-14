@@ -1,12 +1,15 @@
 import type { CustomerInfo, Offering } from "@revenuecat/purchases-js";
 import {
   type FlagsConfig,
+  type HttpConfig,
   type LogHandler,
+  type StoreLoadTime,
   LogLevel,
   Purchases,
 } from "@revenuecat/purchases-js";
 import type { LoaderFunction } from "react-router-dom";
 import { redirect, useLoaderData } from "react-router-dom";
+import { configuredAppearanceOverride } from "./runtime-appearance-overrides";
 
 declare global {
   interface Window {
@@ -16,9 +19,14 @@ declare global {
 
 export const apiKey = window.__RC_API_KEY__ || import.meta.env.VITE_RC_API_KEY;
 const canary = import.meta.env.VITE_RC_CANARY;
+const proxyURL = import.meta.env.VITE_RC_PROXY_URL as string | undefined;
+const eventsURL = import.meta.env.VITE_RC_EVENTS_URL as string | undefined;
+export const isPaddleApiKey = /^pdl_[a-zA-Z0-9_.-]+$/.test(apiKey);
+export const isStripeApiKey = /^strp_[a-zA-Z0-9_.-]+$/.test(apiKey);
 
 type IPurchasesLoaderData = {
   purchases: Purchases;
+  defaultPurchases: Purchases;
   customerInfo: CustomerInfo;
   offering: Offering;
 };
@@ -31,10 +39,17 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
   const searchParams = new URL(request.url).searchParams;
   const currency = searchParams.get("currency");
   const offeringId = searchParams.get("offeringId");
+  const discountCode = searchParams.get("discountCode") || undefined;
   const rcSource = searchParams.get("rcSource") || undefined;
+  const hideCheckoutBackButton =
+    searchParams.get("hideCheckoutBackButton") === "true";
   const optOutOfAutoUTM =
     searchParams.get("optOutOfAutoUTM") === "true" || false;
   const useCustomLogger = searchParams.get("useCustomLogger") === "true";
+  const storeLoadTime =
+    (searchParams.get("storeLoadTime") as StoreLoadTime) || undefined;
+  const useConfiguredAppearanceOverride =
+    searchParams.get("configuredAppearanceOverride") === "true";
 
   if (!appUserId) {
     throw redirect("/");
@@ -44,8 +59,17 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
     additionalHeaders["X-RC-Canary"] = canary;
   }
 
+  const httpConfig: HttpConfig = { additionalHeaders, proxyURL };
+  if (eventsURL) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    httpConfig.eventsURL = eventsURL;
+  }
+
   const flagsConfig: FlagsConfig = {
     autoCollectUTMAsMetadata: !optOutOfAutoUTM,
+    hideBackButton: hideCheckoutBackButton,
+    ...(storeLoadTime ? { storeLoadTime } : {}),
   };
   if (rcSource) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -89,22 +113,43 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
   Purchases.setLogLevel(LogLevel.Verbose);
   try {
-    if (!Purchases.isConfigured()) {
-      Purchases.configure({
+    const purchasesConfig = {
+      apiKey,
+      appUserId,
+      httpConfig,
+      flags: flagsConfig,
+    };
+    let purchases: Purchases;
+    let defaultPurchases: Purchases;
+
+    if (useConfiguredAppearanceOverride) {
+      defaultPurchases = Purchases.configure(purchasesConfig);
+      purchases = Purchases.configure({
+        ...purchasesConfig,
+        brandingAppearanceOverride: configuredAppearanceOverride,
+      });
+    } else if (!Purchases.isConfigured()) {
+      purchases = Purchases.configure({
         apiKey,
         appUserId,
-        httpConfig: { additionalHeaders },
+        httpConfig,
         flags: flagsConfig,
       });
+      defaultPurchases = purchases;
     } else {
       await Purchases.getSharedInstance().changeUser(appUserId);
+      purchases = Purchases.getSharedInstance();
+      defaultPurchases = purchases;
     }
-    const purchases = Purchases.getSharedInstance();
+
     const [customerInfo, offerings] = await Promise.all([
       purchases.getCustomerInfo(),
       purchases.getOfferings({
         currency: currency || undefined,
         offeringIdentifier: offeringId || undefined,
+
+        // @ts-expect-error - discountCode is experimental
+        discountCode: discountCode || undefined,
       }),
     ]);
 
@@ -114,6 +159,7 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 
     return {
       purchases,
+      defaultPurchases,
       customerInfo,
       offering,
     };
@@ -126,4 +172,31 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 const usePurchasesLoaderData: () => IPurchasesLoaderData = () =>
   useLoaderData() as IPurchasesLoaderData;
 
-export { loadPurchases, usePurchasesLoaderData };
+const loadPurchasesWithDelayedStore: LoaderFunction<
+  IPurchasesLoaderData
+> = async (args) => {
+  const url = new URL(args.request.url);
+  url.searchParams.set("storeLoadTime", "purchase_start");
+  return loadPurchases({
+    ...args,
+    request: new Request(url, args.request),
+  });
+};
+
+const loadPurchasesWithAppearanceOverride: LoaderFunction<
+  IPurchasesLoaderData
+> = async (args) => {
+  const url = new URL(args.request.url);
+  url.searchParams.set("configuredAppearanceOverride", "true");
+  return loadPurchases({
+    ...args,
+    request: new Request(url, args.request),
+  });
+};
+
+export {
+  loadPurchases,
+  loadPurchasesWithAppearanceOverride,
+  loadPurchasesWithDelayedStore,
+  usePurchasesLoaderData,
+};

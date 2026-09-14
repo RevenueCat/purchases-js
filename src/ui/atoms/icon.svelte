@@ -11,6 +11,7 @@
   import { default as IconSuccess } from "../atoms/icons/icon-success.svelte";
   import { default as IconInfo } from "../atoms/icons/icon-info.svelte";
   import { default as IconClose } from "../atoms/icons/icon-close.svelte";
+  import { default as IconWarning } from "../atoms/icons/icon-warning.svelte";
 
   export type IconName =
     | "cart"
@@ -23,7 +24,8 @@
     | "chevron-down"
     | "info"
     | "back"
-    | "close";
+    | "close"
+    | "warning";
 
   const iconMap: Record<IconName, Component<{ direction?: Direction } | {}>> = {
     cart: IconCart as Component<{}>,
@@ -33,6 +35,7 @@
     back: IconBack,
     info: IconInfo as Component<{}>,
     close: IconClose,
+    warning: IconWarning as Component<{}>,
     "chevron-left": IconChevron as Component<{ direction?: Direction }>,
     "chevron-right": IconChevron as Component<{ direction?: Direction }>,
     "chevron-up": IconChevron as Component<{ direction?: Direction }>,

@@ -1,171 +1,18 @@
 import { type Price } from "../entities/offerings";
 import { type Translator } from "../ui/localization/translator";
-import { PeriodUnit, type Period } from "./duration-helper";
-import {
-  DAYS_PER_MONTH,
-  DAYS_PER_WEEK,
-  DAYS_PER_YEAR,
-  MONTHS_PER_YEAR,
-  WEEKS_PER_MONTH,
-  WEEKS_PER_YEAR,
-} from "./paywall-period-helpers";
+import { type Period } from "./duration-helper";
+import { getPricePerPeriodFactors } from "./price-conversion-helper";
+import { floorMicrosToCurrencyUnit } from "./price-labels";
 
-function getPricePeDay(
-  price: Price,
-  period: Period | null,
+function formatFlooredPrice(
+  micros: number,
+  currency: string,
   translator: Translator,
-) {
-  const fallback = translator.formatPrice(price.amountMicros, price.currency);
-
-  if (!period) {
-    return fallback;
-  }
-
-  if (period.unit === PeriodUnit.Year) {
-    return translator.formatPrice(
-      price.amountMicros / DAYS_PER_YEAR / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Month) {
-    return translator.formatPrice(
-      price.amountMicros / DAYS_PER_MONTH / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Week) {
-    return translator.formatPrice(
-      price.amountMicros / DAYS_PER_WEEK / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Day) {
-    return translator.formatPrice(
-      price.amountMicros / period.number,
-      price.currency,
-    );
-  }
-
-  return fallback;
-}
-
-function getPricePerWeek(
-  price: Price,
-  period: Period | null,
-  translator: Translator,
-) {
-  const fallback = translator.formatPrice(price.amountMicros, price.currency);
-
-  if (!period) {
-    return fallback;
-  }
-
-  if (period.unit === PeriodUnit.Year) {
-    return translator.formatPrice(
-      price.amountMicros / WEEKS_PER_YEAR / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Month) {
-    return translator.formatPrice(
-      price.amountMicros / WEEKS_PER_MONTH / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Week) {
-    return translator.formatPrice(
-      price.amountMicros / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Day) {
-    return translator.formatPrice(
-      (price.amountMicros * DAYS_PER_WEEK) / period.number,
-      price.currency,
-    );
-  }
-
-  return fallback;
-}
-
-function getPricePerMonth(
-  price: Price,
-  period: Period | null,
-  translator: Translator,
-) {
-  if (!period) {
-    return translator.formatPrice(price.amountMicros, price.currency);
-  }
-
-  if (period.unit === PeriodUnit.Year) {
-    return translator.formatPrice(
-      price.amountMicros / MONTHS_PER_YEAR,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Month) {
-    return translator.formatPrice(
-      price.amountMicros / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Week) {
-    return translator.formatPrice(
-      (price.amountMicros * WEEKS_PER_MONTH) / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Day) {
-    return translator.formatPrice(
-      (price.amountMicros * DAYS_PER_MONTH) / period.number,
-      price.currency,
-    );
-  }
-
-  // Fallback: treat as monthly if unit is unrecognized
+): string {
   return translator.formatPrice(
-    price.amountMicros / (period.number || 1),
-    price.currency,
+    floorMicrosToCurrencyUnit(micros, currency),
+    currency,
   );
-}
-
-function getPricePerYear(
-  price: Price,
-  period: Period | null,
-  translator: Translator,
-) {
-  const fallback = translator.formatPrice(price.amountMicros, price.currency);
-
-  if (!period) {
-    return fallback;
-  }
-
-  if (period.unit === PeriodUnit.Year) {
-    return translator.formatPrice(
-      price.amountMicros / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Month) {
-    return translator.formatPrice(
-      (price.amountMicros * MONTHS_PER_YEAR) / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Week) {
-    return translator.formatPrice(
-      (price.amountMicros * WEEKS_PER_YEAR) / period.number,
-      price.currency,
-    );
-  }
-  if (period.unit === PeriodUnit.Day) {
-    return translator.formatPrice(
-      (price.amountMicros * DAYS_PER_YEAR) / period.number,
-      price.currency,
-    );
-  }
-
-  return fallback;
 }
 
 interface PriceVariables {
@@ -180,10 +27,40 @@ export function getPriceVariables(
   period: Period | null,
   translator: Translator,
 ): PriceVariables {
+  if (period === null) {
+    const priceString = translator.formatPrice(
+      price.amountMicros,
+      price.currency,
+    );
+    return {
+      pricePerDay: priceString,
+      pricePerWeek: priceString,
+      pricePerMonth: priceString,
+      pricePerYear: priceString,
+    };
+  }
+
+  const priceFactors = getPricePerPeriodFactors(period);
   return {
-    pricePerDay: getPricePeDay(price, period, translator),
-    pricePerWeek: getPricePerWeek(price, period, translator),
-    pricePerMonth: getPricePerMonth(price, period, translator),
-    pricePerYear: getPricePerYear(price, period, translator),
+    pricePerDay: formatFlooredPrice(
+      price.amountMicros * priceFactors.perDay,
+      price.currency,
+      translator,
+    ),
+    pricePerWeek: formatFlooredPrice(
+      price.amountMicros * priceFactors.perWeek,
+      price.currency,
+      translator,
+    ),
+    pricePerMonth: formatFlooredPrice(
+      price.amountMicros * priceFactors.perMonth,
+      price.currency,
+      translator,
+    ),
+    pricePerYear: formatFlooredPrice(
+      price.amountMicros * priceFactors.perYear,
+      price.currency,
+      translator,
+    ),
   };
 }

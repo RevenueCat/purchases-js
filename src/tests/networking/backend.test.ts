@@ -97,7 +97,7 @@ describe("httpConfig is setup correctly", () => {
     server.events.on("request:start", (req) => {
       requestPerformed = req.request;
     });
-    backend = new Backend("test_api_key");
+    backend = new Backend("rcb_api_key");
     await backend.getCustomerInfo("someAppUserId");
     const headers = requestPerformed?.headers;
     expect(headers).not.toBeNull();
@@ -107,6 +107,24 @@ describe("httpConfig is setup correctly", () => {
     expect(headers.get("X-Platform-Flavor")).toBeNull();
     expect(headers.get("X-Platform-Flavor-Version")).toBeNull();
     expect(headers.get("X-Is-Sandbox")).toEqual("false");
+  });
+
+  test.each([
+    ["rcb_sb_api_key", "true"],
+    ["test_api_key", "true"],
+    ["rcb_api_key", "false"],
+  ])("X-Is-Sandbox header for %s is %s", async (apiKey, expected) => {
+    setCustomerInfoResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    let requestPerformed: Request | undefined;
+    server.events.on("request:start", (req) => {
+      requestPerformed = req.request;
+    });
+    backend = new Backend(apiKey);
+    await backend.getCustomerInfo("someAppUserId");
+    expect(requestPerformed?.headers.get("X-Is-Sandbox")).toEqual(expected);
   });
 
   test("expected platformInfo headers are sent", async () => {
@@ -420,7 +438,11 @@ describe("getOfferings request", () => {
 });
 
 describe("getProducts request", () => {
-  function setProductsResponse(httpResponse: HttpResponse, currency?: string) {
+  function setProductsResponse(
+    httpResponse: HttpResponse,
+    currency?: string,
+    discountCode?: string,
+  ) {
     const baseUrl =
       "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products";
     server.use(
@@ -428,11 +450,13 @@ describe("getProducts request", () => {
         const url = new URL(request.url);
         const productIds = url.searchParams.getAll("id");
         const urlCurrency = url.searchParams.get("currency");
+        const urlDiscountCode = url.searchParams.get("discountCode");
         if (
           productIds.includes("monthly") &&
           productIds.includes("monthly_2") &&
           productIds.length === 2 &&
-          (urlCurrency === null || urlCurrency === currency)
+          (urlCurrency === null || urlCurrency === currency) &&
+          (urlDiscountCode === null || urlDiscountCode === discountCode)
         ) {
           return httpResponse;
         }
@@ -448,6 +472,151 @@ describe("getProducts request", () => {
     ).toEqual(productsResponse);
   });
 
+  test("requests each product only once", async () => {
+    const requestedProductIds: string[] = [];
+    server.use(
+      http.get(
+        "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products",
+        ({ request }) => {
+          const productIds = new URL(request.url).searchParams.getAll("id");
+          requestedProductIds.push(...productIds);
+          return HttpResponse.json({
+            product_details: productIds.map((identifier) => ({
+              ...productsResponse.product_details[0],
+              identifier,
+            })),
+          });
+        },
+      ),
+    );
+
+    const response = await backend.getProducts("someAppUserId", [
+      "monthly",
+      "monthly_2",
+      "monthly",
+      "monthly_2",
+    ]);
+
+    expect(requestedProductIds).toEqual(["monthly", "monthly_2"]);
+    expect(
+      response.product_details.map(({ identifier }) => identifier),
+    ).toEqual(["monthly", "monthly_2"]);
+  });
+
+  test("returns an empty response without a request when there are no product IDs", async () => {
+    let requestCount = 0;
+    server.events.on("request:start", () => {
+      requestCount += 1;
+    });
+
+    const response = await backend.getProducts("someAppUserId", []);
+
+    expect(response).toEqual({ product_details: [] });
+    expect(requestCount).toBe(0);
+  });
+
+  test("handles an empty product details response", async () => {
+    setProductsResponse(
+      HttpResponse.json({ product_details: [] }, { status: 200 }),
+    );
+
+    const response = await backend.getProducts("someAppUserId", [
+      "monthly",
+      "monthly_2",
+    ]);
+
+    expect(response).toEqual({ product_details: [] });
+  });
+
+  test("batches large product catalogues into bounded URLs", async () => {
+    const productIds = Array.from(
+      { length: 250 },
+      (_, index) =>
+        `product_${index.toString().padStart(4, "0")}_long_identifier`,
+    );
+    const requestedBatches: string[][] = [];
+    const requestedUrlLengths: number[] = [];
+    let activeRequests = 0;
+    let maximumConcurrentRequests = 0;
+    server.use(
+      http.get(
+        "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products",
+        async ({ request }) => {
+          activeRequests += 1;
+          maximumConcurrentRequests = Math.max(
+            maximumConcurrentRequests,
+            activeRequests,
+          );
+          await new Promise((resolve) => setTimeout(resolve, 10));
+
+          const url = new URL(request.url);
+          const requestedProductIds = url.searchParams.getAll("id");
+          requestedBatches.push(requestedProductIds);
+          requestedUrlLengths.push(`${url.pathname}${url.search}`.length);
+          activeRequests -= 1;
+          return HttpResponse.json({
+            product_details: requestedProductIds.map((identifier) => ({
+              ...productsResponse.product_details[0],
+              identifier,
+            })),
+          });
+        },
+      ),
+    );
+
+    const response = await backend.getProducts("someAppUserId", productIds);
+
+    expect(requestedBatches.length).toBeGreaterThan(1);
+    expect(requestedUrlLengths.every((length) => length <= 2000)).toBe(true);
+    expect(maximumConcurrentRequests).toBe(1);
+    expect(requestedBatches.flat()).toEqual(productIds);
+    expect(
+      response.product_details.map(({ identifier }) => identifier),
+    ).toEqual(productIds);
+  });
+
+  test("stops requesting batches when one batch fails", async () => {
+    const productIds = Array.from(
+      { length: 250 },
+      (_, index) =>
+        `product_${index.toString().padStart(4, "0")}_long_identifier`,
+    );
+    let requestCount = 0;
+    server.use(
+      http.get(
+        "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products",
+        ({ request }) => {
+          requestCount += 1;
+          if (requestCount === 2) {
+            return HttpResponse.json(null, {
+              status: StatusCodes.INTERNAL_SERVER_ERROR,
+            });
+          }
+
+          const requestedProductIds = new URL(request.url).searchParams.getAll(
+            "id",
+          );
+          return HttpResponse.json({
+            product_details: requestedProductIds.map((identifier) => ({
+              ...productsResponse.product_details[0],
+              identifier,
+            })),
+          });
+        },
+      ),
+    );
+
+    await expectPromiseToError(
+      backend.getProducts("someAppUserId", productIds),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getProducts. Status code: 500. Body: null.",
+      ),
+    );
+    expect(requestCount).toBe(2);
+  });
+
   test("passes request with currency successfully", async () => {
     setProductsResponse(
       HttpResponse.json(productsResponse, { status: 200 }),
@@ -458,6 +627,38 @@ describe("getProducts request", () => {
         "someAppUserId",
         ["monthly", "monthly_2"],
         "USD",
+      ),
+    ).toEqual(productsResponse);
+  });
+
+  test("passes request with discountCode successfully", async () => {
+    setProductsResponse(
+      HttpResponse.json(productsResponse, { status: 200 }),
+      undefined,
+      "SUMMER2024",
+    );
+    expect(
+      await backend.getProducts(
+        "someAppUserId",
+        ["monthly", "monthly_2"],
+        undefined,
+        "SUMMER2024",
+      ),
+    ).toEqual(productsResponse);
+  });
+
+  test("passes request with both currency and discountCode successfully", async () => {
+    setProductsResponse(
+      HttpResponse.json(productsResponse, { status: 200 }),
+      "USD",
+      "SUMMER2024",
+    );
+    expect(
+      await backend.getProducts(
+        "someAppUserId",
+        ["monthly", "monthly_2"],
+        "USD",
+        "SUMMER2024",
       ),
     ).toEqual(productsResponse);
   });
@@ -570,17 +771,17 @@ describe("postCheckoutStart request", () => {
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
     );
 
-    const result = await backend.postCheckoutStart(
-      "someAppUserId",
-      "monthly",
-      {
+    const result = await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: null,
       },
-      { id: "base_option", priceId: "test_price_id" },
-      "test-trace-id",
-    );
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+    });
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
     const request = purchaseMethodAPIMock.mock.calls[0][0].request;
@@ -604,19 +805,19 @@ describe("postCheckoutStart request", () => {
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
     );
 
-    const result = await backend.postCheckoutStart(
-      "someAppUserId",
-      "monthly",
-      {
+    const result = await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: null,
       },
-      { id: "base_option", priceId: "test_price_id" },
-      "test-trace-id",
-      "testemail@revenuecat.com",
-      { utm_campaign: "test-campaign" },
-    );
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      customerEmail: "testemail@revenuecat.com",
+      metadata: { utm_campaign: "test-campaign" },
+    });
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
     const request = purchaseMethodAPIMock.mock.calls[0][0].request;
@@ -637,6 +838,85 @@ describe("postCheckoutStart request", () => {
     expect(result).toEqual(checkoutStartResponse);
   });
 
+  test("requests a package-specific Apple Pay purchase when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      purchaseFlow: "apple_pay",
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.purchase_flow).toBe("apple_pay");
+  });
+
+  test("includes an external purchase token ID when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      externalPurchaseTokenId: "rcat_external_purchase_token_123",
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).toEqual(
+      expect.objectContaining({
+        external_purchase_token_id: "rcat_external_purchase_token_123",
+      }),
+    );
+  });
+
+  test("includes a partial appearance override when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      appearanceOverride: {
+        color_buttons_primary: "#ffffff",
+        color_page_bg: "#101010",
+      },
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.appearance_override).toEqual({
+      color_buttons_primary: "#ffffff",
+      color_page_bg: "#101010",
+    });
+  });
+
   test("handles workflow identifier correctly", async () => {
     const backendWithContext = new Backend("test_api_key", undefined, {
       workflowContext: { workflowIdentifier: "workflow_456" },
@@ -646,17 +926,17 @@ describe("postCheckoutStart request", () => {
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
     );
 
-    await backendWithContext.postCheckoutStart(
-      "someAppUserId",
-      "monthly",
-      {
+    await backendWithContext.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: null,
       },
-      { id: "base_option", priceId: "test_price_id" },
-      "test-trace-id",
-    );
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+    });
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
     const request = purchaseMethodAPIMock.mock.calls[0][0].request;
@@ -669,17 +949,17 @@ describe("postCheckoutStart request", () => {
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
     );
 
-    await backend.postCheckoutStart(
-      "someAppUserId",
-      "monthly",
-      {
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: null,
       },
-      { id: "base_option", priceId: "test_price_id" },
-      "test-trace-id",
-    );
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+    });
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
     const request = purchaseMethodAPIMock.mock.calls[0][0].request;
@@ -692,20 +972,18 @@ describe("postCheckoutStart request", () => {
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
     );
 
-    await backend.postCheckoutStart(
-      "someAppUserId",
-      "monthly",
-      {
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: null,
       },
-      { id: "base_option", priceId: "test_price_id" },
-      "test-trace-id",
-      undefined,
-      undefined,
-      "test-step-123",
-    );
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      presentedStepId: "test-step-123",
+    });
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
     const request = purchaseMethodAPIMock.mock.calls[0][0].request;
@@ -718,17 +996,17 @@ describe("postCheckoutStart request", () => {
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
     );
 
-    await backend.postCheckoutStart(
-      "someAppUserId",
-      "monthly",
-      {
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
         offeringIdentifier: "offering_1",
         targetingContext: null,
         placementIdentifier: null,
       },
-      { id: "base_option", priceId: "test_price_id" },
-      "test-trace-id",
-    );
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+    });
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
     const request = purchaseMethodAPIMock.mock.calls[0][0].request;
@@ -736,24 +1014,270 @@ describe("postCheckoutStart request", () => {
     expect(requestBody.presented_step_id).toBeUndefined();
   });
 
+  test("includes url_parameters in request when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      urlParameters: { utm_source: "typedIn", fbp: "metaID" },
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.url_parameters).toEqual({
+      utm_source: "typedIn",
+      fbp: "metaID",
+    });
+  });
+
+  test("includes multi-value url_parameters in request when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      urlParameters: { role: ["admin", "guest"], fbp: "metaID" },
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.url_parameters).toEqual({
+      role: ["admin", "guest"],
+      fbp: "metaID",
+    });
+  });
+
+  test("omits url_parameters from request when not provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.url_parameters).toBeUndefined();
+  });
+
+  test("omits url_parameters from request when empty", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      urlParameters: {},
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.url_parameters).toBeUndefined();
+  });
+
+  test("includes paywall_id in request when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      paywallId: "test-paywall-123",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.paywall).toEqual({ paywall_id: "test-paywall-123" });
+  });
+
+  test("includes paywall_session_id in request when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      paywallId: "test-paywall-123",
+      paywallSessionId: "test-paywall-session-456",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.paywall).toEqual({
+      paywall_id: "test-paywall-123",
+      paywall_session_id: "test-paywall-session-456",
+    });
+  });
+
+  test("omits paywall_session_id when paywallId not provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      paywallSessionId: "test-paywall-session-456",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.paywall).toBeUndefined();
+  });
+
+  test("omits paywall_id from request when not provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.paywall).toBeUndefined();
+  });
+
+  test("includes locale in request when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      locale: "es",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.locale).toBe("es");
+  });
+
+  test("omits locale from request when not provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.locale).toBeUndefined();
+  });
+
   test("throws an error if the backend returns a server error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
     await expectPromiseToError(
-      backend.postCheckoutStart(
-        "someAppUserId",
-        "monthly",
-        {
+      backend.postCheckoutStart({
+        appUserId: "someAppUserId",
+        productId: "monthly",
+        presentedOfferingContext: {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
         },
-        { id: "base_option", priceId: "test_price_id" },
-        "test-trace-id",
-        undefined,
-        { utm_campaign: "test-campaign" },
-      ),
+        purchaseOption: { id: "base_option", priceId: "test_price_id" },
+        traceId: "test-trace-id",
+        metadata: { utm_campaign: "test-campaign" },
+      }),
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
@@ -773,19 +1297,19 @@ describe("postCheckoutStart request", () => {
       ),
     );
     await expectPromiseToError(
-      backend.postCheckoutStart(
-        "someAppUserId",
-        "monthly",
-        {
+      backend.postCheckoutStart({
+        appUserId: "someAppUserId",
+        productId: "monthly",
+        presentedOfferingContext: {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
         },
-        { id: "base_option", priceId: "test_price_id" },
-        "test-trace-id",
-        "testemail@revenuecat.com",
-        { utm_campaign: "test-campaign" },
-      ),
+        purchaseOption: { id: "base_option", priceId: "test_price_id" },
+        traceId: "test-trace-id",
+        customerEmail: "testemail@revenuecat.com",
+        metadata: { utm_campaign: "test-campaign" },
+      }),
       new PurchasesError(
         ErrorCode.InvalidCredentialsError,
         "There was a credentials issue. Check the underlying error for more details.",
@@ -805,19 +1329,19 @@ describe("postCheckoutStart request", () => {
       ),
     );
     await expectPromiseToError(
-      backend.postCheckoutStart(
-        "someAppUserId",
-        "monthly",
-        {
+      backend.postCheckoutStart({
+        appUserId: "someAppUserId",
+        productId: "monthly",
+        presentedOfferingContext: {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
         },
-        { id: "base_option", priceId: "test_price_id" },
-        "test-trace-id",
-        "testemail@revenuecat.com",
-        { utm_campaign: "test-campaign" },
-      ),
+        purchaseOption: { id: "base_option", priceId: "test_price_id" },
+        traceId: "test-trace-id",
+        customerEmail: "testemail@revenuecat.com",
+        metadata: { utm_campaign: "test-campaign" },
+      }),
       new PurchasesError(
         ErrorCode.PurchaseInvalidError,
         "One or more of the arguments provided are invalid.",
@@ -829,19 +1353,18 @@ describe("postCheckoutStart request", () => {
   test("throws network error if cannot reach server", async () => {
     setCheckoutStartResponse(HttpResponse.error());
     await expectPromiseToError(
-      backend.postCheckoutStart(
-        "someAppUserId",
-        "monthly",
-        {
+      backend.postCheckoutStart({
+        appUserId: "someAppUserId",
+        productId: "monthly",
+        presentedOfferingContext: {
           offeringIdentifier: "offering_1",
           targetingContext: null,
           placementIdentifier: null,
         },
-        { id: "base_option", priceId: "test_price_id" },
-        "test-trace-id",
-        undefined,
-        { utm_campaign: "test-campaign" },
-      ),
+        purchaseOption: { id: "base_option", priceId: "test_price_id" },
+        traceId: "test-trace-id",
+        metadata: { utm_campaign: "test-campaign" },
+      }),
       new PurchasesError(
         ErrorCode.NetworkError,
         "Error performing request. Please check your network connection and try again.",
@@ -895,7 +1418,7 @@ describe("postCheckoutComplete request", () => {
 
     const result = await backend.postCheckoutComplete(
       "someOperationSessionId",
-      "testemail@revenuecat.com",
+      { email: "testemail@revenuecat.com" },
     );
 
     expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
@@ -909,6 +1432,66 @@ describe("postCheckoutComplete request", () => {
     });
 
     expect(result).toEqual(checkoutCompleteResponse);
+  });
+
+  test("includes Apple Pay billing details when provided", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutComplete("someOperationSessionId", {
+      billingName: "Billing Customer",
+      billingAddress: {
+        countryCode: "US",
+        postalCode: "94107",
+        state: "CA",
+        city: "San Francisco",
+        addressLine1: "123 Main Street",
+        addressLine2: "Apt 1",
+      },
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).toEqual({
+      billing_name: "Billing Customer",
+      billing_address: {
+        country_code: "US",
+        postal_code: "94107",
+        state: "CA",
+        city: "San Francisco",
+        address_line1: "123 Main Street",
+        address_line2: "Apt 1",
+      },
+    });
+  });
+
+  test("includes locale in request when provided", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutComplete("someOperationSessionId", {
+      locale: "es",
+    });
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.locale).toBe("es");
+  });
+
+  test("omits locale from request when not provided", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutComplete("someOperationSessionId");
+
+    expect(purchaseMethodAPIMock).toHaveBeenCalledTimes(1);
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.locale).toBeUndefined();
   });
 
   test("throws an error if the backend returns a server error", async () => {
@@ -1494,6 +2077,322 @@ describe("getVirtualCurrencies request", () => {
     setVirtualCurrenciesResponse(HttpResponse.error());
     await expectPromiseToError(
       backend.getVirtualCurrencies("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
+      ),
+    );
+  });
+});
+
+describe("getWorkflows request", () => {
+  const APP_USER_ID = "someAppUserId";
+  const WORKFLOWS_LIST_URL = `http://localhost:8000/v1/subscribers/${APP_USER_ID}/workflows?type=paywall`;
+
+  const workflowsListResponse = {
+    workflows: [
+      {
+        id: "wf_aaa111",
+        display_name: "Onboarding Workflow",
+        offering_id: "offering_default",
+        prefetch: true,
+      },
+      {
+        id: "wf_bbb222",
+        display_name: "Upsell Workflow",
+        offering_id: null,
+        prefetch: true,
+      },
+    ],
+    ui_config: {
+      app: { colors: {}, fonts: {} },
+      localizations: {},
+      variable_config: {},
+    },
+  };
+
+  function setWorkflowsListResponse(httpResponse: HttpResponse) {
+    server.use(http.get(WORKFLOWS_LIST_URL, () => httpResponse));
+  }
+
+  test("returns workflows list successfully", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(workflowsListResponse, { status: 200 }),
+    );
+    const result = await backend.getWorkflows(APP_USER_ID);
+    expect(result).toEqual(workflowsListResponse);
+  });
+
+  test("encodes app user ID in the URL", async () => {
+    const specialUserId = "user with spaces";
+    server.use(
+      http.get(
+        `http://localhost:8000/v1/subscribers/${encodeURIComponent(specialUserId)}/workflows?type=paywall`,
+        () => HttpResponse.json(workflowsListResponse, { status: 200 }),
+      ),
+    );
+    const result = await backend.getWorkflows(specialUserId);
+    expect(result).toEqual(workflowsListResponse);
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflows. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if the backend returns invalid API key error", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error with unknown error code in body", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(
+        { code: 1234567890, message: "Invalid error message" },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        'Request: getWorkflows. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error without error code in body", async () => {
+    setWorkflowsListResponse(
+      HttpResponse.json(null, { status: StatusCodes.BAD_REQUEST }),
+    );
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflows. Status code: 400. Body: null.",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setWorkflowsListResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.getWorkflows(APP_USER_ID),
+      new PurchasesError(
+        ErrorCode.NetworkError,
+        "Error performing request. Please check your network connection and try again.",
+        "Failed to fetch",
+      ),
+    );
+  });
+});
+
+describe("getWorkflowById request", () => {
+  const APP_USER_ID = "someAppUserId";
+  const WORKFLOW_ID = "wf_aaa111";
+  const WORKFLOW_BY_ID_URL = `http://localhost:8000/v1/subscribers/${APP_USER_ID}/workflows/${WORKFLOW_ID}`;
+
+  const workflowDataResponse = {
+    id: WORKFLOW_ID,
+    display_name: "Onboarding Workflow",
+    initial_step_id: "step_1",
+    steps: {
+      step_1: {
+        id: "step_1",
+        screen_id: "screen_welcome",
+        type: "screen",
+        param_values: {},
+        trigger_actions: {},
+        triggers: {},
+        outputs: {},
+        metadata: null,
+      },
+    },
+    screens: {
+      screen_welcome: {
+        name: "Welcome",
+        template_name: "template_a",
+        revision: 1,
+        asset_base_url: "https://assets.example.com",
+        components_config: {},
+        components_localizations: {},
+        default_locale: "en",
+        config: {},
+        offering_id: "off_abc",
+        offering_identifier: "default",
+        automatically_scale_font_size: null,
+        exit_offers: {},
+      },
+    },
+    ui_config: {},
+    content_max_width: null,
+    metadata: null,
+  };
+
+  function setWorkflowByIdResponse(httpResponse: HttpResponse) {
+    server.use(http.get(WORKFLOW_BY_ID_URL, () => httpResponse));
+  }
+
+  test("returns workflow data for inline response", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(
+        { action: "inline", data: workflowDataResponse },
+        { status: 200 },
+      ),
+    );
+    const result = await backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID);
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("returns workflow data when response has no action field (direct inline)", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(workflowDataResponse, { status: 200 }),
+    );
+    const result = await backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID);
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("fetches from CDN when use_cdn action is returned", async () => {
+    const cdnUrl = "https://cdn.example.com/workflow-abc.json";
+    setWorkflowByIdResponse(
+      HttpResponse.json({ action: "use_cdn", url: cdnUrl }, { status: 200 }),
+    );
+    server.use(
+      http.get(cdnUrl, () =>
+        HttpResponse.json(workflowDataResponse, { status: 200 }),
+      ),
+    );
+    const result = await backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID);
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("throws an error when CDN fetch fails", async () => {
+    const cdnUrl = "https://cdn.example.com/workflow-abc.json";
+    setWorkflowByIdResponse(
+      HttpResponse.json({ action: "use_cdn", url: cdnUrl }, { status: 200 }),
+    );
+    server.use(
+      http.get(cdnUrl, () =>
+        HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+      ),
+    );
+    await expect(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+    ).rejects.toThrow("Failed to fetch workflow from CDN");
+  });
+
+  test("encodes app user ID and workflow ID in the URL", async () => {
+    const specialUserId = "user/with/slashes";
+    const specialWorkflowId = "wf_special+id";
+    server.use(
+      http.get(
+        `http://localhost:8000/v1/subscribers/${encodeURIComponent(specialUserId)}/workflows/${encodeURIComponent(specialWorkflowId)}`,
+        () => HttpResponse.json(workflowDataResponse, { status: 200 }),
+      ),
+    );
+    const result = await backend.getWorkflowById(
+      specialUserId,
+      specialWorkflowId,
+    );
+    expect(result).toEqual(workflowDataResponse);
+  });
+
+  test("throws an error if the backend returns a server error", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
+    );
+    await expectPromiseToError(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflowData. Status code: 500. Body: null.",
+      ),
+    );
+  });
+
+  test("throws a known error if the backend returns invalid API key error", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendInvalidAPIKey,
+          message: "API key was wrong",
+        },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+      new PurchasesError(
+        ErrorCode.InvalidCredentialsError,
+        "There was a credentials issue. Check the underlying error for more details.",
+        "API key was wrong",
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error with unknown error code in body", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(
+        { code: 1234567890, message: "Invalid error message" },
+        { status: StatusCodes.BAD_REQUEST },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        'Request: getWorkflowData. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
+      ),
+    );
+  });
+
+  test("throws unknown error if the backend returns a request error without error code in body", async () => {
+    setWorkflowByIdResponse(
+      HttpResponse.json(null, { status: StatusCodes.BAD_REQUEST }),
+    );
+    await expectPromiseToError(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getWorkflowData. Status code: 400. Body: null.",
+      ),
+    );
+  });
+
+  test("throws network error if cannot reach server", async () => {
+    setWorkflowByIdResponse(HttpResponse.error());
+    await expectPromiseToError(
+      backend.getWorkflowById(APP_USER_ID, WORKFLOW_ID),
       new PurchasesError(
         ErrorCode.NetworkError,
         "Error performing request. Please check your network connection and try again.",

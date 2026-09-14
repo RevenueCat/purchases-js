@@ -1,3 +1,507 @@
+## 1.60.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Make express checkout optional (#1123) via Burdock (@lburdock)
+
+### 🔄 Other Changes
+* Add Stripe elements loading time logging (#1132) via Burdock (@lburdock)
+
+## 1.60.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(paywalls): Add onInteraction to PaywallListener (#1109) via Álvaro Brey (@AlvaroBrey)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane from 2.238.0 to 2.239.0 (#1129) via dependabot[bot] (@dependabot[bot])
+* Add dependency-update action to bump purchases-ui-js (#1128) via Facundo Menzella (@facumenzella)
+
+## 1.59.0
+## RevenueCat SDK
+### ✨ New Features
+* Bump purchases-ui-js to 4.8.22 (#1126) via Facundo Menzella (@facumenzella)
+### 🐞 Bugfixes
+* fix(paddle): localize hardcoded strings in the inline checkout (#1125) via Roger Solé (@rogersole)
+* fix: send X-Is-Sandbox header when using a Test Store API key (#1120) via Álvaro Brey (@AlvaroBrey)
+
+### 🔄 Other Changes
+* ci: bump external PR notifications workflow to v8 (#1119) via Álvaro Brey (@AlvaroBrey)
+* ci: notify external PRs feed on PRs from outside the org (#1118) via Álvaro Brey (@AlvaroBrey)
+
+## 1.58.0
+## RevenueCat SDK
+### ✨ New Features
+* Return billing email on PurchaseResult (#1104) via Franco Correa (@francocorreasosa)
+### 🐞 Bugfixes
+* Fix Apple Pay presentation for paid introductory offers (#1059) via Nicola Sacco (@nicfix)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* DX-999 | bump purchases-ui-js version to 4.8.21 (#1115) via Sufi Gaffar (@sufigaffar)
+
+## 1.57.0
+## RevenueCat SDK
+### ✨ New Features
+* PWENG-229 Thread PaywallContext packages from presentPaywall (#1098) via Franco Correa (@francocorreasosa)
+
+## 1.56.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-4653] Forward external purchase token IDs to checkout (#1106) via Nicola Sacco (@nicfix)
+### 📦 Dependency Updates
+* chore: bumped vite and axios versions in the demo app (#1108) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* Support Stripe app product upgrades (#1093) via Burdock (@lburdock)
+* Skip stale real tax e2e until 2026-10-31 (#1107) via Franco Correa (@francocorreasosa)
+
+## 1.55.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(paddle): forward discountCode to Paddle Checkout (#1102) via Víctor Ferrer García (@vicfergar)
+* feat: add trackCustomPaywallImpression() function (#1092) via Will Taylor (@fire-at-will)
+
+### 🔄 Other Changes
+* Product-change checkout tweaks (#1100) via James O'Donnell (@james-od)
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `7dd9ab9` to `6db1da0` (#1101) via dependabot[bot] (@dependabot[bot])
+
+## 1.54.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(singular): add $singularDeviceId reserved customer attribute (#1080) via Guillem Corominas (@guillemcorominas)
+* [EXTERNAL] Allow Paddle checkout settings to carry non-boolean values (#1077) via @alepacheco (#1079) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Support unused credit copy on the upgrade checkout UI (#1084) via Burdock (@lburdock)
+* chore: drop the unused api-extractor doc model (#1085) via Álvaro Brey (@AlvaroBrey)
+* Adopt shared Renovate config (#1078) via Álvaro Brey (@AlvaroBrey)
+* Update sdks-common-config orb to v4.6.1 (#1076) via Antonio Pallares (@ajpallares)
+* chore: drop unused npm deps (#1069) via Nihal Gonsalves (@nihalgonsalves)
+* ci: enable turbosnap (#1070) via Nihal Gonsalves (@nihalgonsalves)
+
+## 1.53.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* "No Offering" placement not returning null (#1066) via Guilherme (@GuilhermeMota93)
+
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* WFL-486 | Make sure custom variable overrides are taken into accounts (#1067) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `7fbbe66` to `7dd9ab9` (#1064) via dependabot[bot] (@dependabot[bot])
+
+## 1.53.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-4597 Allow runtime purchase appearance overrides (#1054) via Nicola Sacco (@nicfix)
+* Paddle Metadata (#1055) via HaleyRevcat (@HaleyRevcat)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane from 2.237.0 to 2.238.0 (#1056) via dependabot[bot] (@dependabot[bot])
+
+## 1.52.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* WEB-4553 Expose the alternative redemption redirect URL (#1049) via Nicola Sacco (@nicfix)
+
+## 1.52.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Block multiple purchase inits (#1045) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* [WEB-4530] Improved product change checkout (#1042) via James O'Donnell (@james-od)
+
+## 1.52.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* [WEB-4590] Scope placement product fetches to resolved offerings (#1041) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* [WEB-4582] Demo page for product change from paywall (#1036) via James O'Donnell (@james-od)
+* [WEB-4571] Fold sub-change checkout into /start and /complete (#1029) via James O'Donnell (@james-od)
+
+## 1.52.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(paddle): apply configurable Paddle checkout settings (WST-912) (#1027) via Roger Solé (@rogersole)
+### 🐞 Bugfixes
+* fix(paddle): count the next charge date from the intro/trial phase (#1032) via Roger Solé (@rogersole)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `b4e1e7f` to `7fbbe66` (#1034) via dependabot[bot] (@dependabot[bot])
+
+## 1.51.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix(paywalls): pass infoPerPackage when mounting Workflow (#1026) via Franco Correa (@francocorreasosa)
+### 📦 Dependency Updates
+* chore: bump purchases-ui-js to 4.8.16 (#1030) via Franco Correa (@francocorreasosa)
+
+## 1.51.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Fix checkout consent checkbox sizing (#1007) via Nicola Sacco (@nicfix)
+* [EXTERNAL] fix: align normalized prices with native SDKs (#1014) contributed by @luciemdx (#1015) via Toni Rico (@tonidero)
+
+### 🔄 Other Changes
+* [WEB-4567] Support subId and/or prodId for subscription changes (#1025) via James O'Donnell (@james-od)
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `dd577ee` to `b4e1e7f` (#1021) via dependabot[bot] (@dependabot[bot])
+* chore(deps): bump danger from 9.6.0 to 9.6.1 (#1016) via dependabot[bot] (@dependabot[bot])
+* [WEB-4545] Improved product changes API (#1008) via James O'Donnell (@james-od)
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `3421c88` to `dd577ee` (#1009) via dependabot[bot] (@dependabot[bot])
+
+## 1.51.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(checkout): show custom legal footer (#997) via Nicola Sacco (@nicfix)
+
+## 1.50.0
+## RevenueCat SDK
+### ✨ New Features
+* WFL-384 | Enable support for multipage paywalls (#1004) via Rosie Watson (@RosieWatson)
+* [WEB-4522] Upgrade checkout UI (#996) via James O'Donnell (@james-od)
+
+## 1.49.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix: Extend web billing operation polling timeout (#1002) via Nicola Sacco (@nicfix)
+* Fix unbounded product detail request URLs (#998) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `d392939` to `3421c88` (#1000) via dependabot[bot] (@dependabot[bot])
+* Setup mise for Node and Ruby (#994) via Álvaro Brey (@AlvaroBrey)
+
+## 1.49.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-4507] Fall back to the app-config terms URL in checkout (#992) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `b52fca5` to `d392939` (#993) via dependabot[bot] (@dependabot[bot])
+
+## 1.48.1
+### 🔄 Other Changes
+* feat: forward funnel url parameters on checkout start (#985) via Patrick Rills (@patrickrills)
+
+## 1.48.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-4481] Support consent checkbox at checkout (#979) via James O'Donnell (@james-od)
+### 📦 Dependency Updates
+* chore: bump purchases-ui-js to 4.8.11 (#987) via Jamie Holwill (@jholwill)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `9b928b6` to `b52fca5` (#984) via dependabot[bot] (@dependabot[bot])
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `dab6765` to `9b928b6` (#980) via dependabot[bot] (@dependabot[bot])
+* ci: bump sdks-common-config orb to 4.5.0 (#978) via Antonio Pallares (@ajpallares)
+
+## 1.47.3
+## RevenueCat SDK
+### 📦 Dependency Updates
+* chore: bump purchases-ui-js to 4.8.6 (#974) via Jamie Holwill (@jholwill)
+
+## 1.47.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Bumping purchases-ui-js to the latest version (#969) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane from 2.236.1 to 2.237.0 (#971) via dependabot[bot] (@dependabot[bot])
+
+## 1.47.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* [WEB-4448] Track correct package after purchase (#968) via James O'Donnell (@james-od)
+
+## 1.47.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-4434] feat: collect full billing address for tax-relevant countries (#960) via Víctor Ferrer García (@vicfergar)
+* [WEB-4425] Use branding settings logo in apple pay sheet (#959) via James O'Donnell (@james-od)
+* [WEB-4322] feat(stripe): Collect and send the full billing address for tax calculation (#953) via Víctor Ferrer García (@vicfergar)
+* Expose autoResumeDate on SubscriptionInfo (#957) via Álvaro Brey (@AlvaroBrey)
+### 🐞 Bugfixes
+* Fix webbilling-demo trial badge to format every trial duration (#955) via Volodymyr Kartavyi (@vkartaviy)
+
+### 🔄 Other Changes
+* chore(deps): bump danger from 9.5.3 to 9.6.0 (#965) via dependabot[bot] (@dependabot[bot])
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `d911a06` to `dab6765` (#964) via dependabot[bot] (@dependabot[bot])
+* WFL-382 | Include tracking for workflows (#963) via Rosie Watson (@RosieWatson)
+* chore(deps): bump concurrent-ruby from 1.3.5 to 1.3.7 (#946) via dependabot[bot] (@dependabot[bot])
+* chore(deps): bump faraday from 1.10.5 to 1.10.6 (#958) via dependabot[bot] (@dependabot[bot])
+* chore: add CODEOWNERS (#961) via Álvaro Brey (@AlvaroBrey)
+* chore(deps): bump fastlane from 2.232.1 to 2.236.1 (#936) via dependabot[bot] (@dependabot[bot])
+* WFL-377 | Make it easier to test web paywalls (#956) via Rosie Watson (@RosieWatson)
+
+## 1.46.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-4012 Add checkout back button visibility flag (#951) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* WEB-4366: Add billing CTA text color override (#912) via Ed Shelley (@MrEdwardo)
+
+## 1.45.0
+## RevenueCat SDK
+### ✨ New Features
+* Expose express purchase button API (#948) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* fix(stripe): show app name in express checkout (#949) via Nicola Sacco (@nicfix)
+
+## 1.44.0
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Show correctly discounted price in footer (#894) via Burdock (@lburdock)
+
+## 1.43.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix(purchases-js): use default product background for Stripe Billing (#944) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* Bump sdks-common-config orb to 4.1.0 (#943) via Álvaro Brey (@AlvaroBrey)
+* feat: send paywallSessionId in checkout/start (#939) via Deema AlShamaa (@dalshamaa)
+* Migrate update_error_codes to the outputs parameter (#942) via Álvaro Brey (@AlvaroBrey)
+* Update sdks-common-config orb to 3.21.2 (#941) via Antonio Pallares (@ajpallares)
+* chore: Add 3-day Dependabot cooldown, excluding fastlane plugin (#934) via Toni Rico (@tonidero)
+
+## 1.43.0
+## RevenueCat SDK
+### ✨ New Features
+* Add Slovenian support for paywalls (#932) via Monika Mateska (@MonikaMateska)
+* [WEB-4279] Discount line items in native wallets (#905) via James O'Donnell (@james-od)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* WFL-217 | Add support for workflows endpoints (#913) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* [AUTOMATIC] Update generated error codes (#931) via RevenueCat Git Bot (@RCGitBot)
+* Danger: block manual edits to generated error codes (#930) via Álvaro Brey (@AlvaroBrey)
+* Add update-error-codes workflow (#926) via Álvaro Brey (@AlvaroBrey)
+* test(e2e): add full Paddle E2E coverage to webbilling-demo (WST-564) (#925) via Roger Solé (@rogersole)
+
+## 1.42.4
+## RevenueCat SDK
+### 🐞 Bugfixes
+* feat: expose Purchases.buildInfoPerPackage for workflows (#921) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* Adopt generated error codes (#915) via Álvaro Brey (@AlvaroBrey)
+
+## 1.42.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix: waiting after filling the credit card form to make sure that all the animations are done (#908) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* test(purchases-js): cover paywall customerEmail checkout flows (#914) via Nicola Sacco (@nicfix)
+* feat(paddle): gate inline checkout behind per-project backend flag (WST-700) (#911) via Roger Solé (@rogersole)
+* feat(paddle): map branding to inline checkout theme (WST-567 PR 4) (#899) via Roger Solé (@rogersole)
+* feat(paddle): inline checkout processing state after completion (WST-567 PR 3) (#898) via Roger Solé (@rogersole)
+* feat(paddle): inline checkout support at the service layer (WST-567 PR 1) (#896) via Roger Solé (@rogersole)
+
+## 1.42.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* chore: bump @stripe/stripe-js to v9 (dahlia) (#907) via Volodymyr Kartavyi (@vkartaviy)
+
+## 1.42.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 4.7.2 (#902) via Monika Mateska (@MonikaMateska)
+
+## 1.42.0
+## RevenueCat SDK
+### ✨ New Features
+* Add presented offering context to paywall events (#818) via Rick (@rickvdl)
+### 🐞 Bugfixes
+* [WEB-4304] fix: Force billing address collection in Express Checkout element (#891) via Víctor Ferrer García (@vicfergar)
+
+### 🔄 Other Changes
+* Bump jwt from 2.10.2 to 2.10.3 (#895) via dependabot[bot] (@dependabot[bot])
+
+## 1.41.2
+## RevenueCat SDK
+### 🐞 Bugfixes
+* [WEB-4282] Hide "Total excluding tax" when no tax (#886) via James O'Donnell (@james-od)
+* fix: fall back to fallback_offering_id when offering_ids_by_placement is omitted (#885) via Tarek M. Ben Lechhab (@bilqisium)
+* Fix: Asterisks in markdown — Update purchases-ui-js (#887) via Jacob Rakidzich (@JZDesign)
+
+## 1.41.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Migrated to using stripe pure (#882) via Nicola Sacco (@nicfix)
+
+### 🔄 Other Changes
+* FUN-2196: Add attribution metadata input channel to purchases.purchase() (#875) via Jamie Holwill (@jholwill)
+
+## 1.41.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-3760] Terms copy for discounts (#879) via James O'Donnell (@james-od)
+* [WEB-4224] Simplify checkout refresh after applying code (#865) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* [WST-609] Add Stripe day-unit trial coverage for paywall variables (#874) via Volodymyr Kartavyi (@vkartaviy)
+
+## 1.40.0
+## RevenueCat SDK
+### ✨ New Features
+* Bump purchases-ui-js to 4.5.1 (#872) via Franco Correa (@francocorreasosa)
+
+## 1.39.1
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* Paywalls | Update purchases-ui-js to support visibility from custom variables w/tests (#870) via Rosie Watson (@RosieWatson)
+
+## 1.39.0
+## RevenueCat SDK
+### ✨ New Features
+* Add galaxy store to Store type (#866) via Toni Rico (@tonidero)
+### 🐞 Bugfixes
+* Add displayName and price to SubscriptionInfo (#868) via andsolleiro (@andsolleiro)
+* [WEB-3962] Show discount percentage and duration at checkout (#863) via James O'Donnell (@james-od)
+
+## 1.38.0
+### 🔄 Other Changes
+* Handle background safe area colors via purchases-ui-js@4.1.0 (#860) via Jamie Holwill (@jholwill)
+
+## 1.37.0
+## RevenueCat SDK
+### ✨ New Features
+* Add express checkout theme support (#861) via Marek Dabek (@marek-dabek)
+* Add `productPlanIdentifier` to `SubscriptionInfo` (#859) via Toni Rico (@tonidero)
+* [WEB-4171] Discount input (#849) via James O'Donnell (@james-od)
+* feat: Add PaywallListener for purchase lifecycle callbacks (#804) via Toni Rico (@tonidero)
+
+### 🔄 Other Changes
+* Docs: local dev linking for @revenuecat/purchases-ui-js (#850) via Monika Mateska (@MonikaMateska)
+* Track paywall component interaction events (#837) via Jacob Rakidzich (@JZDesign)
+
+## 1.36.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-4179] Add public paywall availability to offerings (#852) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 3.12.0 (#855) via Franco Correa (@francocorreasosa)
+
+## 1.35.1
+## RevenueCat SDK
+### 📦 Dependency Updates
+* Bump purchases-ui-js version (#851) via Marek Dabek (@marek-dabek)
+
+## 1.35.0
+## RevenueCat SDK
+### 📦 Dependency Updates
+* Bump purchases-ui-js version (#851) via Marek Dabek (@marek-dabek)
+
+## 1.35.0
+## RevenueCat SDK
+### ✨ New Features
+* [WEB-3965] Fix offer variables in paywalls (#846) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Guard against accidental version bumps outside release branches (#847) via Toni Rico (@tonidero)
+
+## 1.34.0
+## RevenueCatUI SDK
+### ✨ New Features
+* WFL-26 | Bump purchases-ui-js to add support for header component (#841) via Rosie Watson (@RosieWatson)
+### 🐞 Bugfixes
+* Bump purchases-ui-js to 3.11.1 (#843) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* Only preload Stripe module for Stripe-based API keys (#844) via Toni Rico (@tonidero)
+
+## 1.33.0
+## RevenueCat SDK
+### ✨ New Features
+* FUN-2156: Update purchases-js to support new onCompleteWorkflowNavigate param (#838) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* FUN-2085: Pass attribution metadata through purchase results (#827) via Jamie Holwill (@jholwill)
+* Bump fastlane-plugin-revenuecat_internal (#834) via Antonio Pallares (@ajpallares)
+
+## 1.32.0
+## RevenueCat SDK
+### ✨ New Features
+* Pass checkout locale to /checkout/start (#826) via Volodymyr Kartavyi (@vkartaviy)
+
+### 🔄 Other Changes
+* Fix for package.json version that drifted from .version file (#835) via Nicola Sacco (@nicfix)
+
+## 1.31.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-3903: Stripe Checkout branding support (#828) via Nicola Sacco (@nicfix)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* PW-1201 | Bump `purchases-ui-js` package to enable promo text overrides for discounts (#832) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* Refactor checkoutStart/postCheckoutStart to use params objects (#825) via Volodymyr Kartavyi (@vkartaviy)
+* Fix package.json to reflect correct version (#824) via Toni Rico (@tonidero)
+* Merge release PR after deploy (#812) via Antonio Pallares (@ajpallares)
+
+## 1.30.0
+## RevenueCat SDK
+### ✨ New Features
+* Refactor wallet button renderer (#810) via Marek Dabek (@marek-dabek)
+### 🐞 Bugfixes
+* Add font-family to simulated store modal (#809) via Perttu (@plahteenlahti)
+* Fix price-per-period rounding to floor instead of round-half-up (#807) via Dan Pannasch (@dpannasch)
+
+### 🔄 Other Changes
+* Require PR approval before release tagging (#811) via Antonio Pallares (@ajpallares)
+* PW-1121 | Add paywall events (impression, close, cancel) (#806) via Drago Crnjac (@popcorn)
+
+## 1.29.0
+## RevenueCat SDK
+### ✨ New Features
+* WEB-3784: Add Stripe Checkout for internal testing - coming soon (#768) via Nicola Sacco (@nicfix)
+* Add storeLoadTime flag to defer store module loading (#796) via Toni Rico (@tonidero)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* PW-874 | Support visibility overrides (#801) via Rosie Watson (@RosieWatson)
+
+## 1.28.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(paywalls): PW-987 add support for Custom Variables (#783) via Azat Valiev (@azvaliev)
+### 🐞 Bugfixes
+* Fix relative discount calculation to exclude non-subscription packages (#786) via Tarek M. Ben Lechhab (@bilqisium)
+
+## RevenueCatUI SDK
+### ✨ New Features
+* PW-1097 | Add support for number and boolean Custom Variables (#797) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* Send `paywall_id` to server when starting a checkout session (#750) via Toni Rico (@tonidero)
+* Delay stripe import until SDK configuration (#765) via Toni Rico (@tonidero)
+
+## 1.27.0
+### 🔄 Other Changes
+* Update sdks-common-config orb to 3.13.0 (#794) via Cesar de la Vega (@vegaro)
+* [EXTERNAL] chore: update linking docs to pnpm by @candrepa1  (#791) (#793) via Nicola Sacco (@nicfix)
+
+## 1.26.4
+### 🔄 Other Changes
+* Allow httpConfig to set the eventsURL destination (#769) via Jamie Holwill (@jholwill)
+* [WEB-3797] feat: Add discount code support to product/offerings fetch (experimental) (#785) via Víctor Ferrer García (@vicfergar)
+* Adding support for the new discount fields returned by khepri (#782) via Nicola Sacco (@nicfix)
+
+## 1.26.3
+## RevenueCat SDK
+### 🐞 Bugfixes
+* [WEB-3781] simplify discounts aproach v2 (#773) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* Fix purchase flow e2e tests (#777) via James O'Donnell (@james-od)
+
 ## 1.26.2
 ## RevenueCat SDK
 ### 🐞 Bugfixes

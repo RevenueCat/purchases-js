@@ -25,4 +25,13 @@ export interface GetOfferingsParams {
    * Can be a string identifier or one of the predefined keywords.
    */
   readonly offeringIdentifier?: string | OfferingKeyword;
+
+  /**
+   * The discount code to use when fetching the offerings.
+   *
+   * @internal
+   * @experimental
+   * This parameter is experimental and not publicly available yet.
+   */
+  readonly discountCode?: string;
 }

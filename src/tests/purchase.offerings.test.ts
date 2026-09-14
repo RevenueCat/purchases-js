@@ -3,18 +3,26 @@ import {
   createConsumablePackageMock,
   createMonthlyPackageMock,
 } from "./mocks/offering-mock-provider";
-import { configurePurchases } from "./base.purchases_test";
+import { configurePurchases, server } from "./base.purchases_test";
 import {
   type Offering,
   type Offerings,
   type Package,
   PackageType,
   ProductType,
+  toOffering,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { OfferingKeyword } from "../entities/get-offerings-params";
 import { trialPhaseP1W } from "./fixtures/price-phases";
+import {
+  APIGetRequest,
+  offeringsArray,
+  productsResponse,
+} from "./test-responses";
+import type { PaywallData } from "@revenuecat/purchases-ui-js";
+import { http, HttpResponse } from "msw";
 
 describe("getOfferings", () => {
   const expectedMonthlyPackage = createMonthlyPackageMock();
@@ -36,10 +44,10 @@ describe("getOfferings", () => {
         formattedPrice: "$5.00",
       },
       pricePerWeek: {
-        amount: 116.6667,
-        amountMicros: 1166667,
+        amount: 115,
+        amountMicros: 1150000,
         currency: "USD",
-        formattedPrice: "$1.17",
+        formattedPrice: "$1.15",
       },
       pricePerMonth: {
         amount: 500,
@@ -48,10 +56,10 @@ describe("getOfferings", () => {
         formattedPrice: "$5.00",
       },
       pricePerYear: {
-        amount: 6083.3333,
-        amountMicros: 60833333,
+        amount: 6000,
+        amountMicros: 60000000,
         currency: "USD",
-        formattedPrice: "$60.83",
+        formattedPrice: "$60.00",
       },
     },
     trial: trialPhaseP1W,
@@ -64,6 +72,7 @@ describe("getOfferings", () => {
     const offerings = await purchases.getOfferings();
 
     const currentOffering: Offering = {
+      hasPaywall: false,
       paywallComponents: null,
       serverDescription: "Offering 1",
       identifier: "offering_1",
@@ -132,6 +141,7 @@ describe("getOfferings", () => {
       all: {
         offering_1: currentOffering,
         offering_2: {
+          hasPaywall: false,
           paywallComponents: null,
           serverDescription: "Offering 2",
           identifier: "offering_2",
@@ -208,6 +218,7 @@ describe("getOfferings", () => {
     const expectedOfferings: Offerings = {
       all: {
         offering_1: {
+          hasPaywall: false,
           paywallComponents: null,
           serverDescription: "Offering 1",
           identifier: "offering_1",
@@ -225,6 +236,7 @@ describe("getOfferings", () => {
           weekly: null,
         },
         offering_2: {
+          hasPaywall: false,
           paywallComponents: null,
           serverDescription: "Offering 2",
           identifier: "offering_2",
@@ -255,6 +267,7 @@ describe("getOfferings", () => {
     const packageWithoutTargeting = createMonthlyPackageMock(null);
 
     const offering_1: Offering = {
+      hasPaywall: false,
       paywallComponents: null,
       serverDescription: "Offering 1",
       identifier: "offering_1",
@@ -286,6 +299,7 @@ describe("getOfferings", () => {
     const offerings = await purchases.getOfferings();
     const expectedConsumablePackage = createConsumablePackageMock();
     const expectedOffering: Offering = {
+      hasPaywall: false,
       paywallComponents: null,
       serverDescription: "Offering consumable",
       identifier: "offering_consumables",
@@ -320,6 +334,23 @@ describe("getOfferings", () => {
     expect(offeringProduct?.discountPhase).toBeNull();
   });
 
+  test("sets hasPaywall when paywall data exists", () => {
+    const offering = toOffering(
+      true,
+      {
+        ...offeringsArray[0],
+        paywall_components: { id: "paywall_123" } as PaywallData,
+      },
+      {
+        [productsResponse.product_details[0].identifier]:
+          productsResponse.product_details[0],
+      },
+    );
+
+    expect(offering).not.toBeNull();
+    expect(offering?.hasPaywall).toBe(true);
+  });
+
   test("gets offerings with valid currency", async () => {
     const purchases = configurePurchases();
     await purchases.getOfferings({ currency: "EUR" }).then(
@@ -339,6 +370,31 @@ describe("getOfferings", () => {
         expect(e.errorCode).toEqual(ErrorCode.ConfigurationError);
       },
     );
+  });
+
+  test("gets offerings with discountCode", async () => {
+    const purchases = configurePurchases();
+    await purchases.getOfferings({ discountCode: "SUMMER2024" }).then(
+      (offerings) => {
+        expect(offerings.current).not.toBeNull();
+      },
+      () => assert.fail("Getting offerings with discountCode failed"),
+    );
+  });
+
+  test("gets offerings with both currency and discountCode", async () => {
+    const purchases = configurePurchases();
+    await purchases
+      .getOfferings({ currency: "EUR", discountCode: "SUMMER2024" })
+      .then(
+        (offerings) => {
+          expect(offerings.current).not.toBeNull();
+        },
+        () =>
+          assert.fail(
+            "Getting offerings with currency and discountCode failed",
+          ),
+      );
   });
 
   test("can get offerings with a specific offering identifier", async () => {
@@ -397,6 +453,7 @@ describe("getOfferings", () => {
     const expectedOfferings: Offerings = {
       all: {
         offering_2: {
+          hasPaywall: false,
           serverDescription: "Offering 2",
           identifier: "offering_2",
           metadata: null,
@@ -440,6 +497,7 @@ describe("getOfferings", () => {
       twoMonth: null,
       monthly: expectedMonthlyPackage,
       weekly: null,
+      hasPaywall: false,
       paywallComponents: null,
       uiConfig: undefined,
     };
@@ -500,8 +558,8 @@ describe("getOfferings", () => {
           formattedPrice: "$1.99",
         },
         pricePerMonth: expect.objectContaining({ amountMicros: 1990000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 464333 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 24211667 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 450000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 23880000 }),
       };
 
       // Convenience accessors for the intro price phase
@@ -537,8 +595,8 @@ describe("getOfferings", () => {
           formattedPrice: "$4.99",
         },
         pricePerMonth: expect.objectContaining({ amountMicros: 4990000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 1164333 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 60711667 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 1140000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 59880000 }),
       };
 
       // Convenience accessors for the trial phase
@@ -608,9 +666,9 @@ describe("getOfferings", () => {
           currency: "USD",
           formattedPrice: "$6.99",
         },
-        pricePerMonth: expect.objectContaining({ amountMicros: 1165000 }),
-        pricePerWeek: expect.objectContaining({ amountMicros: 271833 }),
-        pricePerYear: expect.objectContaining({ amountMicros: 14174167 }),
+        pricePerMonth: expect.objectContaining({ amountMicros: 1160000 }),
+        pricePerWeek: expect.objectContaining({ amountMicros: 260000 }),
+        pricePerYear: expect.objectContaining({ amountMicros: 13980000 }),
       });
     });
 
@@ -649,6 +707,9 @@ describe("getOfferings", () => {
         },
         period: { number: 1, unit: PeriodUnit.Month },
         cycleCount: 1,
+        discountType: "percentage",
+        percentage: 20,
+        fixedAmount: null,
       };
 
       expect(defaultSubscriptionOption?.discount).toStrictEqual(
@@ -690,6 +751,9 @@ describe("getOfferings", () => {
         },
         period: null,
         cycleCount: 0,
+        discountType: "percentage",
+        percentage: 20,
+        fixedAmount: null,
       };
 
       expect(defaultNonSubscriptionOption?.discount).toStrictEqual(
@@ -701,6 +765,43 @@ describe("getOfferings", () => {
       expect(freeTrialPhase).toBeNull();
       expect(introPricePhase).toBeNull();
       expect(defaultSubscriptionOption).toBeNull();
+    });
+
+    test("can parse offerings with fixed amount discount", async () => {
+      const purchases = configurePurchases("appUserIdWithFixedAmountDiscount");
+      const offerings = await purchases.getOfferings();
+
+      const { defaultSubscriptionOption, discountPhase } =
+        offerings.all["offering_fixed_amount_discount"].availablePackages[0]
+          .webBillingProduct;
+
+      const expectedDiscount = {
+        durationMode: "one_time",
+        timeWindow: null,
+        periodDuration: "P1M",
+        name: "$2.50 Off",
+        price: {
+          amount: 750,
+          amountMicros: 7500000,
+          currency: "USD",
+          formattedPrice: "$7.50",
+        },
+        period: { number: 1, unit: PeriodUnit.Month },
+        cycleCount: 1,
+        discountType: "fixed_amount",
+        percentage: null,
+        fixedAmount: {
+          amount: 250,
+          amountMicros: 2500000,
+          currency: "USD",
+          formattedPrice: "$2.50",
+        },
+      };
+
+      expect(defaultSubscriptionOption?.discount).toStrictEqual(
+        expectedDiscount,
+      );
+      expect(discountPhase).toStrictEqual(expectedDiscount);
     });
 
     test("can parse offerings with time window discount", async () => {
@@ -724,6 +825,9 @@ describe("getOfferings", () => {
         },
         period: { number: 1, unit: PeriodUnit.Month },
         cycleCount: 3,
+        discountType: "percentage",
+        percentage: 30,
+        fixedAmount: null,
       };
 
       expect(defaultSubscriptionOption?.discount).toStrictEqual(
@@ -753,6 +857,9 @@ describe("getOfferings", () => {
         },
         period: { number: 1, unit: PeriodUnit.Month },
         cycleCount: 0,
+        discountType: "percentage",
+        percentage: 40,
+        fixedAmount: null,
       };
       expect(defaultSubscriptionOption?.discount).toStrictEqual(
         expectedDiscount,
@@ -775,11 +882,36 @@ describe("getOfferings placements", () => {
     ).toEqual("missing_placement_id");
   });
 
-  test("gets null offering if placement id has null offering id", async () => {
+  test("gets null offering when placement is explicitly set to No Offering, even with a fallback configured", async () => {
     const purchases = configurePurchases();
     const offeringWithPlacement =
       await purchases.getCurrentOfferingForPlacement("test_null_placement_id");
     expect(offeringWithPlacement).toBeNull();
+  });
+
+  test("does not fetch any products when placement is explicitly set to No Offering", async () => {
+    const purchases = configurePurchases();
+    await purchases.getCurrentOfferingForPlacement("test_null_placement_id");
+    const productsUrl =
+      "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products";
+    const productRequests = APIGetRequest.mock.calls.filter(([request]) =>
+      request.url.startsWith(productsUrl),
+    );
+    expect(productRequests).toHaveLength(0);
+  });
+
+  test("gets fallback offering if placement id maps to a non-existent offering", async () => {
+    const purchases = configurePurchases();
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement(
+        "test_unknown_offering_placement_id",
+      );
+    expect(offeringWithPlacement).not.toBeNull();
+    expect(offeringWithPlacement?.identifier).toEqual("offering_1");
+    expect(
+      offeringWithPlacement!.availablePackages[0].webBillingProduct
+        .presentedOfferingContext.placementIdentifier,
+    ).toEqual("test_unknown_offering_placement_id");
   });
 
   test("gets correct offering if placement id is valid", async () => {
@@ -792,5 +924,140 @@ describe("getOfferings placements", () => {
       offeringWithPlacement!.availablePackages[0].webBillingProduct
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("test_placement_id");
+  });
+
+  test("scopes product requests to the placement offering", async () => {
+    const appUserId = "appUserIdWithCurrentPlacementNoFallback";
+    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
+    server.use(
+      http.get(productsUrl, ({ request }) => {
+        APIGetRequest({ url: request.url });
+        const requestedProductIds = new URL(request.url).searchParams.getAll(
+          "id",
+        );
+
+        // Simulate currency resolution selecting an unrelated product when both
+        // offerings are requested, while a scoped request falls back to the
+        // placement offering's available currency.
+        const returnedProductIds = requestedProductIds.includes("monthly")
+          ? ["monthly"]
+          : requestedProductIds;
+        return HttpResponse.json({
+          product_details: productsResponse.product_details.filter((product) =>
+            returnedProductIds.includes(product.identifier),
+          ),
+        });
+      }),
+    );
+
+    const purchases = configurePurchases(appUserId);
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("upgrade_button", {
+        offeringIdentifier: OfferingKeyword.Current,
+      });
+
+    expect(offeringWithPlacement?.identifier).toEqual("offering_2");
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly_2`,
+    });
+    expect(APIGetRequest).not.toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly&id=monthly_2`,
+    });
+  });
+
+  test("fetches fallback products separately when placement products are missing", async () => {
+    const appUserId = "appUserIdWithMissingProducts";
+    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
+    const purchases = configurePurchases(appUserId);
+
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(offeringWithPlacement?.identifier).toEqual("offering_1");
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly_2`,
+    });
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly`,
+    });
+    expect(APIGetRequest).not.toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly&id=monthly_2`,
+    });
+  });
+
+  test("forwards currency and discount code when fetching placement products", async () => {
+    const appUserId = "appUserIdWithCurrentPlacementNoFallback";
+    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
+    const purchases = configurePurchases(appUserId);
+
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("upgrade_button", {
+        currency: "USD",
+        discountCode: "SUMMER2024",
+      });
+
+    expect(offeringWithPlacement?.identifier).toEqual("offering_2");
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly_2&currency=USD&discount_code=SUMMER2024`,
+    });
+  });
+
+  test("fetches products once when placement and fallback use the same offering", async () => {
+    const appUserId = "appUserIdWithMatchingPlacementAndFallback";
+    const productsUrl = `http://localhost:8000/rcbilling/v1/subscribers/${appUserId}/products`;
+    const purchases = configurePurchases(appUserId);
+
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(offeringWithPlacement).toBeNull();
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `${productsUrl}?id=monthly`,
+    });
+    expect(
+      APIGetRequest.mock.calls.filter(
+        ([request]) => request.url === `${productsUrl}?id=monthly`,
+      ),
+    ).toHaveLength(1);
+  });
+
+  test("gets fallback offering when offering_ids_by_placement is omitted", async () => {
+    const purchases = configurePurchases("appUserIdWithPlacementsFallbackOnly");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("any_placement_id");
+    expect(offeringWithPlacement).not.toBeNull();
+    expect(offeringWithPlacement?.identifier).toEqual("offering_1");
+    expect(
+      offeringWithPlacement!.availablePackages[0].webBillingProduct
+        .presentedOfferingContext.placementIdentifier,
+    ).toEqual("any_placement_id");
+  });
+
+  test("gets null offering when placement has null offering id and no fallback is set", async () => {
+    const purchases = configurePurchases("appUserIdWithPlacementsNoFallback");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("test_null_placement_id");
+    expect(offeringWithPlacement).toBeNull();
+  });
+
+  test("gets null offering when placement id is missing and no fallback is set", async () => {
+    const purchases = configurePurchases("appUserIdWithPlacementsNoFallback");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("missing_placement_id");
+    expect(offeringWithPlacement).toBeNull();
+  });
+
+  test("gets null offering when fallback offering id does not exist in offerings", async () => {
+    const purchases = configurePurchases("appUserIdWithInvalidFallback");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("any_placement_id");
+    expect(offeringWithPlacement).toBeNull();
+  });
+
+  test("gets null offering when fallback is null and offering_ids_by_placement is omitted", async () => {
+    const purchases = configurePurchases("appUserIdWithEmptyPlacements");
+    const offeringWithPlacement =
+      await purchases.getCurrentOfferingForPlacement("any_placement_id");
+    expect(offeringWithPlacement).toBeNull();
   });
 });

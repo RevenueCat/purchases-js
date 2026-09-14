@@ -75,5 +75,10 @@
   "paywall_variables.total_price_and_per_month": "Combines total price information with an equivalent monthly price. {{formattedPrice}} is replaced by the total price, {{formattedPricePerMonth}} is the monthly breakdown, and {{monthPeriod}} is the time unit for the monthly breakdown.",
   "navbar_header.details": "Text for a button that displays more information about the product.",
   "navbar_header.back_button": "Text for a button that allows the user to go back.",
-  "apple_pay.free_trial": "A 'Free Trial' label"
+  "apple_pay.free_trial": "A 'Free Trial' label",
+  "paddle_checkout.return_to": "Text for a back button in the checkout that returns the user to the seller's app. {{appName}} is replaced with the app name.",
+  "paddle_order_summary.billed_frequency": "Shown under the price in the order summary. {{frequency}} is replaced with a translated billing frequency such as 'monthly' or 'yearly'.",
+  "paddle_order_summary.intro_then_recurring": "Shown under the price when an introductory offer applies. {{firstPeriod}} is a duration like 'week' or '3 months', {{price}} is the recurring price, {{frequency}} is a translated billing frequency such as 'monthly'.",
+  "paddle_order_summary.inc_tax": "Short label next to a price meaning that tax is included.",
+  "paddle_order_summary.due_on": "Label for the next charge row in the order summary. {{date}} is replaced with a formatted date."
 }

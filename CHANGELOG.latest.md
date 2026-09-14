@@ -1,3 +1,6 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Fixed an issue with scrolling in chrome. (#775) via Nicola Sacco (@nicfix)
+* Make express checkout optional (#1123) via Burdock (@lburdock)
+
+### 🔄 Other Changes
+* Add Stripe elements loading time logging (#1132) via Burdock (@lburdock)

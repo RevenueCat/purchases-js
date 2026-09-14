@@ -3,16 +3,16 @@
 ### Development
 
 - Install and build dependencies in the root `purchases-js`
-  - `npm i`
-  - `npm run build`
+  - `pnpm i`
+  - `pnpm run build`
 - Install dependencies for the webbilling-demo app
 
-  - `npm i`
+  - `pnpm i`
 
 - Set the following env variables. You can set them in a `.env` file in the root of this demo app.
 
 ```bash
-export VITE_RC_API_KEY = 'your public api key'
+export VITE_RC_API_KEY = 'your public web billing api key (prefixed with rcb_)'
 ```
 
 - Start the server
@@ -21,23 +21,45 @@ export VITE_RC_API_KEY = 'your public api key'
 npm run dev
 ```
 
-> **NOTE:** If you encounter connection errors to `localhost:8000` when testing the demo, this is because the demo is running in development mode which tries to connect to a local RevenueCat backend server. To fix this:
+> **NOTE:** In development mode, the SDK connects to `localhost:8000` by default (set in the root `.env.development`). If you want to point the demo at production or a custom backend instead, set the following env vars in your `.env` file in this demo directory:
 >
-> 1. **Update the root `.env.development` file** with production endpoints:
->    ```bash
->    VITE_RC_ENDPOINT=https://api.revenuecat.com
->    VITE_RC_ANALYTICS_ENDPOINT=https://e.revenue.cat
->    ```
-> 2. **Rebuild the main purchases-js library** (from the root directory):
->    ```bash
->    npm run build
->    ```
-> 3. **Restart the demo** (from this directory):
->    ```bash
->    npm run dev
->    ```
+> ```bash
+> VITE_RC_PROXY_URL=https://api.revenuecat.com
+> VITE_RC_EVENTS_URL=https://e.revenue.cat
+> ```
+>
+> No library rebuild is needed — these are passed via `httpConfig` at runtime.
 >
 > **Expected behavior:** When using your Web Billing product API key, you should see customers created in Sandbox in your dashboard after completing purchases. View activity at https://app.revenuecat.com/activity after a few minutes to see sandbox transactions and customer data.
+
+### Upgrade-mode checkout (`Purchases.purchase` + `productChangeInfo`)
+
+#### Note this feature is currently experimental
+
+The `/upgrade/:app_user_id` page demonstrates upgrade-mode checkout, calling the `purchase()` API with `productChangeInfo` and the target package as `rcPackage`.
+It uses a small token server to serve as a backend: it holds a **secret** API key and mints short-lived subscriber access tokens via the Developer API `authenticate` endpoint. The secret key is read from a non-`VITE_` env var so it is never bundled into frontend code.
+
+**Prerequisite:** configure a product change path in RevenueCat from the customer's current product to the target product. Without a path, start returns 404.
+
+1. Copy `server/.env.example` to `server/.env` and set:
+   - `RC_SECRET_API_KEY` — V2 secret key with `iam:authorization:issue_token`
+   - `RC_PROJECT_ID` — project id (`proj...`)
+   - `RC_APP_ID` — Web Billing app id (`app...`)
+   - Optional: `RC_API_BASE` (default `https://api.revenuecat.com`), `RC_CANARY`, `TOKEN_SERVER_PORT` (default `8010`)
+2. Start the token server: `pnpm run token-server`
+3. In another terminal, start the demo: `pnpm run dev` (Vite proxies `/api` → the token server)
+4. Open `/upgrade/<app_user_id>` for a customer with an active Web Billing subscription
+5. Optionally pick a source product from active Web Billing subscriptions and/or enter a subscription public id (`sub…`). Either, both (must match), or neither (we infer a single active Web Billing subscription) is allowed. Provide at least one id if the user may have multiple active Web Billing subscriptions.
+6. Pick the target package from the current offering.
+7. Click **Open upgrade checkout**. The SDK calls `/checkout/start` with a product-change hint (API key in `Authorization`, subscriber token in `X-RC-Subscriber-Token`). Returns an upgrade session when a change path exists, otherwise a normal purchase.
+
+### Upgrade from a paywall (`Purchases.presentPaywall` + `productChangeInfo`)
+
+Same token-server setup as above. Open `/upgrade-paywall/<app_user_id>` for a customer with an active Web Billing subscription and an offering that has an RC Paywall configured.
+
+1. Optionally pick a source product and/or enter a subscription public id (`sub…`)
+2. Click **Open upgrade paywall** — the SDK presents the offering paywall with `productChangeInfo`
+3. Pick a package on the paywall; checkout starts in product-change mode when a change path exists, otherwise as a normal purchase
 
 ### Payment Methods
 
@@ -63,6 +85,19 @@ The SDK automatically detects Paddle API keys and routes to the Paddle flow. The
 ```bash
 export VITE_RC_NON_TAX_E2E_API_KEY = 'your e2e tests public api key'
 export VITE_RC_TAX_E2E_API_KEY = 'your e2e tests public api key'
+export VITE_RC_FULL_ADDRESS_E2E_API_KEY = 'your e2e tests public api key'
+export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY = 'your stripe checkout e2e tests public api key'
+export VITE_RC_PADDLE_E2E_API_KEY = 'your paddle e2e tests public api key'
+```
+
+Optional flags:
+
+```bash
+# Useful if Stripe rate limiting is causing flaky CI runs.
+export VITE_SKIP_STRIPE_TESTS=true
+
+# Useful to temporarily disable Paddle tests.
+export VITE_SKIP_PADDLE_TESTS=true
 ```
 
 Install playwright
@@ -111,3 +146,18 @@ sudo npm run dev-fake-https -- --host somedomain.com --port 443
 ```
 
 Now you should be able to run safari with Apple Pay just by visiting `somedomain.com`.
+
+### Viewing Paywalls
+
+Before a paywall will appear, you need an offering configured in the [RevenueCat dashboard](https://app.revenuecat.com) with packages and a paywall attached.
+
+1. Go to the landing page and click **"Subscribe now"**
+2. Enter your app user ID
+3. Optionally enter an **offering identifier** to load a specific offering — leave blank to use the default offering
+4. Click **"Continue (RC Paywall)"** to view the RC paywall
+
+If you see a blank page or "No offering found!", check that your offering is set as the **default offering** in the dashboard (or that the identifier you entered is correct) and has a paywall configured.
+
+### Testing runtime appearance overrides
+
+From the login page, select **Runtime appearance demo**. The page configures Purchases with a purple and lavender palette, then lets you compare that baseline with a green and peach override passed to either `purchase()` or `presentPaywall()`.

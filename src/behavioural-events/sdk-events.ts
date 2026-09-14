@@ -14,7 +14,9 @@ export type SDKEvent =
   | CheckoutPaymentFormGatewayErrorEvent
   | CheckoutPaymentFormErrorEvent
   | CheckoutPurchaseSuccessfulImpressionEvent
-  | CheckoutPurchaseSuccessfulDismissEvent;
+  | CheckoutPurchaseSuccessfulDismissEvent
+  | WorkflowStepStartedEvent
+  | WorkflowStepCompletedEvent;
 
 export enum SDKEventName {
   SDKInitialized = "sdk_initialized",
@@ -29,6 +31,8 @@ export enum SDKEventName {
   CheckoutPaymentFormGatewayError = "checkout_payment_form_gateway_error",
   CheckoutPurchaseSuccessfulImpression = "checkout_purchase_successful_impression",
   CheckoutPurchaseSuccessfulDismiss = "checkout_purchase_successful_dismiss",
+  WorkflowStepStarted = "workflow_step_started",
+  WorkflowStepCompleted = "workflow_step_completed",
 }
 
 interface ISDKEvent {
@@ -162,5 +166,30 @@ export interface CheckoutPurchaseSuccessfulDismissEvent extends ISDKEvent {
   properties: {
     mode: SDKEventPurchaseMode;
     ui_element: "go_back_to_app" | "close";
+  };
+}
+
+export type WorkflowStepEntryReason = "start" | "forward" | "back";
+
+export interface WorkflowStepStartedEvent extends ISDKEvent {
+  eventName: SDKEventName.WorkflowStepStarted;
+  properties: {
+    workflow_id: string;
+    step_id: string;
+    from_step_id?: string;
+    entry_reason: WorkflowStepEntryReason;
+    is_first_step: boolean;
+    is_last_step: boolean;
+  };
+}
+
+export interface WorkflowStepCompletedEvent extends ISDKEvent {
+  eventName: SDKEventName.WorkflowStepCompleted;
+  properties: {
+    workflow_id: string;
+    step_id: string;
+    to_step_id?: string;
+    is_first_step: boolean;
+    is_last_step: boolean;
   };
 }

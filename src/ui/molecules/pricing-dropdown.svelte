@@ -9,6 +9,7 @@
   import Typography from "../atoms/typography.svelte";
 
   export let isExpanded: boolean = true;
+  export let showDiscountCodeField: boolean = false;
   export let children: Snippet;
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
@@ -31,6 +32,8 @@
     <Typography size="label-default">
       {#if isExpanded}
         {$translator.translate(LocalizationKeys.PricingDropdownHideDetails)}
+      {:else if showDiscountCodeField}
+        {$translator.translate(LocalizationKeys.PricingDropdownAddPromoCode)}
       {:else}
         {$translator.translate(LocalizationKeys.PricingDropdownShowDetails)}
       {/if}

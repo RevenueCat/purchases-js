@@ -74,6 +74,21 @@ const isLightColor = ({
 
 export const DEFAULT_LUMINANCE_THRESHOLD = 0.37;
 
+/**
+ * Returns whether a 6-digit hex color (e.g. "#ffffff") reads as light.
+ * Shorthand (#fff) is not expanded — branding colors are always 6-digit.
+ * Unparseable colors fall back to `true` (light), matching the default
+ * white-ish backgrounds used across the checkout UI.
+ */
+export const isHexColorLight = (
+  hexColor: string,
+  luminanceThreshold: number = DEFAULT_LUMINANCE_THRESHOLD,
+): boolean => {
+  const rgb = hexToRGB(hexColor);
+  if (!rgb) return true;
+  return isLightColor({ ...rgb, luminanceThreshold });
+};
+
 const rgbToTextColors = (
   rgb: RGB,
   luminanceThreshold: number = DEFAULT_LUMINANCE_THRESHOLD,
@@ -136,6 +151,7 @@ function toHex(val: number) {
 const textColorsForBackground = (
   backgroundColor: string,
   primaryColor: string,
+  primaryTextColorOverride: string | null | undefined,
   defaultColors: Colors,
   luminanceThreshold: number = DEFAULT_LUMINANCE_THRESHOLD,
 ) => {
@@ -156,7 +172,9 @@ const textColorsForBackground = (
   }
 
   // Find the text color for the primary color
-  if (primaryColor?.startsWith("#")) {
+  if (primaryTextColorOverride) {
+    textColors["primary-text"] = primaryTextColorOverride;
+  } else if (primaryColor?.startsWith("#")) {
     const rgb = hexToRGB(primaryColor);
     if (rgb !== null) {
       textColors["primary-text"] = isLightColor({ ...rgb, luminanceThreshold })
@@ -218,6 +236,7 @@ export const toColors = (
         ...textColorsForBackground(
           mappedColors.background,
           mappedColors.primary,
+          brandingAppearance.color_buttons_primary_text,
           defaultColors,
         ),
         ...colorsForButtonStates(mappedColors.primary),

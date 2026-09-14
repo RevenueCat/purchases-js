@@ -16,7 +16,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  /* The demo only supports light mode */
+  color-scheme: light;
   color: #000000;
   background-color: #ffffff;
 
@@ -27,10 +28,16 @@
   -webkit-text-size-adjust: 100%;
   --color-green: #b4fab7;
   --color-grey-ui-dark: #dfdfdf;
+  --color-grey-ui: #c9c9c9;
   --color-purple: #9c4eff;
   --color-shade-1: #d8b9ff;
   --color-shade-2: #ffcdc2;
   --color-shade-3: #ffc1cc;
+  --color-text-muted: #666666;
+  --color-text-strong: #333333;
+  --color-danger: #d94a4a;
+  --color-page-surface: #ffffff;
+  --color-page-muted: #f5f5f5;
 }
 
 h1,
@@ -55,6 +62,13 @@ a:hover {
 
 body {
   margin: 0;
+}
+
+/* Opt in to iOS safe-area painting: with viewport-fit=cover in index.html, the
+   html canvas extends into the safe-area strips, so painting it with the variable
+   purchases-ui-js publishes makes the paywall's solid bg colour reach the strips. */
+html {
+  background: var(--rc-purchases-ui-bg-color, Canvas);
 }
 
 button.button {
@@ -95,6 +109,52 @@ button.button:hover {
 button.button:focus,
 button.button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+.compact-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-grey-ui);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  background-color: var(--color-page-surface);
+}
+
+.compact-input:focus {
+  outline: 2px solid transparent;
+  border-color: var(--color-purple);
+}
+
+.compact-button {
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid var(--color-grey-ui);
+  background-color: var(--color-page-surface);
+  color: var(--color-text-strong);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  padding: 10px 16px;
+}
+
+.compact-button--secondary {
+  background-color: var(--color-page-surface);
+}
+
+.compact-button--primary {
+  border-color: var(--color-text-strong);
+  background-color: var(--color-text-strong);
+  color: var(--color-page-surface);
+}
+
+.compact-button--danger {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
 }
 
 .landing {
@@ -404,12 +464,167 @@ button.button:focus-visible {
 
 .button-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   margin-top: 16px;
 }
 
 .button-group button {
+  flex: 1 1 220px;
+}
+
+.appearance-demo {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 72px 32px;
+  background: var(--color-page-muted);
+  color: var(--color-text-strong);
+}
+
+.appearance-demo--empty {
+  text-align: center;
+}
+
+.appearance-demo__header,
+.appearance-demo__palettes,
+.appearance-demo__controls {
+  width: min(100%, 920px);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.appearance-demo__header {
+  text-align: center;
+}
+
+.appearance-demo__eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--color-shade-1);
+  color: var(--color-text-strong);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.appearance-demo__header h1 {
+  margin-bottom: 16px;
+  color: var(--color-purple);
+  font-size: clamp(36px, 7vw, 58px);
+  line-height: 1.08;
+}
+
+.appearance-demo__header p {
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--color-text-muted);
+  font-size: 17px;
+}
+
+.appearance-demo__palettes,
+.appearance-demo__flow-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.appearance-demo__palettes {
+  margin-top: 36px;
+}
+
+.appearance-demo__palette-card,
+.appearance-demo__flow-card,
+.appearance-demo__controls {
+  border: 1px solid var(--color-grey-ui-dark);
+  border-radius: 20px;
+  background: var(--color-page-surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.appearance-demo__palette-card,
+.appearance-demo__flow-card {
+  padding: 24px;
+}
+
+.appearance-demo__palette-card h2,
+.appearance-demo__flow-card h2 {
+  margin: 18px 0 8px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.appearance-demo__palette-card p,
+.appearance-demo__flow-card p {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.appearance-demo__swatches {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: 52px;
+  overflow: hidden;
+  border: 1px solid var(--color-grey-ui-dark);
+  border-radius: 12px;
+}
+
+.appearance-demo__controls {
+  box-sizing: border-box;
+  margin-top: 20px;
+  padding: 28px;
+}
+
+.appearance-demo__controls > label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.appearance-demo__controls > select {
+  margin-bottom: 24px;
+}
+
+.appearance-demo__flow-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: none;
+}
+
+.appearance-demo__flow-card h2,
+.appearance-demo__flow-card p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.appearance-demo__flow-card p {
   flex: 1;
+  margin-bottom: 8px;
+}
+
+.appearance-demo__flow-card button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.appearance-demo__status {
+  margin-top: 22px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--color-page-muted);
+  font-size: 14px;
+}
+
+.appearance-demo__status--success {
+  background: var(--color-green);
+}
+
+.appearance-demo__status--error {
+  color: var(--color-danger);
 }
 
 @media (max-width: 1300px) {
@@ -499,6 +714,19 @@ button.button:focus-visible {
 }
 
 @media (max-width: 600px) {
+  .appearance-demo {
+    padding: 64px 16px 32px;
+  }
+
+  .appearance-demo__palettes,
+  .appearance-demo__flow-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .appearance-demo__controls {
+    padding: 18px;
+  }
+
   .rc-paywall h1 {
     margin-top: 2rem;
     margin-bottom: 3rem;

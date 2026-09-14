@@ -1,3 +1,12 @@
+/**
+ * The bare language subtag of a locale, lowercased: `en_US`, `en-US` and `EN`
+ * all become `en`. Mirrors the fallback `Translator` uses to resolve a locale
+ * with a region to its language's translations, so callers that branch on a
+ * language match agree with the strings they will actually get back.
+ */
+export const toLanguageCode = (locale: string): string =>
+  locale.split("_")[0].split("-")[0].toLowerCase();
+
 export const toBcp47Locale = (locale?: string): string | undefined => {
   if (!locale) {
     return locale;

@@ -2,6 +2,52 @@ import type { Package, PurchaseMetadata, PurchaseOption } from "./offerings";
 
 import type { BrandingAppearance } from "./branding";
 import type { CustomTranslations } from "../ui/localization/translator";
+import type { ProductChangeInfo } from "./product-change-params";
+
+type JsonPrimitive = string | number | boolean | null;
+type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+/**
+ * Typed Meta Conversions API fields within an attribution metadata basket.
+ * All fields are optional — only include what the browser context provides.
+ * @internal
+ */
+export type MetaCapiAttributionMetadata = {
+  fbp?: string;
+  fbc?: string;
+  client_user_agent?: string;
+  event_source_url?: string;
+};
+
+/**
+ * An open basket of attribution signals forwarded to the backend.
+ * Typed Meta CAPI fields are available for known signals; any additional
+ * key/value pairs are accepted and passed through opaquely.
+ * @internal
+ */
+export type AttributionMetadata = Record<string, JsonValue> &
+  MetaCapiAttributionMetadata;
+
+/**
+ * Meta canonical event identifiers returned in a successful purchase response,
+ * used for deduplication on the CAPI side.
+ * @internal
+ */
+export type MetaCanonicalAttributionMetadata = {
+  canonical_event_id: string;
+  canonical_event_name: string;
+  workflow_event_id?: string;
+  workflow_event_name?: string | null;
+};
+
+/**
+ * Attribution metadata returned from the backend after a successful purchase.
+ * Keyed by provider name; typed Meta fields are available under `meta`.
+ * @internal
+ */
+export type PurchaseResponseAttributionMetadata = Record<string, unknown> & {
+  meta?: MetaCanonicalAttributionMetadata;
+};
 
 /**
  * Contextual information specific to workflow purchases.
@@ -12,6 +58,12 @@ export interface WorkflowPurchaseContext {
    * The step ID from the workflow where the purchase is being initiated.
    */
   stepId?: string;
+  /**
+   * The funnel URL query parameters to forward to the backend so they can be
+   * attached to the server-generated workflow purchase event. Each key accepts a
+   * single value or, for repeated query-string keys, an array of values.
+   */
+  urlParameters?: Record<string, string | string[]>;
 }
 
 /**
@@ -37,10 +89,33 @@ export interface PurchaseParams {
   customerEmail?: string;
 
   /**
+   * The RevenueCat public identifier for an Apple external purchase token.
+   */
+  externalPurchaseTokenId?: string;
+
+  /**
    * Workflow-specific context for this purchase.
    * @internal
    */
   workflowPurchaseContext?: WorkflowPurchaseContext;
+
+  /**
+   * Attribution signals to forward to the backend for CAPI event matching.
+   * @internal
+   */
+  attributionMetadata?: AttributionMetadata;
+
+  /**
+   * The paywall ID from which this purchase originated, if applicable.
+   * @internal
+   */
+  paywallId?: string;
+
+  /**
+   * The paywall session ID from which this purchase originated, if applicable.
+   * @internal
+   */
+  paywallSessionId?: string;
 
   /**
    * The locale to use for the purchase flow. If not specified, English will be used
@@ -68,16 +143,39 @@ export interface PurchaseParams {
   skipSuccessPage?: boolean;
 
   /**
-   * Defines an optional override for the default branding appearance.
-   *
-   * This property is used internally at RevenueCat to handle dynamic themes such
-   * as the ones coming from the Web Paywall Links. We suggest to use the Dashboard
-   * configuration to set up the appearance since a configuration passed as parameter
-   * using this method might break in future releases of `purchases-js`.
-   *
-   * @internal
+   * @experimental
+   * If set to true, the Web Billing checkout will show a discount input code field.
    */
-  brandingAppearanceOverride?: BrandingAppearance;
+  showDiscountCodeField?: boolean;
+
+  /**
+   * @experimental
+   * Initial discount code to apply at checkout.
+   * For Web Billing this is displayed as applied in the checkout UI.
+   * For Paddle this is passed to Paddle Checkout as `discountCode`.
+   * This is useful when the code originated outside of the checkout UI,
+   * for example from a URL parameter.
+   */
+  discountCode?: string;
+
+  /**
+   * @experimental
+   * Called when the applied discount code changes in the Web Billing checkout.
+   * This can be used by host applications to keep external state, such as the URL,
+   * in sync with the checkout.
+   */
+  onDiscountCodeChanged?: (discountCode: string | null) => void;
+
+  /**
+   * Overrides the Dashboard branding appearance for this purchase.
+   * Only the provided values are overridden; all other values keep their
+   * Dashboard configuration.
+   *
+   * For Stripe Checkout, this customizes the supported mobile wallet experience.
+   * The Stripe-hosted fallback opened through "Pay another way" remains light and
+   * cannot currently be customized.
+   */
+  brandingAppearanceOverride?: Partial<BrandingAppearance>;
 
   /**
    * @internal
@@ -89,8 +187,46 @@ export interface PurchaseParams {
 
   /**
    * Link to the terms and conditions that should be shown in the checkout footer.
-   *
-   * @internal
    */
   termsAndConditionsUrl?: string;
+
+  /**
+   * When set, {@link Purchases.purchase} presents upgrade-mode checkout to
+   * change the customer's existing Web Billing subscription to
+   * {@link PurchaseParams.rcPackage}'s product, instead of a new purchase.
+   * Requires a configured product change path in RevenueCat.
+   * @internal
+   */
+  productChangeInfo?: ProductChangeInfo | null;
+
+  /**
+   * Tries a package-specific Apple Pay purchase prepared with
+   * {@link Purchases.prepareForQuickPurchases} before opening the normal
+   * Stripe Billing checkout.
+   *
+   * Defaults to `false`.
+   * @internal
+   */
+  tryWithApplePay?: boolean;
+}
+
+/**
+ * Parameters used to prepare a package-specific quick purchase.
+ *
+ * Pass the same values to {@link Purchases.purchase}; changing purchase
+ * context invalidates the prepared Apple Pay request and uses normal checkout.
+ * @internal
+ */
+export type PrepareQuickPurchaseParams = Omit<
+  PurchaseParams,
+  "htmlTarget" | "tryWithApplePay"
+>;
+
+/**
+ * Result returned after checking whether Apple Pay can be used for a prepared
+ * package-specific purchase.
+ * @internal
+ */
+export interface QuickPurchasePreparationResult {
+  applePayAvailable: boolean;
 }

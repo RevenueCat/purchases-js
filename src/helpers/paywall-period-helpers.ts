@@ -27,7 +27,7 @@ function getDurationInWeeks(period: Period): number {
     case PeriodUnit.Year:
       return period.number * WEEKS_PER_YEAR;
     case PeriodUnit.Month:
-      return period.number * WEEKS_PER_MONTH;
+      return Math.floor(period.number * WEEKS_PER_MONTH);
     case PeriodUnit.Week:
       return period.number;
     case PeriodUnit.Day:

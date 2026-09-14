@@ -4,10 +4,11 @@
   import ModalSection from "./modal-section.svelte";
   import MessageLayoutError from "./message-layout-error.svelte";
   import MessageLayoutSuccess from "./message-layout-success.svelte";
+  import type { Snippet } from "svelte";
   import { getContext } from "svelte";
   import { brandingContextKey } from "../constants";
   import type { BrandingAppearance } from "../../entities/branding";
-  import type { Snippet } from "svelte";
+  import type { Writable } from "svelte/store";
 
   let {
     onDismiss,
@@ -27,7 +28,11 @@
     fullWidth?: boolean;
   } = $props();
 
-  const brandingAppearance = getContext<BrandingAppearance>(brandingContextKey);
+  const brandingAppearanceStore =
+    getContext<Writable<BrandingAppearance | null | undefined>>(
+      brandingContextKey,
+    );
+  const brandingAppearance = $derived($brandingAppearanceStore ?? undefined);
 
   function handleClick() {
     onDismiss();
@@ -35,7 +40,10 @@
 </script>
 
 <div class="message-layout" class:message-layout-full-width={fullWidth}>
-  <div class="message-layout-content">
+  <div
+    class="message-layout-content"
+    class:message-layout-content-full-width={fullWidth}
+  >
     <ModalSection>
       {#if type === "success"}
         <MessageLayoutSuccess {title} {icon} />
@@ -44,7 +52,10 @@
       {/if}
     </ModalSection>
   </div>
-  <div class="message-layout-footer">
+  <div
+    class="message-layout-footer"
+    class:message-layout-footer-full-width={fullWidth}
+  >
     <ModalFooter>
       <Button onclick={handleClick} type="submit" {brandingAppearance}
         >{closeButtonTitle}</Button
@@ -66,6 +77,16 @@
     justify-content: center;
   }
 
+  .message-layout-content-full-width {
+    padding-left: var(--rc-spacing-outerPadding-mobile);
+    padding-right: var(--rc-spacing-outerPadding-mobile);
+  }
+
+  .message-layout-footer-full-width {
+    padding-left: var(--rc-spacing-outerPadding-mobile);
+    padding-right: var(--rc-spacing-outerPadding-mobile);
+  }
+
   @container layout-query-container (width < 768px) {
     .message-layout {
       flex-grow: 1;
@@ -78,6 +99,7 @@
       min-height: 354px;
       gap: var(--rc-spacing-gapXXLarge-desktop);
     }
+
     .message-layout-content {
       justify-content: flex-start;
       flex-grow: 1;

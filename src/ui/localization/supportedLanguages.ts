@@ -26,6 +26,7 @@ import pt from "./locale/pt.json";
 import ro from "./locale/ro.json";
 import ru from "./locale/ru.json";
 import sk from "./locale/sk.json";
+import sl from "./locale/sl.json";
 import sv from "./locale/sv.json";
 import th from "./locale/th.json";
 import tr from "./locale/tr.json";
@@ -80,6 +81,8 @@ export enum LocalizationKeys {
   PaymentEntryPageSubscriptionTermsInfo = "payment_entry_page.subscription_terms_info",
   PaymentEntryPageOtpTermsInfo = "payment_entry_page.otp_terms_info",
   PaymentEntryPageTermsLinkLabel = "payment_entry_page.terms_link_label",
+  PaymentEntryPageCheckoutConsentAgreement = "payment_entry_page.checkout_consent_agreement",
+  PaymentEntryPageCheckoutConsentTermsOfService = "payment_entry_page.checkout_consent_terms_of_service",
   PaymentEntryPageSubscriptionInfo = "payment_entry_page.subscription_info",
   PaymentEntryPageButtonPay = "payment_entry_page.button_pay",
   PaymentEntryPageButtonStartTrial = "payment_entry_page.button_start_trial",
@@ -119,6 +122,8 @@ export enum LocalizationKeys {
   PaywallVariablesTotalPriceAndPerMonth = "paywall_variables.total_price_and_per_month",
   PricingDropdownShowDetails = "pricing_dropdown.show_details",
   PricingDropdownHideDetails = "pricing_dropdown.hide_details",
+  PricingDropdownAddPromoCode = "pricing_dropdown.add_promo_code",
+  DiscountInputLabel = "discount_input.label",
   PricingTotalExcludingTax = "pricing_table.total_excluding_tax",
   PricingTableTrialEnds = "pricing_table.trial_ends",
   PricingTableTotalDueToday = "pricing_table.total_due_today",
@@ -134,6 +139,33 @@ export enum LocalizationKeys {
   PriceUpdateBaseMessage = "price_update.base_message",
   PriceUpdateTrialMessage = "price_update.trial_message",
   ApplePayFreeTrial = "apple_pay.free_trial",
+  UpgradeProductInfoChangeSubscriptionTitle = "upgrade_product_info.change_subscription_title",
+  UpgradeProductInfoUpgradeSubscriptionTitle = "upgrade_product_info.upgrade_subscription_title",
+  UpgradeProductInfoTaxEstimated = "upgrade_product_info.tax_estimated",
+  UpgradeProductInfoEstimatedAtNextRenewal = "upgrade_product_info.estimated_at_next_renewal",
+  UpgradeProductInfoCalculatedLater = "upgrade_product_info.calculated_later",
+  PlanCardCurrent = "plan_card.current",
+  PlanCardNew = "plan_card.new",
+  RefundForUnusedTimeTitle = "refund_for_unused_time.title",
+  RefundForUnusedTimeMessage = "refund_for_unused_time.message",
+  CreditForUnusedTimeTitle = "credit_for_unused_time.title",
+  CreditForUnusedTimeMessage = "credit_for_unused_time.message",
+  UpgradeConfirmPageTitle = "upgrade_confirm_page.title",
+  UpgradeConfirmPageSubtitleImmediate = "upgrade_confirm_page.subtitle_immediate",
+  UpgradeConfirmPageSubtitleDeferred = "upgrade_confirm_page.subtitle_deferred",
+  UpgradeConfirmPageConfirming = "upgrade_confirm_page.confirming",
+  UpgradeConfirmPageConfirmSchedule = "upgrade_confirm_page.confirm_schedule",
+  UpgradeConfirmPageConfirmUpgrade = "upgrade_confirm_page.confirm_upgrade",
+  UpgradeConfirmPageConfirmUpgradeWithPrice = "upgrade_confirm_page.confirm_upgrade_with_price",
+  UpgradeConfirmPageOnFile = "upgrade_confirm_page.on_file",
+  UpgradeConfirmPageEmail = "upgrade_confirm_page.email",
+  UpgradeConfirmPagePaymentMethod = "upgrade_confirm_page.payment_method",
+  UpgradeConfirmPageBillingAddress = "upgrade_confirm_page.billing_address",
+  PaddleCheckoutReturnTo = "paddle_checkout.return_to",
+  PaddleOrderSummaryBilledFrequency = "paddle_order_summary.billed_frequency",
+  PaddleOrderSummaryIntroThenRecurring = "paddle_order_summary.intro_then_recurring",
+  PaddleOrderSummaryIncTax = "paddle_order_summary.inc_tax",
+  PaddleOrderSummaryDueOn = "paddle_order_summary.due_on",
 }
 
 export const supportedLanguages: Record<
@@ -168,6 +200,7 @@ export const supportedLanguages: Record<
   ro,
   ru,
   sk,
+  sl,
   sv,
   th,
   tr,

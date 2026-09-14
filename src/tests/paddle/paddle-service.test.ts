@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { PaddleService } from "../../paddle/paddle-service";
+import {
+  PaddleService,
+  buildPaddleCheckoutOptions,
+  PADDLE_INLINE_FRAME_TARGET,
+} from "../../paddle/paddle-service";
 import { Backend } from "../../networking/backend";
 import { HttpResponse } from "msw";
 import { http } from "msw";
@@ -32,6 +36,7 @@ vi.mock("@paddle/paddle-js", () => ({
   initializePaddle: vi.fn(),
   CheckoutEventNames: {
     CHECKOUT_LOADED: "checkout.loaded",
+    CHECKOUT_UPDATED: "checkout.updated",
     CHECKOUT_COMPLETED: "checkout.completed",
     CHECKOUT_CLOSED: "checkout.closed",
   },
@@ -81,6 +86,170 @@ const purchaseParams = {
 
 const server = setupMswServer(...mockHandlers);
 
+describe("buildPaddleCheckoutOptions", () => {
+  const commonSettings = {
+    theme: "light",
+    variant: "one-page",
+    allowLogout: false,
+    showAddDiscounts: false,
+    showAddTaxId: false,
+    allowDiscountRemoval: false,
+  };
+
+  test("defaults to overlay display mode", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+    });
+
+    expect(options.settings).toEqual({
+      ...commonSettings,
+      locale: "en",
+      displayMode: "overlay",
+    });
+    expect(options.transactionId).toBe(transactionId);
+  });
+
+  test("overlay mode does not set inline frame settings", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      displayMode: "overlay",
+    });
+
+    expect(options.settings).not.toHaveProperty("frameTarget");
+    expect(options.settings).not.toHaveProperty("frameInitialHeight");
+    expect(options.settings).not.toHaveProperty("frameStyle");
+  });
+
+  test("inline mode sets the frame target, height and style", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "es",
+      displayMode: "inline",
+    });
+
+    expect(options.settings).toEqual({
+      ...commonSettings,
+      locale: "es",
+      displayMode: "inline",
+      frameTarget: PADDLE_INLINE_FRAME_TARGET,
+      frameInitialHeight: 450,
+      frameStyle:
+        "width:100%; min-width:312px; background-color:transparent; border:none;",
+    });
+  });
+
+  test("defaults to the light theme and respects an explicit theme", () => {
+    expect(
+      buildPaddleCheckoutOptions({ transactionId, locale: "en" }).settings,
+    ).toEqual(expect.objectContaining({ theme: "light" }));
+
+    expect(
+      buildPaddleCheckoutOptions({ transactionId, locale: "en", theme: "dark" })
+        .settings,
+    ).toEqual(expect.objectContaining({ theme: "dark" }));
+  });
+
+  test("merges checkout settings over RevenueCat defaults", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: { showAddTaxId: true },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({ showAddTaxId: true }),
+    );
+  });
+
+  test("lets checkout settings override the default variant", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: { variant: "express" },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({ variant: "express" }),
+    );
+  });
+
+  test("forwards unknown checkout settings to Paddle untouched", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: {
+        variant: "express",
+        showNonExpressPaymentMethods: false,
+      },
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({
+        variant: "express",
+        showNonExpressPaymentMethods: false,
+      }),
+    );
+  });
+
+  test("keeps SDK-controlled layout settings", () => {
+    const options = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      checkoutSettings: {
+        showAddTaxId: true,
+        displayMode: false,
+        frameTarget: false,
+        frameInitialHeight: false,
+        frameStyle: false,
+      },
+      displayMode: "inline",
+    });
+
+    expect(options.settings).toEqual(
+      expect.objectContaining({
+        showAddTaxId: true,
+        displayMode: "inline",
+        frameTarget: PADDLE_INLINE_FRAME_TARGET,
+        frameInitialHeight: 450,
+        frameStyle:
+          "width:100%; min-width:312px; background-color:transparent; border:none;",
+      }),
+    );
+  });
+
+  test("includes customer email when provided and omits it otherwise", () => {
+    const withEmail = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      customerEmail: "test@example.com",
+    });
+    expect(withEmail.customer).toEqual({ email: "test@example.com" });
+
+    const withoutEmail = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+    });
+    expect(withoutEmail).not.toHaveProperty("customer");
+  });
+
+  test("includes discountCode when provided and omits it otherwise", () => {
+    const withDiscount = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+      discountCode: "SAVE10",
+    });
+    expect(withDiscount.discountCode).toBe("SAVE10");
+
+    const withoutDiscount = buildPaddleCheckoutOptions({
+      transactionId,
+      locale: "en",
+    });
+    expect(withoutDiscount).not.toHaveProperty("discountCode");
+  });
+});
+
 describe("PaddleService", () => {
   let backend: Backend;
   let paddleService: PaddleService;
@@ -93,6 +262,8 @@ describe("PaddleService", () => {
       updateUser: () => Promise.resolve(),
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
+      trackPaywallEvent: () => {},
+      trackCustomPaywallImpression: () => {},
       dispose: () => {},
       flushAllEvents: () => Promise.resolve(),
     };
@@ -224,6 +395,22 @@ describe("PaddleService", () => {
     });
   });
 
+  describe("closeCheckout", () => {
+    test("calls Paddle Checkout.close when initialized", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+      await paddleService.initializePaddle("test-token", true);
+
+      paddleService.closeCheckout();
+
+      expect(mockPaddleInstance.Checkout?.close).toHaveBeenCalledTimes(1);
+    });
+
+    test("is a no-op when Paddle is not initialized", () => {
+      expect(() => paddleService.closeCheckout()).not.toThrow();
+      expect(mockPaddleInstance.Checkout?.close).not.toHaveBeenCalled();
+    });
+  });
+
   describe("startCheckout", () => {
     const startCheckoutArgs = {
       appUserId: "test-app-user-id",
@@ -246,6 +433,70 @@ describe("PaddleService", () => {
         token: "test-client-side-token",
         version: "v1",
       });
+    });
+
+    test("forwards url_parameters and presented_step_id from workflowPurchaseContext", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+      let capturedBody: Record<string, unknown> | undefined;
+      server.use(
+        http.post(checkoutStartEndpoint, async (req) => {
+          capturedBody = (await req.request.json()) as Record<string, unknown>;
+          return HttpResponse.json(paddleCheckoutStartResponse, {
+            status: StatusCodes.OK,
+          });
+        }),
+      );
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        workflowPurchaseContext: {
+          stepId: "step-abc",
+          urlParameters: { utm_source: "typedIn", fbp: "metaID" },
+        },
+      });
+
+      expect(capturedBody?.presented_step_id).toBe("step-abc");
+      expect(capturedBody?.url_parameters).toEqual({
+        utm_source: "typedIn",
+        fbp: "metaID",
+      });
+    });
+
+    test("passes an external purchase token ID to the backend", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+
+      const mockPostCheckoutStart = vi
+        .spyOn(backend, "postCheckoutStart")
+        .mockResolvedValue(paddleCheckoutStartResponse);
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        externalPurchaseTokenId: "rcat_external_purchase_token_123",
+      });
+
+      expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+        expect.objectContaining({
+          externalPurchaseTokenId: "rcat_external_purchase_token_123",
+        }),
+      );
+    });
+
+    test("omits url_parameters and presented_step_id without workflowPurchaseContext", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+      let capturedBody: Record<string, unknown> | undefined;
+      server.use(
+        http.post(checkoutStartEndpoint, async (req) => {
+          capturedBody = (await req.request.json()) as Record<string, unknown>;
+          return HttpResponse.json(paddleCheckoutStartResponse, {
+            status: StatusCodes.OK,
+          });
+        }),
+      );
+
+      await paddleService.startCheckout(startCheckoutArgs);
+
+      expect(capturedBody?.presented_step_id).toBeUndefined();
+      expect(capturedBody?.url_parameters).toBeUndefined();
     });
 
     test("fails if /checkout/start fails", async () => {
@@ -316,6 +567,45 @@ describe("PaddleService", () => {
         paddleService.startCheckout(startCheckoutArgs),
       ).rejects.toThrow(expectedError);
     });
+
+    test("passes locale to backend when provided", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+
+      const mockPostCheckoutStart = vi
+        .spyOn(backend, "postCheckoutStart")
+        .mockResolvedValue(paddleCheckoutStartResponse);
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        locale: "es",
+      });
+
+      expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+        expect.objectContaining({ locale: "es" }),
+      );
+    });
+
+    test("passes attributionMetadata to backend when provided", async () => {
+      vi.mocked(initPaddle).mockResolvedValue(mockPaddleInstance);
+
+      const mockPostCheckoutStart = vi
+        .spyOn(backend, "postCheckoutStart")
+        .mockResolvedValue(paddleCheckoutStartResponse);
+
+      const attributionMetadata = {
+        fbp: "fb.1.123456789.987654321",
+        fbc: "fb.1.123456789.IwAR1234",
+      };
+
+      await paddleService.startCheckout({
+        ...startCheckoutArgs,
+        attributionMetadata,
+      });
+
+      expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+        expect.objectContaining({ attributionMetadata }),
+      );
+    });
   });
 
   describe("purchase", () => {
@@ -347,6 +637,180 @@ describe("PaddleService", () => {
       expect(onCheckoutLoaded).toHaveBeenCalled();
 
       // Ignore errors - this test only verifies CHECKOUT_LOADED behavior
+      purchasePromise.catch(() => {});
+    });
+
+    test("passes discountCode to Paddle when provided", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: { ...purchaseParams, discountCode: "SAVE10" },
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          transactionId: "test-transaction-id",
+          discountCode: "SAVE10",
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test("omits discountCode from Paddle when not provided", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+      });
+
+      const openOptions = vi.mocked(mockPaddleInstance.Checkout!.open).mock
+        .calls[0][0];
+      expect(openOptions).not.toHaveProperty("discountCode");
+
+      purchasePromise.catch(() => {});
+    });
+
+    test("opens an overlay checkout by default", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: expect.objectContaining({ displayMode: "overlay" }),
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test("opens an inline checkout when displayMode is inline", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+        displayMode: "inline",
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: expect.objectContaining({
+            displayMode: "inline",
+            frameTarget: PADDLE_INLINE_FRAME_TARGET,
+          }),
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test.each([true, false])(
+      "passes showAddTaxId: %s to Paddle",
+      async (showAddTaxId) => {
+        const purchasePromise = paddleService.purchase({
+          operationSessionId,
+          transactionId,
+          onCheckoutLoaded: vi.fn(),
+          onClose: vi.fn(),
+          params: purchaseParams,
+          checkoutSettings: { showAddTaxId },
+        });
+
+        expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+          expect.objectContaining({
+            settings: expect.objectContaining({ showAddTaxId }),
+          }),
+        );
+
+        purchasePromise.catch(() => {});
+      },
+    );
+
+    test("passes the express checkout settings to Paddle", async () => {
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+        checkoutSettings: {
+          variant: "express",
+          showNonExpressPaymentMethods: false,
+        },
+      });
+
+      expect(mockPaddleInstance.Checkout?.open).toHaveBeenCalledWith(
+        expect.objectContaining({
+          settings: expect.objectContaining({
+            variant: "express",
+            showNonExpressPaymentMethods: false,
+          }),
+        }),
+      );
+
+      purchasePromise.catch(() => {});
+    });
+
+    test("forwards order totals on checkout.loaded and checkout.updated", async () => {
+      const onCheckoutTotals = vi.fn();
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+        onCheckoutTotals,
+      });
+
+      await paddleEventCallback({
+        name: CheckoutEventNames.CHECKOUT_LOADED,
+        data: {
+          currency_code: "USD",
+          totals: { subtotal: 8.26, tax: 1.74, total: 10 },
+          recurring_totals: { subtotal: 8.26, tax: 1.74, total: 10 },
+          items: [{ price_name: "monthly", product: { name: "Premium" } }],
+        },
+      } as unknown as PaddleEventData);
+
+      expect(onCheckoutTotals).toHaveBeenCalledWith({
+        currencyCode: "USD",
+        subtotalAmount: 8.26,
+        taxAmount: 1.74,
+        totalAmount: 10,
+        recurringTotalAmount: 10,
+        productName: "Premium",
+        priceName: "monthly",
+      });
+
+      await paddleEventCallback({
+        name: CheckoutEventNames.CHECKOUT_UPDATED,
+        data: {
+          currency_code: "USD",
+          totals: { subtotal: 9.0, tax: 1.9, total: 10.9 },
+        },
+      } as unknown as PaddleEventData);
+
+      expect(onCheckoutTotals).toHaveBeenLastCalledWith({
+        currencyCode: "USD",
+        subtotalAmount: 9.0,
+        taxAmount: 1.9,
+        totalAmount: 10.9,
+        recurringTotalAmount: null,
+        productName: null,
+        priceName: null,
+      });
+
       purchasePromise.catch(() => {});
     });
 
@@ -424,12 +888,49 @@ describe("PaddleService", () => {
       expect(result).toEqual({
         redemptionInfo: {
           redeemUrl: "test-url://redeem_my_rcb?token=1234",
+          redeemUrlRedirect: null,
         },
         operationSessionId: operationSessionId,
         storeTransactionIdentifier: "test-store-transaction-id",
         productIdentifier: "test-product-id",
         purchaseDate: new Date("2025-01-15T04:21:11Z"),
       });
+    });
+
+    test("invokes onCheckoutCompleted when CHECKOUT_COMPLETED event fires", async () => {
+      const getOperationStatusResponse: CheckoutStatusResponse = {
+        operation: {
+          status: CheckoutSessionStatus.Succeeded,
+          is_expired: false,
+          error: null,
+          redemption_info: null,
+          store_transaction_identifier: "test-store-transaction-id",
+          product_identifier: "test-product-id",
+          purchase_date: "2025-01-15T04:21:11Z",
+        },
+      };
+      server.use(
+        http.get(operationStatusEndpoint, () =>
+          HttpResponse.json(getOperationStatusResponse, {
+            status: StatusCodes.OK,
+          }),
+        ),
+      );
+
+      const onCheckoutCompleted = vi.fn();
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+        onCheckoutCompleted,
+      });
+
+      await paddleEventCallback(checkoutCompletedEvent);
+      await purchasePromise;
+
+      expect(onCheckoutCompleted).toHaveBeenCalledTimes(1);
     });
 
     test("calls onClose when user closes checkout", async () => {
@@ -498,6 +999,8 @@ describe("PaddleService", () => {
         updateUser: () => Promise.resolve(),
         trackSDKEvent: () => {},
         trackExternalEvent: () => {},
+        trackPaywallEvent: () => {},
+        trackCustomPaywallImpression: () => {},
         dispose: () => {},
         flushAllEvents: () => Promise.resolve(),
       });
@@ -586,9 +1089,11 @@ describe("PaddleService", () => {
     test("rejects after max attempts if status never succeeds", async () => {
       vi.useFakeTimers();
 
+      let callCount = 0;
       server.use(
-        http.get(operationStatusEndpoint, () =>
-          HttpResponse.json(
+        http.get(operationStatusEndpoint, () => {
+          callCount++;
+          return HttpResponse.json(
             {
               operation: {
                 status: CheckoutSessionStatus.InProgress,
@@ -599,8 +1104,8 @@ describe("PaddleService", () => {
             {
               status: StatusCodes.OK,
             },
-          ),
-        ),
+          );
+        }),
       );
 
       const purchasePromise = paddleService.purchase({
@@ -619,9 +1124,9 @@ describe("PaddleService", () => {
 
       // Advance timers to trigger all polling attempts
       // First attempt happens immediately when eventCallback is called
-      // Then we need to advance 10 more times to trigger attempts 2-11
-      // After 10 attempts, the 11th check (checkCount = 11) will exceed maxNumberAttempts (10) and reject
-      for (let i = 0; i < 10; i++) {
+      // Then we need to advance 30 more times to trigger attempts 2-31
+      // After 30 attempts, the 31st check exceeds maxNumberAttempts and rejects
+      for (let i = 0; i < 30; i++) {
         await vi.advanceTimersByTimeAsync(1000);
       }
 
@@ -629,6 +1134,7 @@ describe("PaddleService", () => {
       await vi.runAllTimersAsync();
 
       const error = await rejectionPromise;
+      expect(callCount).toBe(30);
       expect(error).toBeInstanceOf(PurchaseFlowError);
       expect(error).toEqual(
         expect.objectContaining({

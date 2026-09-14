@@ -10,14 +10,47 @@
     priceBreakdownTaxPending,
     subscriptionOption,
     subscriptionOptionWithDiscount,
+    subscriptionOptionWithDiscountOneTime,
     subscriptionOptionWithDiscountForever,
     subscriptionOptionWithTrial,
+    subscriptionOptionWithYearlyBillingAndSixMonthDiscount,
   } from "../fixtures";
   import {
     getPriceBreakdownTaxDisabled,
     getPriceBreakdownTaxExclusive,
     getPriceBreakdownTaxInclusive,
   } from "../helpers/get-price-breakdown";
+  import { resolveDiscountBreakdown } from "../../helpers/discount-breakdown-helper";
+  import { LocalizationKeys } from "../../ui/localization/supportedLanguages";
+  import type { SubscriptionOption } from "../../entities/offerings";
+  import type { PriceBreakdown } from "../../ui/ui-types";
+  import { Translator } from "../../ui/localization/translator";
+
+  const sampleAppliedDiscountCode = "SAVE20";
+  const storyTranslator = new Translator();
+
+  const discountStoryArgs = (
+    option: SubscriptionOption,
+    priceBreakdown: PriceBreakdown,
+    extra: Record<string, unknown> = {},
+  ) => ({
+    priceBreakdown,
+    basePhase: option.base,
+    resolvedDiscount: resolveDiscountBreakdown({
+      priceBreakdown,
+      purchaseOptionDiscount: option.discount,
+      fullPriceMicros:
+        priceBreakdown.originalAmountInMicros ??
+        option.base.price?.amountMicros ??
+        priceBreakdown.totalAmountInMicros,
+      basePeriod: option.base.period ?? null,
+      translator: storyTranslator,
+      fallbackDiscountName: storyTranslator.translate(
+        LocalizationKeys.PricingTableDiscount,
+      ),
+    }),
+    ...extra,
+  });
 
   let { Story } = defineMeta({
     component: PricingTable,
@@ -33,8 +66,10 @@
       priceBreakdown: getPriceBreakdownTaxDisabled(subscriptionOption),
       trialPhase: null,
       basePhase: null,
-      promotionalPricePhase: null,
-      hasDiscount: false,
+      resolvedDiscount: null,
+      showDiscountCodeField: false,
+      appliedDiscountCode: null,
+      isDiscountCodeControlsEnabled: false,
     },
   });
 </script>
@@ -109,68 +144,110 @@
   }}
 />
 <Story
-  name="Disabled Tax Discount"
-  args={{
-    priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscount,
+  name="Disabled Tax One-time Discount"
+  args={discountStoryArgs(
+    subscriptionOptionWithDiscountOneTime,
+    getPriceBreakdownTaxDisabled(subscriptionOptionWithDiscountOneTime),
+  )}
+/>
+<Story
+  name="Disabled Tax Short Discount Window"
+  args={discountStoryArgs(
+    subscriptionOptionWithYearlyBillingAndSixMonthDiscount,
+    getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithYearlyBillingAndSixMonthDiscount,
     ),
-    basePhase: subscriptionOptionWithDiscount.base,
-    promotionalPricePhase: subscriptionOptionWithDiscount.discount,
-    hasDiscount: true,
-  }}
+  )}
+/>
+<Story
+  name="Disabled Tax Discount"
+  args={discountStoryArgs(
+    subscriptionOptionWithDiscount,
+    getPriceBreakdownTaxDisabled(subscriptionOptionWithDiscount),
+  )}
 />
 <Story
   name="Disabled Tax Forever Discount"
-  args={{
-    priceBreakdown: getPriceBreakdownTaxDisabled(
-      subscriptionOptionWithDiscountForever,
+  args={discountStoryArgs(
+    subscriptionOptionWithDiscountForever,
+    getPriceBreakdownTaxDisabled(subscriptionOptionWithDiscountForever),
+  )}
+/>
+<Story
+  name="Disabled Tax One-time Applied Discount Code"
+  args={discountStoryArgs(
+    subscriptionOptionWithDiscountOneTime,
+    getPriceBreakdownTaxDisabled(subscriptionOptionWithDiscountOneTime),
+    {
+      showDiscountCodeField: true,
+      appliedDiscountCode: sampleAppliedDiscountCode,
+      isDiscountCodeControlsEnabled: true,
+    },
+  )}
+/>
+<Story
+  name="Disabled Tax Short Window Applied Discount Code"
+  args={discountStoryArgs(
+    subscriptionOptionWithYearlyBillingAndSixMonthDiscount,
+    getPriceBreakdownTaxDisabled(
+      subscriptionOptionWithYearlyBillingAndSixMonthDiscount,
     ),
-    basePhase: subscriptionOptionWithDiscountForever.base,
-    promotionalPricePhase: subscriptionOptionWithDiscountForever.discount,
-    hasDiscount: true,
-  }}
+    {
+      showDiscountCodeField: true,
+      appliedDiscountCode: sampleAppliedDiscountCode,
+      isDiscountCodeControlsEnabled: true,
+    },
+  )}
+/>
+<Story
+  name="Disabled Tax Long Window Applied Discount Code"
+  args={discountStoryArgs(
+    subscriptionOptionWithDiscount,
+    getPriceBreakdownTaxDisabled(subscriptionOptionWithDiscount),
+    {
+      showDiscountCodeField: true,
+      appliedDiscountCode: sampleAppliedDiscountCode,
+      isDiscountCodeControlsEnabled: true,
+    },
+  )}
+/>
+<Story
+  name="Disabled Tax Forever Applied Discount Code"
+  args={discountStoryArgs(
+    subscriptionOptionWithDiscountForever,
+    getPriceBreakdownTaxDisabled(subscriptionOptionWithDiscountForever),
+    {
+      showDiscountCodeField: true,
+      appliedDiscountCode: sampleAppliedDiscountCode,
+      isDiscountCodeControlsEnabled: true,
+    },
+  )}
 />
 <Story
   name="Tax Inclusive Discount"
-  args={{
-    priceBreakdown: getPriceBreakdownTaxInclusive(
-      subscriptionOptionWithDiscount,
-    ),
-    basePhase: subscriptionOptionWithDiscount.base,
-    promotionalPricePhase: subscriptionOptionWithDiscount.discount,
-    hasDiscount: true,
-  }}
+  args={discountStoryArgs(
+    subscriptionOptionWithDiscount,
+    getPriceBreakdownTaxInclusive(subscriptionOptionWithDiscount),
+  )}
 />
 <Story
   name="Tax Inclusive Forever Discount"
-  args={{
-    priceBreakdown: getPriceBreakdownTaxInclusive(
-      subscriptionOptionWithDiscountForever,
-    ),
-    basePhase: subscriptionOptionWithDiscountForever.base,
-    promotionalPricePhase: subscriptionOptionWithDiscountForever.discount,
-    hasDiscount: true,
-  }}
+  args={discountStoryArgs(
+    subscriptionOptionWithDiscountForever,
+    getPriceBreakdownTaxInclusive(subscriptionOptionWithDiscountForever),
+  )}
 />
 <Story
   name="Tax Exclusive Discount"
-  args={{
-    priceBreakdown: getPriceBreakdownTaxExclusive(
-      subscriptionOptionWithDiscount,
-    ),
-    basePhase: subscriptionOptionWithDiscount.base,
-    promotionalPricePhase: subscriptionOptionWithDiscount.discount,
-    hasDiscount: true,
-  }}
+  args={discountStoryArgs(
+    subscriptionOptionWithDiscount,
+    getPriceBreakdownTaxExclusive(subscriptionOptionWithDiscount),
+  )}
 />
 <Story
   name="Tax Exclusive Forever Discount"
-  args={{
-    priceBreakdown: getPriceBreakdownTaxExclusive(
-      subscriptionOptionWithDiscountForever,
-    ),
-    basePhase: subscriptionOptionWithDiscountForever.base,
-    promotionalPricePhase: subscriptionOptionWithDiscountForever.discount,
-    hasDiscount: true,
-  }}
+  args={discountStoryArgs(
+    subscriptionOptionWithDiscountForever,
+    getPriceBreakdownTaxExclusive(subscriptionOptionWithDiscountForever),
+  )}
 />

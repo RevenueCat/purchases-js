@@ -1,13 +1,20 @@
-import type { Page, Request } from "@playwright/test";
+import type { Page, Request, Route } from "@playwright/test";
 import { expect } from "@playwright/test";
 import {
+  CANADA_FULL_ADDRESS,
+  CANADA_TAX_RESPONSE,
   FLORIDA_CUSTOMER_DETAILS,
+  FULL_ADDRESS_TEST_API_KEY,
+  FULL_ADDRESS_TAX_TEST_OFFERING_ID,
   INVALID_CUSTOMER_DETAILS,
   ITALY_CUSTOMER_DETAILS,
   NEW_YORK_CUSTOMER_DETAILS,
+  NEW_YORK_FULL_ADDRESS,
   SPAIN_TAX_RESPONSE,
+  SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE,
   TAX_TEST_API_KEY,
   TAX_TEST_OFFERING_ID,
+  TAX_TEST_OFFERING_ID_WITH_DISCOUNT,
   NOT_COLLECTING_TAX_RESPONSE,
   INVALID_TAX_LOCATION_RESPONSE,
   NEW_YORK_TAX_RESPONSE,
@@ -15,6 +22,7 @@ import {
   STRIPE_TAX_NOT_ACTIVE_RESPONSE,
   INVALID_TAX_ORIGIN_RESPONSE,
   MISSING_STRIPE_PERMISSION_RESPONSE,
+  TAX_TEST_DISCOUNT_CODE,
 } from "./helpers/fixtures";
 import {
   integrationTest,
@@ -28,10 +36,12 @@ import {
   confirmTaxCalculating,
   confirmTaxCalculation,
   confirmTaxNotCalculating,
+  enterBillingAddress,
   enterCreditCardDetails,
   enterEmail,
   enterSecurityCode,
   getPackageCards,
+  getStripeAddressFrame,
   getStripePaymentFrame,
   navigateToLandingUrl,
   startPurchaseFlow,
@@ -39,13 +49,37 @@ import {
 import type { RouteFulfillOptions } from "./helpers/test-helpers";
 
 const TAX_BREAKDOWN_ITEM_SELECTOR = ".rcb-pricing-table-row";
-const TAX_ROUTE_PATH = "**/checkout/*/calculate_taxes";
+const REFRESH_PRICING_PATH = "**/checkout/*";
 
-const navigateToTaxesLandingUrl = (page: Page, userId: string) =>
+const isPricingRefreshRequest = (request: Request) =>
+  request.method() === "PATCH";
+
+async function routePricingRefreshRequest(
+  page: Page,
+  handler: (route: Route, request: Request) => Promise<void>,
+) {
+  await page.route(REFRESH_PRICING_PATH, async (route) => {
+    const request = route.request();
+
+    if (!isPricingRefreshRequest(request)) {
+      await route.fallback();
+      return;
+    }
+
+    await handler(route, request);
+  });
+}
+
+const navigateToTaxesLandingUrl = (
+  page: Page,
+  userId: string,
+  offeringId: string = TAX_TEST_OFFERING_ID,
+  discountCode?: string,
+) =>
   navigateToLandingUrl(
     page,
     userId,
-    { offeringId: TAX_TEST_OFFERING_ID },
+    { offeringId: offeringId, discountCode: discountCode },
     TAX_TEST_API_KEY,
   );
 
@@ -54,14 +88,38 @@ const mockTaxCalculationRequest = async (
   fulfillment: RouteFulfillOptions,
 ) => {
   let completed = false;
-  await page.route(TAX_ROUTE_PATH, async (route) => {
+  await routePricingRefreshRequest(page, async (route) => {
     if (!completed) {
       await route.fulfill(fulfillment);
       completed = true;
     } else {
-      route.fallback();
+      await route.fallback();
     }
   });
+};
+
+/**
+ * Counts pricing refresh (tax calculation) requests. In mocked mode every
+ * request is fulfilled with a canned response; in real mode the request is
+ * proxied to the backend (failing the test if the rate limit is hit). Returns
+ * a counter object whose `count` reflects the number of requests observed.
+ */
+const trackPricingRefreshRequests = async (page: Page, mockMode: boolean) => {
+  const counter = { count: 0 };
+  await routePricingRefreshRequest(page, async (route) => {
+    counter.count++;
+    if (mockMode) {
+      await route.fulfill(NEW_YORK_TAX_RESPONSE);
+    } else {
+      const response = await route.fetch();
+      const json = await response.json();
+      if (json["failed_reason"] === "rate_limit_exceeded") {
+        throw new Error("Stripe Tax Calculation API rate limit reached.");
+      }
+      await route.fulfill({ response, json });
+    }
+  });
+  return counter;
 };
 
 [true, false].forEach((mockMode) => {
@@ -71,7 +129,7 @@ const mockTaxCalculationRequest = async (
       integrationTest.skip(
         !mockMode && SKIP_TAX_REAL_TESTS,
         `Tax calculation ${mockMode ? "mocked" : "real"} tests are disabled.
-        To enable, set VITE_SKIP_TAX_REAL_TESTS_UNTIL=2025-02-21 in the environment variables.`,
+        To enable, set VITE_SKIP_TAX_REAL_TESTS_UNTIL later than the repo floor in integration-test.ts.`,
       );
 
       integrationTest.skip(
@@ -82,18 +140,18 @@ const mockTaxCalculationRequest = async (
       integrationTest.beforeEach(async ({ page }) => {
         if (mockMode) {
           // Prevent the real requests from being performed
-          await page.route(TAX_ROUTE_PATH, async (route) => {
-            route.abort();
+          await routePricingRefreshRequest(page, async (route) => {
+            await route.abort();
           });
         } else {
           // Fail the test if the rate limit is reached
-          await page.route(TAX_ROUTE_PATH, async (route) => {
+          await routePricingRefreshRequest(page, async (route) => {
             const response = await route.fetch();
             const json = await response.json();
             if (json["failed_reason"] === "rate_limit_exceeded") {
               throw new Error("Stripe Tax Calculation API rate limit reached.");
             }
-            route.fulfill({ response, json });
+            await route.fulfill({ response, json });
           });
         }
       });
@@ -121,6 +179,52 @@ const mockTaxCalculationRequest = async (
 
           const packageCards = await getPackageCards(page);
           await startPurchaseFlow(packageCards[0]);
+          await expect(page.getByText("Total excluding tax")).toBeVisible();
+          await expect(page.getByText("Total due today")).toBeVisible();
+        },
+      );
+
+      integrationTest(
+        "Reveals the full billing address when a tax-relevant country (Canada) is selected",
+        async ({ page, userId, email, browserName }) => {
+          // Stripe Address Element interactions are only reliable in Chromium.
+          integrationTest.skip(
+            browserName !== "chromium",
+            "Address Element interactions only run in Chromium",
+          );
+
+          if (mockMode) {
+            // Registered LIFO: the first request (initial calculation on mount)
+            // resolves to Spain, the second (after the Canadian address is
+            // entered) resolves to Canada.
+            await mockTaxCalculationRequest(page, CANADA_TAX_RESPONSE);
+            await mockTaxCalculationRequest(page, SPAIN_TAX_RESPONSE);
+          }
+
+          page = await navigateToTaxesLandingUrl(page, userId);
+
+          const packageCards = await getPackageCards(page);
+          await startPurchaseFlow(packageCards[0]);
+
+          await expect(page.getByText("Total due today")).toBeVisible();
+
+          await enterEmail(page, email);
+
+          // The country lives in the payment element initially, so the full
+          // address element is not rendered yet.
+          await expect(page.locator("#address-element")).toHaveCount(0);
+
+          // Selecting Canada (a tax-relevant country) triggers the transition to
+          // the full billing address form.
+          await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+            countryCode: "CA",
+          });
+
+          await expect(page.locator("#address-element")).toBeVisible();
+
+          await enterBillingAddress(page, CANADA_FULL_ADDRESS);
+
+          await confirmTaxCalculation(page);
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText("Total due today")).toBeVisible();
         },
@@ -225,6 +329,44 @@ const mockTaxCalculationRequest = async (
       );
 
       integrationTest(
+        "Displays correct discount and tax-inclusive totals",
+        async ({ page, userId }) => {
+          if (mockMode) {
+            await mockTaxCalculationRequest(
+              page,
+              SPAIN_TAX_INCLUSIVE_DISCOUNTED_RESPONSE,
+            );
+          }
+
+          page = await navigateToTaxesLandingUrl(
+            page,
+            userId,
+            TAX_TEST_OFFERING_ID_WITH_DISCOUNT,
+            TAX_TEST_DISCOUNT_CODE,
+          );
+
+          const packageCards = await getPackageCards(page);
+          await startPurchaseFlow(packageCards[0]);
+
+          const pricingRows = page.locator(TAX_BREAKDOWN_ITEM_SELECTOR);
+          await expect(pricingRows).toHaveCount(5);
+
+          const lines = await pricingRows.all();
+          expect(lines).toHaveLength(5);
+          await expect(lines[0].getByText(/Subtotal/)).toBeVisible();
+          await expect(lines[0].getByText("$9.99")).toBeVisible();
+          await expect(lines[1].getByText(/Discount/)).toBeVisible();
+          await expect(lines[1].getByText("-$1.00")).toBeVisible();
+          await expect(lines[2].getByText(/Total excluding tax/)).toBeVisible();
+          await expect(lines[2].getByText("$7.43")).toBeVisible();
+          await expect(lines[3].getByText(/VAT - Spain \(21%\)/)).toBeVisible();
+          await expect(lines[3].getByText("$1.56")).toBeVisible();
+          await expect(lines[4].getByText(/Total due today/)).toBeVisible();
+          await expect(lines[4].getByText("$8.99")).toBeVisible();
+        },
+      );
+
+      integrationTest(
         "Does NOT display taxes if not collecting in location",
         async ({ page, userId, email }) => {
           if (mockMode) {
@@ -317,14 +459,14 @@ const mockTaxCalculationRequest = async (
           await expect(page.getByText("Total excluding tax")).toBeVisible();
           await expect(page.getByText("Total due today")).toBeVisible();
 
-          await page.route(TAX_ROUTE_PATH, async (route) => {
-            const body = await route.request().postDataJSON();
+          await routePricingRefreshRequest(page, async (route, request) => {
+            const body = await request.postDataJSON();
             if (body !== null && body["country_code"] === "IT") {
               setTimeout(async () => {
-                route.fallback();
+                await route.fallback();
               }, 10_000);
             } else {
-              route.fallback();
+              await route.fallback();
             }
           });
 
@@ -333,7 +475,7 @@ const mockTaxCalculationRequest = async (
             (request) => {
               italyTaxCalculationRequest = request;
               return (
-                request.url().includes("/calculate_taxes") &&
+                isPricingRefreshRequest(request) &&
                 request.postDataJSON().country_code === "IT"
               );
             },
@@ -341,7 +483,7 @@ const mockTaxCalculationRequest = async (
 
           const newYorkTaxCalculationRequestPromise = page.waitForRequest(
             (request) =>
-              request.url().includes("/calculate_taxes") &&
+              isPricingRefreshRequest(request) &&
               request.postDataJSON().country_code === "US",
           );
 
@@ -433,7 +575,7 @@ const mockTaxCalculationRequest = async (
           await expect(page.getByText("Total due today")).toBeVisible();
 
           let calculateTaxesCount = 0;
-          await page.route(TAX_ROUTE_PATH, async (route) => {
+          await routePricingRefreshRequest(page, async (route) => {
             calculateTaxesCount++;
             await route.fallback();
           });
@@ -480,7 +622,7 @@ const mockTaxCalculationRequest = async (
 
 integrationTest.describe("Tax calculation setup errors", () => {
   integrationTest.fixme("Stripe tax not active", async ({ page, userId }) => {
-    await page.route(TAX_ROUTE_PATH, async (route) => {
+    await routePricingRefreshRequest(page, async (route) => {
       await route.fulfill(STRIPE_TAX_NOT_ACTIVE_RESPONSE);
 
       page = await navigateToTaxesLandingUrl(page, userId);
@@ -493,7 +635,7 @@ integrationTest.describe("Tax calculation setup errors", () => {
   integrationTest.fixme(
     "Invalid tax origin address",
     async ({ page, userId }) => {
-      await page.route(TAX_ROUTE_PATH, async (route) => {
+      await routePricingRefreshRequest(page, async (route) => {
         await route.fulfill(INVALID_TAX_ORIGIN_RESPONSE);
       });
 
@@ -507,7 +649,7 @@ integrationTest.describe("Tax calculation setup errors", () => {
   integrationTest.fixme(
     "Missing Stripe permission",
     async ({ page, userId }) => {
-      await page.route(TAX_ROUTE_PATH, async (route) => {
+      await routePricingRefreshRequest(page, async (route) => {
         await route.fulfill(MISSING_STRIPE_PERMISSION_RESPONSE);
       });
 
@@ -515,6 +657,127 @@ integrationTest.describe("Tax calculation setup errors", () => {
       const packageCards = await getPackageCards(page);
       await startPurchaseFlow(packageCards[0]);
       await confirmPaymentError(page, "Missing Stripe permission");
+    },
+  );
+});
+
+const navigateToFullAddressLandingUrl = (page: Page, userId: string) =>
+  navigateToLandingUrl(
+    page,
+    userId,
+    { offeringId: FULL_ADDRESS_TAX_TEST_OFFERING_ID },
+    FULL_ADDRESS_TEST_API_KEY,
+  );
+
+// Allow any pending debounced tax refresh (and its request) to flush before we
+// snapshot or assert request counts. Slightly larger than the client-side
+// debounce window (500ms).
+const DEBOUNCE_FLUSH_MS = 1500;
+
+[true, false].forEach((mockMode) => {
+  integrationTest.describe(
+    `Tax calculation with full address collection (${mockMode ? "mocked" : "real"})`,
+    () => {
+      integrationTest.skip(
+        !FULL_ADDRESS_TEST_API_KEY,
+        `Full billing address tax tests are disabled. To enable, set
+        VITE_RC_FULL_ADDRESS_E2E_API_KEY to an API key whose project has both
+        tax collection and full billing address collection enabled.`,
+      );
+
+      integrationTest.skip(
+        !mockMode && SKIP_TAX_REAL_TESTS,
+        `Real tax calculation tests are disabled.
+        To enable, set VITE_SKIP_TAX_REAL_TESTS_UNTIL later than the repo floor in integration-test.ts.`,
+      );
+
+      // Stripe Address Element interactions are only reliable in Chromium.
+      integrationTest.skip(
+        ({ browserName }) => browserName !== "chromium",
+        "Full billing address tax tests only run in Chromium",
+      );
+
+      integrationTest(
+        "Debounces tax recalculation while typing the address line 1",
+        async ({ page, userId, email }) => {
+          const pricing = await trackPricingRefreshRequests(page, mockMode);
+
+          page = await navigateToFullAddressLandingUrl(page, userId);
+
+          const packageCards = await getPackageCards(page);
+          await startPurchaseFlow(packageCards[0]);
+
+          await enterEmail(page, email);
+          await enterCreditCardDetails(
+            page,
+            "4242 4242 4242 4242",
+            NEW_YORK_CUSTOMER_DETAILS,
+          );
+
+          // Fill the complete billing address (including the name) so the form
+          // validates and the initial tax calculation succeeds.
+          await enterBillingAddress(page, NEW_YORK_FULL_ADDRESS);
+
+          await confirmTaxCalculation(page);
+          // Let any debounced refresh triggered by the steps above flush.
+          await page.waitForTimeout(DEBOUNCE_FLUSH_MS);
+
+          const requestsBeforeTyping = pricing.count;
+
+          // Re-type the address line 1 character by character to emit a burst
+          // of `change` events. The debounce should coalesce them into a
+          // single tax calculation.
+          const line1Input =
+            getStripeAddressFrame(page).getByLabel("Address line 1");
+          await line1Input.fill("");
+          await line1Input.pressSequentially("1 Times Square");
+
+          await confirmTaxCalculation(page);
+          await page.waitForTimeout(DEBOUNCE_FLUSH_MS);
+
+          expect(pricing.count).toBe(requestsBeforeTyping + 1);
+        },
+      );
+
+      integrationTest(
+        "Does NOT recalculate taxes when only the name changes",
+        async ({ page, userId, email }) => {
+          const pricing = await trackPricingRefreshRequests(page, mockMode);
+
+          page = await navigateToFullAddressLandingUrl(page, userId);
+
+          const packageCards = await getPackageCards(page);
+          await startPurchaseFlow(packageCards[0]);
+
+          await enterEmail(page, email);
+          await enterCreditCardDetails(
+            page,
+            "4242 4242 4242 4242",
+            NEW_YORK_CUSTOMER_DETAILS,
+          );
+
+          // Fill the complete billing address (including the name) so the form
+          // validates and the initial tax calculation succeeds.
+          await enterBillingAddress(page, NEW_YORK_FULL_ADDRESS);
+
+          await confirmTaxCalculation(page);
+          await page.waitForTimeout(DEBOUNCE_FLUSH_MS);
+
+          const requestsBeforeName = pricing.count;
+
+          // Changing ONLY the name must neither show the loading skeleton nor
+          // trigger a tax recalculation, since the name is not a tax-relevant
+          // field.
+          const nameInput = getStripeAddressFrame(page).getByLabel("Name");
+          await nameInput.fill("");
+          await nameInput.pressSequentially("John Smith");
+
+          await confirmTaxNotCalculating(page);
+          await page.waitForTimeout(DEBOUNCE_FLUSH_MS);
+
+          expect(pricing.count).toBe(requestsBeforeName);
+        },
+      );
     },
   );
 });

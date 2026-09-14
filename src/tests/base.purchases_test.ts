@@ -7,6 +7,7 @@ import {
 } from "./test-responses";
 import { afterAll, beforeAll, beforeEach } from "vitest";
 import { defaultHttpConfig } from "../entities/http-config";
+import type { FlagsConfig } from "../entities/flags-config";
 
 export const testApiKey = "rcb_sb_test_api_key";
 export const testUserId = "someAppUserId";
@@ -32,6 +33,8 @@ export function configurePurchases(
   appUserId: string = testUserId,
   rcSource: string = "rcSource",
   apiKey: string = testApiKey,
+  flags: Partial<FlagsConfig> = {},
+  subscriberToken?: string,
 ): Purchases {
   return Purchases.configure({
     apiKey: apiKey,
@@ -39,6 +42,8 @@ export function configurePurchases(
     httpConfig: defaultHttpConfig,
     flags: {
       rcSource: rcSource,
+      ...flags,
     },
+    subscriberToken,
   });
 }

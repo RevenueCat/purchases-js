@@ -7,6 +7,7 @@
     checkoutStartResponse,
     product,
     subscriptionOption,
+    subscriptionOptionWithDiscountOneTime,
     subscriptionOptionWithTrial,
     subscriptionOptionWithTrialAndIntroPricePaidUpfront,
     subscriptionOptionWithTrialAndIntroPriceRecurring,
@@ -47,7 +48,7 @@
         diffThreshold: 0.49,
       },
     },
-    // @ts-expect-error ignore importing before initializing
+    // @ts-ignore ignore importing before initializing
     render: template,
   });
   type StoryArgs = any;
@@ -61,6 +62,10 @@
   {@const brandingInfo = {
     ...brandingInfos[context.globals.brandingName],
     gateway_tax_collection_enabled: args.withTaxes ?? false,
+    full_address_collection_mode:
+      args.fullAddressCollectionMode ??
+      brandingInfos[context.globals.brandingName].full_address_collection_mode,
+    require_checkout_consent: args.requireCheckoutConsent ?? false,
   }}
   <PurchasesInner
     isSandbox={args.isSandbox}
@@ -83,6 +88,15 @@
     onClose={() => {}}
     managementUrl="http://test.com"
     termsAndConditionsUrl={args.termsAndConditionsUrl}
+    showDiscountCodeField={args.showDiscountCodeField}
+    draftDiscountCode={args.draftDiscountCode}
+    appliedDiscountCode={args.appliedDiscountCode}
+    discountCodeError={args.discountCodeError}
+    isUpdatingDiscountCode={args.isUpdatingDiscountCode}
+    isDiscountCodeControlsEnabled={args.isDiscountCodeControlsEnabled}
+    onDraftDiscountCodeChange={args.onDraftDiscountCodeChange}
+    onApplyDiscountCode={args.onApplyDiscountCode}
+    onRemoveDiscountCode={args.onRemoveDiscountCode}
     forceEnableWalletMethods={args.forceEnableWalletMethods}
   />
 {/snippet}
@@ -98,8 +112,100 @@
 />
 
 <Story
+  name="With Checkout Consent"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    requireCheckoutConsent: true,
+    termsAndConditionsUrl: "https://example.com/terms",
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
   name="With Sandbox Banner"
   args={{ ...defaultArgs, currentPage: "payment-entry", isSandbox: true }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Promo Code Field"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    showDiscountCodeField: true,
+    isDiscountCodeControlsEnabled: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Promo Code Field Error"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    showDiscountCodeField: true,
+    draftDiscountCode: "BADCODE",
+    discountCodeError: "Invalid discount code.",
+    isDiscountCodeControlsEnabled: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Applied Promo Code"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    defaultPriceBreakdown: {
+      currency: "USD",
+      originalAmountInMicros: 9900000,
+      totalAmountInMicros: 8900000,
+      totalExcludingTaxInMicros: 8900000,
+      taxCalculationStatus: "unavailable",
+      taxAmountInMicros: 0,
+      taxBreakdown: null,
+      appliedDiscounts: [
+        {
+          identifier: "discount-id",
+          displayName: "SAVE10",
+          discountedAmountInMicros: 1000000,
+          percentage: 10,
+          discountCode: "SAVE10",
+          durationMode: null,
+          timeWindow: null,
+        },
+      ],
+    },
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        ...product.subscriptionOptions,
+        [subscriptionOptionWithDiscountOneTime.id]:
+          subscriptionOptionWithDiscountOneTime,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithDiscountOneTime,
+    showDiscountCodeField: true,
+    appliedDiscountCode: "SAVE10",
+    isDiscountCodeControlsEnabled: true,
+  }}
   parameters={{
     chromatic: {
       delay: 1000,
@@ -194,6 +300,20 @@
     ...defaultArgs,
     currentPage: "payment-entry",
     withTaxes: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Full Billing Address"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    fullAddressCollectionMode: "always",
   }}
   parameters={{
     chromatic: {

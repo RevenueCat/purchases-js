@@ -1,6 +1,15 @@
 export const supportedRCSources = ["app", "embedded"];
 
 /**
+ * Determines when the store module (e.g. Stripe) is loaded.
+ * - `"configuration"`: The store module is preloaded when the SDK is configured.
+ * - `"purchase_start"`: The store module is loaded on demand when a purchase is started.
+ * @public
+ * @deprecated we always load stripe only when needed
+ */
+export type StoreLoadTime = "configuration" | "purchase_start";
+
+/**
  * Flags used to enable or disable certain features in the sdk.
  * @public
  */
@@ -16,6 +25,20 @@ export interface FlagsConfig {
    * @defaultValue true
    */
   collectAnalyticsEvents?: boolean;
+
+  /**
+   * If set to true, the checkout back button will be hidden.
+   * @defaultValue false
+   */
+  hideBackButton?: boolean;
+
+  /**
+   * If set to true, the SDK injects the branding app icon as an
+   * `apple-touch-icon` link tag so it appears in the Apple Pay sheet.
+   * Best effort is made to not overwrite an existing `apple-touch-icon` on the page.
+   * @defaultValue false
+   */
+  applePayBrandingLogoEnabled?: boolean;
 
   /**
    * Describes the platform that originated the purchase.
@@ -39,9 +62,19 @@ export interface FlagsConfig {
    * @internal
    */
   forceEnableWalletMethods?: boolean;
+
+  /**
+   * Determines when the store module (e.g. Stripe) is loaded.
+   * - `"configuration"`: Preloaded when the SDK is configured (default).
+   * - `"purchase_start"`: Loaded on demand when a purchase is started.
+   * @defaultValue "configuration"
+   * @deprecated we always load stripe only when needed
+   */
+  storeLoadTime?: StoreLoadTime;
 }
 
 export const defaultFlagsConfig: FlagsConfig = {
   autoCollectUTMAsMetadata: true,
   collectAnalyticsEvents: true,
+  storeLoadTime: "configuration",
 };

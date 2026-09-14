@@ -12,23 +12,50 @@
   import PricingSummary from "../molecules/pricing-summary.svelte";
   import PricingSummaryNonSubscription from "../molecules/pricing-summary-non-subscription.svelte";
   import { type PriceBreakdown } from "../ui-types";
+  import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discount-breakdown-helper";
+  import { getContext } from "svelte";
+  import { translatorContextKey } from "../localization/constants";
+  import { type Translator } from "../localization/translator";
+  import { type Writable } from "svelte/store";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;
   export let showProductDescription: boolean;
   export let priceBreakdown: PriceBreakdown;
+  export let showDiscountCodeField = false;
+  export let discountCode = "";
+  export let appliedDiscountCode: string | null = null;
+  export let discountCodeError: string | null = null;
+  export let isUpdatingDiscountCode = false;
+  export let isDiscountCodeControlsEnabled = false;
+  export let onDiscountCodeChange:
+    | ((discountCode: string) => void)
+    | undefined = undefined;
+  export let onApplyDiscountCode: (() => void | Promise<void>) | undefined =
+    undefined;
+  export let onRemoveDiscountCode: (() => void | Promise<void>) | undefined =
+    undefined;
 
-  const isSubscription = productDetails.productType === "subscription";
-  const subscriptionOption = isSubscription
+  let isSubscription: boolean;
+  let subscriptionOption: SubscriptionOption | null;
+  let nonSubscriptionOption: NonSubscriptionOption | null;
+  let basePhase: PricingPhase | null;
+  let trialPhase: PricingPhase | null;
+  let discountPhase: DiscountPhase | null;
+  let introPricePhase: PricingPhase | null;
+
+  const translator: Writable<Translator> = getContext(translatorContextKey);
+
+  $: isSubscription = productDetails.productType === "subscription";
+  $: subscriptionOption = isSubscription
     ? (purchaseOption as SubscriptionOption)
     : null;
-  const nonSubscriptionOption = !isSubscription
+  $: nonSubscriptionOption = !isSubscription
     ? (purchaseOption as NonSubscriptionOption)
     : null;
-
   // For subscriptions: use base phase directly
   // For non-subscriptions: create a PricingPhase from basePrice
-  const basePhase: PricingPhase | null = isSubscription
+  $: basePhase = isSubscription
     ? (subscriptionOption?.base ?? null)
     : nonSubscriptionOption?.basePrice
       ? {
@@ -41,16 +68,16 @@
           pricePerYear: null,
         }
       : null;
-
-  const trialPhase = subscriptionOption?.trial ?? null;
-  const discountPhase =
+  $: trialPhase = subscriptionOption?.trial ?? null;
+  $: discountPhase =
     subscriptionOption?.discount ?? nonSubscriptionOption?.discount ?? null;
-  const introPricePhase = subscriptionOption?.introPrice ?? null;
-  const promotionalPricePhase: PricingPhase | DiscountPhase | null =
-    subscriptionOption?.discount ??
-    subscriptionOption?.introPrice ??
-    nonSubscriptionOption?.discount ??
-    null;
+  $: introPricePhase = subscriptionOption?.introPrice ?? null;
+  $: resolvedDiscount = resolveDiscountBreakdownForPurchaseOption({
+    priceBreakdown,
+    productDetails,
+    purchaseOption,
+    translator: $translator,
+  });
 </script>
 
 <div class="rcb-pricing-info">
@@ -65,19 +92,23 @@
         {introPricePhase}
       />
     {:else}
-      <PricingSummaryNonSubscription
-        {priceBreakdown}
-        {basePhase}
-        {discountPhase}
-      />
+      <PricingSummaryNonSubscription {priceBreakdown} {basePhase} />
     {/if}
   </div>
   <PricingTable
     {priceBreakdown}
     {trialPhase}
     {basePhase}
-    {promotionalPricePhase}
-    hasDiscount={!!discountPhase}
+    {resolvedDiscount}
+    {showDiscountCodeField}
+    {discountCode}
+    {appliedDiscountCode}
+    {discountCodeError}
+    {isUpdatingDiscountCode}
+    {isDiscountCodeControlsEnabled}
+    {onDiscountCodeChange}
+    {onApplyDiscountCode}
+    {onRemoveDiscountCode}
   />
 </div>
 

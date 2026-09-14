@@ -5,12 +5,18 @@ import { getHeaders } from "../networking/http-client";
 import { FlushManager, type FlushOptions } from "./flush-manager";
 import { Logger } from "../helpers/logger";
 import { defaultPurchaseMode, Event, type EventProperties } from "./event";
+import { PaywallEvent, type PaywallEventData } from "./paywall-event";
+import {
+  CustomPaywallImpressionEvent,
+  type CustomPaywallImpressionEventData,
+} from "./custom-paywall-impression-event";
 import type { SDKEvent } from "./sdk-events";
 import {
   buildEventContext,
   type SDKEventContextSource,
 } from "./sdk-event-context";
 import type { WorkflowContext } from "../entities/purchases-config";
+import type { HttpConfig } from "../entities/http-config";
 
 const MIN_INTERVAL_RETRY = 2_000;
 const MAX_INTERVAL_RETRY = 5 * 60_000;
@@ -23,6 +29,9 @@ export interface TrackEventProps {
   properties?: EventProperties;
 }
 
+export type TrackCustomPaywallImpressionProps =
+  CustomPaywallImpressionEventData;
+
 export interface EventsTrackerProps {
   apiKey: string;
   appUserId: string;
@@ -30,6 +39,7 @@ export interface EventsTrackerProps {
   silent?: boolean;
   workflowContext?: WorkflowContext;
   trace_id?: string;
+  httpConfig?: HttpConfig;
 }
 
 export interface IEventsTracker {
@@ -41,6 +51,10 @@ export interface IEventsTracker {
 
   trackExternalEvent(props: TrackEventProps): void;
 
+  trackPaywallEvent(data: PaywallEventData): void;
+
+  trackCustomPaywallImpression(props: TrackCustomPaywallImpressionProps): void;
+
   dispose(): void;
 
   flushAllEvents(): Promise<void>;
@@ -48,7 +62,9 @@ export interface IEventsTracker {
 
 export default class EventsTracker implements IEventsTracker {
   private readonly apiKey: string;
-  private readonly eventsQueue: Array<Event> = [];
+  private readonly eventsQueue: Array<
+    Event | PaywallEvent | CustomPaywallImpressionEvent
+  > = [];
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
   private readonly traceId: string;
@@ -58,9 +74,11 @@ export default class EventsTracker implements IEventsTracker {
   private readonly workflowContext?: WorkflowContext;
   private isDisposed: boolean = false;
 
+  private static readonly appSessionId = generateUUID();
+
   constructor(props: EventsTrackerProps) {
     this.apiKey = props.apiKey;
-    this.eventsUrl = `${RC_ANALYTICS_ENDPOINT}/v1/events`;
+    this.eventsUrl = `${props.httpConfig?.eventsURL ?? RC_ANALYTICS_ENDPOINT}/v1/events`;
     this.appUserId = props.appUserId;
     this.isSilent = props.silent || false;
     this.rcSource = props.rcSource;
@@ -88,6 +106,58 @@ export default class EventsTracker implements IEventsTracker {
 
   public trackExternalEvent(props: TrackEventProps): void {
     this.trackEvent({ ...props });
+  }
+
+  public trackPaywallEvent(data: PaywallEventData): void {
+    if (this.isSilent) {
+      Logger.verboseLog("Skipping event tracking, the EventsTracker is silent");
+      return;
+    }
+    try {
+      const event = new PaywallEvent(data);
+      Logger.debugLog(
+        `[PaywallEvent] Queuing ${data.type} (queue size: ${this.eventsQueue.length + 1}, url: ${this.eventsUrl})`,
+      );
+      Logger.debugLog(
+        `[PaywallEvent] Payload: ${JSON.stringify(event.toJSON())}`,
+      );
+      this.eventsQueue.push(event);
+      this.flushManager.tryFlush();
+    } catch (error) {
+      Logger.errorLog(
+        `Error while tracking paywall event ${data.type}: ${error}`,
+      );
+    }
+  }
+
+  public trackCustomPaywallImpression(
+    props: TrackCustomPaywallImpressionProps,
+  ): void {
+    if (this.isSilent) {
+      Logger.verboseLog("Skipping event tracking, the EventsTracker is silent");
+      return;
+    }
+    try {
+      const event = new CustomPaywallImpressionEvent(
+        {
+          ...props,
+        },
+        this.appUserId,
+        EventsTracker.appSessionId,
+      );
+      Logger.debugLog(
+        `[CustomPaywallImpressionEvent] Queuing event (queue size: ${this.eventsQueue.length + 1}, url: ${this.eventsUrl})`,
+      );
+      Logger.debugLog(
+        `[CustomPaywallImpressionEvent] Payload: ${JSON.stringify(event.toJSON())}`,
+      );
+      this.eventsQueue.push(event);
+      this.flushManager.tryFlush();
+    } catch (error) {
+      Logger.errorLog(
+        `Error while tracking custom paywall impression: ${error}`,
+      );
+    }
   }
 
   private trackEvent(props: TrackEventProps) {
@@ -145,7 +215,9 @@ export default class EventsTracker implements IEventsTracker {
     }
   }
 
-  private estimateSingleEventSize(event: Event): number {
+  private estimateSingleEventSize(
+    event: Event | PaywallEvent | CustomPaywallImpressionEvent,
+  ): number {
     try {
       return JSON.stringify(event).length;
     } catch {
@@ -159,8 +231,12 @@ export default class EventsTracker implements IEventsTracker {
    * https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#keepalive
    * Returns null if the first event exceeds the limit (and removes it from queue).
    */
-  private batchEventsForKeepalive(): Array<Event> | null {
-    const eventsToFlush: Array<Event> = [];
+  private batchEventsForKeepalive(): Array<
+    Event | PaywallEvent | CustomPaywallImpressionEvent
+  > | null {
+    const eventsToFlush: Array<
+      Event | PaywallEvent | CustomPaywallImpressionEvent
+    > = [];
     let batchSize = 16; // Account for {"events":[]} wrapper overhead
 
     for (const event of this.eventsQueue) {
@@ -173,8 +249,14 @@ export default class EventsTracker implements IEventsTracker {
         batchSize = newBatchSize;
       } else if (eventsToFlush.length === 0) {
         // First event exceeds limit - remove it to unblock queue
+        const eventLabel =
+          event instanceof CustomPaywallImpressionEvent
+            ? "custom_paywall_impression"
+            : event instanceof PaywallEvent
+              ? event.data.type
+              : event.data.eventName;
         Logger.warnLog(
-          `Event exceeds keepalive size limit (${eventSize} bytes): ${event.data.eventName}`,
+          `Event exceeds keepalive size limit (${eventSize} bytes): ${eventLabel}`,
         );
         this.eventsQueue.shift();
         return null;
@@ -201,13 +283,19 @@ export default class EventsTracker implements IEventsTracker {
     }
 
     // Only remove from queue after successful delivery
+    const body = JSON.stringify({ events: eventsToFlush });
+    Logger.debugLog(
+      `[EventsTracker] Flushing ${eventsToFlush.length} event(s) to ${this.eventsUrl}`,
+    );
+    Logger.debugLog(`[EventsTracker] Body: ${body}`);
     return fetch(this.eventsUrl, {
       method: HttpMethods.POST,
       headers: getHeaders(this.apiKey),
-      body: JSON.stringify({ events: eventsToFlush }),
+      body,
       keepalive: true,
     })
       .then((response) => {
+        Logger.debugLog(`[EventsTracker] Flush response: ${response.status}`);
         if (response.status === 200 || response.status === 201) {
           this.eventsQueue.splice(0, eventsToFlush.length);
 
@@ -220,7 +308,7 @@ export default class EventsTracker implements IEventsTracker {
         throw new Error("Events failed to flush due to server error");
       })
       .catch((error) => {
-        Logger.debugLog("Error while flushing events");
+        Logger.debugLog(`[EventsTracker] Flush error: ${error}`);
         throw error;
       });
   }

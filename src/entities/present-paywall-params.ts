@@ -1,4 +1,13 @@
-import type { Offering } from "./offerings";
+import type { Offering, PurchaseMetadata } from "./offerings";
+import type { PaywallListener } from "./paywall-listener";
+import type { ProductChangeInfo } from "./product-change-params";
+import type { BrandingAppearance } from "./branding";
+import type {
+  CompleteWorkflowNavigateArgs,
+  CustomVariables,
+} from "@revenuecat/purchases-ui-js";
+
+export type { CompleteWorkflowNavigateArgs };
 
 /**
  * Parameters for the {@link Purchases.presentPaywall} method.
@@ -30,9 +39,67 @@ export interface PresentPaywallParams {
   readonly customerEmail?: string;
 
   /**
+   * The RevenueCat public identifier for an Apple external purchase token.
+   */
+  readonly externalPurchaseTokenId?: string;
+
+  /**
+   * The purchase metadata to be passed to the backend when a purchase is started
+   * from the paywall.
+   * Any information provided here will be propagated to the payment gateway and
+   * to the RC transaction as metadata.
+   */
+  readonly metadata?: PurchaseMetadata;
+
+  /**
+   * Overrides the branding appearance for the purchase started from this
+   * paywall. Only the provided values are overridden. These values take
+   * precedence over the override passed to `Purchases.configure()`.
+   *
+   * For Stripe Checkout, this customizes the supported mobile wallet experience.
+   * The Stripe-hosted fallback opened through "Pay another way" remains light and
+   * cannot currently be customized.
+   */
+  readonly brandingAppearanceOverride?: Partial<BrandingAppearance>;
+
+  /**
+   * @experimental
+   * If set to true, the Web Billing checkout shown from the paywall
+   * will display a discount input code field.
+   */
+  readonly showDiscountCodeField?: boolean;
+
+  /**
+   * @experimental
+   * Initial discount code to apply to the checkout when one already exists
+   * outside of the paywall UI, for example in the hosting page's URL.
+   */
+  readonly discountCode?: string;
+
+  /**
+   * @experimental
+   * Called when the applied discount code changes in the checkout shown from
+   * the paywall. This can be used to sync host state such as URL parameters.
+   */
+  readonly onDiscountCodeChanged?: (discountCode: string | null) => void;
+
+  /**
    * Callback to be called when the paywall tries to navigate to an external URL.
+   *
+   * Markdown text links keep their native browser navigation. Use this callback
+   * for side effects or to customize how button-driven URL actions are handled.
    */
   readonly onNavigateToUrl?: (url: string) => void;
+
+  /**
+   * Called when the paywall uses a complete_workflow button (exit URL).
+   * If omitted, the SDK opens the URL: new tab for `external_browser`, same tab for
+   * `in_app_browser` / `deep_link`.
+   * @internal
+   */
+  readonly onCompleteWorkflowNavigate?: (
+    args: CompleteWorkflowNavigateArgs,
+  ) => void | Promise<void>;
 
   /**
    * Callback to be called when the paywall tries to navigate back.
@@ -58,8 +125,14 @@ export interface PresentPaywallParams {
   /**
    * Callback called when an error that won't close the paywall occurs.
    * For example, a retryable error during the purchase process.
+   * @deprecated Use `listener.onPurchaseError` instead.
    */
   readonly onPurchaseError?: (error: Error) => void;
+
+  /**
+   * Optional listener for paywall purchase lifecycle events.
+   */
+  readonly listener?: PaywallListener;
 
   /**
    * The locale to use for the paywall and the checkout flow.
@@ -70,4 +143,33 @@ export interface PresentPaywallParams {
    * Whether to hide back buttons in the paywall. Defaults to false.
    */
   readonly hideBackButtons?: boolean;
+
+  /**
+   * Custom variables to pass to the paywall at runtime, overriding defaults set
+   * in the RevenueCat dashboard.
+   *
+   * Variables must be defined in the dashboard first. Reference them in paywall
+   * text using the `custom.` prefix (e.g. `{{ custom.player_name }}`).
+   *
+   * @example
+   * ```ts
+   * presentPaywall({
+   *   customVariables: {
+   *     player_name: CustomVariableValue.string('Ada'),
+   *     level: CustomVariableValue.number(42),
+   *     is_premium: CustomVariableValue.boolean(true),
+   *   },
+   * });
+   * ```
+   */
+  readonly customVariables?: CustomVariables;
+
+  /**
+   * Optional hint to enable suppot for upgrade/downgrades of an
+   * existing Web Billing subscription. Requires a subscriber access token
+   * (via {@link PurchasesConfig.subscriberToken} or
+   * {@link ProductChangeInfo.subscriberToken}).
+   * @internal
+   */
+  readonly productChangeInfo?: ProductChangeInfo | null;
 }

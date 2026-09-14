@@ -60,7 +60,13 @@ export function purchaseSimulatedStoreProduct(
           );
           try {
             resolve(
-              await postSimulatedStoreReceipt(product, backend, appUserId),
+              await postSimulatedStoreReceipt(
+                product,
+                backend,
+                appUserId,
+                purchaseParams.paywallId,
+                purchaseParams.customerEmail,
+              ),
             );
           } catch (error) {
             reject(error);

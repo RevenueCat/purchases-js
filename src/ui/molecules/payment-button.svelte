@@ -18,11 +18,15 @@
     selectedPaymentMethod?: string;
   };
 
-  const { disabled, subscriptionOption, priceBreakdown }: Props = $props();
+  let { disabled, subscriptionOption, priceBreakdown }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
-  const brandingAppearance = getContext<BrandingAppearance>(brandingContextKey);
+  const brandingAppearanceStore =
+    getContext<Writable<BrandingAppearance | null | undefined>>(
+      brandingContextKey,
+    );
+  const brandingAppearance = $derived($brandingAppearanceStore ?? undefined);
 
   const formattedPrice = $derived(
     priceBreakdown

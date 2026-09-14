@@ -2,15 +2,25 @@ import React, { useState } from "react";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
 import { Purchases } from "@revenuecat/purchases-js";
+import { isPaddleApiKey, isStripeApiKey } from "../../util/PurchasesLoader";
+import { appendExternalPurchaseTokenId } from "../../util/external-purchase-token";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
   const [appUserId, setAppUserId] = useState("");
+  const [offeringId, setOfferingId] = useState("");
+  const [externalPurchaseTokenId, setExternalPurchaseTokenId] = useState("");
   const [useCustomLogger, setUseCustomLogger] = useState(true);
 
-  const navigateToAppUserIDPaywall = (appUserId?: string) => {
+  const navigateToAppUserIDPaywall = (
+    appUserId?: string,
+    destination:
+      | "paywall"
+      | "rc_paywall"
+      | "stripe_billing_apple_pay" = "paywall",
+  ) => {
     if (appUserId) {
       const params = new URLSearchParams();
       if (displayName) {
@@ -19,11 +29,15 @@ const LoginPage: React.FC = () => {
       if (nickname) {
         params.append("nickname", nickname);
       }
+      if (offeringId.trim()) {
+        params.append("offeringId", offeringId.trim());
+      }
+      appendExternalPurchaseTokenId(params, externalPurchaseTokenId);
       // Add custom logger preference
       params.append("useCustomLogger", useCustomLogger.toString());
 
       const queryString = params.toString();
-      const url = `/paywall/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
+      const url = `/${destination}/${encodeURIComponent(appUserId)}${queryString ? `?${queryString}` : ""}`;
       navigate(url);
     }
   };
@@ -41,22 +55,40 @@ const LoginPage: React.FC = () => {
           value={appUserId}
           onChange={(e) => setAppUserId(e.target.value)}
         />
-        <div className="attributes-section">
+        <div className="attributes-section" style={{ marginTop: "16px" }}>
           <h3>Optional Attributes</h3>
-          <input
-            type="text"
-            placeholder="Display Name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            className="input-field"
-          />
-          <input
-            type="text"
-            placeholder="Nickname"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            className="input-field"
-          />
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+          >
+            <input
+              type="text"
+              placeholder="Offering identifier (leave blank for default offering)"
+              value={offeringId}
+              onChange={(e) => setOfferingId(e.target.value)}
+              className="input-field"
+            />
+            <input
+              type="text"
+              placeholder="External purchase token ID (optional)"
+              value={externalPurchaseTokenId}
+              onChange={(e) => setExternalPurchaseTokenId(e.target.value)}
+              className="input-field"
+            />
+            <input
+              type="text"
+              placeholder="Display Name"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="input-field"
+            />
+            <input
+              type="text"
+              placeholder="Nickname"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              className="input-field"
+            />
+          </div>
         </div>
         <div className="logger-section">
           <label className="checkbox-label">
@@ -79,13 +111,52 @@ const LoginPage: React.FC = () => {
             }}
           />
           <Button
-            caption="Skip"
+            caption="Continue (RC Paywall)"
+            onClick={() => {
+              navigateToAppUserIDPaywall(appUserId, "rc_paywall");
+            }}
+          />
+          <Button
+            caption="Runtime appearance demo"
+            onClick={() => {
+              const userId =
+                appUserId || Purchases.generateRevenueCatAnonymousAppUserId();
+              const params = new URLSearchParams();
+              if (offeringId.trim()) {
+                params.append("offeringId", offeringId.trim());
+              }
+              appendExternalPurchaseTokenId(params, externalPurchaseTokenId);
+              const queryString = params.toString();
+              window.location.assign(
+                `/appearance-overrides/${encodeURIComponent(userId)}${queryString ? `?${queryString}` : ""}`,
+              );
+            }}
+          />
+          <Button
+            caption={
+              isPaddleApiKey
+                ? "Skip to Paddle"
+                : isStripeApiKey
+                  ? "Skip to Stripe Checkout"
+                  : "Skip to Web Billing"
+            }
             onClick={() => {
               navigateToAppUserIDPaywall(
                 appUserId || Purchases.generateRevenueCatAnonymousAppUserId(),
               );
             }}
           />
+          {isStripeApiKey ? (
+            <Button
+              caption="Stripe Billing Apple Pay demo"
+              onClick={() => {
+                navigateToAppUserIDPaywall(
+                  appUserId || Purchases.generateRevenueCatAnonymousAppUserId(),
+                  "stripe_billing_apple_pay",
+                );
+              }}
+            />
+          ) : null}
         </div>
       </form>
       <p className="notice">

@@ -10,6 +10,7 @@ import {
   confirmStripeEmailFieldVisible,
   enterCreditCardDetails,
   enterEmail,
+  EXTERNAL_PURCHASE_TOKEN_ID,
   getBackButtons,
   getEmailFromUserId,
   getPackageCards,
@@ -17,9 +18,11 @@ import {
   performPurchase,
   skipPaywallsTestIfDisabled,
   startPurchaseFlow,
+  waitForCheckoutStartRequest,
 } from "./helpers/test-helpers";
 import { integrationTest } from "./helpers/integration-test";
 import {
+  BASE_URL,
   RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
   RC_PAYWALL_WITH_LATAM_TRANSLATION_OFFERING_ID,
 } from "./helpers/fixtures";
@@ -31,6 +34,84 @@ test.describe("Purchase flow", () => {
       page = await navigateToLandingUrl(page, userId);
       const packageCards = await getPackageCards(page);
       await performPurchase(page, packageCards[1], email);
+    },
+  );
+
+  integrationTest(
+    "Forwards the external purchase token for a direct purchase",
+    async ({ page, userId }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+      const packageCards = await getPackageCards(page);
+      const requestPromise = waitForCheckoutStartRequest(page);
+
+      await startPurchaseFlow(packageCards[1]);
+
+      const request = await requestPromise;
+      expect(request.postDataJSON().external_purchase_token_id).toBe(
+        EXTERNAL_PURCHASE_TOKEN_ID,
+      );
+    },
+  );
+
+  integrationTest(
+    "Purchases a subscription product with an external purchase token",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+      const packageCards = await getPackageCards(page);
+
+      await performPurchase(page, packageCards[1], email);
+    },
+  );
+
+  integrationTest(
+    "Purchase a subscription product with deferred store load on regular paywall",
+    async ({ page, userId, email }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        storeLoadTime: "purchase_start",
+      });
+      const packageCards = await getPackageCards(page);
+      await performPurchase(page, packageCards[1], email);
+    },
+  );
+
+  integrationTest(
+    "Hides the checkout back button when hideCheckoutBackButton=true",
+    async ({ page, userId }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        hideCheckoutBackButton: true,
+      });
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[1]);
+
+      await expect(page.getByText("Secure Checkout")).toBeVisible();
+      await expect(page.locator(".rcb-back-button")).toHaveCount(0);
+    },
+  );
+
+  integrationTest(
+    "Purchase a subscription product with delayed store load",
+    async ({ page, userId, email }) => {
+      await page.goto(
+        `${BASE_URL}delayed_store_load/${encodeURIComponent(userId)}?offeringId=${RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES}`,
+      );
+
+      await expect(page.getByText("Delayed Store Load Test")).toBeVisible();
+
+      await page.getByRole("button", { name: "Launch Paywall" }).click();
+
+      const weekly = page.getByText("weekly", { exact: true });
+      await weekly.click();
+
+      const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });
+      await expect(purchaseButton).toBeVisible();
+
+      // Target the parent element of the purchase button since the function targets the button itself
+      await performPurchase(page, purchaseButton.locator("../../.."), email);
     },
   );
 
@@ -53,6 +134,58 @@ test.describe("Purchase flow", () => {
       await expect(purchaseButton).toBeVisible();
 
       // Target the parent element of the purchase button since the function targets the button itself
+      await performPurchase(page, purchaseButton.locator("../../.."), email);
+    },
+  );
+
+  integrationTest(
+    "Forwards the external purchase token from an RC Paywall",
+    async ({ page, userId }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToLandingUrl(page, userId, {
+        offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+        useRcPaywall: true,
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+      const title = page.getByText("E2E Tests for Purchases JS");
+      await expect(title).toBeVisible();
+
+      const weekly = page.getByText("weekly", { exact: true });
+      await weekly.click();
+
+      const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });
+      await expect(purchaseButton).toBeVisible();
+      const requestPromise = waitForCheckoutStartRequest(page);
+
+      await purchaseButton.click();
+
+      const request = await requestPromise;
+      expect(request.postDataJSON().external_purchase_token_id).toBe(
+        EXTERNAL_PURCHASE_TOKEN_ID,
+      );
+    },
+  );
+
+  integrationTest(
+    "Purchases from an RC Paywall with an external purchase token",
+    async ({ page, userId, email }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToLandingUrl(page, userId, {
+        offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+        useRcPaywall: true,
+        rc_external_purchase_token_id: EXTERNAL_PURCHASE_TOKEN_ID,
+      });
+      const title = page.getByText("E2E Tests for Purchases JS");
+      await expect(title).toBeVisible();
+
+      const weekly = page.getByText("weekly", { exact: true });
+      await weekly.click();
+
+      const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });
+      await expect(purchaseButton).toBeVisible();
+
       await performPurchase(page, purchaseButton.locator("../../.."), email);
     },
   );
@@ -149,6 +282,34 @@ test.describe("Purchase flow", () => {
       await confirmPaymentComplete(page);
     },
   );
+
+  integrationTest(
+    "Purchase from RC Paywall skipping the email with email query parameter",
+    async ({ page, userId, email }) => {
+      skipPaywallsTestIfDisabled(integrationTest);
+
+      page = await navigateToLandingUrl(page, userId, {
+        offeringId: RC_PAYWALL_TEST_OFFERING_ID_WITH_VARIABLES,
+        useRcPaywall: true,
+        email,
+      });
+
+      const title = page.getByText("E2E Tests for Purchases JS");
+      await expect(title).toBeVisible();
+
+      const weekly = page.getByText("weekly", { exact: true });
+      await weekly.click();
+
+      const purchaseButton = page.getByText("PURCHASE weekly", { exact: true });
+      await expect(purchaseButton).toBeVisible();
+      await purchaseButton.click();
+
+      await confirmStripeEmailFieldNotVisible(page);
+      await enterCreditCardDetails(page, "4242 4242 4242 4242");
+      await clickPayButton(page);
+      await confirmPaymentComplete(page);
+    },
+  );
 });
 
 test.describe("Purchase error paths", () => {
@@ -186,7 +347,10 @@ test.describe("Purchase error paths", () => {
     const packageCards = await getPackageCards(page);
     await startPurchaseFlow(packageCards[1]);
     await enterEmail(page, "invalid-email");
-    await confirmStripeEmailError(page, "Your email address is invalid.");
+    await confirmStripeEmailError(
+      page,
+      /^Your email address is (?:incomplete|invalid)\.$/,
+    );
   });
 
   integrationTest.fixme(
@@ -215,6 +379,23 @@ test.describe("Purchase error paths", () => {
     await clickPayButton(page);
     await confirmStripeCardError(page, "Your card was declined.");
   });
+
+  integrationTest(
+    "Handled card declined errors with deferred store load",
+    async ({ page, userId }) => {
+      page = await navigateToLandingUrl(page, userId, {
+        storeLoadTime: "purchase_start",
+      });
+      const email = getEmailFromUserId(userId);
+
+      const packageCards = await getPackageCards(page);
+      await startPurchaseFlow(packageCards[1]);
+      await enterEmail(page, email);
+      await enterCreditCardDetails(page, "4000 0000 0000 0002");
+      await clickPayButton(page);
+      await confirmStripeCardError(page, "Your card was declined.");
+    },
+  );
 
   integrationTest(
     "Email deliverability errors after card declined errors",

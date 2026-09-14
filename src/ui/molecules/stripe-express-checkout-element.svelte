@@ -23,6 +23,7 @@
     ClickResolveDetails,
     StripeExpressCheckoutElementClickEvent,
   } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
+  import { generateUUID } from "../../helpers/uuid-helper";
 
   export interface Props {
     onError: (error: StripeServiceError) => void | Promise<void>;
@@ -39,10 +40,10 @@
     onClick?: (event: StripeExpressCheckoutElementClickEvent) => void;
     onCancel?: () => void;
     elements: StripeElements;
-    billingAddressRequired: boolean;
     forceEnableWalletMethods: boolean;
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration;
     hideCheckoutSeparator?: boolean;
+    allowExpressCheckout?: boolean;
   }
 
   const {
@@ -52,18 +53,19 @@
     onClick,
     onCancel,
     elements,
-    billingAddressRequired,
     forceEnableWalletMethods,
     expressCheckoutOptions,
     hideCheckoutSeparator = false,
+    allowExpressCheckout = true,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
 
   let expressCheckoutElement: StripeExpressCheckoutElement | null = null;
+  let expressCheckoutElementReady = $state(false);
   let hideExpressCheckoutElement = $state(false);
   // Allows having more than one in the page.
-  const expressCheckoutElementId = `express-checkout-element-${new Date().getTime()}`;
+  const expressCheckoutElementId = `express-checkout-element-${generateUUID()}`;
 
   const onCancelCallback = async () => {
     onCancel && onCancel();
@@ -72,18 +74,24 @@
   const onClickCallback = async (
     event: StripeExpressCheckoutElementClickEvent,
   ) => {
-    const options = {
-      ...(expressCheckoutOptions ? expressCheckoutOptions : {}),
-    } as ClickResolveDetails;
+    if (!allowExpressCheckout) {
+      return;
+    }
+    const { business: _business, ...options } = expressCheckoutOptions ?? {};
     onClick && onClick(event);
-    event.resolve(options);
+    event.resolve(options as ClickResolveDetails);
+  };
+
+  const handleLoadingError = async (error: StripeServiceError) => {
+    hideExpressCheckoutElement = true;
+    await onError(error);
   };
 
   const onLoadErrorCallback = async (event: {
     elementType: "expressCheckout";
     error: StripeError;
   }) => {
-    await onError(StripeService.mapInitializationError(event.error));
+    await handleLoadingError(StripeService.mapInitializationError(event.error));
   };
 
   const onConfirmCallback = async (
@@ -99,6 +107,7 @@
   const onReadyCallback = async (
     event: StripeExpressCheckoutElementReadyEvent,
   ) => {
+    expressCheckoutElementReady = true;
     hideExpressCheckoutElement = !event.availablePaymentMethods;
     onReady && onReady(event);
   };
@@ -107,7 +116,6 @@
     try {
       expressCheckoutElement = StripeService.createExpressCheckoutElement(
         elements,
-        billingAddressRequired,
         forceEnableWalletMethods,
         expressCheckoutOptions,
       );
@@ -118,7 +126,9 @@
       expressCheckoutElement.on("click", onClickCallback);
       expressCheckoutElement.on("cancel", onCancelCallback);
     } catch (e) {
-      onError(StripeService.mapInitializationError(e as StripeError));
+      handleLoadingError(
+        StripeService.mapInitializationError(e as StripeError),
+      );
     }
   });
 
@@ -128,13 +138,22 @@
   });
 </script>
 
-{#if !hideExpressCheckoutElement}
-  <div id={expressCheckoutElementId}></div>
-  {#if !hideCheckoutSeparator}
-    <TextSeparator
-      text={$translator.translate(
-        LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
-      )}
-    />
-  {/if}
+<div
+  id={expressCheckoutElementId}
+  class:rcb-express-checkout-hidden={!allowExpressCheckout ||
+    hideExpressCheckoutElement}
+  aria-hidden={!allowExpressCheckout || hideExpressCheckoutElement}
+></div>
+{#if !hideCheckoutSeparator && allowExpressCheckout && expressCheckoutElementReady && !hideExpressCheckoutElement}
+  <TextSeparator
+    text={$translator.translate(
+      LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
+    )}
+  />
 {/if}
+
+<style>
+  .rcb-express-checkout-hidden {
+    display: none;
+  }
+</style>

@@ -20,6 +20,7 @@
   import { brandingContextKey } from "../constants";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
   import { initStripe, updateStripe } from "./stripe-helpers";
+  import type { BrandingAppearance } from "../../entities/branding";
 
   import type { ExpressPurchaseButtonProps } from "./express-purchase-button-props";
   import type {
@@ -37,12 +38,14 @@
   } from "../../behavioural-events/sdk-event-helpers";
   import type { SDKEventPurchaseMode } from "../../behavioural-events/event";
   import type { CheckoutPrepareResponse } from "../../networking/responses/checkout-prepare-response";
+  import { isSubscriptionChangeCheckoutStartResponse } from "../../networking/responses/subscription-change-response";
 
   const {
     customerEmail,
     appUserId,
     rcPackage,
     purchaseOption,
+    externalPurchaseTokenId,
     metadata,
     brandingInfo,
     eventsTracker,
@@ -51,13 +54,18 @@
     onFinished,
     onError,
     onReady,
+    listener,
+    walletButtonTheme,
   }: ExpressPurchaseButtonProps = $props();
 
   const mode: SDKEventPurchaseMode = "express_purchase_button";
 
   let translatorStore = writable(translator);
+  const brandingAppearanceStore = writable<BrandingAppearance | null>(
+    brandingInfo?.appearance ?? null,
+  );
   setContext(translatorContextKey, translatorStore);
-  setContext(brandingContextKey, brandingInfo?.appearance);
+  setContext(brandingContextKey, brandingAppearanceStore);
 
   let isLoading = $state(true);
   let isPurchasing = $state(false);
@@ -116,6 +124,7 @@
             purchaseOption,
             translator,
             brandingInfo,
+            walletButtonTheme,
           );
         stripe = stripeInstance;
         elements = elementsInstance;
@@ -128,6 +137,8 @@
           rcPackage,
           purchaseOption,
           translator,
+          brandingInfo,
+          walletButtonTheme,
         );
         expressCheckoutOptions = expOptions;
       }
@@ -171,10 +182,11 @@
     } = await StripeService.extractTaxCustomerDetails(elements, stripe);
 
     if (brandingInfo?.gateway_tax_collection_enabled) {
-      const taxCalculation = await purchaseOperationHelper.checkoutCalculateTax(
-        taxCustomerDetails.countryCode,
-        taxCustomerDetails.postalCode,
-      );
+      const taxCalculation =
+        await purchaseOperationHelper.checkoutRefreshPricing({
+          countryCode: taxCustomerDetails.countryCode,
+          postalCode: taxCustomerDetails.postalCode,
+        });
 
       const taxEvent = createCheckoutPaymentTaxCalculationEvent({
         taxCalculation,
@@ -192,9 +204,11 @@
 
     await StripeService.submitElements(elements);
 
-    const completeResponse =
-      await purchaseOperationHelper.checkoutComplete(email);
-    const newClientSecret = completeResponse?.gateway_params?.client_secret;
+    const completeResponse = await purchaseOperationHelper.checkoutComplete({
+      email,
+      locale: translator.selectedLocale,
+    });
+    const newClientSecret = completeResponse.gateway_params?.client_secret;
 
     if (!newClientSecret) {
       return false;
@@ -278,14 +292,24 @@
     });
     eventsTracker.trackSDKEvent(sessionStartEvent);
     try {
-      const checkoutStartResult = await purchaseOperationHelper.checkoutStart(
+      const checkoutStartResult = await purchaseOperationHelper.checkoutStart({
         appUserId,
-        rcPackage.webBillingProduct.identifier,
+        productId: rcPackage.webBillingProduct.identifier,
         purchaseOption,
-        rcPackage.webBillingProduct.presentedOfferingContext,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
         customerEmail,
+        externalPurchaseTokenId,
         metadata,
-      );
+        locale: translator.selectedLocale,
+      });
+
+      if (isSubscriptionChangeCheckoutStartResponse(checkoutStartResult)) {
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Unexpected subscription-change response for express purchase.",
+        );
+      }
 
       const managementUrl = checkoutStartResult.management_url;
 
@@ -302,9 +326,14 @@
         rcPackage,
         purchaseOption,
         translator,
+        brandingInfo,
+        walletButtonTheme,
       );
 
-      return { applePay: options.applePay } as ClickResolveDetails;
+      return {
+        applePay: options.applePay,
+        lineItems: options.lineItems,
+      } as ClickResolveDetails;
     } catch (error) {
       handleError(
         error instanceof PurchaseFlowError
@@ -316,6 +345,7 @@
   };
 
   const onExpressClicked = (event: StripeExpressCheckoutElementClickEvent) => {
+    listener?.onPurchaseStarted?.(rcPackage);
     startCheckout().then((options) => event.resolve(options));
   };
 
@@ -323,6 +353,7 @@
     eventsTracker.trackSDKEvent(
       createCheckoutSessionEndClosedEvent({ mode: "express_purchase_button" }),
     );
+    listener?.onPurchaseCancelled?.();
   };
 
   function onExpressCheckoutElementReady(
@@ -346,7 +377,6 @@
       onReady={onExpressCheckoutElementReady}
       {expressCheckoutOptions}
       forceEnableWalletMethods={false}
-      billingAddressRequired={brandingInfo?.gateway_tax_collection_enabled}
       hideCheckoutSeparator={true}
     />
   {/if}

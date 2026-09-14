@@ -3,12 +3,15 @@ import type {
   Offerings,
   Package,
   Product,
+  PurchaseMetadata,
 } from "./entities/offerings";
 import PurchasesUi from "./ui/purchases-ui.svelte";
 import PaddlePurchasesUi from "./ui/paddle-purchases-ui.svelte";
+import StripeCheckoutPurchasesUi from "./ui/stripe-checkout-purchases-ui.svelte";
 
 import { type CustomerInfo, toCustomerInfo } from "./entities/customer-info";
 import {
+  BackendErrorCode,
   ErrorCode,
   PurchasesError,
   UninitializedPurchasesError,
@@ -18,18 +21,23 @@ import {
   type OfferingsResponse,
   type PackageResponse,
 } from "./networking/responses/offerings-response";
-import { type ProductResponse } from "./networking/responses/products-response";
+import {
+  type ProductResponse,
+  type ProductsResponse,
+} from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
   isPaddleApiKey,
   isSimulatedStoreApiKey,
+  isStripeApiKey,
+  isStripeSandboxApiKey,
   isWebBillingApiKey,
   isWebBillingSandboxApiKey,
 } from "./helpers/api-key-helper";
 import {
   type OperationSessionSuccessfulResult,
-  type PurchaseFlowError,
+  PurchaseFlowError,
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
@@ -41,7 +49,12 @@ import {
   validateAppUserId,
   validateProxyUrl,
 } from "./helpers/configuration-validators";
-import { type PurchaseParams } from "./entities/purchase-params";
+import type {
+  PrepareQuickPurchaseParams,
+  PurchaseParams,
+  QuickPurchasePreparationResult,
+} from "./entities/purchase-params";
+import { type ProductChangeResult } from "./entities/product-change-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import {
   type GetOfferingsParams,
@@ -49,9 +62,17 @@ import {
 } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
+import type { StripeBillingApplePayCheckoutStartResponse } from "./networking/responses/checkout-start-response";
+import type { BrandingAppearance } from "./entities/branding";
 import { requiresLoadedResources } from "./helpers/decorators";
 import {
-  findOfferingByPlacementId,
+  isCheckoutConsentRequired,
+  resolveTermsAndConditionsUrl,
+} from "./helpers/checkout-consent-helper";
+import {
+  enrichPackagesWithPlacementContext,
+  getOfferingIdForPlacement,
+  toOffering,
   toOfferings,
 } from "./helpers/offerings-parser";
 import {
@@ -59,8 +80,25 @@ import {
   type PurchaseResult,
 } from "./entities/purchase-result";
 import { mount, unmount } from "svelte";
-import { type PresentPaywallParams } from "./entities/present-paywall-params";
-import { Paywall, type PaywallData } from "@revenuecat/purchases-ui-js";
+import { type PaywallListener } from "./entities/paywall-listener";
+import {
+  type CompleteWorkflowNavigateArgs,
+  type PresentPaywallParams,
+} from "./entities/present-paywall-params";
+import type {
+  ComponentInteractionData as UIComponentInteractionData,
+  WalletButtonRender,
+} from "@revenuecat/purchases-ui-js";
+import {
+  Paywall,
+  type PaywallData,
+  Workflow,
+  workflowDataToNavData,
+  type WorkflowData,
+  type WorkflowStepChangeEvent,
+  type UIConfig,
+  mergeCustomVariables,
+} from "@revenuecat/purchases-ui-js";
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
   buildVariablesPerPackage,
@@ -78,7 +116,10 @@ import {
   createCheckoutSessionEndFinishedEvent,
   createCheckoutSessionStartEvent,
 } from "./behavioural-events/sdk-event-helpers";
-import { SDKEventName } from "./behavioural-events/sdk-events";
+import {
+  SDKEventName,
+  type WorkflowStepEntryReason,
+} from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
 import {
   defaultFlagsConfig,
@@ -90,6 +131,11 @@ import {
   type PurchasesContext,
 } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
+import {
+  type PaywallComponentInteractionEventData,
+  type PaywallEventType,
+  toPaywallInteractionEvent,
+} from "./behavioural-events/paywall-event";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
 import { purchaseSimulatedStoreProduct } from "./helpers/simulated-store-purchase-helper";
@@ -99,12 +145,53 @@ import type { VirtualCurrencies } from "./entities/virtual-currencies";
 import { toVirtualCurrencies } from "./entities/virtual-currencies";
 import type { IdentifyResult } from "./entities/identify-result";
 import { parseOfferingIntoPackageInfoPerPackage } from "./helpers/paywall-package-info-helpers";
+import { buildPaywallContextPackages } from "./helpers/paywall-context-packages-helpers";
 import type {
   ExpressPurchaseButtonUpdater,
   PresentExpressPurchaseButtonParams,
 } from "./entities/present-express-purchase-button-params";
+import type { CustomPaywallImpressionParams } from "./entities/custom-paywall-impression-params";
 import { ExpressPurchaseButtonWrapper } from "./ui/express-purchase-button/express-purchase-button-wrapper.svelte";
-import { getWindow, getDocument } from "./helpers/browser-globals";
+import {
+  getDocument,
+  getNullableDocument,
+  getNullableWindow,
+  getWindow,
+} from "./helpers/browser-globals";
+import { isAllowedCompleteWorkflowNavigateUrl } from "./helpers/complete-workflow-navigate-url";
+import { buildAssetURL } from "./networking/assets";
+import {
+  removeManagedAppleTouchIcon,
+  syncManagedAppleTouchIcon,
+} from "./helpers/apple-touch-icon";
+import {
+  applyBrandingAppearanceOverride,
+  mergeBrandingAppearanceOverrides,
+} from "./helpers/branding-appearance-helper";
+import {
+  type PreparedStripeBillingApplePayPurchase,
+  prepareStripeBillingApplePayPurchase,
+  presentStripeBillingApplePayPurchase,
+} from "./stripe/stripe-billing-apple-pay-purchase";
+
+type UIComponentInteractionFields = UIComponentInteractionData & {
+  componentURL?: string;
+  originIndex?: number;
+  destinationIndex?: number;
+  originContextName?: string;
+  destinationContextName?: string;
+  defaultIndex?: number;
+  originPackageId?: string;
+  destinationPackageId?: string;
+  defaultPackageId?: string;
+  originProductId?: string;
+  destinationProductId?: string;
+  defaultProductId?: string;
+  currentPackageId?: string;
+  resultingPackageId?: string;
+  currentProductId?: string;
+  resultingProductId?: string;
+};
 
 export { ProductType } from "./entities/offerings";
 export type {
@@ -143,13 +230,25 @@ export type { StoreTransaction } from "./entities/store-transaction";
 export { PeriodUnit } from "./helpers/duration-helper";
 export type { Period } from "./helpers/duration-helper";
 export type { HttpConfig } from "./entities/http-config";
-export type { FlagsConfig } from "./entities/flags-config";
+export type { FlagsConfig, StoreLoadTime } from "./entities/flags-config";
 export { LogLevel } from "./entities/logging";
 export type { LogHandler } from "./entities/logging";
 export type { IdentifyResult } from "./entities/identify-result";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
-export type { PurchaseParams } from "./entities/purchase-params";
+export type {
+  AttributionMetadata,
+  MetaCapiAttributionMetadata,
+  MetaCanonicalAttributionMetadata,
+  PurchaseResponseAttributionMetadata,
+  PrepareQuickPurchaseParams,
+  PurchaseParams,
+  QuickPurchasePreparationResult,
+} from "./entities/purchase-params";
+export type {
+  ProductChangeInfo,
+  ProductChangeResult,
+} from "./entities/product-change-params";
 export type { RedemptionInfo } from "./entities/redemption-info";
 export type {
   PurchaseResult,
@@ -158,15 +257,56 @@ export type {
 export type { BrandingAppearance } from "./entities/branding";
 export type { PlatformInfo } from "./entities/platform-info";
 export type { PurchasesConfig } from "./entities/purchases-config";
+export type { CustomPaywallImpressionParams } from "./entities/custom-paywall-impression-params";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
 export type { PresentPaywallParams } from "./entities/present-paywall-params";
+export type { PaywallListener } from "./entities/paywall-listener";
+export type { PaywallInteractionEvent } from "./entities/paywall-interaction-event";
+export { PAYWALL_COMPONENT_TYPES } from "./entities/paywall-interaction-event";
+export type { PurchaseListener } from "./entities/purchase-listener";
+export {
+  CustomVariableValue,
+  type CustomVariables,
+} from "@revenuecat/purchases-ui-js";
 export type {
   PresentExpressPurchaseButtonParams,
   ExpressPurchaseButtonUpdater,
 } from "./entities/present-express-purchase-button-params";
 
 const ANONYMOUS_PREFIX = "$RCAnonymousID:";
+
+interface StripeBillingQuickPurchaseState {
+  key: string;
+  purchase: PreparedStripeBillingApplePayPurchase;
+}
+
+interface StripeBillingQuickPurchaseContext {
+  key: string;
+  params: PurchaseParams;
+  brandingInfo: BrandingInfoResponse | null;
+  purchaseOption: NonNullable<PurchaseParams["purchaseOption"]>;
+  translator: Translator;
+}
+
+function stableSerialize(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map(stableSerialize).join(",")}]`;
+  }
+  if (value !== null && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>)
+      .filter(([, entryValue]) => {
+        return entryValue !== undefined && typeof entryValue !== "function";
+      })
+      .sort(([left], [right]) => left.localeCompare(right));
+    return `{${entries
+      .map(([key, entryValue]) => {
+        return `${JSON.stringify(key)}:${stableSerialize(entryValue)}`;
+      })
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
 
 /**
  * Entry point for Purchases SDK. It should be instantiated as soon as your
@@ -191,6 +331,12 @@ export class Purchases {
   private readonly _flags: FlagsConfig;
 
   /** @internal */
+  private readonly _subscriberToken: string | null;
+
+  /** @internal */
+  private readonly _brandingAppearanceOverride?: Partial<BrandingAppearance>;
+
+  /** @internal */
   private readonly _context?: PurchasesContext;
 
   /** @internal */
@@ -207,6 +353,19 @@ export class Purchases {
 
   /** @internal */
   private readonly inMemoryCache: InMemoryCache;
+
+  /** @internal */
+  private cachedCurrentOffering: Offering | null = null;
+
+  /** @internal */
+  private stripeBillingQuickPurchaseState: StripeBillingQuickPurchaseState | null =
+    null;
+
+  /** @internal */
+  private stripeBillingQuickPurchasePreparation: {
+    key: string;
+    promise: Promise<QuickPurchasePreparationResult>;
+  } | null = null;
 
   /** @internal */
   private static instance: Purchases | undefined = undefined;
@@ -248,6 +407,25 @@ export class Purchases {
     options: BuildVariablesPerPackageOptions = {},
   ) {
     return buildVariablesPerPackage(offering, options);
+  }
+
+  /**
+   * Build package info (trial/intro/promo offer flags and checkout URL) for
+   * each package in an offering, keyed by package identifier.
+   * Used to support Paywalls in Workflows.
+   * @internal
+   */
+  static buildInfoPerPackage(offering: Offering) {
+    return parseOfferingIntoPackageInfoPerPackage(offering);
+  }
+
+  /**
+   * Map an offering's available packages to SDK PaywallPackage[] for
+   * custom-component PaywallContext. Used by presentPaywall and Workflows.
+   * @internal
+   */
+  static buildPaywallContextPackages(offering: Offering) {
+    return buildPaywallContextPackages(offering);
   }
 
   /** @internal */
@@ -345,7 +523,16 @@ export class Purchases {
   }
 
   private static configureInternal(config: PurchasesConfig): void {
-    const { apiKey, appUserId, httpConfig, flags, context, trace_id } = config;
+    const {
+      apiKey,
+      appUserId,
+      httpConfig,
+      flags,
+      subscriberToken,
+      brandingAppearanceOverride,
+      context,
+      trace_id,
+    } = config;
     const finalHttpConfig = httpConfig ?? defaultHttpConfig;
     const finalFlags = flags ?? defaultFlagsConfig;
 
@@ -355,6 +542,8 @@ export class Purchases {
       appUserId,
       finalHttpConfig,
       finalFlags,
+      subscriberToken,
+      brandingAppearanceOverride,
       context,
       trace_id,
     );
@@ -406,6 +595,27 @@ export class Purchases {
       return;
     }
     this._brandingInfo = await this.backend.getBrandingInfo();
+    this.syncApplePayWebsiteIcon();
+  }
+
+  /** @internal */
+  private syncApplePayWebsiteIcon(): void {
+    if (!this._flags.applePayBrandingLogoEnabled) {
+      return;
+    }
+
+    const doc = getNullableDocument();
+    const win = getNullableWindow();
+    if (!doc) {
+      return;
+    }
+
+    const iconPath = this._brandingInfo?.app_icon?.trim();
+    syncManagedAppleTouchIcon({
+      doc,
+      win,
+      href: iconPath ? buildAssetURL(iconPath) : null,
+    });
   }
 
   /** @internal */
@@ -419,12 +629,18 @@ export class Purchases {
     appUserId: string,
     httpConfig: HttpConfig = defaultHttpConfig,
     flags: FlagsConfig = defaultFlagsConfig,
+    subscriberToken?: string,
+    brandingAppearanceOverride?: Partial<BrandingAppearance>,
     context?: PurchasesContext,
     trace_id?: string,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
     this._flags = { ...defaultFlagsConfig, ...flags };
+    this._subscriberToken = subscriberToken ?? null;
+    this._brandingAppearanceOverride = brandingAppearanceOverride
+      ? { ...brandingAppearanceOverride }
+      : undefined;
     this._context = context;
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
@@ -445,6 +661,7 @@ export class Purchases {
       rcSource: this._flags.rcSource ?? null,
       workflowContext: this._context?.workflowContext,
       trace_id: trace_id,
+      httpConfig,
     });
     this.backend = new Backend(this._API_KEY, httpConfig, this._context);
     this.inMemoryCache = new InMemoryCache();
@@ -484,7 +701,7 @@ export class Purchases {
       element.style.width = "100%";
       element.style.height = "100%";
       element.style.overflow = "auto";
-      element.style.backgroundColor = "rgba(0, 0, 0, 0.4)";
+      element.style.backgroundColor = "var(--rc-purchases-ui-bg-color, Canvas)";
       if (doc.body.offsetWidth > 968) {
         element.style.display = "flex";
         element.style.justifyContent = "center";
@@ -510,11 +727,23 @@ export class Purchases {
     if (!offering) {
       throw new Error("No offering found.");
     }
-    if (!offering.paywallComponents) {
+
+    // Check for a workflow associated with this offering.
+    const workflowsResponse = await this.backend
+      .getWorkflows(this._appUserId)
+      .catch((e) => {
+        Logger.warnLog(`Failed to fetch workflows: ${e}`);
+        return null;
+      });
+    const matchedWorkflowSummary = workflowsResponse?.workflows?.find(
+      (w) => w.offering_id === offering.identifier,
+    );
+
+    if (!matchedWorkflowSummary && !offering.paywallComponents) {
       throw new Error("This offering doesn't have a paywall attached.");
     }
 
-    if (!offering.uiConfig) {
+    if (!matchedWorkflowSummary && !offering.uiConfig) {
       throw new Error(
         "No ui_config found for this offering, please contact support!",
       );
@@ -560,19 +789,110 @@ export class Purchases {
       ? paywallParams.selectedLocale
       : navigator.language;
 
-    const finalLocale = calculateLocale(
-      offering.paywallComponents,
-      selectedLocale,
-    );
+    // finalLocale and translator are only needed for the standard paywall path.
+    // The workflow path resolves its own locale below, against the workflow's
+    // screens (see finalWorkflowLocale).
+    const finalLocale = offering.paywallComponents
+      ? calculateLocale(offering.paywallComponents, selectedLocale)
+      : selectedLocale;
 
     const translator = new Translator(
       {},
       finalLocale,
-      offering.paywallComponents.default_locale,
+      offering.paywallComponents?.default_locale ?? englishLocale,
     );
+
+    const paywallSessionId = generateUUID();
+    const paywallBaseEventData = {
+      appUserId: this._appUserId,
+      sessionId: paywallSessionId,
+      offeringId: offering.identifier,
+      paywallRevision: 0,
+      paywallRcPublicId: offering.paywallComponents?.id ?? null,
+      presentedOfferingContext:
+        offering.availablePackages[0]?.webBillingProduct
+          ?.presentedOfferingContext,
+    };
+    const paywallDisplayData = {
+      displayMode: "full_screen",
+      darkMode:
+        getWindow()?.matchMedia?.("(prefers-color-scheme: dark)").matches ??
+        false,
+      locale: finalLocale,
+    };
+    const productIdsByPackage = new Map(
+      offering.availablePackages.map((pkg) => [
+        pkg.identifier,
+        pkg.webBillingProduct.identifier,
+      ]),
+    );
+
+    const getProductIdentifierForPackageId = (packageId?: string) => {
+      if (packageId === undefined) {
+        return undefined;
+      }
+
+      return productIdsByPackage.get(packageId);
+    };
+
+    const toInteractionEvent = (
+      data: UIComponentInteractionData,
+    ): PaywallComponentInteractionEventData => {
+      const interaction = data as UIComponentInteractionFields;
+
+      return {
+        type: "paywall_component_interacted",
+        ...paywallBaseEventData,
+        ...paywallDisplayData,
+        componentType: data.componentType,
+        componentName: data.componentName,
+        componentValue: data.componentValue,
+        componentURL: interaction.componentURL,
+        originIndex: interaction.originIndex,
+        destinationIndex: interaction.destinationIndex,
+        originContextName: interaction.originContextName,
+        destinationContextName: interaction.destinationContextName,
+        defaultIndex: interaction.defaultIndex,
+        originPackageId: interaction.originPackageId,
+        destinationPackageId: interaction.destinationPackageId,
+        defaultPackageId: interaction.defaultPackageId,
+        originProductId:
+          interaction.originProductId ??
+          getProductIdentifierForPackageId(interaction.originPackageId),
+        destinationProductId:
+          interaction.destinationProductId ??
+          getProductIdentifierForPackageId(interaction.destinationPackageId),
+        defaultProductId:
+          interaction.defaultProductId ??
+          getProductIdentifierForPackageId(interaction.defaultPackageId),
+        currentPackageId: interaction.currentPackageId,
+        resultingPackageId: interaction.resultingPackageId,
+        currentProductId:
+          interaction.currentProductId ??
+          getProductIdentifierForPackageId(interaction.currentPackageId),
+        resultingProductId:
+          interaction.resultingProductId ??
+          getProductIdentifierForPackageId(interaction.resultingPackageId),
+      };
+    };
+
+    const trackPaywallEvent = (
+      type: Exclude<PaywallEventType, "paywall_component_interacted">,
+    ) => {
+      this.eventsTracker.trackPaywallEvent({
+        type,
+        ...paywallBaseEventData,
+        ...(type === "paywall_impression"
+          ? {
+              ...paywallDisplayData,
+            }
+          : {}),
+      });
+    };
 
     const startPurchaseFlow = async (
       selectedPackageId: string,
+      checkoutLocale: string = finalLocale,
     ): Promise<PaywallPurchaseResult> => {
       const pkg = offering.availablePackages.find(
         (p) => p.identifier === selectedPackageId,
@@ -586,17 +906,85 @@ export class Purchases {
         rcPackage: pkg,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
-        selectedLocale: finalLocale,
+        externalPurchaseTokenId: paywallParams.externalPurchaseTokenId,
+        metadata: paywallParams.metadata,
+        brandingAppearanceOverride: paywallParams.brandingAppearanceOverride,
+        showDiscountCodeField: paywallParams.showDiscountCodeField,
+        discountCode: paywallParams.discountCode,
+        onDiscountCodeChanged: paywallParams.onDiscountCodeChanged,
+        selectedLocale: checkoutLocale,
         defaultLocale:
-          offering.paywallComponents?.default_locale || englishLocale,
+          offering.paywallComponents?.default_locale ?? englishLocale,
+        paywallId: offering.paywallComponents?.id,
+        paywallSessionId,
+        productChangeInfo: paywallParams.productChangeInfo,
       });
 
       return { ...purchaseResult, selectedPackage: pkg };
     };
 
+    let lastNavigationInteraction: {
+      componentType: UIComponentInteractionData["componentType"];
+      componentURL?: string;
+    } | null = null;
+    let lastTextLinkClick: {
+      url: string;
+      defaultPrevented: boolean;
+    } | null = null;
+
+    const recordTextLinkClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const anchor = target.closest("a[href]");
+      if (
+        !(anchor instanceof HTMLAnchorElement) ||
+        !certainHTMLTarget.contains(anchor)
+      ) {
+        return;
+      }
+
+      const url = anchor.getAttribute("href") ?? anchor.href;
+      if (!url) {
+        return;
+      }
+
+      lastTextLinkClick = {
+        url,
+        defaultPrevented: event.defaultPrevented,
+      };
+    };
+
     const navigateToUrl = (url: string) => {
+      const navigationInteraction =
+        lastNavigationInteraction?.componentURL === url
+          ? lastNavigationInteraction
+          : null;
+      lastNavigationInteraction = null;
+
       if (paywallParams.onNavigateToUrl) {
         paywallParams.onNavigateToUrl(url);
+        return;
+      }
+
+      // purchases-ui-js text links now preserve native browser navigation, but
+      // older versions still prevent default and rely on the host callback to
+      // navigate. Defer the fallback until after bubbling so both contracts work.
+      if (navigationInteraction?.componentType === "text") {
+        queueMicrotask(() => {
+          const textLinkClick =
+            lastTextLinkClick?.url === url ? lastTextLinkClick : null;
+          lastTextLinkClick = null;
+
+          if (textLinkClick?.defaultPrevented !== true) {
+            return;
+          }
+
+          const win = getWindow();
+          win.open(url, "_blank")?.focus();
+        });
         return;
       }
 
@@ -604,6 +992,29 @@ export class Purchases {
       // navigating to the URL in a new tab.
       const win = getWindow();
       win.open(url, "_blank")?.focus();
+    };
+
+    const onCompleteWorkflowNavigate = async (
+      args: CompleteWorkflowNavigateArgs,
+    ) => {
+      if (paywallParams.onCompleteWorkflowNavigate) {
+        await paywallParams.onCompleteWorkflowNavigate(args);
+        return;
+      }
+
+      if (!isAllowedCompleteWorkflowNavigateUrl(args.url, args.method)) {
+        Logger.warnLog(
+          "Blocked complete-workflow navigation to a disallowed URL.",
+        );
+        return;
+      }
+
+      const win = getWindow();
+      if (args.method === "external_browser") {
+        win.open(args.url, "_blank", "noopener,noreferrer")?.focus();
+      } else {
+        win.location.assign(args.url);
+      }
     };
 
     const onRestorePurchasesClicked = () => {
@@ -624,131 +1035,366 @@ export class Purchases {
 
     const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
 
+    const paywallContextOffering = {
+      identifier: offering.identifier,
+      display_name: offering.serverDescription,
+    };
+    const paywallContextPackages = buildPaywallContextPackages(offering);
+
+    const listener = paywallParams.listener;
+
+    const notifyPurchaseStarted = (pkg: Package) => {
+      if (listener?.onPurchaseStarted) {
+        try {
+          listener.onPurchaseStarted(pkg);
+        } catch (e) {
+          Logger.errorLog(`Error in listener.onPurchaseStarted: ${e}`);
+        }
+      }
+    };
+
+    const notifyPurchaseError = (err: Error) => {
+      if (
+        err instanceof PurchasesError &&
+        err.errorCode === ErrorCode.UserCancelledError
+      ) {
+        if (listener?.onPurchaseCancelled) {
+          try {
+            listener.onPurchaseCancelled();
+          } catch (e) {
+            Logger.errorLog(`Error in listener.onPurchaseCancelled: ${e}`);
+          }
+        }
+      } else {
+        if (listener?.onPurchaseError) {
+          try {
+            listener.onPurchaseError(err);
+          } catch (e) {
+            Logger.errorLog(`Error in listener.onPurchaseError: ${e}`);
+          }
+        }
+        if (paywallParams.onPurchaseError) {
+          paywallParams.onPurchaseError(err);
+        }
+      }
+    };
+
+    let workflowNavData: ReturnType<typeof workflowDataToNavData> | undefined;
+    let workflowDataResponse: WorkflowData | undefined;
+    let finalWorkflowLocale: string = selectedLocale;
+    if (matchedWorkflowSummary) {
+      const workflowData = await this.backend
+        .getWorkflowById(this._appUserId, matchedWorkflowSummary.id)
+        .catch((e) => {
+          Logger.warnLog(
+            `Failed to fetch workflow data, falling back to standard paywall: ${e}`,
+          );
+          return null;
+        });
+      const navData = workflowData ? workflowDataToNavData(workflowData) : null;
+      if (workflowData && navData) {
+        workflowDataResponse = workflowData;
+        workflowNavData = navData;
+        // The workflow renderer does exact-key locale lookups only, so resolve
+        // the requested locale to a concrete key the workflow provides (e.g.
+        // "sk" -> "sk_SK"), mirroring what the standard paywall does. All
+        // screens in a workflow share the same locale, so resolving against the
+        // initial screen is sufficient.
+        const initialScreen = navData.pages[navData.initial_page_id];
+        if (initialScreen) {
+          finalWorkflowLocale = calculateLocale(initialScreen, selectedLocale);
+        }
+      } else {
+        if (workflowData && !navData) {
+          Logger.warnLog(
+            "Failed to resolve workflow navigation data, falling back to standard paywall.",
+          );
+        }
+        // If the workflow failed to load and there's no standard paywall to
+        // fall back to, throw rather than crashing on missing paywallComponents.
+        if (!offering.paywallComponents) {
+          throw new Error(
+            "This offering doesn't have a paywall attached and the workflow could not be loaded.",
+          );
+        }
+        if (!offering.uiConfig) {
+          throw new Error(
+            "No ui_config found for this offering, please contact support!",
+          );
+        }
+      }
+    }
+
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
+      let paywallImpressionTracked = false;
+      let paywallCloseTracked = false;
+      let purchaseInFlight = false;
+
+      certainHTMLTarget.addEventListener("click", recordTextLinkClick);
+
+      const trackPaywallCloseIfNeeded = () => {
+        if (paywallCloseTracked) {
+          return;
+        }
+        paywallCloseTracked = true;
+        // Only fire paywall_close if an impression was recorded. For workflows,
+        // a user may exit before reaching the purchasing step, in which case
+        // neither event should fire.
+        if (paywallImpressionTracked) {
+          trackPaywallEvent("paywall_close");
+        }
+      };
+
+      const trackComponentInteraction = (data: UIComponentInteractionData) => {
+        if (!paywallImpressionTracked || paywallCloseTracked) {
+          return;
+        }
+        const eventData = toInteractionEvent(data);
+        this.eventsTracker.trackPaywallEvent(eventData);
+        if (!listener?.onInteraction) {
+          return;
+        }
+        try {
+          listener.onInteraction(toPaywallInteractionEvent(eventData));
+        } catch (e) {
+          Logger.errorLog(`Error in listener.onInteraction: ${e}`);
+        }
+      };
+
+      const onComponentInteraction = (data: UIComponentInteractionData) => {
+        const interaction = data as UIComponentInteractionFields;
+        lastNavigationInteraction =
+          interaction.componentURL === undefined
+            ? null
+            : {
+                componentType: data.componentType,
+                componentURL: interaction.componentURL,
+              };
+        trackComponentInteraction(data);
+      };
+
+      const containerObserver = new MutationObserver(() => {
+        if (certainHTMLTarget.childElementCount === 0) {
+          trackPaywallCloseIfNeeded();
+          containerObserver.disconnect();
+        }
+      });
 
       const unmountPaywall = () => {
+        containerObserver.disconnect();
+        certainHTMLTarget.removeEventListener("click", recordTextLinkClick);
+        trackPaywallCloseIfNeeded();
         if (component) {
           unmount(component);
+          component = null;
         }
         certainHTMLTarget.innerHTML = "";
-
-        // Remove auto-created root from DOM
         if (wasRootAutoCreated && certainHTMLTarget.parentNode) {
           certainHTMLTarget.parentNode.removeChild(certainHTMLTarget);
         }
       };
+
       const closePaywall = () => {
         Logger.debugLog("Purchase cancelled by user");
         unmountPaywall();
         reject(new PurchasesError(ErrorCode.UserCancelledError));
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(`Failed to flush paywall events on close: ${error}`);
+        });
       };
 
-      const walletButtonRender = isWebBillingApiKey(this._API_KEY)
-        ? (
-            element: HTMLElement,
-            {
-              selectedPackageId,
-              onReady,
-            }: {
-              selectedPackageId: string;
-              onReady?: (walletsAvailable: boolean) => void;
-            },
-          ) => {
-            const pkg = offering.packagesById[selectedPackageId];
-            if (!pkg) {
-              return {};
-            }
-            let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
-            this.presentExpressPurchaseButton({
-              rcPackage: pkg,
-              customerEmail: paywallParams.customerEmail,
-              htmlTarget: element,
-              onButtonReady: (updater, walletsAvailable) => {
-                buttonUpdater = updater;
-                onReady?.(walletsAvailable);
-              },
-            })
-              .then((purchaseResult) => {
-                unmountPaywall();
-                resolve({ ...purchaseResult, selectedPackage: pkg });
-              })
-              .catch((err) => {
-                Logger.errorLog(
-                  `Error presenting express purchase button: ${err}`,
-                );
-                if (paywallParams.onPurchaseError) {
-                  paywallParams.onPurchaseError(err);
-                }
-              });
+      const onSuccess = (result: PaywallPurchaseResult) => {
+        unmountPaywall();
+        resolve(result);
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(
+            `Failed to flush paywall events after purchase: ${error}`,
+          );
+        });
+      };
 
-            return {
-              destroy() {
-                element.innerHTML = "";
-              },
-              update({
-                selectedPackageId,
-              }: {
-                selectedPackageId: string;
-                onReady?: () => void;
-              }) {
-                if (buttonUpdater) {
-                  const pkg = offering.packagesById[selectedPackageId];
-                  if (!pkg) {
-                    return;
-                  }
-                  const purchaseOptionToUse =
-                    pkg.webBillingProduct.defaultPurchaseOption;
-                  buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
-                }
-              },
-            };
+      const onError = (message: string) => (error: Error) => {
+        if (
+          error instanceof PurchasesError &&
+          error.errorCode === ErrorCode.UserCancelledError
+        ) {
+          trackPaywallEvent("paywall_cancel");
+        }
+        Logger.errorLog(`${message}: ${error}`);
+        notifyPurchaseError(error);
+      };
+
+      const createPurchaseClickHandler = (checkoutLocale: string) => {
+        return (selectedPackageId: string) => {
+          if (purchaseInFlight) {
+            return;
           }
-        : undefined;
+          purchaseInFlight = true;
+
+          const pkg = offering.packagesById[selectedPackageId];
+          if (pkg) {
+            notifyPurchaseStarted(pkg);
+          }
+
+          startPurchaseFlow(selectedPackageId, checkoutLocale)
+            .then(onSuccess)
+            .catch(onError("Error performing purchase"))
+            .finally(() => {
+              purchaseInFlight = false;
+            });
+        };
+      };
+
+      const walletButtonRender = this.getWalletButtonRender(
+        offering,
+        onSuccess,
+        paywallParams.customerEmail,
+        onError("Error presenting express purchase button"),
+        listener,
+        paywallParams.metadata,
+        paywallParams.externalPurchaseTokenId,
+      );
 
       certainHTMLTarget.innerHTML = "";
-      component = mount(Paywall, {
-        target: certainHTMLTarget,
-        props: {
-          paywallData: offering.paywallComponents!,
-          selectedLocale: finalLocale,
-          onNavigateToUrlClicked: navigateToUrl,
-          onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
-          uiConfig: offering.uiConfig!,
-          onBackClicked: () => {
-            if (paywallParams.onBack) {
-              paywallParams.onBack(closePaywall);
-              return;
-            }
-
-            // Opinionated approach
-            // closing the current purchase and emptying the paywall.
-            closePaywall();
-          },
-          onRestorePurchasesClicked: onRestorePurchasesClicked,
-          onPurchaseClicked: (selectedPackageId: string) => {
-            startPurchaseFlow(selectedPackageId)
-              .then((purchaseResult) => {
-                unmountPaywall();
-                resolve(purchaseResult);
-              })
-              .catch((err) => {
-                Logger.errorLog(`Error performing purchase: ${err}`);
-                if (paywallParams.onPurchaseError) {
-                  paywallParams.onPurchaseError(err);
-                }
+      if (workflowNavData && workflowDataResponse) {
+        try {
+          const onWorkflowStepChanged = (event: WorkflowStepChangeEvent) => {
+            if (event.reason === "completed") {
+              // Fire step_completed for the step being left.
+              // toStepId is undefined when leaving via close/dismiss.
+              this.eventsTracker.trackSDKEvent({
+                eventName: SDKEventName.WorkflowStepCompleted,
+                properties: {
+                  workflow_id: event.workflowId,
+                  step_id: event.stepId,
+                  ...(event.toStepId !== undefined
+                    ? { to_step_id: event.toStepId }
+                    : {}),
+                  is_first_step: event.isFirstStep,
+                  is_last_step: event.isLastStep,
+                },
               });
+            } else {
+              const entryReason: WorkflowStepEntryReason = event.reason;
+              // Fire step_started for the step being entered.
+              this.eventsTracker.trackSDKEvent({
+                eventName: SDKEventName.WorkflowStepStarted,
+                properties: {
+                  workflow_id: event.workflowId,
+                  step_id: event.stepId,
+                  ...(event.fromStepId !== undefined
+                    ? { from_step_id: event.fromStepId }
+                    : {}),
+                  entry_reason: entryReason,
+                  is_first_step: event.isFirstStep,
+                  is_last_step: event.isLastStep,
+                },
+              });
+
+              // paywall_impression fires only on the purchasing step so that
+              // conversion metrics reflect meaningful impressions, not
+              // informational intro pages.
+              if (event.isLastStep && !paywallImpressionTracked) {
+                trackPaywallEvent("paywall_impression");
+                paywallImpressionTracked = true;
+              }
+            }
+          };
+
+          component = mount(Workflow, {
+            target: certainHTMLTarget,
+            props: {
+              workflow: workflowNavData,
+              uiConfig: workflowDataResponse.ui_config as unknown as UIConfig,
+              selectedLocale: finalWorkflowLocale,
+              hideBackButtons: paywallParams.hideBackButtons,
+              variablesPerPackage,
+              infoPerPackage,
+              walletButtonRender,
+              onPurchaseClicked:
+                createPurchaseClickHandler(finalWorkflowLocale),
+              onClose: closePaywall,
+              onExitBack: () => {
+                if (paywallParams.onBack) {
+                  paywallParams.onBack(closePaywall);
+                  return;
+                }
+                closePaywall();
+              },
+              onCompleteWorkflowNavigate,
+              onNavigateToUrlClicked: navigateToUrl,
+              onRestorePurchasesClicked,
+              onVisitCustomerCenterClicked,
+              onComponentInteraction,
+              onStepChanged: onWorkflowStepChanged,
+              globalVariables: paywallParams.customVariables
+                ? mergeCustomVariables(
+                    paywallParams.customVariables,
+                    workflowDataResponse.ui_config as unknown as UIConfig,
+                  )
+                : undefined,
+              customVariables: paywallParams.customVariables,
+              offering: paywallContextOffering,
+              packages: paywallContextPackages,
+              isPreview: false,
+              maxContentWidth: workflowDataResponse.content_max_width
+                ? String(workflowDataResponse.content_max_width)
+                : undefined,
+            },
+          });
+        } catch (err) {
+          unmountPaywall();
+          reject(err);
+          return;
+        }
+      } else {
+        component = mount(Paywall, {
+          target: certainHTMLTarget,
+          props: {
+            paywallData: offering.paywallComponents!,
+            selectedLocale: finalLocale,
+            onNavigateToUrlClicked: navigateToUrl,
+            appUserId: this._appUserId,
+            onCompleteWorkflowNavigate,
+            onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
+            uiConfig: offering.uiConfig!,
+            onBackClicked: () => {
+              if (paywallParams.onBack) {
+                paywallParams.onBack(closePaywall);
+                return;
+              }
+
+              // Opinionated approach
+              // closing the current purchase and emptying the paywall.
+              closePaywall();
+            },
+            onRestorePurchasesClicked: onRestorePurchasesClicked,
+            onPurchaseClicked: createPurchaseClickHandler(finalLocale),
+            onError: (err: unknown) => {
+              unmountPaywall();
+              reject(err);
+            },
+            variablesPerPackage,
+            infoPerPackage,
+            hideBackButtons: paywallParams.hideBackButtons,
+            walletButtonRender,
+            customVariables: paywallParams.customVariables,
+            offering: paywallContextOffering,
+            packages: paywallContextPackages,
+            isPreview: false,
+            onComponentInteraction,
           },
-          onError: (err: unknown) => {
-            unmountPaywall();
-            reject(err);
-          },
-          variablesPerPackage,
-          infoPerPackage,
-          hideBackButtons: paywallParams.hideBackButtons,
-          walletButtonRender,
-        },
-      });
+        });
+      }
+
+      containerObserver.observe(certainHTMLTarget, { childList: true });
+      // For standard (non-workflow) paywalls, fire paywall_impression immediately.
+      // For workflows, impression is deferred to onStepChanged when is_last_step is reached.
+      if (!workflowNavData) {
+        trackPaywallEvent("paywall_impression");
+        paywallImpressionTracked = true;
+      }
 
       if (certainHTMLTarget.style.opacity === "0") {
         certainHTMLTarget.style.opacity = "1";
@@ -778,7 +1424,54 @@ export class Purchases {
       );
     }
 
-    return await this.getAllOfferings(offeringsResponse, appUserId, params);
+    const offerings = await this.getAllOfferings(
+      offeringsResponse,
+      appUserId,
+      params,
+    );
+    // A filtered response may intentionally omit the current offering. Preserve
+    // the current-offering cache in that case so implicit impression tracking
+    // remains attributed to the last fetched current offering.
+    if (
+      appUserId === this._appUserId &&
+      (!offeringIdFilter || offerings.current !== null)
+    ) {
+      this.cachedCurrentOffering = offerings.current;
+    }
+    return offerings;
+  }
+
+  /**
+   * Tracks an impression for a custom paywall.
+   *
+   * Pass the offering used to render the paywall to preserve placement and
+   * targeting attribution. When no offering is passed, the most recently
+   * fetched current offering is used if available.
+   *
+   * Each call creates a separate impression event. Call this once per
+   * paywall presentation and avoid lifecycle callbacks that may run
+   * multiple times for the same display.
+   *
+   * @param params Parameters for the custom paywall impression event.
+   */
+  public trackCustomPaywallImpression(
+    params: CustomPaywallImpressionParams = {},
+  ): void {
+    const offering = params.offering ?? this.cachedCurrentOffering;
+    const presentedOfferingContext =
+      offering?.availablePackages[0]?.webBillingProduct
+        .presentedOfferingContext;
+
+    this.eventsTracker.trackCustomPaywallImpression({
+      paywallId: params.paywallId,
+      offeringId: offering?.identifier,
+      placementIdentifier:
+        presentedOfferingContext?.placementIdentifier ?? undefined,
+      targetingRevision:
+        presentedOfferingContext?.targetingContext?.revision ?? undefined,
+      targetingRuleId:
+        presentedOfferingContext?.targetingContext?.ruleId ?? undefined,
+    });
   }
 
   /**
@@ -793,21 +1486,78 @@ export class Purchases {
   ): Promise<Offering | null> {
     const appUserId = this._appUserId;
     const offeringsResponse = await this.backend.getOfferings(appUserId);
-
-    const offerings = await this.getAllOfferings(
-      offeringsResponse,
-      appUserId,
-      params,
-    );
     const placementData = offeringsResponse.placements ?? null;
     if (placementData == null) {
       return null;
     }
-    return findOfferingByPlacementId(
-      placementData,
-      offerings.all,
-      placementIdentifier,
+
+    const { offeringIdForPlacement, fallbackOfferingId } =
+      getOfferingIdForPlacement(placementData, placementIdentifier);
+
+    if (!offeringIdForPlacement && !fallbackOfferingId) {
+      return null;
+    }
+
+    const offeringWithPreloadedProducts = offeringIdForPlacement
+      ? await this.findOfferingById(
+          offeringIdForPlacement,
+          offeringsResponse,
+          appUserId,
+          params,
+        )
+      : null;
+
+    if (offeringWithPreloadedProducts !== null) {
+      return enrichPackagesWithPlacementContext(
+        placementIdentifier,
+        offeringWithPreloadedProducts,
+      );
+    }
+
+    if (offeringIdForPlacement === fallbackOfferingId) {
+      return null;
+    }
+
+    const fallbackOfferingWithPreloadedProducts = fallbackOfferingId
+      ? await this.findOfferingById(
+          fallbackOfferingId,
+          offeringsResponse,
+          appUserId,
+          params,
+        )
+      : null;
+
+    if (fallbackOfferingWithPreloadedProducts !== null) {
+      return enrichPackagesWithPlacementContext(
+        placementIdentifier,
+        fallbackOfferingWithPreloadedProducts,
+      );
+    }
+
+    return null;
+  }
+
+  private async findOfferingById(
+    offeringIdentifier: string,
+    offeringsResponse: OfferingsResponse,
+    appUserId: string,
+    params?: GetOfferingsParams,
+  ): Promise<Offering | null> {
+    const offering = offeringsResponse.offerings.find(
+      (offering) => offering.identifier === offeringIdentifier,
     );
+
+    if (offering == null) {
+      return null;
+    }
+
+    const productsResponse = await this.fetchProductsForOfferings(
+      [offering],
+      appUserId,
+      params,
+    );
+
+    return toOffering(offeringIdentifier, offeringsResponse, productsResponse);
   }
 
   private async getAllOfferings(
@@ -815,7 +1565,21 @@ export class Purchases {
     appUserId: string,
     params?: GetOfferingsParams,
   ): Promise<Offerings> {
-    const productIds = offeringsResponse.offerings
+    const productsResponse = await this.fetchProductsForOfferings(
+      offeringsResponse.offerings,
+      appUserId,
+      params,
+    );
+
+    return toOfferings(offeringsResponse, productsResponse);
+  }
+
+  private async fetchProductsForOfferings(
+    offerings: OfferingResponse[],
+    appUserId: string,
+    params?: GetOfferingsParams,
+  ): Promise<ProductsResponse> {
+    const productIds = offerings
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
@@ -823,10 +1587,11 @@ export class Purchases {
       appUserId,
       productIds,
       params?.currency,
+      params?.discountCode,
     );
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
-    return toOfferings(offeringsResponse, productsResponse);
+    return productsResponse;
   }
 
   /**
@@ -840,6 +1605,230 @@ export class Purchases {
   public async isEntitledTo(entitlementIdentifier: string): Promise<boolean> {
     const customerInfo = await this.getCustomerInfo();
     return entitlementIdentifier in customerInfo.entitlements.active;
+  }
+
+  /**
+   * Prepares a package-specific Stripe Billing purchase so a later
+   * {@link Purchases.purchase} call can present Apple Pay directly from the
+   * customer's click.
+   *
+   * Pass the same purchase context to both methods. A changed or expired
+   * context falls back to normal Stripe Checkout.
+   * @internal
+   */
+  @requiresLoadedResources
+  public async prepareForQuickPurchases(
+    params: PrepareQuickPurchaseParams,
+  ): Promise<QuickPurchasePreparationResult> {
+    if (!isStripeApiKey(this._API_KEY)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Package-specific quick purchases are only available with Stripe Billing API keys.",
+      );
+    }
+
+    const context = this.resolveStripeBillingQuickPurchaseContext(params);
+    if (!context) {
+      this.stripeBillingQuickPurchaseState = null;
+      return { applePayAvailable: false };
+    }
+
+    const existingState = this.stripeBillingQuickPurchaseState;
+    if (
+      existingState?.key === context.key &&
+      Number.isFinite(existingState.purchase.expiresAt) &&
+      existingState.purchase.expiresAt > Date.now()
+    ) {
+      return { applePayAvailable: true };
+    }
+
+    const existingPreparation = this.stripeBillingQuickPurchasePreparation;
+    if (existingPreparation?.key === context.key) {
+      return await existingPreparation.promise;
+    }
+
+    this.stripeBillingQuickPurchaseState = null;
+    Logger.debugLog(
+      `Preparing Stripe Billing Apple Pay for package ${context.params.rcPackage.identifier}`,
+    );
+    const promise = this.prepareStripeBillingQuickPurchase(context)
+      .then((purchase) => {
+        if (this.stripeBillingQuickPurchasePreparation?.key !== context.key) {
+          return { applePayAvailable: false };
+        }
+        this.stripeBillingQuickPurchaseState = purchase
+          ? { key: context.key, purchase }
+          : null;
+        return { applePayAvailable: purchase !== null };
+      })
+      .catch((error) => {
+        if (this.stripeBillingQuickPurchasePreparation?.key === context.key) {
+          this.stripeBillingQuickPurchaseState = null;
+        }
+        Logger.debugLog(
+          `Apple Pay preparation failed, using checkout: ${String(error)}`,
+        );
+        return { applePayAvailable: false };
+      })
+      .finally(() => {
+        if (this.stripeBillingQuickPurchasePreparation?.key === context.key) {
+          this.stripeBillingQuickPurchasePreparation = null;
+        }
+      });
+    this.stripeBillingQuickPurchasePreparation = {
+      key: context.key,
+      promise,
+    };
+    return await promise;
+  }
+
+  /** @internal */
+  private async prepareStripeBillingQuickPurchase(
+    context: StripeBillingQuickPurchaseContext,
+  ): Promise<PreparedStripeBillingApplePayPurchase | null> {
+    const { params, brandingInfo, purchaseOption, translator } = context;
+    const product = params.rcPackage.webBillingProduct;
+    const operationHelper = new PurchaseOperationHelper(
+      this.backend,
+      this.eventsTracker,
+    );
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+    let startResponse: StripeBillingApplePayCheckoutStartResponse;
+    try {
+      startResponse = await operationHelper.checkoutStart({
+        appUserId: this._appUserId,
+        productId: product.identifier,
+        purchaseOption,
+        presentedOfferingContext: product.presentedOfferingContext,
+        workflowPurchaseContext: params.workflowPurchaseContext,
+        paywallId: params.paywallId,
+        paywallSessionId: params.paywallSessionId,
+        customerEmail: params.customerEmail,
+        externalPurchaseTokenId: params.externalPurchaseTokenId,
+        metadata,
+        locale: translator.selectedLocale,
+        attributionMetadata: params.attributionMetadata,
+        appearanceOverride: params.brandingAppearanceOverride,
+        purchaseFlow: "apple_pay",
+      });
+    } catch (error) {
+      if (
+        error instanceof PurchaseFlowError &&
+        error.extra?.backendErrorCode ===
+          BackendErrorCode.BackendQuickPurchaseUnavailable
+      ) {
+        Logger.debugLog(
+          "Stripe Billing Apple Pay is unavailable for this purchase; using checkout",
+        );
+        return null;
+      }
+      throw error;
+    }
+
+    const purchase = await prepareStripeBillingApplePayPurchase({
+      startResponse,
+      product,
+      purchaseOption,
+      brandingInfo,
+      translator,
+      purchaseOperationHelper: operationHelper,
+    });
+    Logger.debugLog(
+      purchase
+        ? "Stripe Billing Apple Pay purchase is ready"
+        : "Apple Pay is unavailable; purchase will use Stripe Checkout",
+    );
+    return purchase;
+  }
+
+  /** @internal */
+  private resolveStripeBillingQuickPurchaseContext(
+    params: PrepareQuickPurchaseParams | PurchaseParams,
+  ): StripeBillingQuickPurchaseContext | null {
+    const appearanceOverride = mergeBrandingAppearanceOverrides(
+      this._brandingAppearanceOverride,
+      params.brandingAppearanceOverride,
+    );
+    const effectiveParams: PurchaseParams = appearanceOverride
+      ? { ...params, brandingAppearanceOverride: appearanceOverride }
+      : params;
+    const brandingInfo = applyBrandingAppearanceOverride(
+      this._brandingInfo,
+      appearanceOverride,
+    );
+    const product = effectiveParams.rcPackage.webBillingProduct;
+    const purchaseOption =
+      effectiveParams.purchaseOption ?? product.defaultPurchaseOption;
+    const termsAndConditionsUrl = resolveTermsAndConditionsUrl({
+      brandingInfo,
+      termsAndConditionsUrl: effectiveParams.termsAndConditionsUrl,
+    });
+    const skipReasons: string[] = [];
+    if (this.resolveProductChange(effectiveParams)) {
+      skipReasons.push("product change requested");
+    }
+    if (effectiveParams.discountCode || effectiveParams.showDiscountCodeField) {
+      skipReasons.push("discount code flow requested");
+    }
+    if (
+      isCheckoutConsentRequired({
+        brandingInfo,
+        termsAndConditionsUrl,
+        productDetails: product,
+      })
+    ) {
+      skipReasons.push("checkout consent required");
+    }
+    if (skipReasons.length > 0) {
+      Logger.debugLog(
+        `Stripe Billing Apple Pay skipped: ${skipReasons.join(", ")}; using checkout`,
+      );
+      return null;
+    }
+
+    const selectedLocale =
+      effectiveParams.selectedLocale ??
+      effectiveParams.defaultLocale ??
+      englishLocale;
+    const defaultLocale = effectiveParams.defaultLocale ?? englishLocale;
+    const translator = new Translator(
+      effectiveParams.labelsOverride ?? {},
+      selectedLocale,
+      defaultLocale,
+    );
+    const key = stableSerialize({
+      apiKey: this._API_KEY,
+      appUserId: this._appUserId,
+      packageId: effectiveParams.rcPackage.identifier,
+      productId: product.identifier,
+      purchaseOptionId: purchaseOption.id,
+      priceId: purchaseOption.priceId,
+      presentedOfferingContext: product.presentedOfferingContext,
+      customerEmail: effectiveParams.customerEmail,
+      externalPurchaseTokenId: effectiveParams.externalPurchaseTokenId,
+      workflowPurchaseContext: effectiveParams.workflowPurchaseContext,
+      attributionMetadata: effectiveParams.attributionMetadata,
+      paywallId: effectiveParams.paywallId,
+      paywallSessionId: effectiveParams.paywallSessionId,
+      metadata: effectiveParams.metadata,
+      selectedLocale,
+      defaultLocale,
+      brandingAppearanceOverride: appearanceOverride,
+      labelsOverride: effectiveParams.labelsOverride,
+      termsAndConditionsUrl,
+      skipSuccessPage: effectiveParams.skipSuccessPage,
+    });
+
+    return {
+      key,
+      params: effectiveParams,
+      brandingInfo,
+      purchaseOption,
+      translator,
+    };
   }
 
   /**
@@ -870,8 +1859,7 @@ export class Purchases {
    * Renders an Express Purchase button for the supported wallets (Apple Pay/Google Pay).
    * When clicked it uses the wallet UI to execute the purchase instead of
    * the checkout flow that would be shown with `.purchase`.
-   * @internal
-   * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
+   * @param params - The parameters object to customise the purchase flow. Check {@link PresentExpressPurchaseButtonParams}
    * @returns Promise<PurchaseResult>
    */
   @requiresLoadedResources
@@ -883,16 +1871,13 @@ export class Purchases {
       purchaseOption,
       htmlTarget,
       customerEmail,
+      externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       onButtonReady = () => {},
+      walletButtonTheme,
     } = params;
 
-    if (htmlTarget === undefined) {
-      throw new Error(
-        "htmlTarget is required for presentExpressPurchaseButton",
-      );
-    }
     const appUserId = this._appUserId;
 
     if (!isWebBillingApiKey(this._API_KEY)) {
@@ -927,9 +1912,11 @@ export class Purchases {
           customerInfo: await this._getCustomerInfoForUserId(appUserId),
           redemptionInfo: operationResult.redemptionInfo,
           operationSessionId: operationResult.operationSessionId,
+          attributionMetadata: operationResult.attributionMetadata,
+          customerEmail: operationResult.customerEmail,
           storeTransaction: {
             storeTransactionId: operationResult.storeTransactionIdentifier,
-            productIdentifier: rcPackage.webBillingProduct.identifier,
+            productIdentifier: operationResult.productIdentifier,
             purchaseDate: operationResult.purchaseDate,
           },
         };
@@ -955,13 +1942,93 @@ export class Purchases {
         eventsTracker: this.eventsTracker,
         brandingInfo: this._brandingInfo,
         purchaseOperationHelper: this.purchaseOperationHelper,
+        externalPurchaseTokenId,
         metadata: metadata,
         customTranslations: params.labelsOverride,
         translator,
         onFinished,
         onError,
+        listener: params.listener,
+        walletButtonTheme,
       });
     });
+  }
+
+  /**
+   * Renders a wallet button for the supported wallets (Apple Pay/Google Pay).
+   * When clicked it uses the wallet UI to execute the purchase instead of
+   * the checkout flow that would be shown with `.purchase`.
+   * @internal
+   * @param offering - The offering to render the wallet button for.
+   * @param onSuccess - The callback to be called when the purchase is successful.
+   * @param customerEmail - The email of the user. If undefined, RevenueCat will ask the customer for their email.
+   * @param onPurchaseError - The callback to be called when the purchase fails.
+   * @param listener - Optional paywall listener for purchase lifecycle events.
+   * @param metadata - Optional purchase metadata forwarded to express checkout.
+   * @param externalPurchaseTokenId - Optional RevenueCat public identifier for an Apple external purchase token.
+   * @returns Function that renders the wallet button.
+   */
+  public getWalletButtonRender(
+    offering: Offering,
+    onSuccess: (purchaseResult: PaywallPurchaseResult) => void,
+    customerEmail?: string,
+    onError?: (error: Error) => void,
+    listener?: PaywallListener,
+    metadata?: PurchaseMetadata,
+    externalPurchaseTokenId?: string,
+  ): WalletButtonRender | undefined {
+    if (!isWebBillingApiKey(this._API_KEY)) {
+      return undefined;
+    }
+
+    return (
+      element: HTMLElement,
+      { selectedPackageId, onReady, walletButtonTheme },
+    ) => {
+      const pkg = offering.packagesById[selectedPackageId];
+      if (!pkg) {
+        return {};
+      }
+
+      let currentPkg = pkg;
+
+      let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
+      this.presentExpressPurchaseButton({
+        rcPackage: pkg,
+        customerEmail: customerEmail,
+        htmlTarget: element,
+        metadata,
+        externalPurchaseTokenId,
+        onButtonReady: (updater, walletsAvailable) => {
+          buttonUpdater = updater;
+          onReady?.(walletsAvailable);
+        },
+        listener,
+        walletButtonTheme,
+      })
+        .then((purchaseResult) => {
+          onSuccess({ ...purchaseResult, selectedPackage: currentPkg });
+        })
+        .catch(onError);
+
+      return {
+        destroy() {
+          element.innerHTML = "";
+        },
+        update({ selectedPackageId }) {
+          if (buttonUpdater) {
+            const pkg = offering.packagesById[selectedPackageId];
+            if (!pkg) {
+              return;
+            }
+            const purchaseOptionToUse =
+              pkg.webBillingProduct.defaultPurchaseOption;
+            currentPkg = pkg;
+            buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
+          }
+        },
+      };
+    };
   }
 
   /**
@@ -969,15 +2036,166 @@ export class Purchases {
    * package from {@link Purchases.getOfferings}. This method will present the purchase
    * form on your site, using the given HTML element as the mount point, if
    * provided, or as a modal if not.
+   *
+   * When {@link PurchaseParams.productChangeInfo} is set with a subscriber token,
+   * checkout starts in product-change mode: if the backend can change the
+   * existing subscription, an upgrade-confirm page is shown; otherwise the
+   * same checkout session continues as a normal purchase.
+   *
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns a Promise for the customer and redemption info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
-  @requiresLoadedResources
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
+    if (params.tryWithApplePay) {
+      try {
+        const quickPurchase =
+          this.tryPreparedStripeBillingQuickPurchase(params);
+        if (quickPurchase) {
+          // Do not catch rejections after the customer authorizes a payment.
+          return quickPurchase;
+        }
+      } catch (error) {
+        this.stripeBillingQuickPurchaseState = null;
+        Logger.debugLog(
+          `Apple Pay could not start, using checkout: ${String(error)}`,
+        );
+      }
+    }
+
+    return this.purchaseAfterLoadingResources({
+      ...params,
+      tryWithApplePay: false,
+    });
+  }
+
+  /** @internal */
+  private tryPreparedStripeBillingQuickPurchase(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> | null {
+    if (!isStripeApiKey(this._API_KEY)) {
+      return null;
+    }
+
+    const context = this.resolveStripeBillingQuickPurchaseContext(params);
+    const state = this.stripeBillingQuickPurchaseState;
+    if (
+      !context ||
+      !state ||
+      state.key !== context.key ||
+      !Number.isFinite(state.purchase.expiresAt) ||
+      state.purchase.expiresAt <= Date.now()
+    ) {
+      this.stripeBillingQuickPurchaseState = null;
+      Logger.debugLog(
+        "Apple Pay first requested without matching prepared state; using Stripe Checkout",
+      );
+      return null;
+    }
+
+    this.stripeBillingQuickPurchaseState = null;
+    Logger.debugLog(
+      "Stripe Billing Apple Pay is prepared; presenting it from the purchase click",
+    );
+    const appUserId = this._appUserId;
+    const product = context.params.rcPackage.webBillingProduct;
+    this.eventsTracker.trackSDKEvent(
+      createCheckoutSessionStartEvent({
+        appearance: context.brandingInfo?.appearance,
+        rcPackage: context.params.rcPackage,
+        purchaseOptionToUse: context.purchaseOption,
+        customerEmail: context.params.customerEmail,
+      }),
+    );
+
+    return presentStripeBillingApplePayPurchase({
+      preparedPurchase: state.purchase,
+      customerEmail: context.params.customerEmail,
+      translator: context.translator,
+      eventsTracker: this.eventsTracker,
+    })
+      .then(async (result) => {
+        if (result.status === "unavailable") {
+          try {
+            this.eventsTracker.trackSDKEvent(
+              createCheckoutSessionEndErroredEvent({
+                errorMessage:
+                  "Apple Pay presentation unavailable; using checkout",
+                errorCode: null,
+              }),
+            );
+          } catch (error) {
+            Logger.debugLog(
+              `Apple Pay fallback analytics failed: ${String(error)}`,
+            );
+          }
+          return await this.purchaseAfterLoadingResources({
+            ...params,
+            tryWithApplePay: false,
+          });
+        }
+        if (result.status === "cancelled") {
+          this.eventsTracker.trackSDKEvent(
+            createCheckoutSessionEndClosedEvent(),
+          );
+          throw new PurchasesError(ErrorCode.UserCancelledError);
+        }
+
+        this.eventsTracker.trackSDKEvent(
+          createCheckoutSessionEndFinishedEvent({
+            redemptionInfo: result.operationResult.redemptionInfo,
+          }),
+        );
+        this.inMemoryCache.invalidateAllCaches();
+        return {
+          customerInfo: await this._getCustomerInfoForUserId(appUserId),
+          redemptionInfo: result.operationResult.redemptionInfo,
+          operationSessionId: result.operationResult.operationSessionId,
+          attributionMetadata: result.operationResult.attributionMetadata,
+          customerEmail: result.operationResult.customerEmail,
+          storeTransaction: {
+            storeTransactionId:
+              result.operationResult.storeTransactionIdentifier,
+            productIdentifier: product.identifier,
+            purchaseDate: result.operationResult.purchaseDate,
+          },
+        };
+      })
+      .catch((error: unknown) => {
+        if (error instanceof PurchasesError) {
+          throw error;
+        }
+        const purchaseFlowError = error as PurchaseFlowError;
+        this.eventsTracker.trackSDKEvent(
+          createCheckoutSessionEndErroredEvent({
+            errorCode: purchaseFlowError.errorCode?.toString(),
+            errorMessage: purchaseFlowError.message,
+          }),
+        );
+        throw PurchasesError.getForPurchasesFlowError(purchaseFlowError);
+      });
+  }
+
+  /** @internal */
+  @requiresLoadedResources
+  private async purchaseAfterLoadingResources(
+    params: PurchaseParams,
+  ): Promise<PurchaseResult> {
+    const appearanceOverride = mergeBrandingAppearanceOverrides(
+      this._brandingAppearanceOverride,
+      params.brandingAppearanceOverride,
+    );
+    const effectiveParams = appearanceOverride
+      ? { ...params, brandingAppearanceOverride: appearanceOverride }
+      : params;
+    const effectiveBrandingInfo = applyBrandingAppearanceOverride(
+      this._brandingInfo,
+      appearanceOverride,
+    );
+
     if (isSimulatedStoreApiKey(this._API_KEY)) {
       const purchaseResult = await purchaseSimulatedStoreProduct(
-        params,
+        effectiveParams,
         this.backend,
         this._appUserId,
       );
@@ -987,21 +2205,41 @@ export class Purchases {
 
     const isPaddle = isPaddleApiKey(this._API_KEY);
     if (isPaddle) {
-      return await this.performPaddlePurchase(params);
+      return await this.performPaddlePurchase(
+        effectiveParams,
+        effectiveBrandingInfo,
+      );
     }
 
-    return await this.performWebBillingPurchase(params);
+    const isStripe = isStripeApiKey(this._API_KEY);
+    if (isStripe) {
+      return await this.performStripePurchase(
+        effectiveParams,
+        effectiveBrandingInfo,
+      );
+    }
+
+    return await this.performWebBillingPurchase(
+      effectiveParams,
+      effectiveBrandingInfo,
+    );
   }
 
-  private async performWebBillingPurchase(
+  private async performStripePurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
+    const productChange = this.resolveProductChange(params);
     const {
       rcPackage,
       purchaseOption,
       htmlTarget,
       customerEmail,
       workflowPurchaseContext,
+      attributionMetadata,
+      paywallId,
+      paywallSessionId,
+      externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1012,7 +2250,7 @@ export class Purchases {
     const appUserId = this._appUserId;
 
     Logger.debugLog(
-      `Presenting purchase form for package ${rcPackage.identifier}`,
+      `Presenting Stripe checkout for package ${rcPackage.identifier}`,
     );
 
     const localeToBeUsed = selectedLocale || defaultLocale;
@@ -1021,7 +2259,7 @@ export class Purchases {
       purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -1034,12 +2272,6 @@ export class Purchases {
     const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
 
     let component: ReturnType<typeof mount> | null = null;
-
-    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
-
-    if (finalBrandingInfo && params.brandingAppearanceOverride) {
-      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
-    }
 
     const isInElement = htmlTarget !== undefined;
 
@@ -1072,6 +2304,176 @@ export class Purchases {
         unmountPurchaseUi,
       );
 
+      const onProductChangeFinished = async (result: ProductChangeResult) => {
+        this.inMemoryCache.invalidateAllCaches();
+        unmountPurchaseUi();
+        try {
+          const customerInfo = await this.getCustomerInfo();
+          resolve({
+            customerInfo,
+            redemptionInfo: null,
+            operationSessionId: result.operationSessionId,
+            storeTransaction: {
+              storeTransactionId: result.operationSessionId,
+              productIdentifier: result.newProductId,
+              purchaseDate: new Date(),
+            },
+            productChange: {
+              changeType: result.changeType,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      const onError = this.createCheckoutOnErrorHandler(
+        reject,
+        unmountPurchaseUi,
+      );
+
+      component = mount(StripeCheckoutPurchasesUi, {
+        target: certainHTMLTarget,
+        props: {
+          isInElement: isInElement,
+          isSandbox: this.isSandbox(),
+          appUserId,
+          rcPackage,
+          purchaseOption: purchaseOptionToUse,
+          customerEmail,
+          workflowPurchaseContext,
+          attributionMetadata,
+          paywallId,
+          paywallSessionId,
+          productChange,
+          onFinished,
+          onProductChangeFinished,
+          onClose,
+          onError,
+          eventsTracker: this.eventsTracker,
+          brandingInfo,
+          appearanceOverride: params.brandingAppearanceOverride,
+          purchaseOperationHelper: this.purchaseOperationHelper,
+          externalPurchaseTokenId,
+          selectedLocale: localeToBeUsed,
+          metadata: metadata,
+          defaultLocale,
+          customTranslations: params.labelsOverride,
+          skipSuccessPage,
+          hideBackButton: this.shouldHideCheckoutBackButton(),
+        },
+      });
+    });
+  }
+
+  private async performWebBillingPurchase(
+    params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
+  ): Promise<PurchaseResult> {
+    const productChange = this.resolveProductChange(params);
+    const {
+      rcPackage,
+      purchaseOption,
+      htmlTarget,
+      customerEmail,
+      workflowPurchaseContext,
+      attributionMetadata,
+      externalPurchaseTokenId,
+      selectedLocale = englishLocale,
+      defaultLocale = englishLocale,
+      skipSuccessPage = false,
+      showDiscountCodeField = false,
+      discountCode,
+      onDiscountCodeChanged,
+    } = params;
+
+    const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
+
+    const appUserId = this._appUserId;
+
+    Logger.debugLog(
+      `Presenting purchase form for package ${rcPackage.identifier}`,
+    );
+
+    const localeToBeUsed = selectedLocale || defaultLocale;
+
+    const purchaseOptionToUse =
+      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+
+    const event = createCheckoutSessionStartEvent({
+      appearance: brandingInfo?.appearance,
+      rcPackage,
+      purchaseOptionToUse,
+      customerEmail,
+    });
+    this.eventsTracker.trackSDKEvent(event);
+
+    const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+      ? autoParseUTMParams()
+      : {};
+    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+
+    let component: ReturnType<typeof mount> | null = null;
+
+    const termsAndConditionsUrl = resolveTermsAndConditionsUrl({
+      brandingInfo,
+      termsAndConditionsUrl: params.termsAndConditionsUrl,
+    });
+
+    const isInElement = htmlTarget !== undefined;
+
+    return new Promise((resolve, reject) => {
+      const win = getWindow();
+      if (!isInElement) {
+        win.history.pushState({ checkoutOpen: true }, "");
+      }
+
+      const unmountPurchaseUi = () => {
+        if (component) {
+          unmount(component);
+        }
+        certainHTMLTarget.innerHTML = "";
+      };
+
+      const onClose = this.createCheckoutOnCloseHandler(
+        reject,
+        unmountPurchaseUi,
+      );
+
+      if (!isInElement && onClose) {
+        win.addEventListener("popstate", onClose as EventListener);
+      }
+
+      const onFinished = this.createCheckoutOnFinishedHandler(
+        resolve,
+        appUserId,
+        rcPackage,
+        unmountPurchaseUi,
+      );
+
+      const onProductChangeFinished = async (result: ProductChangeResult) => {
+        this.inMemoryCache.invalidateAllCaches();
+        unmountPurchaseUi();
+        try {
+          const customerInfo = await this.getCustomerInfo();
+          resolve({
+            customerInfo,
+            redemptionInfo: null,
+            operationSessionId: result.operationSessionId,
+            storeTransaction: {
+              storeTransactionId: result.operationSessionId,
+              productIdentifier: result.newProductId,
+              purchaseDate: new Date(),
+            },
+            productChange: {
+              changeType: result.changeType,
+            },
+          });
+        } catch (error) {
+          reject(error);
+        }
+      };
+
       const onError = this.createCheckoutOnErrorHandler(
         reject,
         unmountPurchaseUi,
@@ -1086,19 +2488,30 @@ export class Purchases {
           purchaseOption: purchaseOptionToUse,
           customerEmail,
           workflowPurchaseContext,
+          attributionMetadata,
+          paywallId: params.paywallId,
+          paywallSessionId: params.paywallSessionId,
+          productChange,
           onFinished,
+          onProductChangeFinished,
           onClose,
           onError,
           purchases: this,
           eventsTracker: this.eventsTracker,
-          brandingInfo: this._brandingInfo,
+          brandingInfo,
+          appearanceOverride: params.brandingAppearanceOverride,
           purchaseOperationHelper: this.purchaseOperationHelper,
+          externalPurchaseTokenId,
           selectedLocale: localeToBeUsed,
           metadata: metadata,
           defaultLocale,
           customTranslations: params.labelsOverride,
-          termsAndConditionsUrl: params.termsAndConditionsUrl,
+          termsAndConditionsUrl,
+          showDiscountCodeField,
+          discountCode,
+          onDiscountCodeChanged,
           skipSuccessPage,
+          hideBackButton: this.shouldHideCheckoutBackButton(),
         },
       });
     });
@@ -1106,11 +2519,16 @@ export class Purchases {
 
   private async performPaddlePurchase(
     params: PurchaseParams,
+    brandingInfo: BrandingInfoResponse | null,
   ): Promise<PurchaseResult> {
     const {
       rcPackage,
       purchaseOption,
       customerEmail,
+      discountCode,
+      attributionMetadata,
+      workflowPurchaseContext,
+      externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
@@ -1136,14 +2554,8 @@ export class Purchases {
       ...(params.metadata || {}),
     };
 
-    const finalBrandingInfo: BrandingInfoResponse | null = this._brandingInfo;
-
-    if (finalBrandingInfo && params.brandingAppearanceOverride) {
-      finalBrandingInfo.appearance = params.brandingAppearanceOverride;
-    }
-
     const event = createCheckoutSessionStartEvent({
-      appearance: this._brandingInfo?.appearance,
+      appearance: brandingInfo?.appearance,
       rcPackage,
       purchaseOptionToUse,
       customerEmail,
@@ -1175,6 +2587,13 @@ export class Purchases {
           unmountPaddlePurchaseUi();
         });
 
+      // Cancel the checkout on browser back. The inline checkout has no
+      // Paddle-provided dismiss, so this (and the in-page close button) are the
+      // ways to back out. Mirrors the Web Billing / Stripe flows.
+      if (!isInElement) {
+        win.addEventListener("popstate", onClose as EventListener);
+      }
+
       const onFinished = this.createCheckoutOnFinishedHandler(
         resolve,
         appUserId,
@@ -1191,7 +2610,7 @@ export class Purchases {
           target: certainHTMLTarget,
           props: {
             eventsTracker: this.eventsTracker,
-            brandingInfo: this._brandingInfo,
+            brandingInfo,
             selectedLocale: selectedLocale || defaultLocale,
             defaultLocale,
             customTranslations: params.labelsOverride,
@@ -1205,9 +2624,14 @@ export class Purchases {
             appUserId,
             purchaseOption: purchaseOptionToUse,
             customerEmail,
+            discountCode,
+            attributionMetadata,
+            workflowPurchaseContext,
+            externalPurchaseTokenId,
             metadata,
             unmountPaddlePurchaseUi,
             paddleService,
+            hideBackButton: this.shouldHideCheckoutBackButton(),
           },
         });
       }
@@ -1264,6 +2688,14 @@ export class Purchases {
     return onClose;
   }
 
+  private shouldHideCheckoutBackButton(): boolean {
+    return (
+      this._flags.hideBackButton === true ||
+      (!!this._flags.rcSource &&
+        supportedRCSources.includes(this._flags.rcSource))
+    );
+  }
+
   private createCheckoutOnFinishedHandler(
     resolve: (value: PurchaseResult) => void,
     appUserId: string,
@@ -1286,6 +2718,8 @@ export class Purchases {
         customerInfo: await this._getCustomerInfoForUserId(appUserId),
         redemptionInfo: operationResult.redemptionInfo,
         operationSessionId: operationResult.operationSessionId,
+        attributionMetadata: operationResult.attributionMetadata,
+        customerEmail: operationResult.customerEmail,
         storeTransaction: {
           storeTransactionId: operationResult.storeTransactionIdentifier,
           productIdentifier: rcPackage.webBillingProduct.identifier,
@@ -1349,6 +2783,7 @@ export class Purchases {
       product,
       this.backend,
       this._appUserId,
+      undefined,
     );
   }
 
@@ -1437,11 +2872,69 @@ export class Purchases {
     };
   }
 
+  /**
+   * Resolves {@link PurchaseParams.productChangeInfo} into the product-change
+   * context passed to the checkout UI, or undefined when the purchase should
+   * proceed as a normal purchase (no info, no token, or an API key whose
+   * gateway doesn't support product change, e.g. Paddle).
+   */
+  private resolveProductChange(params: PurchaseParams):
+    | {
+        subscriptionId?: string;
+        productIdentifier?: string;
+        subscriberToken: string;
+      }
+    | undefined {
+    const productChangeInfo = params.productChangeInfo;
+    const supportsProductChange =
+      isWebBillingApiKey(this._API_KEY) || isStripeApiKey(this._API_KEY);
+    if (!productChangeInfo || !supportsProductChange) {
+      return undefined;
+    }
+
+    const subscriberToken =
+      productChangeInfo.subscriberToken ?? this._subscriberToken ?? undefined;
+    if (!subscriberToken) {
+      return undefined;
+    }
+
+    this.validateSubscriberToken(subscriberToken);
+
+    return {
+      subscriptionId: productChangeInfo.subscriptionId || undefined,
+      productIdentifier: productChangeInfo.productIdentifier || undefined,
+      subscriberToken,
+    };
+  }
+
+  /**
+   * Rejects anything shaped like a RevenueCat API key so a secret or public
+   * key is never sent (or exposed) where a subscriber token belongs.
+   */
+  private validateSubscriberToken(subscriberToken: string): void {
+    const looksLikeApiKey =
+      isWebBillingApiKey(subscriberToken) ||
+      isPaddleApiKey(subscriberToken) ||
+      isStripeApiKey(subscriberToken) ||
+      isSimulatedStoreApiKey(subscriberToken) ||
+      subscriberToken.startsWith("sk_");
+
+    if (looksLikeApiKey || !subscriberToken) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Invalid subscriber token.",
+      );
+    }
+  }
+
   private async replaceUserId(newAppUserId: string): Promise<void> {
     validateAppUserId(newAppUserId);
+    this.stripeBillingQuickPurchaseState = null;
+    this.stripeBillingQuickPurchasePreparation = null;
     this._appUserId = newAppUserId;
     await this.eventsTracker.updateUser(newAppUserId);
     this.inMemoryCache.invalidateAllCaches();
+    this.cachedCurrentOffering = null;
   }
 
   /** @internal */
@@ -1474,6 +2967,7 @@ export class Purchases {
   public isSandbox(): boolean {
     return (
       isWebBillingSandboxApiKey(this._API_KEY) ||
+      isStripeSandboxApiKey(this._API_KEY) ||
       isSimulatedStoreApiKey(this._API_KEY)
     );
   }
@@ -1524,6 +3018,12 @@ export class Purchases {
     if (Purchases.instance === this) {
       if (this.eventsTracker) {
         this.eventsTracker.dispose();
+      }
+      if (this._flags.applePayBrandingLogoEnabled) {
+        const doc = getNullableDocument();
+        if (doc) {
+          removeManagedAppleTouchIcon(doc);
+        }
       }
       Purchases.instance = undefined;
     } else {

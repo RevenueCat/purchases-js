@@ -61,6 +61,14 @@ Generate docs
 
 Tag current branch with current version number
 
+### open_pr_upgrading_dependencies
+
+```sh
+[bundle exec] fastlane open_pr_upgrading_dependencies
+```
+
+Updates purchases-ui-js to the latest version published to npm and opens a PR
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.

@@ -1,0 +1,321 @@
+<script lang="ts">
+  import { onMount, setContext, onDestroy } from "svelte";
+  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
+  import { translatorContextKey } from "./localization/constants";
+  import { Translator } from "./localization/translator";
+  import { writable } from "svelte/store";
+  import { eventsTrackerContextKey, brandingContextKey } from "./constants";
+  import type { IEventsTracker } from "../behavioural-events/events-tracker";
+  import type { OperationSessionSuccessfulResult } from "../helpers/purchase-operation-helper";
+  import {
+    PurchaseFlowError,
+    PurchaseFlowErrorCode,
+    PurchaseOperationHelper,
+  } from "../helpers/purchase-operation-helper";
+  import type {
+    Product,
+    PurchaseOption,
+    PurchaseMetadata,
+  } from "../entities/offerings";
+  import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
+  import StripeCheckoutPurchasesUiInner from "./stripe-checkout-purchases-ui-inner.svelte";
+  import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
+  import type {
+    AttributionMetadata,
+    WorkflowPurchaseContext,
+  } from "../entities/purchase-params";
+  import { validateEmail } from "../helpers/validators";
+  import type { Package } from "../main";
+  import type { BrandingAppearance } from "../entities/branding";
+  import {
+    isSubscriptionChangeCheckoutStartResponse,
+    type SubscriptionChangeCheckoutStartResponse,
+  } from "../networking/responses/subscription-change-response";
+  import { type ProductChangeResult } from "../entities/product-change-params";
+
+  interface Props {
+    brandingInfo: BrandingInfoResponse | null;
+    eventsTracker: IEventsTracker;
+    selectedLocale: string;
+    defaultLocale: string;
+    customTranslations?: Record<string, Record<string, string>>;
+    isInElement: boolean;
+    isSandbox: boolean;
+    skipSuccessPage: boolean;
+    onFinished: (operationResult: OperationSessionSuccessfulResult) => void;
+    onError: (error: PurchaseFlowError) => void;
+    onClose?: () => void;
+    rcPackage: Package;
+    appUserId: string;
+    purchaseOption: PurchaseOption;
+    customerEmail: string | undefined;
+    externalPurchaseTokenId?: string;
+    metadata: PurchaseMetadata | undefined;
+    purchaseOperationHelper: PurchaseOperationHelper;
+    workflowPurchaseContext?: WorkflowPurchaseContext;
+    attributionMetadata?: AttributionMetadata;
+    paywallId?: string;
+    paywallSessionId?: string;
+    appearanceOverride?: Partial<BrandingAppearance>;
+    productChange?: {
+      subscriptionId?: string;
+      productIdentifier?: string;
+      subscriberToken: string;
+    };
+    onProductChangeFinished?: (result: ProductChangeResult) => void;
+    hideBackButton?: boolean;
+  }
+
+  const {
+    brandingInfo,
+    eventsTracker,
+    selectedLocale,
+    defaultLocale,
+    customTranslations = {},
+    isInElement,
+    isSandbox: initialIsSandbox,
+    skipSuccessPage = false,
+    onFinished,
+    onError,
+    onClose = undefined,
+    rcPackage,
+    appUserId,
+    purchaseOption,
+    customerEmail,
+    externalPurchaseTokenId,
+    metadata,
+    purchaseOperationHelper,
+    workflowPurchaseContext,
+    attributionMetadata,
+    paywallId,
+    paywallSessionId,
+    appearanceOverride,
+    productChange = undefined,
+    onProductChangeFinished = undefined,
+    hideBackButton = false,
+  }: Props = $props();
+  let productDetails: Product = rcPackage.webBillingProduct;
+  let translator: Translator = new Translator(
+    customTranslations,
+    selectedLocale,
+    defaultLocale,
+  );
+  let translatorStore = writable(translator);
+  setContext(translatorContextKey, translatorStore);
+  setContext(eventsTrackerContextKey, eventsTracker);
+
+  const brandingAppearanceStore = writable<BrandingAppearance | null>(
+    brandingInfo?.appearance ?? null,
+  );
+  setContext(brandingContextKey, brandingAppearanceStore);
+
+  let checkoutResponseIsSandbox = $state<boolean | null>(null);
+  let isSandbox = $derived(checkoutResponseIsSandbox ?? initialIsSandbox);
+  let operationResult = $state<OperationSessionSuccessfulResult | null>(null);
+  let error = $state<PurchaseFlowError | null>(null);
+  let currentPage = $state<
+    | "loading"
+    | "stripe-checkout"
+    | "success"
+    | "error"
+    | "purchasing"
+    | "upgrade-confirm"
+  >("loading");
+  let stripeBillingParams = $state<StripeBillingParams | null>(null);
+  let subscriptionChangeStartData =
+    $state<SubscriptionChangeCheckoutStartResponse | null>(null);
+  let isConfirmingProductChange = $state(false);
+  let productChangeConfirmError = $state<string | null>(null);
+
+  const handleConfirmProductChange = async () => {
+    if (!productChange || isConfirmingProductChange) {
+      return;
+    }
+    isConfirmingProductChange = true;
+    productChangeConfirmError = null;
+    try {
+      const result = await purchaseOperationHelper.completeProductChange({
+        subscriberToken: productChange.subscriberToken,
+      });
+      onProductChangeFinished?.(result);
+    } catch (e) {
+      const error =
+        e instanceof PurchaseFlowError
+          ? e
+          : new PurchaseFlowError(
+              PurchaseFlowErrorCode.ErrorChargingPayment,
+              "Failed to confirm product change.",
+              e instanceof Error ? e.message : String(e),
+            );
+      productChangeConfirmError = error.message;
+    } finally {
+      isConfirmingProductChange = false;
+    }
+  };
+
+  const handleContinue = () => {
+    if (currentPage === "stripe-checkout") {
+      currentPage = "purchasing";
+      purchaseOperationHelper
+        .pollCurrentPurchaseForCompletion()
+        .then((pollResult) => {
+          operationResult = pollResult;
+          if (skipSuccessPage) {
+            onFinished(pollResult);
+          } else {
+            currentPage = "success";
+          }
+        })
+        .catch((error: unknown) => {
+          handleError(
+            normalizeToPurchaseFlowError(error, "Failed to complete purchase"),
+          );
+        });
+      return;
+    }
+
+    if (currentPage === "success" && operationResult) {
+      onFinished(operationResult);
+    }
+  };
+
+  const handleError = (e: PurchaseFlowError) => {
+    error = e;
+    currentPage = "error";
+  };
+
+  const closeWithError = () => {
+    onError(
+      error ??
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.UnknownError,
+          "Unknown error without state set.",
+        ),
+    );
+  };
+
+  let originalHtmlHeight: string | null = null;
+  let originalHtmlOverflow: string | null = null;
+  let originalBodyHeight: string | null = null;
+
+  onMount(async () => {
+    if (!isInElement) {
+      originalHtmlHeight = document.documentElement.style.height;
+      originalHtmlOverflow = document.documentElement.style.overflow;
+      originalBodyHeight = document.body.style.height;
+
+      document.documentElement.style.height = "100%";
+      document.body.style.height = "100%";
+      document.documentElement.style.overflow = "hidden";
+    }
+
+    const productId = productDetails.identifier;
+    if (!productId) {
+      handleError(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Product ID was not set before purchase.",
+        ),
+      );
+      return;
+    }
+
+    let email = customerEmail;
+    const emailError = email ? validateEmail(email) : null;
+    if (emailError) {
+      email = undefined;
+    }
+
+    try {
+      const result = await purchaseOperationHelper.checkoutStart({
+        appUserId,
+        productId,
+        purchaseOption,
+        presentedOfferingContext:
+          rcPackage.webBillingProduct.presentedOfferingContext,
+        customerEmail: email,
+        externalPurchaseTokenId,
+        metadata,
+        workflowPurchaseContext,
+        attributionMetadata,
+        paywallId,
+        paywallSessionId,
+        locale: selectedLocale,
+        ...(appearanceOverride ? { appearanceOverride } : {}),
+        productChange: productChange
+          ? {
+              productIdentifier: productChange.productIdentifier,
+              subscriptionId: productChange.subscriptionId,
+            }
+          : undefined,
+        subscriberToken: productChange?.subscriberToken,
+      });
+
+      if (isSubscriptionChangeCheckoutStartResponse(result)) {
+        subscriptionChangeStartData = result;
+        currentPage = "upgrade-confirm";
+        return;
+      }
+
+      if (
+        !("stripe_billing_params" in result) ||
+        !result.stripe_billing_params
+      ) {
+        handleError(
+          new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "Missing Stripe Checkout parameters",
+          ),
+        );
+        return;
+      }
+
+      checkoutResponseIsSandbox =
+        result.stripe_billing_params.environment.toLowerCase() === "sandbox";
+      stripeBillingParams = result.stripe_billing_params;
+      currentPage = "stripe-checkout";
+    } catch (e: PurchaseFlowError | unknown) {
+      handleError(
+        normalizeToPurchaseFlowError(e, "Failed to start Stripe Checkout"),
+      );
+    }
+  });
+
+  onDestroy(() => {
+    if (!isInElement) {
+      const restoreStyle = (
+        element: HTMLElement,
+        property: string,
+        value: string | null,
+      ) => {
+        value === ""
+          ? element.style.removeProperty(property)
+          : element.style.setProperty(property, value);
+      };
+
+      restoreStyle(document.documentElement, "height", originalHtmlHeight);
+      restoreStyle(document.body, "height", originalBodyHeight);
+      restoreStyle(document.documentElement, "overflow", originalHtmlOverflow);
+    }
+  });
+</script>
+
+<StripeCheckoutPurchasesUiInner
+  {currentPage}
+  {brandingInfo}
+  {productDetails}
+  {isSandbox}
+  lastError={error}
+  {isInElement}
+  {stripeBillingParams}
+  purchaseOptionToUse={purchaseOption}
+  {subscriptionChangeStartData}
+  {isConfirmingProductChange}
+  {productChangeConfirmError}
+  onConfirmProductChange={handleConfirmProductChange}
+  onContinue={handleContinue}
+  onError={handleError}
+  {onClose}
+  {hideBackButton}
+  {closeWithError}
+/>

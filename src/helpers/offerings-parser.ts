@@ -11,7 +11,7 @@ import {
   type Offering,
   type Offerings,
   type Package,
-  toOffering,
+  toOffering as entitiesToOffering,
 } from "../entities/offerings";
 import { Logger } from "./logger";
 
@@ -44,35 +44,39 @@ const addPlacementContextToNullablePackage = (
   return addPlacementContextToPackage(rcPackage, placementId);
 };
 
-export const findOfferingByPlacementId = (
+export const getOfferingIdForPlacement = (
   placementsData: PlacementsResponse,
-  allOfferings: { [offeringId: string]: Offering },
   placementId: string,
-): Offering | null => {
-  const offeringIdsByPlacement =
-    placementsData.offering_ids_by_placement ?? null;
-  if (offeringIdsByPlacement == null) {
-    return null;
-  }
-  const fallbackOfferingId = placementsData.fallback_offering_id ?? null;
-  let offering: Offering | undefined;
+): {
+  offeringIdForPlacement: string | null;
+  fallbackOfferingId: string | null;
+} => {
+  const offeringIdsByPlacement = placementsData.offering_ids_by_placement ?? {};
+
   if (placementId in offeringIdsByPlacement) {
-    const offeringId = offeringIdsByPlacement[placementId] ?? null;
-    if (offeringId == null) {
-      return null;
-    }
-    offering = allOfferings[offeringId];
-    if (offering == undefined) {
-      offering = allOfferings[fallbackOfferingId];
-    }
-  } else {
-    offering = allOfferings[fallbackOfferingId];
+    const placementOfferingId = offeringIdsByPlacement[placementId] ?? null;
+    return {
+      offeringIdForPlacement: placementOfferingId,
+      // An explicit null means "No Offering" was selected in the dashboard,
+      // so the fallback must not apply. The fallback only exists for
+      // placements that are missing from the map entirely.
+      fallbackOfferingId:
+        placementOfferingId === null
+          ? null
+          : placementsData.fallback_offering_id,
+    };
   }
 
-  if (offering == undefined) {
-    return null;
-  }
+  return {
+    offeringIdForPlacement: null,
+    fallbackOfferingId: placementsData.fallback_offering_id,
+  };
+};
 
+export const enrichPackagesWithPlacementContext = (
+  placementId: string,
+  offering: Offering,
+): Offering => {
   const packagesById = Object.fromEntries(
     Object.entries(offering.packagesById).map(([packageId, rcPackage]) => [
       packageId,
@@ -109,19 +113,55 @@ export const findOfferingByPlacementId = (
   };
 };
 
-export function toOfferings(
-  offeringsData: OfferingsResponse,
-  productsData: ProductsResponse,
-): Offerings {
+function toProductsByIdentifier(productsData: ProductsResponse): {
+  [productId: string]: ProductResponse;
+} {
   const productsMap: { [productId: string]: ProductResponse } = {};
   productsData.product_details.forEach((p: ProductResponse) => {
     productsMap[p.identifier] = p;
   });
+  return productsMap;
+}
+
+export function toOffering(
+  offeringIdentifier: string,
+  offeringsData: OfferingsResponse,
+  productsData: ProductsResponse,
+): Offering | null {
+  const offeringData = offeringsData.offerings.find(
+    (offering) => offering.identifier === offeringIdentifier,
+  );
+
+  if (!offeringData) {
+    return null;
+  }
+
+  const productsMap: { [productId: string]: ProductResponse } =
+    toProductsByIdentifier(productsData);
+
+  const isCurrent =
+    offeringData.identifier === offeringsData.current_offering_id;
+
+  return entitiesToOffering(
+    isCurrent,
+    offeringData,
+    productsMap,
+    offeringsData.targeting,
+    offeringsData.ui_config,
+  );
+}
+
+export function toOfferings(
+  offeringsData: OfferingsResponse,
+  productsData: ProductsResponse,
+): Offerings {
+  const productsMap: { [productId: string]: ProductResponse } =
+    toProductsByIdentifier(productsData);
 
   const allOfferings: { [offeringId: string]: Offering } = {};
   offeringsData.offerings.forEach((o: OfferingResponse) => {
     const isCurrent = o.identifier === offeringsData.current_offering_id;
-    const offering = toOffering(
+    const offering = entitiesToOffering(
       isCurrent,
       o,
       productsMap,

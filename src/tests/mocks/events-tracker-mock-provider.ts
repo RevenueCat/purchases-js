@@ -6,6 +6,7 @@ export function createEventsTrackerMock() {
     updateUser: vi.fn(),
     trackSDKEvent: vi.fn(),
     trackExternalEvent: vi.fn(),
+    trackCustomPaywallImpression: vi.fn(),
     dispose: vi.fn(),
   } as unknown as IEventsTracker;
 }

@@ -23,11 +23,12 @@ import {
 } from "../../networking/responses/checkout-status-response";
 import { type IEventsTracker } from "../../behavioural-events/events-tracker";
 import {
+  checkoutCompleteResponse,
   checkoutPrepareResponse,
   checkoutStartResponse,
 } from "../test-responses";
 import { BackendErrorCode, ErrorCode } from "../../entities/errors";
-import { checkoutCalculateTaxResponse } from "../../stories/fixtures";
+import { checkoutPricingResponse } from "../../stories/fixtures";
 
 describe("PurchaseOperationHelper", () => {
   let server: SetupServer;
@@ -47,6 +48,8 @@ describe("PurchaseOperationHelper", () => {
       updateUser: () => Promise.resolve(),
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
+      trackPaywallEvent: () => {},
+      trackCustomPaywallImpression: () => {},
       dispose: () => {},
       flushAllEvents: () => Promise.resolve(),
     };
@@ -86,10 +89,10 @@ describe("PurchaseOperationHelper", () => {
     );
   }
 
-  function setCheckoutCalculateTaxResponse(httpResponse: HttpResponse) {
+  function setCheckoutRefreshPricingResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post(
-        `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}/calculate_taxes`,
+      http.patch(
+        `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}`,
         () => {
           return httpResponse;
         },
@@ -131,16 +134,16 @@ describe("PurchaseOperationHelper", () => {
       testTraceId,
     );
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutStart(
-        "test-app-user-id",
-        "test-product-id",
-        { id: "test-option-id", priceId: "test-price-id" },
-        {
+      purchaseOperationHelper.checkoutStart({
+        appUserId: "test-app-user-id",
+        productId: "test-product-id",
+        purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+        presentedOfferingContext: {
           offeringIdentifier: "test-offering-id",
           targetingContext: null,
           placementIdentifier: null,
         },
-      ),
+      }),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "Unknown backend error.",
@@ -161,17 +164,17 @@ describe("PurchaseOperationHelper", () => {
       ),
     );
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutStart(
-        "test-app-user-id",
-        "test-product-id",
-        { id: "test-option-id", priceId: "test-price-id" },
-        {
+      purchaseOperationHelper.checkoutStart({
+        appUserId: "test-app-user-id",
+        productId: "test-product-id",
+        purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+        presentedOfferingContext: {
           offeringIdentifier: "test-offering-id",
           targetingContext: null,
           placementIdentifier: null,
         },
-        "test-email@test.com",
-      ),
+        customerEmail: "test-email@test.com",
+      }),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.AlreadyPurchasedError,
         "This product is already active for the user.",
@@ -191,21 +194,158 @@ describe("PurchaseOperationHelper", () => {
       ),
     );
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutStart(
-        "test-app-user-id",
-        "test-product-id",
-        { id: "test-option-id", priceId: "test-price-id" },
-        {
+      purchaseOperationHelper.checkoutStart({
+        appUserId: "test-app-user-id",
+        productId: "test-product-id",
+        purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+        presentedOfferingContext: {
           offeringIdentifier: "test-offering-id",
           targetingContext: null,
           placementIdentifier: null,
         },
-      ),
+      }),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.InvalidPaddleAPIKeyError,
         "There was a credentials issue. Check the underlying error for more details.",
         "Invalid or expired Paddle API Key.",
       ),
+    );
+  });
+
+  test("checkoutStart passes paywallId to backend when provided", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      customerEmail: "test@example.com",
+      paywallId: "paywall-abc-123",
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      traceId: testTraceId,
+      customerEmail: "test@example.com",
+      metadata: undefined,
+      presentedStepId: undefined,
+      paywallId: "paywall-abc-123",
+    });
+  });
+
+  test("checkoutStart passes an external purchase token ID to the backend", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      externalPurchaseTokenId: "rcat_external_purchase_token_123",
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      expect.objectContaining({
+        externalPurchaseTokenId: "rcat_external_purchase_token_123",
+      }),
+    );
+  });
+
+  test("checkoutStart passes an appearance override to the backend", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      appearanceOverride: {
+        color_buttons_primary: "#ffffff",
+      },
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appearanceOverride: {
+          color_buttons_primary: "#ffffff",
+        },
+      }),
+    );
+  });
+
+  test("checkoutStart passes locale to backend when provided", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      locale: "es",
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      expect.objectContaining({ locale: "es" }),
+    );
+  });
+
+  test("checkoutStart derives stepId and urlParameters from workflowPurchaseContext", async () => {
+    const mockPostCheckoutStart = vi
+      .spyOn(backend, "postCheckoutStart")
+      .mockResolvedValue(checkoutStartResponse);
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      workflowPurchaseContext: {
+        stepId: "step-abc",
+        urlParameters: { utm_source: "typedIn", fbp: "metaID" },
+      },
+    });
+
+    expect(mockPostCheckoutStart).toHaveBeenCalledWith(
+      expect.objectContaining({
+        presentedStepId: "step-abc",
+        urlParameters: { utm_source: "typedIn", fbp: "metaID" },
+      }),
     );
   });
 
@@ -241,9 +381,9 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutCalculateTax fails if checkoutStart not called before", async () => {
+  test("checkoutRefreshPricing fails if checkoutStart not called before", async () => {
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutCalculateTax(),
+      purchaseOperationHelper.checkoutRefreshPricing(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "No purchase started",
@@ -251,68 +391,108 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutCalculateTax returns succeeds if tax breakdown is empty", async () => {
+  test("checkoutRefreshPricing returns succeeds if tax breakdown is empty", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    const checkoutCalculateTaxResponse = {
+    const checkoutPricingResponse = {
       tax_breakdown: [],
     };
-    setCheckoutCalculateTaxResponse(
-      HttpResponse.json(checkoutCalculateTaxResponse, {
+    setCheckoutRefreshPricingResponse(
+      HttpResponse.json(checkoutPricingResponse, {
         status: StatusCodes.OK,
       }),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
 
-    const result = await purchaseOperationHelper.checkoutCalculateTax();
-    expect(result).toEqual(checkoutCalculateTaxResponse);
+    const result = await purchaseOperationHelper.checkoutRefreshPricing();
+    expect(result).toEqual(checkoutPricingResponse);
   });
 
-  test("checkoutCalculateTax returns failed tax calculation error", async () => {
+  test("checkoutRefreshPricing returns failed tax calculation error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    const checkoutCalculateTaxResponse = {
+    const checkoutPricingResponse = {
       failed_reason: "invalid_tax_location",
       tax_breakdown: [],
     };
-    setCheckoutCalculateTaxResponse(
-      HttpResponse.json(checkoutCalculateTaxResponse, {
+    setCheckoutRefreshPricingResponse(
+      HttpResponse.json(checkoutPricingResponse, {
         status: StatusCodes.OK,
       }),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
 
-    const result = await purchaseOperationHelper.checkoutCalculateTax();
-    expect(result).toEqual(checkoutCalculateTaxResponse);
+    const result = await purchaseOperationHelper.checkoutRefreshPricing();
+    expect(result).toEqual(checkoutPricingResponse);
   });
 
-  test("checkoutCalculateTax throws error in production mode for sandbox mode only error", async () => {
+  test("checkoutRefreshPricing interrupts checkout for sandbox setup errors in payload", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutRefreshPricingResponse(
+      HttpResponse.json(
+        {
+          failed_reason: "missing_required_permission",
+          interrupt_checkout: true,
+          tax_breakdown: [],
+        },
+        {
+          status: StatusCodes.OK,
+        },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutRefreshPricing(),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.StripeMissingRequiredPermission,
+        "There was a problem with the store.",
+        "missing_required_permission",
+      ),
+    );
+  });
+
+  test("checkoutRefreshPricing throws error in production mode for sandbox mode only error", async () => {
     vi.spyOn(backend, "getIsSandbox").mockReturnValue(false);
 
     setCheckoutStartResponse(
@@ -320,7 +500,7 @@ describe("PurchaseOperationHelper", () => {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutCalculateTaxResponse(
+    setCheckoutRefreshPricingResponse(
       HttpResponse.json(
         {
           code: BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly,
@@ -330,19 +510,19 @@ describe("PurchaseOperationHelper", () => {
       ),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
 
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutCalculateTax(),
+      purchaseOperationHelper.checkoutRefreshPricing(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "There was a problem with the store.",
@@ -351,13 +531,57 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutCalculateTax throws error for unexpected backend errors", async () => {
+  test("checkoutRefreshPricing interrupts checkout for discount sandbox setup errors in payload", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutCalculateTaxResponse(
+    setCheckoutRefreshPricingResponse(
+      HttpResponse.json(
+        {
+          failed_reason: "taxes_not_active",
+          interrupt_checkout: true,
+          original_amount_in_micros: 9990000,
+          applied_discounts: [],
+          tax_breakdown: [],
+        },
+        {
+          status: StatusCodes.OK,
+        },
+      ),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.checkoutRefreshPricing({
+        discountCode: "SAVE10",
+      }),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.StripeTaxNotActive,
+        "There was a problem with the store.",
+        "taxes_not_active",
+      ),
+    );
+  });
+
+  test("checkoutRefreshPricing throws error for unexpected backend errors", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutRefreshPricingResponse(
       HttpResponse.json(
         {
           code: 9999,
@@ -367,48 +591,48 @@ describe("PurchaseOperationHelper", () => {
       ),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
 
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutCalculateTax(),
+      purchaseOperationHelper.checkoutRefreshPricing(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "Unknown backend error.",
-        'Request: postCheckoutCalculateTax. Status code: 500. Body: {"code":9999,"message":"Unexpected backend error"}.',
+        'Request: patchCheckoutRefreshPricing. Status code: 500. Body: {"code":9999,"message":"Unexpected backend error"}.',
       ),
     );
   });
 
-  test("checkoutCalculateTax throws error for Network error", async () => {
+  test("checkoutRefreshPricing throws error for Network error", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutCalculateTaxResponse(HttpResponse.error());
+    setCheckoutRefreshPricingResponse(HttpResponse.error());
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
 
     await expectPromiseToPurchaseFlowError(
-      purchaseOperationHelper.checkoutCalculateTax(),
+      purchaseOperationHelper.checkoutRefreshPricing(),
       new PurchaseFlowError(
         PurchaseFlowErrorCode.NetworkError,
         "Error performing request. Please check your network connection and try again.",
@@ -417,31 +641,31 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("checkoutCalculateTax succeeds if tax location is valid", async () => {
+  test("checkoutRefreshPricing succeeds if tax location is valid", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
       }),
     );
-    setCheckoutCalculateTaxResponse(
-      HttpResponse.json(checkoutCalculateTaxResponse, {
+    setCheckoutRefreshPricingResponse(
+      HttpResponse.json(checkoutPricingResponse, {
         status: StatusCodes.OK,
       }),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
 
-    const result = await purchaseOperationHelper.checkoutCalculateTax();
-    expect(result).toEqual(checkoutCalculateTaxResponse);
+    const result = await purchaseOperationHelper.checkoutRefreshPricing();
+    expect(result).toEqual(checkoutPricingResponse);
   });
 
   test("checkoutComplete fails if checkoutStart not called before", async () => {
@@ -464,17 +688,17 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-      "test-email@test.com",
-    );
+      customerEmail: "test-email@test.com",
+    });
 
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.checkoutComplete(),
@@ -502,16 +726,16 @@ describe("PurchaseOperationHelper", () => {
       ),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
 
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.checkoutComplete(),
@@ -539,16 +763,16 @@ describe("PurchaseOperationHelper", () => {
       ),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
 
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.checkoutComplete(),
@@ -576,16 +800,16 @@ describe("PurchaseOperationHelper", () => {
       ),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
 
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.checkoutComplete(),
@@ -617,16 +841,16 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
       new PurchaseFlowError(
@@ -657,21 +881,199 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-      "test-email",
-    );
-    await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+      customerEmail: "test-email",
+    });
+    const pollResult =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(pollResult.customerEmail).toBeUndefined();
   });
 
-  test("pollCurrentPurchaseForCompletion success with redemption info and operation session id if poll returns success", async () => {
+  test("pollCurrentPurchaseForCompletion includes the email passed to checkoutComplete", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T04:21:11Z",
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      customerEmail: "test-email",
+    });
+    await purchaseOperationHelper.checkoutComplete({
+      email: "typed@example.com",
+    });
+    const pollResult =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(pollResult.customerEmail).toEqual("typed@example.com");
+  });
+
+  test("pollCurrentPurchaseForCompletion omits customerEmail when checkoutComplete has no email", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T04:21:11Z",
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    await purchaseOperationHelper.checkoutComplete();
+    const pollResult =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(pollResult.customerEmail).toBeUndefined();
+  });
+
+  test("pollCurrentPurchaseForCompletion does not leak customerEmail to a later purchase", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T04:21:11Z",
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    await purchaseOperationHelper.checkoutComplete({
+      email: "typed@example.com",
+    });
+    const firstPoll =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(firstPoll.customerEmail).toEqual("typed@example.com");
+
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    const secondPoll =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(secondPoll.customerEmail).toBeUndefined();
+  });
+
+  test("pollCurrentPurchaseForCompletion does not leak customerEmail after abandoned checkoutComplete", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    await purchaseOperationHelper.checkoutComplete({
+      email: "typed@example.com",
+    });
+
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, {
         status: StatusCodes.OK,
@@ -682,8 +1084,53 @@ describe("PurchaseOperationHelper", () => {
         status: CheckoutSessionStatus.Succeeded,
         is_expired: false,
         error: null,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T04:21:11Z",
+      },
+    };
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
+    );
+
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    const pollResult =
+      await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+    expect(pollResult.customerEmail).toBeUndefined();
+  });
+
+  test("pollCurrentPurchaseForCompletion success with redemption info and operation session id if poll returns success", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    const getCheckoutStatusResponse: CheckoutStatusResponse = {
+      attribution_metadata: {
+        meta: {
+          canonical_event_id: "fb-order-id",
+          canonical_event_name: "Subscribe",
+          workflow_event_id: "workflow-event-id",
+          workflow_event_name: "workflows_purchase",
+        },
+      },
+      operation: {
+        status: CheckoutSessionStatus.Succeeded,
+        is_expired: false,
+        error: null,
         redemption_info: {
           redeem_url: "test-url://redeem_my_rcb?token=1234",
+          redeem_url_redirect:
+            "https://api.revenuecat.com/redirect?url=test-url://redeem_my_rcb?token=1234",
         },
         store_transaction_identifier: "test-store-transaction-id",
         product_identifier: "test-product_identifier",
@@ -694,20 +1141,23 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
     const pollResult =
       await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
     expect(pollResult.redemptionInfo?.redeemUrl).toEqual(
       "test-url://redeem_my_rcb?token=1234",
+    );
+    expect(pollResult.redemptionInfo?.redeemUrlRedirect).toEqual(
+      "https://api.revenuecat.com/redirect?url=test-url://redeem_my_rcb?token=1234",
     );
     expect(pollResult.operationSessionId).toEqual(operationSessionId);
     expect(pollResult.storeTransactionIdentifier).toEqual(
@@ -715,6 +1165,14 @@ describe("PurchaseOperationHelper", () => {
     );
     expect(pollResult.productIdentifier).toEqual("test-product_identifier");
     expect(pollResult.purchaseDate).toEqual(new Date("2025-07-15T04:21:11Z"));
+    expect(pollResult.attributionMetadata).toEqual({
+      meta: {
+        canonical_event_id: "fb-order-id",
+        canonical_event_name: "Subscribe",
+        workflow_event_id: "workflow-event-id",
+        workflow_event_name: "workflows_purchase",
+      },
+    });
   });
 
   test("pollCurrentPurchaseForCompletion success with missing info in poll returns error", async () => {
@@ -737,16 +1195,16 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
       new PurchaseFlowError(
@@ -786,16 +1244,16 @@ describe("PurchaseOperationHelper", () => {
       });
     });
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
 
     const pollPromise = expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
@@ -807,7 +1265,7 @@ describe("PurchaseOperationHelper", () => {
 
     await vi.runAllTimersAsync();
 
-    expect(callCount).toEqual(10);
+    expect(callCount).toEqual(30);
 
     await pollPromise;
 
@@ -834,16 +1292,16 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
       new PurchaseFlowError(
@@ -873,16 +1331,16 @@ describe("PurchaseOperationHelper", () => {
       HttpResponse.json(getCheckoutStatusResponse, { status: StatusCodes.OK }),
     );
 
-    await purchaseOperationHelper.checkoutStart(
-      "test-app-user-id",
-      "test-product-id",
-      { id: "test-option-id", priceId: "test-price-id" },
-      {
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
         offeringIdentifier: "test-offering-id",
         targetingContext: null,
         placementIdentifier: null,
       },
-    );
+    });
     await expectPromiseToPurchaseFlowError(
       purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
       new PurchaseFlowError(

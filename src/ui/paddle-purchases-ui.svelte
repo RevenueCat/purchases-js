@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, setContext, onDestroy } from "svelte";
+  import { onMount, setContext, onDestroy, tick } from "svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import { translatorContextKey } from "./localization/constants";
   import { Translator } from "./localization/translator";
@@ -18,10 +18,18 @@
     PresentedOfferingContext,
     Package,
   } from "../entities/offerings";
+  import type {
+    AttributionMetadata,
+    WorkflowPurchaseContext,
+  } from "../entities/purchase-params";
   import { PaddleService } from "../paddle/paddle-service";
-  import { PurchasesError } from "../entities/errors";
+  import type { PaddleCheckoutTotals } from "../paddle/paddle-service";
+  import { normalizeToPurchaseFlowError } from "../helpers/normalize-to-purchase-flow-error";
   import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import PaddlePurchasesUiInner from "./paddle-purchases-ui-inner.svelte";
+  import PaddleInlineCheckoutPage from "./paddle-inline-checkout-page.svelte";
+  import type { BrandingAppearance } from "../entities/branding";
+  import { isHexColorLight } from "./theme/utils";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;
@@ -39,9 +47,14 @@
     appUserId: string;
     purchaseOption: PurchaseOption;
     customerEmail: string | undefined;
+    externalPurchaseTokenId?: string;
+    discountCode?: string;
     metadata: PurchaseMetadata | undefined;
+    attributionMetadata?: AttributionMetadata;
+    workflowPurchaseContext?: WorkflowPurchaseContext;
     unmountPaddlePurchaseUi: () => void;
     paddleService: PaddleService;
+    hideBackButton?: boolean;
   }
 
   const {
@@ -60,9 +73,14 @@
     appUserId,
     purchaseOption,
     customerEmail,
+    externalPurchaseTokenId,
+    discountCode,
     metadata,
+    attributionMetadata,
+    workflowPurchaseContext,
     unmountPaddlePurchaseUi,
     paddleService,
+    hideBackButton = false,
   }: Props = $props();
 
   let translator: Translator = new Translator(
@@ -71,8 +89,11 @@
     defaultLocale,
   );
   let translatorStore = writable(translator);
+  const brandingAppearanceStore = writable<BrandingAppearance | null>(
+    brandingInfo?.appearance ?? null,
+  );
   setContext(translatorContextKey, translatorStore);
-  setContext(brandingContextKey, brandingInfo?.appearance);
+  setContext(brandingContextKey, brandingAppearanceStore);
   setContext(eventsTrackerContextKey, eventsTracker);
 
   let isSandbox = $state(false);
@@ -81,6 +102,35 @@
   let currentPage = $state<"waiting" | "loading" | "success" | "error">(
     "waiting",
   );
+  // Tracks the window between Paddle reporting completion and the backend
+  // poll resolving. Used by the inline path to swap the checkout iframe for a
+  // processing state instead of leaving an empty container on screen.
+  let checkoutCompleted = $state(false);
+
+  // The Paddle checkout start response, set once startCheckout resolves.
+  let startResponse = $state<PaddleCheckoutStartResponse | null>(null);
+  // How Paddle's checkout is presented: inline only when the per-project backend
+  // flag on the start response enables it, otherwise the legacy overlay. Absent
+  // => overlay, so projects that haven't been opted in are unaffected.
+  const useInlineCheckout = $derived(
+    startResponse?.paddle_billing_params.inline_checkout_enabled ?? false,
+  );
+
+  // Order totals reported by Paddle's checkout events; drives the inline order
+  // summary's Subtotal/Tax/Total breakdown and updates live.
+  let paddleTotals = $state<PaddleCheckoutTotals | null>(null);
+  const onCheckoutTotals = (totals: PaddleCheckoutTotals) => {
+    paddleTotals = totals;
+  };
+
+  // Paddle's inline checkout only exposes a light/dark theme (deeper colors are
+  // configured in the Paddle dashboard). Pick the variant that matches the
+  // merchant's page background so the embedded checkout blends with our UI.
+  const paddleCheckoutTheme = isHexColorLight(
+    brandingInfo?.appearance?.color_page_bg ?? "#ffffff",
+  )
+    ? "light"
+    : "dark";
 
   $effect(() => {
     if (currentPage === "success" && operationResult && skipSuccessPage) {
@@ -94,6 +144,14 @@
     }
   };
 
+  // Inline checkout embeds Paddle's iframe in our page, so cancelling must tear
+  // it down via Paddle.Checkout.close() before unmounting our UI (per Paddle's
+  // branded inline checkout guidance), then run the normal close/cancel flow.
+  const handleInlineClose = () => {
+    paddleService.closeCheckout();
+    onClose();
+  };
+
   const closeWithError = () => {
     onError(
       error ??
@@ -103,25 +161,6 @@
         ),
     );
     unmountPaddlePurchaseUi();
-  };
-
-  const normalizeToPurchaseFlowError = (
-    e: unknown,
-    defaultMessage: string,
-  ): PurchaseFlowError => {
-    if (e instanceof PurchaseFlowError) {
-      return e;
-    } else if (e instanceof PurchasesError) {
-      return PurchaseFlowError.fromPurchasesError(
-        e,
-        PurchaseFlowErrorCode.UnknownError,
-      );
-    } else {
-      return new PurchaseFlowError(
-        PurchaseFlowErrorCode.UnknownError,
-        defaultMessage,
-      );
-    }
   };
 
   let originalHtmlHeight: string | null = null;
@@ -144,6 +183,12 @@
       currentPage = "loading";
     };
 
+    // Paddle reported completion; show the processing state while we poll.
+    const onCheckoutCompleted = () => {
+      checkoutCompleted = true;
+      currentPage = "loading";
+    };
+
     const presentedOfferingContext: PresentedOfferingContext = {
       offeringIdentifier:
         productDetails.presentedOfferingContext.offeringIdentifier,
@@ -151,17 +196,33 @@
       placementIdentifier: null,
     };
 
-    let startResponse: PaddleCheckoutStartResponse;
+    let resp: PaddleCheckoutStartResponse;
     try {
-      startResponse = await paddleService.startCheckout({
+      resp = await paddleService.startCheckout({
         appUserId,
         productId: productDetails.identifier,
         presentedOfferingContext,
         purchaseOption,
         customerEmail,
+        externalPurchaseTokenId,
         metadata,
+        locale: selectedLocale,
+        attributionMetadata,
+        workflowPurchaseContext,
       });
-      isSandbox = startResponse.paddle_billing_params.is_sandbox;
+      // Drives the derived useInlineCheckout (and the template) below.
+      startResponse = resp;
+      isSandbox = resp.paddle_billing_params.is_sandbox;
+
+      // Paddle injects its iframe into the inline container (frameTarget), so
+      // that element must be in the DOM before purchase() opens the checkout.
+      // The presentation mode is only known now (after startCheckout), so flush
+      // the pending render that adds the container. ($derived changes how the
+      // value is computed, not when the DOM updates, so this await is still
+      // required.)
+      if (useInlineCheckout) {
+        await tick();
+      }
     } catch (e) {
       const purchaseFlowError = normalizeToPurchaseFlowError(
         e,
@@ -175,10 +236,11 @@
 
     try {
       const result = await paddleService.purchase({
-        operationSessionId: startResponse.operation_session_id,
-        transactionId: startResponse.paddle_billing_params?.transaction_id,
+        operationSessionId: resp.operation_session_id,
+        transactionId: resp.paddle_billing_params?.transaction_id,
         onCheckoutLoaded,
         onClose,
+        checkoutSettings: resp.paddle_billing_params.checkout_settings,
         params: {
           rcPackage,
           purchaseOption,
@@ -187,7 +249,14 @@
             productDetails.presentedOfferingContext.offeringIdentifier,
           customerEmail,
           locale: selectedLocale || defaultLocale,
+          ...(discountCode && { discountCode }),
         },
+        ...(useInlineCheckout && {
+          displayMode: "inline" as const,
+          theme: paddleCheckoutTheme,
+          onCheckoutTotals,
+          onCheckoutCompleted,
+        }),
       });
 
       if (skipSuccessPage) {
@@ -227,7 +296,25 @@
   });
 </script>
 
-{#if currentPage !== "waiting"}
+{#if useInlineCheckout}
+  <!-- Single branded two-column shell for every inline state (form / processing
+       / success / error), so there's no swap between different root templates. -->
+  <PaddleInlineCheckoutPage
+    {brandingInfo}
+    {isSandbox}
+    {isInElement}
+    onClose={handleInlineClose}
+    {hideBackButton}
+    {productDetails}
+    {purchaseOption}
+    totals={paddleTotals}
+    {currentPage}
+    {checkoutCompleted}
+    lastError={error}
+    onContinue={handleContinue}
+    {closeWithError}
+  />
+{:else if currentPage !== "waiting"}
   <PaddlePurchasesUiInner
     currentPage={currentPage as "loading" | "success" | "error"}
     {brandingInfo}

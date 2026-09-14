@@ -6,6 +6,11 @@ import {
   brandingInfo,
   rcPackage,
   subscriptionOption,
+  subscriptionOptionWithDiscount,
+  subscriptionOptionWithSingleMonthIntroPriceRecurring,
+  subscriptionOptionWithSingleWeekIntroPriceRecurring,
+  subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+  subscriptionOptionWithTrial,
 } from "../../stories/fixtures";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 import { eventsTrackerContextKey } from "../../ui/constants";
@@ -20,6 +25,7 @@ import {
   PurchaseFlowErrorCode,
 } from "../../helpers/purchase-operation-helper";
 import type { ComponentProps } from "svelte";
+import type { BrandingAppearance } from "../../entities/branding";
 
 const eventsTrackerMock = createEventsTrackerMock();
 
@@ -49,10 +55,23 @@ const operationSessionSuccessfulResult: OperationSessionSuccessfulResult = {
   purchaseDate: new Date("2024-01-01"),
 };
 
-const createPaddleServiceMock = (): PaddleService => {
+const createPaddleServiceMock = ({
+  inlineCheckoutEnabled = false,
+}: { inlineCheckoutEnabled?: boolean } = {}): PaddleService => {
+  // The backend gates inline checkout per project via inline_checkout_enabled
+  // on the checkout start response's paddle_billing_params; the UI derives its
+  // presentation mode from it.
+  const startResponse: PaddleCheckoutStartResponse = {
+    ...paddleCheckoutStartResponse,
+    paddle_billing_params: {
+      ...paddleCheckoutStartResponse.paddle_billing_params,
+      inline_checkout_enabled: inlineCheckoutEnabled,
+    },
+  };
   return {
-    startCheckout: vi.fn().mockResolvedValue(paddleCheckoutStartResponse),
+    startCheckout: vi.fn().mockResolvedValue(startResponse),
     purchase: vi.fn().mockResolvedValue(operationSessionSuccessfulResult),
+    closeCheckout: vi.fn(),
   } as unknown as PaddleService;
 };
 
@@ -116,6 +135,7 @@ describe("PaddlePurchasesUI", () => {
         purchaseOption: subscriptionOption,
         customerEmail: undefined,
         metadata: undefined,
+        locale: "en",
       });
     });
 
@@ -136,6 +156,30 @@ describe("PaddlePurchasesUI", () => {
           locale: "en",
         },
       });
+    });
+  });
+
+  test("passes attributionMetadata to startCheckout when provided", async () => {
+    const paddleServiceMock = createPaddleServiceMock();
+    const startCheckoutSpy = vi.spyOn(paddleServiceMock, "startCheckout");
+    const attributionMetadata = {
+      fbp: "fb.1.123456789.987654321",
+      fbc: "fb.1.123456789.IwAR1234",
+    };
+
+    render(PaddlePurchasesUI, {
+      props: {
+        ...baseProps,
+        paddleService: paddleServiceMock,
+        attributionMetadata,
+      },
+      context: defaultContext,
+    });
+
+    await waitFor(() => {
+      expect(startCheckoutSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ attributionMetadata }),
+      );
     });
   });
 
@@ -386,6 +430,28 @@ describe("PaddlePurchasesUI", () => {
     await expect(unmountPaddlePurchaseUi).toHaveBeenCalled();
   });
 
+  test("passes discountCode to purchase when provided", async () => {
+    const paddleServiceMock = createPaddleServiceMock();
+    const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+    render(PaddlePurchasesUI, {
+      props: {
+        ...baseProps,
+        paddleService: paddleServiceMock,
+        discountCode: "SAVE10",
+      },
+      context: defaultContext,
+    });
+
+    await waitFor(() => {
+      expect(purchaseSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: expect.objectContaining({ discountCode: "SAVE10" }),
+        }),
+      );
+    });
+  });
+
   test("passes customerEmail and metadata to startCheckout", async () => {
     const paddleServiceMock = createPaddleServiceMock();
     const startCheckoutSpy = vi.spyOn(paddleServiceMock, "startCheckout");
@@ -472,5 +538,479 @@ describe("PaddlePurchasesUI", () => {
 
     const sandboxBanner = await screen.findByText("SANDBOX");
     expect(sandboxBanner).toBeInTheDocument();
+  });
+
+  describe("inline checkout (gated by paddle_billing_params.inline_checkout_enabled)", () => {
+    test("renders the inline checkout container when enabled", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      // Keep purchase pending so the inline container stays mounted.
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      const container = await screen.findByTestId(
+        "paddle-inline-checkout-container",
+      );
+      expect(container).toBeInTheDocument();
+    });
+
+    test("calls purchase with displayMode inline when enabled", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ displayMode: "inline" }),
+        );
+      });
+    });
+
+    const brandingWithPageBg = (color: string) => ({
+      ...brandingInfo,
+      appearance: {
+        ...(brandingInfo.appearance ?? ({} as BrandingAppearance)),
+        color_page_bg: color,
+      },
+    });
+
+    test("passes a light theme when the page background is light", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          brandingInfo: brandingWithPageBg("#ffffff"),
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ theme: "light" }),
+        );
+      });
+    });
+
+    test("passes a dark theme when the page background is dark", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          brandingInfo: brandingWithPageBg("#101010"),
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ theme: "dark" }),
+        );
+      });
+    });
+
+    test("shows the processing state and hides the container after checkout completes", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      // Drive the onCheckoutCompleted callback, then keep the promise pending
+      // so the processing (polling) state stays on screen.
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        async (params) => {
+          params.onCheckoutCompleted?.();
+          return new Promise(() => {});
+        },
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      const loadingText = await screen.findByText("Processing payment");
+      expect(loadingText).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("paddle-inline-checkout-container"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("does not render the inline container or pass displayMode by default", async () => {
+      const paddleServiceMock = createPaddleServiceMock();
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: { ...baseProps, paddleService: paddleServiceMock },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalled();
+      });
+      expect(purchaseSpy.mock.calls[0][0]).not.toHaveProperty("displayMode");
+      expect(
+        screen.queryByTestId("paddle-inline-checkout-container"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("renders a return button that invokes onClose when not in an element", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+      const onClose = vi.fn();
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          onClose,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      const returnButton = await screen.findByTestId("paddle-return-button");
+      returnButton.click();
+      // Inline cancel tears down Paddle's iframe via Checkout.close(), then
+      // runs the normal close flow.
+      expect(paddleServiceMock.closeCheckout).toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalled();
+    });
+
+    test("does not render the return button when embedded in an element", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          isInElement: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      // Wait for the inline container to mount, then assert no return affordance.
+      await screen.findByTestId("paddle-inline-checkout-container");
+      expect(
+        screen.queryByTestId("paddle-return-button"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("does not render the return button when hideBackButton is true", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        () => new Promise(() => {}),
+      );
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          hideBackButton: true,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await screen.findByTestId("paddle-inline-checkout-container");
+      expect(
+        screen.queryByTestId("paddle-return-button"),
+      ).not.toBeInTheDocument();
+    });
+
+    test("passes onCheckoutTotals to purchase when inline", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      const purchaseSpy = vi.spyOn(paddleServiceMock, "purchase");
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      await waitFor(() => {
+        expect(purchaseSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ onCheckoutTotals: expect.any(Function) }),
+        );
+      });
+    });
+
+    test("renders the tax breakdown from Paddle totals", async () => {
+      const paddleServiceMock = createPaddleServiceMock({
+        inlineCheckoutEnabled: true,
+      });
+      // Report totals (incl. tax) the way Paddle's checkout.loaded event does,
+      // then keep the checkout open so the summary stays on screen.
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation((params) => {
+        params.onCheckoutTotals?.({
+          currencyCode: "USD",
+          subtotalAmount: 8.26,
+          taxAmount: 1.74,
+          totalAmount: 10,
+          recurringTotalAmount: 10,
+          productName: "Premium",
+          priceName: "monthly",
+        });
+        return new Promise(() => {});
+      });
+
+      render(PaddlePurchasesUI, {
+        props: {
+          ...baseProps,
+          paddleService: paddleServiceMock,
+        },
+        context: defaultContext,
+      });
+
+      // The subtotal (excl. tax) only renders when the tax breakdown is shown,
+      // i.e. when we feed Paddle's calculated totals into the price breakdown.
+      expect(await screen.findByText("$8.26")).toBeInTheDocument();
+    });
+
+    describe("order summary next billing date", () => {
+      // Paddle doesn't expose the renewal date through checkout events, so the
+      // summary derives it from the purchase option. It must count from the
+      // intro/trial phase when there is one, not the base period.
+      const renderWithTotals = ({
+        purchaseOption,
+        totalAmount = 3,
+        recurringTotalAmount = 20,
+        selectedLocale = "en",
+      }: {
+        purchaseOption: ComponentProps<PaddlePurchasesUI>["purchaseOption"];
+        // Paddle reports the same figure for both when there is no offer phase,
+        // so tests for the plain case must pass a matching pair.
+        totalAmount?: number;
+        recurringTotalAmount?: number | null;
+        selectedLocale?: string;
+      }) => {
+        const paddleServiceMock = createPaddleServiceMock({
+          inlineCheckoutEnabled: true,
+        });
+        vi.spyOn(paddleServiceMock, "purchase").mockImplementation((params) => {
+          params.onCheckoutTotals?.({
+            currencyCode: "USD",
+            subtotalAmount: totalAmount,
+            taxAmount: 0,
+            totalAmount,
+            recurringTotalAmount,
+            productName: "Premium",
+            priceName: "Monthly sub",
+          });
+          // Keep the checkout open so the summary stays mounted.
+          return new Promise(() => {});
+        });
+
+        return render(PaddlePurchasesUI, {
+          props: {
+            ...baseProps,
+            purchaseOption,
+            selectedLocale,
+            paddleService: paddleServiceMock,
+          },
+          context: defaultContext,
+        });
+      };
+
+      beforeEach(() => {
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        vi.setSystemTime(new Date("2026-08-07T12:00:00Z"));
+      });
+
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      test("counts from the intro price period, not the base period", async () => {
+        // 1-week intro at $1.49, then $20.00/month. The next charge lands a week
+        // out (Aug 14), not a month out (Sep 7).
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+        });
+
+        expect(
+          await screen.findByText("Due on August 14, 2026"),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByText("Due on September 7, 2026"),
+        ).not.toBeInTheDocument();
+      });
+
+      test("describes the intro window and the price it steps up to", async () => {
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+        });
+
+        // Not "billed monthly", which would read as $3.00/month next to the
+        // headline amount while the customer is still in the intro week.
+        expect(
+          await screen.findByText("first week, then $20.00 monthly"),
+        ).toBeInTheDocument();
+        expect(screen.queryByText("billed monthly")).not.toBeInTheDocument();
+      });
+
+      test("shows the recurring price on the product row", async () => {
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+        });
+
+        // "/ month" describes the recurring price, so the row pairs it with
+        // $20.00 rather than today's $3.00 intro total.
+        await screen.findByText("Due on August 14, 2026");
+        expect(screen.getAllByText("$20.00").length).toBeGreaterThan(0);
+      });
+
+      test("counts from the trial period when the option has a free trial", async () => {
+        renderWithTotals({ purchaseOption: subscriptionOptionWithTrial });
+
+        expect(
+          await screen.findByText("Due on August 14, 2026"),
+        ).toBeInTheDocument();
+      });
+
+      test("counts from the base period when there is no intro or trial", async () => {
+        // Nothing steps up, so Paddle reports the same figure for both.
+        renderWithTotals({
+          purchaseOption: subscriptionOption,
+          totalAmount: 20,
+        });
+
+        expect(
+          await screen.findByText("Due on September 7, 2026"),
+        ).toBeInTheDocument();
+        expect(await screen.findByText("billed monthly")).toBeInTheDocument();
+      });
+
+      test("formats the date for the region, not just the language", async () => {
+        // Only language-level translations exist, so the translator resolves
+        // en-GB to en. The date still has to follow the region's order.
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+          selectedLocale: "en-GB",
+        });
+
+        expect(
+          await screen.findByText("Due on 14 August 2026"),
+        ).toBeInTheDocument();
+      });
+
+      test("translates the summary labels for a non-English locale", async () => {
+        // "Due on" and "billed" used to be hardcoded English, so a French
+        // checkout rendered "Due on 14 août 2026" and "billed mensuel".
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+          selectedLocale: "fr",
+        });
+
+        expect(
+          await screen.findByText("Dû le 14 août 2026"),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText("premier 1 semaine, puis 20,00 $ mensuel"),
+        ).toBeInTheDocument();
+        expect(screen.queryByText(/^Due on /)).not.toBeInTheDocument();
+      });
+
+      test("describes a same-length intro that only differs in price", async () => {
+        // A first month at $3 against a $20 monthly base: the durations match,
+        // so only the amounts reveal the step-up.
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleMonthIntroPriceRecurring,
+        });
+
+        expect(
+          await screen.findByText("first month, then $20.00 monthly"),
+        ).toBeInTheDocument();
+        expect(screen.queryByText("billed monthly")).not.toBeInTheDocument();
+      });
+
+      test("still describes the future when a discount supersedes a trial and intro", async () => {
+        // A discount replaces both the trial and the intro price, so there is
+        // no hidden middle phase and the step-up copy is safe to show.
+        renderWithTotals({
+          purchaseOption: {
+            ...subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+            discount: subscriptionOptionWithDiscount.discount,
+          },
+        });
+
+        // 3-month time window discount, so the base price resumes 3 months out.
+        expect(
+          await screen.findByText("Due on November 7, 2026"),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText("first 3 months, then $20.00 monthly"),
+        ).toBeInTheDocument();
+      });
+
+      test("says nothing about the future when a trial precedes a paid intro", async () => {
+        // The sequence is trial -> intro -> base, so Paddle's recurring total is
+        // not what gets charged next. Better silent than confidently wrong.
+        renderWithTotals({
+          purchaseOption:
+            subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+        });
+
+        expect(await screen.findByText("Total due today")).toBeInTheDocument();
+        expect(screen.queryByText(/^Due on /)).not.toBeInTheDocument();
+        expect(screen.getByText("billed monthly")).toBeInTheDocument();
+      });
+
+      test("hides the recurring row when Paddle reports no recurring total", async () => {
+        renderWithTotals({
+          purchaseOption: subscriptionOptionWithSingleWeekIntroPriceRecurring,
+          recurringTotalAmount: null,
+        });
+
+        // Total due today still renders; the future-charge row does not.
+        expect(await screen.findByText("Total due today")).toBeInTheDocument();
+        expect(screen.queryByText(/^Due on /)).not.toBeInTheDocument();
+        // Falls back to today's total on the product row, and to the plain
+        // cadence label under the headline amount.
+        expect(screen.getByText("billed monthly")).toBeInTheDocument();
+      });
+    });
   });
 });

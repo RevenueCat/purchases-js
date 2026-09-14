@@ -1,9 +1,9 @@
 import { type OfferingsResponse } from "./responses/offerings-response";
 import { performRequest, performRequestWithStatus } from "./http-client";
 import {
-  CheckoutCalculateTaxEndpoint,
   CheckoutCompleteEndpoint,
   CheckoutPrepareEndpoint,
+  CheckoutRefreshPricingEndpoint,
   CheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
@@ -11,6 +11,8 @@ import {
   GetOfferingsEndpoint,
   GetProductsEndpoint,
   GetVirtualCurrenciesEndpoint,
+  GetWorkflowDataByIdEndpoint,
+  GetWorkflowsEndpoint,
   IdentifyEndpoint,
   PostReceiptEndpoint,
   SetAttributesEndpoint,
@@ -20,7 +22,16 @@ import type { CheckoutStartResponse } from "./responses/checkout-start-response"
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
+import type {
+  SubscriptionChangeCheckoutStartResponse,
+  SubscriptionChangeCompleteResponse,
+} from "./responses/subscription-change-response";
 import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
+import type {
+  WorkflowDataAction,
+  WorkflowDataResponse,
+  WorkflowsListResponse,
+} from "./responses/workflow-response";
 import { defaultHttpConfig, type HttpConfig } from "../entities/http-config";
 import type {
   PresentedOfferingContext,
@@ -29,10 +40,62 @@ import type {
 } from "../entities/offerings";
 import type { PurchasesContext } from "../entities/purchases-config";
 import type { CheckoutCompleteResponse } from "./responses/checkout-complete-response";
-import type { CheckoutCalculateTaxResponse } from "./responses/checkout-calculate-tax-response";
+import type { CheckoutPricingResponse } from "./responses/checkout-pricing-response";
 import { isWebBillingSandboxApiKey } from "../helpers/api-key-helper";
 import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
+import type { AttributionMetadata } from "../entities/purchase-params";
+import type { BrandingAppearance } from "../entities/branding";
+
+const MAX_GET_PRODUCTS_URL_PATH_LENGTH = 2000;
+
+interface CheckoutStartRequestParams {
+  // Purchase identity
+  appUserId: string;
+  productId: string;
+  purchaseOption: PurchaseOption;
+  traceId: string;
+
+  // Presentation context
+  presentedOfferingContext: PresentedOfferingContext;
+  presentedStepId?: string;
+  urlParameters?: Record<string, string | string[]>;
+  paywallId?: string;
+  paywallSessionId?: string;
+
+  // Customer data
+  customerEmail?: string;
+  externalPurchaseTokenId?: string;
+  metadata?: PurchaseMetadata;
+  // Locale for lifecycle emails.
+  locale?: string;
+
+  attributionMetadata?: AttributionMetadata;
+  appearanceOverride?: Partial<BrandingAppearance>;
+
+  /**
+   * When set, will attempt a subscription change. Requires
+   * subscriberToken. If the change is not possible, the
+   * backend falls back to a normal purchase response.
+   */
+  productChange?: {
+    subscriptionId?: string;
+    productIdentifier?: string;
+  };
+  subscriberToken?: string;
+  purchaseFlow?: "apple_pay";
+}
+
+interface CheckoutRefreshPricingParams {
+  countryCode?: string;
+  postalCode?: string;
+  state?: string;
+  city?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  discountCode?: string | null;
+  signal?: AbortSignal | null;
+}
 
 export class Backend {
   private readonly API_KEY: string;
@@ -111,14 +174,72 @@ export class Backend {
     appUserId: string,
     productIds: string[],
     currency?: string,
+    discountCode?: string,
   ): Promise<ProductsResponse> {
-    return await performRequest<null, ProductsResponse>(
-      new GetProductsEndpoint(appUserId, productIds, currency),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
+    const uniqueProductIds = Array.from(new Set(productIds));
+    const productIdBatches = this.batchProductIdsByUrlLength(
+      appUserId,
+      uniqueProductIds,
+      currency,
+      discountCode,
     );
+
+    const productDetails: ProductsResponse["product_details"] = [];
+    for (const productIdBatch of productIdBatches) {
+      const response = await performRequest<null, ProductsResponse>(
+        new GetProductsEndpoint(
+          appUserId,
+          productIdBatch,
+          currency,
+          discountCode,
+        ),
+        {
+          apiKey: this.API_KEY,
+          httpConfig: this.httpConfig,
+        },
+      );
+      productDetails.push(...response.product_details);
+    }
+
+    return {
+      product_details: productDetails,
+    };
+  }
+
+  private batchProductIdsByUrlLength(
+    appUserId: string,
+    productIds: string[],
+    currency?: string,
+    discountCode?: string,
+  ): string[][] {
+    const batches: string[][] = [];
+    let currentBatch: string[] = [];
+
+    for (const productId of productIds) {
+      const candidateBatch = [...currentBatch, productId];
+      const candidateUrlLength = new GetProductsEndpoint(
+        appUserId,
+        candidateBatch,
+        currency,
+        discountCode,
+      ).urlPath().length;
+
+      if (
+        currentBatch.length > 0 &&
+        candidateUrlLength > MAX_GET_PRODUCTS_URL_PATH_LENGTH
+      ) {
+        batches.push(currentBatch);
+        currentBatch = [productId];
+      } else {
+        currentBatch = candidateBatch;
+      }
+    }
+
+    if (currentBatch.length > 0) {
+      batches.push(currentBatch);
+    }
+
+    return batches;
   }
 
   async getBrandingInfo(): Promise<BrandingInfoResponse> {
@@ -160,17 +281,29 @@ export class Backend {
   }
 
   async postCheckoutStart<
-    T extends CheckoutStartResponse = CheckoutStartResponse,
-  >(
-    appUserId: string,
-    productId: string,
-    presentedOfferingContext: PresentedOfferingContext,
-    purchaseOption: PurchaseOption,
-    traceId: string,
-    email?: string,
-    metadata: PurchaseMetadata | undefined = undefined,
-    stepId?: string,
-  ): Promise<T> {
+    T extends
+      | CheckoutStartResponse
+      | SubscriptionChangeCheckoutStartResponse = CheckoutStartResponse,
+  >({
+    appUserId,
+    productId,
+    purchaseOption,
+    presentedOfferingContext,
+    traceId,
+    presentedStepId,
+    urlParameters,
+    paywallId,
+    paywallSessionId,
+    customerEmail,
+    externalPurchaseTokenId,
+    metadata,
+    locale,
+    attributionMetadata,
+    appearanceOverride,
+    productChange,
+    subscriberToken,
+    purchaseFlow,
+  }: CheckoutStartRequestParams): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
       product_id: string;
@@ -185,14 +318,28 @@ export class Backend {
         revision: number;
       };
       email?: string;
+      external_purchase_token_id?: string;
       metadata?: PurchaseMetadata;
       trace_id: string;
+      locale?: string;
+      url_parameters?: Record<string, string | string[]>;
+      paywall?: {
+        paywall_id: string;
+        paywall_session_id?: string;
+      };
+      attribution_metadata?: AttributionMetadata;
+      appearance_override?: Partial<BrandingAppearance>;
+      product_change?: {
+        subscription_id?: string;
+        from_product_id?: string;
+      };
+      purchase_flow?: "apple_pay";
     };
 
     const requestBody: CheckoutStartRequestBody = {
       app_user_id: appUserId,
       product_id: productId,
-      email: email,
+      email: customerEmail,
       price_id: purchaseOption.priceId,
       presented_offering_identifier:
         presentedOfferingContext.offeringIdentifier,
@@ -201,6 +348,10 @@ export class Backend {
 
     if (metadata) {
       requestBody.metadata = metadata;
+    }
+
+    if (externalPurchaseTokenId) {
+      requestBody.external_purchase_token_id = externalPurchaseTokenId;
     }
 
     if (purchaseOption.id !== "base_option") {
@@ -224,8 +375,46 @@ export class Backend {
         this.purchasesContext.workflowContext.workflowIdentifier;
     }
 
-    if (stepId) {
-      requestBody.presented_step_id = stepId;
+    if (presentedStepId) {
+      requestBody.presented_step_id = presentedStepId;
+    }
+
+    if (urlParameters && Object.keys(urlParameters).length > 0) {
+      requestBody.url_parameters = urlParameters;
+    }
+
+    if (paywallId) {
+      requestBody.paywall = {
+        paywall_id: paywallId,
+        ...(paywallSessionId ? { paywall_session_id: paywallSessionId } : {}),
+      };
+    }
+
+    if (locale) {
+      requestBody.locale = locale;
+    }
+
+    if (attributionMetadata) {
+      requestBody.attribution_metadata = attributionMetadata;
+    }
+
+    if (appearanceOverride) {
+      requestBody.appearance_override = appearanceOverride;
+    }
+
+    if (productChange) {
+      requestBody.product_change = {
+        ...(productChange.subscriptionId
+          ? { subscription_id: productChange.subscriptionId }
+          : {}),
+        ...(productChange.productIdentifier
+          ? { from_product_id: productChange.productIdentifier }
+          : {}),
+      };
+    }
+
+    if (purchaseFlow) {
+      requestBody.purchase_flow = purchaseFlow;
     }
 
     return (await performRequest<CheckoutStartRequestBody, T>(
@@ -233,32 +422,52 @@ export class Backend {
       {
         apiKey: this.API_KEY,
         body: requestBody,
+        headers: subscriberToken
+          ? { "X-RC-Subscriber-Token": subscriberToken }
+          : undefined,
         httpConfig: this.httpConfig,
       },
     )) as T;
   }
 
-  async postCheckoutCalculateTax(
+  async patchCheckoutRefreshPricing(
     operationSessionId: string,
-    countryCode?: string,
-    postalCode?: string,
-    signal?: AbortSignal | null,
-  ): Promise<CheckoutCalculateTaxResponse> {
-    type CheckoutCalculateTaxRequestBody = {
+    {
+      countryCode,
+      postalCode,
+      state,
+      city,
+      addressLine1,
+      addressLine2,
+      discountCode,
+      signal,
+    }: CheckoutRefreshPricingParams = {},
+  ): Promise<CheckoutPricingResponse> {
+    type CheckoutRefreshPricingRequestBody = {
       country_code?: string;
       postal_code?: string;
+      state?: string;
+      city?: string;
+      address_line1?: string;
+      address_line2?: string;
+      discount_code?: string | null;
     };
 
-    const requestBody: CheckoutCalculateTaxRequestBody = {
+    const requestBody: CheckoutRefreshPricingRequestBody = {
       country_code: countryCode,
       postal_code: postalCode,
+      state,
+      city,
+      address_line1: addressLine1,
+      address_line2: addressLine2,
+      discount_code: discountCode,
     };
 
     return await performRequest<
-      CheckoutCalculateTaxRequestBody,
-      CheckoutCalculateTaxResponse
+      CheckoutRefreshPricingRequestBody,
+      CheckoutPricingResponse
     >(
-      new CheckoutCalculateTaxEndpoint(operationSessionId),
+      new CheckoutRefreshPricingEndpoint(operationSessionId),
       {
         apiKey: this.API_KEY,
         body: requestBody,
@@ -270,22 +479,65 @@ export class Backend {
 
   async postCheckoutComplete(
     operationSessionId: string,
-    email?: string,
-  ): Promise<CheckoutCompleteResponse> {
+    options: {
+      email?: string;
+      locale?: string;
+      subscriberToken?: string;
+      billingName?: string;
+      billingAddress?: {
+        countryCode: string;
+        postalCode?: string;
+        state?: string;
+        city?: string;
+        addressLine1?: string;
+        addressLine2?: string;
+      };
+    } = {},
+  ): Promise<CheckoutCompleteResponse | SubscriptionChangeCompleteResponse> {
     type CheckoutCompleteRequestBody = {
       email?: string;
+      locale?: string;
+      billing_name?: string;
+      billing_address?: {
+        country_code: string;
+        postal_code?: string;
+        state?: string;
+        city?: string;
+        address_line1?: string;
+        address_line2?: string;
+      };
     };
 
-    const requestBody: CheckoutCompleteRequestBody = {
-      email: email,
-    };
+    const requestBody: CheckoutCompleteRequestBody = {};
+    if (options.email) {
+      requestBody.email = options.email;
+    }
+    if (options.locale) {
+      requestBody.locale = options.locale;
+    }
+    if (options.billingName) {
+      requestBody.billing_name = options.billingName;
+    }
+    if (options.billingAddress) {
+      requestBody.billing_address = {
+        country_code: options.billingAddress.countryCode,
+        postal_code: options.billingAddress.postalCode,
+        state: options.billingAddress.state,
+        city: options.billingAddress.city,
+        address_line1: options.billingAddress.addressLine1,
+        address_line2: options.billingAddress.addressLine2,
+      };
+    }
 
     return await performRequest<
       CheckoutCompleteRequestBody,
-      CheckoutCompleteResponse
+      CheckoutCompleteResponse | SubscriptionChangeCompleteResponse
     >(new CheckoutCompleteEndpoint(operationSessionId), {
       apiKey: this.API_KEY,
       body: requestBody,
+      headers: options.subscriberToken
+        ? { "X-RC-Subscriber-Token": options.subscriberToken }
+        : undefined,
       httpConfig: this.httpConfig,
     });
   }
@@ -346,6 +598,7 @@ export class Backend {
     fetchToken: string,
     presentedOfferingContext: PresentedOfferingContext,
     initiationSource: string,
+    paywallId?: string,
   ): Promise<SubscriberResponse> {
     type PostReceiptTargetingRule = {
       rule_id: string;
@@ -361,6 +614,9 @@ export class Backend {
       presented_workflow_id?: string | null;
       applied_targeting_rule?: PostReceiptTargetingRule | null;
       initiation_source: string;
+      paywall?: {
+        paywall_id: string;
+      };
     };
 
     let targetingInfo: PostReceiptTargetingRule | null = null;
@@ -386,6 +642,12 @@ export class Backend {
       initiation_source: initiationSource,
     };
 
+    if (paywallId) {
+      requestBody.paywall = {
+        paywall_id: paywallId,
+      };
+    }
+
     return await performRequest<PostReceiptRequestBody, SubscriberResponse>(
       new PostReceiptEndpoint(),
       {
@@ -406,5 +668,51 @@ export class Backend {
         httpConfig: this.httpConfig,
       },
     );
+  }
+
+  async getWorkflows(appUserId: string): Promise<WorkflowsListResponse> {
+    return await performRequest<null, WorkflowsListResponse>(
+      new GetWorkflowsEndpoint(appUserId),
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  async getWorkflowById(
+    appUserId: string,
+    workflowId: string,
+  ): Promise<WorkflowDataResponse> {
+    const dataOrAction = await performRequest<
+      null,
+      WorkflowDataAction | WorkflowDataResponse
+    >(new GetWorkflowDataByIdEndpoint(appUserId, workflowId), {
+      apiKey: this.API_KEY,
+      httpConfig: this.httpConfig,
+    });
+
+    if (!("action" in dataOrAction)) {
+      return dataOrAction;
+    }
+
+    if (dataOrAction.action === "inline") {
+      return dataOrAction.data;
+    }
+
+    if (dataOrAction.action !== "use_cdn") {
+      throw new Error(
+        `Unexpected workflow action: ${(dataOrAction as WorkflowDataAction).action}`,
+      );
+    }
+
+    // CDN redirect — fetch directly (no auth needed, public CDN).
+    const cdnResponse = await fetch(dataOrAction.url);
+    if (!cdnResponse.ok) {
+      throw new Error(
+        `Failed to fetch workflow from CDN: ${cdnResponse.statusText}`,
+      );
+    }
+    return (await cdnResponse.json()) as WorkflowDataResponse;
   }
 }

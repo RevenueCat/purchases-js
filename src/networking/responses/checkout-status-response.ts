@@ -20,6 +20,7 @@ export interface CheckoutStatusError {
 
 export interface CheckoutStatusRedemptionInfo {
   readonly redeem_url?: string | null;
+  readonly redeem_url_redirect?: string | null;
 }
 
 export interface CheckoutStatusInnerResponse {
@@ -34,4 +35,5 @@ export interface CheckoutStatusInnerResponse {
 
 export interface CheckoutStatusResponse {
   readonly operation: CheckoutStatusInnerResponse;
+  readonly attribution_metadata?: Record<string, unknown>;
 }

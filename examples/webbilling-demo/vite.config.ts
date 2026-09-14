@@ -1,11 +1,20 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  // Playwright owns src/tests; vitest runs only *.unit.test.ts so the two don't collide.
+  test: {
+    include: ["src/**/*.unit.test.ts"],
+  },
   server: {
     port: 3001,
+    proxy: {
+      // Forwards token requests to the standalone demo token server
+      // (server/index.js), which holds the secret API key.
+      "/api": "http://localhost:8010",
+    },
     fs: {
       allow: [".."],
     },

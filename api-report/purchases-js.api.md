@@ -4,12 +4,18 @@
 
 ```ts
 
+import { CustomVariables } from '@revenuecat/purchases-ui-js';
+import { CustomVariableValue } from '@revenuecat/purchases-ui-js';
+import { WalletButtonTheme } from '@revenuecat/purchases-ui-js';
+
 // @public
 export interface BrandingAppearance {
     // (undocumented)
     color_accent: string;
     // (undocumented)
     color_buttons_primary: string;
+    // (undocumented)
+    color_buttons_primary_text?: string | null;
     // (undocumented)
     color_error: string;
     // (undocumented)
@@ -46,6 +52,16 @@ export interface CustomerInfo {
         [productId: string]: SubscriptionInfo;
     };
 }
+
+// @public
+export interface CustomPaywallImpressionParams {
+    offering?: Offering;
+    paywallId?: string;
+}
+
+export { CustomVariables }
+
+export { CustomVariableValue }
 
 // @public
 export interface EntitlementInfo {
@@ -138,23 +154,32 @@ export enum ErrorCode {
 }
 
 // @public
+export interface ExpressPurchaseButtonUpdater {
+    updatePurchase: (pkg: Package, purchaseOption?: PurchaseOption) => void;
+}
+
+// @public
 export interface FlagsConfig {
+    applePayBrandingLogoEnabled?: boolean;
     autoCollectUTMAsMetadata?: boolean;
     collectAnalyticsEvents?: boolean;
-    /* Excluded from this release type: rcSource */
-    /* Excluded from this release type: forceEnableWalletMethods */
+    hideBackButton?: boolean;
+    // @deprecated
+    storeLoadTime?: StoreLoadTime;
 }
 
 // @public
 export interface GetOfferingsParams {
     readonly currency?: string;
     readonly offeringIdentifier?: string | OfferingKeyword;
+    /* Excluded from this release type: discountCode */
 }
 
 // @public
 export interface HttpConfig {
     additionalHeaders?: Record<string, string>;
     proxyURL?: string;
+    /* Excluded from this release type: eventsURL */
 }
 
 // @public
@@ -195,6 +220,7 @@ export interface NonSubscriptionTransaction {
 export interface Offering {
     readonly annual: Package | null;
     readonly availablePackages: Package[];
+    readonly hasPaywall: boolean;
     readonly identifier: string;
     readonly lifetime: Package | null;
     readonly metadata: {
@@ -208,6 +234,7 @@ export interface Offering {
     readonly sixMonth: Package | null;
     readonly threeMonth: Package | null;
     readonly twoMonth: Package | null;
+    readonly webCheckoutURL?: string | null;
     readonly weekly: Package | null;
     /* Excluded from this release type: paywallComponents */
     /* Excluded from this release type: uiConfig */
@@ -236,6 +263,7 @@ export interface Package {
     // @deprecated
     readonly rcBillingProduct: Product;
     readonly webBillingProduct: Product;
+    readonly webCheckoutURL?: string | null;
 }
 
 // @public
@@ -250,6 +278,81 @@ export enum PackageType {
     Unknown = "unknown",
     Weekly = "$rc_weekly"
 }
+
+// @public
+export const PAYWALL_COMPONENT_TYPES: {
+    readonly TAB: "tab";
+    readonly SWITCH: "switch";
+    readonly CAROUSEL: "carousel";
+    readonly BUTTON: "button";
+    readonly TEXT: "text";
+    readonly PACKAGE: "package";
+    readonly PACKAGE_SELECTION_SHEET: "package_selection_sheet";
+    readonly PURCHASE_BUTTON: "purchase_button";
+};
+
+// @public
+export interface PaywallInteractionEvent {
+    // (undocumented)
+    readonly component_name?: string;
+    // (undocumented)
+    readonly component_type: string;
+    // (undocumented)
+    readonly component_url?: string;
+    // (undocumented)
+    readonly component_value: string;
+    // (undocumented)
+    readonly current_package_id?: string;
+    // (undocumented)
+    readonly current_product_id?: string;
+    // (undocumented)
+    readonly dark_mode?: boolean;
+    // (undocumented)
+    readonly default_index?: number;
+    // (undocumented)
+    readonly default_package_id?: string;
+    // (undocumented)
+    readonly default_product_id?: string;
+    // (undocumented)
+    readonly destination_context_name?: string;
+    // (undocumented)
+    readonly destination_index?: number;
+    // (undocumented)
+    readonly destination_package_id?: string;
+    // (undocumented)
+    readonly destination_product_id?: string;
+    // (undocumented)
+    readonly display_mode?: string;
+    // (undocumented)
+    readonly locale?: string;
+    // (undocumented)
+    readonly offering_id: string;
+    // (undocumented)
+    readonly origin_context_name?: string;
+    // (undocumented)
+    readonly origin_index?: number;
+    // (undocumented)
+    readonly origin_package_id?: string;
+    // (undocumented)
+    readonly origin_product_id?: string;
+    // (undocumented)
+    readonly paywall_id?: string;
+    // (undocumented)
+    readonly paywall_revision: number;
+    // (undocumented)
+    readonly resulting_package_id?: string;
+    // (undocumented)
+    readonly resulting_product_id?: string;
+    // (undocumented)
+    readonly session_id: string;
+    // (undocumented)
+    readonly timestamp: number;
+}
+
+// @public
+export type PaywallListener = PurchaseListener & {
+    onInteraction?: (event: PaywallInteractionEvent) => void;
+};
 
 // @public
 export interface PaywallPurchaseResult extends PurchaseResult {
@@ -291,17 +394,42 @@ export interface PresentedOfferingContext {
 }
 
 // @public
+export interface PresentExpressPurchaseButtonParams {
+    customerEmail?: string;
+    defaultLocale?: string;
+    externalPurchaseTokenId?: string;
+    htmlTarget: HTMLElement;
+    listener?: PurchaseListener;
+    metadata?: PurchaseMetadata;
+    onButtonReady?: (updater: ExpressPurchaseButtonUpdater, walletsAvailable: boolean) => void;
+    purchaseOption?: PurchaseOption | null;
+    rcPackage: Package;
+    selectedLocale?: string;
+    walletButtonTheme?: WalletButtonTheme;
+}
+
+// @public
 export interface PresentPaywallParams {
+    readonly brandingAppearanceOverride?: Partial<BrandingAppearance>;
     readonly customerEmail?: string;
+    readonly customVariables?: CustomVariables;
+    readonly discountCode?: string;
+    readonly externalPurchaseTokenId?: string;
     readonly hideBackButtons?: boolean;
     readonly htmlTarget?: HTMLElement;
+    readonly listener?: PaywallListener;
+    readonly metadata?: PurchaseMetadata;
     readonly offering?: Offering;
     readonly onBack?: (closePaywall: () => void) => void;
+    readonly onDiscountCodeChanged?: (discountCode: string | null) => void;
     readonly onNavigateToUrl?: (url: string) => void;
+    // @deprecated
     readonly onPurchaseError?: (error: Error) => void;
     readonly onVisitCustomerCenter?: () => void;
     readonly purchaseHtmlTarget?: HTMLElement;
     readonly selectedLocale?: string;
+    readonly showDiscountCodeField?: boolean;
+    /* Excluded from this release type: productChangeInfo */
 }
 
 // @public
@@ -359,6 +487,13 @@ export enum ProductType {
 }
 
 // @public
+export interface PurchaseListener {
+    onPurchaseCancelled?: () => void;
+    onPurchaseError?: (error: Error) => void;
+    onPurchaseStarted?: (rcPackage: Package) => void;
+}
+
+// @public
 export type PurchaseMetadata = Record<string, string | null>;
 
 // @public
@@ -369,25 +504,33 @@ export interface PurchaseOption {
 
 // @public
 export interface PurchaseParams {
+    brandingAppearanceOverride?: Partial<BrandingAppearance>;
     customerEmail?: string;
     defaultLocale?: string;
+    discountCode?: string;
+    externalPurchaseTokenId?: string;
     htmlTarget?: HTMLElement;
     metadata?: PurchaseMetadata;
+    onDiscountCodeChanged?: (discountCode: string | null) => void;
     purchaseOption?: PurchaseOption | null;
     rcPackage: Package;
     selectedLocale?: string;
+    showDiscountCodeField?: boolean;
     skipSuccessPage?: boolean;
-    /* Excluded from this release type: brandingAppearanceOverride */
-    /* Excluded from this release type: labelsOverride */
-    /* Excluded from this release type: termsAndConditionsUrl */
+    termsAndConditionsUrl?: string;
+    /* Excluded from this release type: productChangeInfo */
+    /* Excluded from this release type: tryWithApplePay */
 }
 
 // @public
 export interface PurchaseResult {
+    readonly customerEmail?: string;
     readonly customerInfo: CustomerInfo;
     readonly operationSessionId: string;
     readonly redemptionInfo: RedemptionInfo | null;
     readonly storeTransaction: StoreTransaction;
+    /* Excluded from this release type: attributionMetadata */
+    /* Excluded from this release type: productChange */
 }
 
 // @public
@@ -397,12 +540,17 @@ export class Purchases {
     /* Excluded from this release type: _brandingInfo */
     /* Excluded from this release type: _loadingResourcesPromise */
     /* Excluded from this release type: _flags */
+    /* Excluded from this release type: _subscriberToken */
+    /* Excluded from this release type: _brandingAppearanceOverride */
     /* Excluded from this release type: _context */
     /* Excluded from this release type: backend */
     /* Excluded from this release type: purchaseOperationHelper */
     /* Excluded from this release type: eventsTracker */
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
+    /* Excluded from this release type: cachedCurrentOffering */
+    /* Excluded from this release type: stripeBillingQuickPurchaseState */
+    /* Excluded from this release type: stripeBillingQuickPurchasePreparation */
     /* Excluded from this release type: instance */
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
@@ -426,6 +574,7 @@ export class Purchases {
     // (undocumented)
     isSandbox(): boolean;
     preload(): Promise<void>;
+    presentExpressPurchaseButton(params: PresentExpressPurchaseButtonParams): Promise<PurchaseResult>;
     presentPaywall(paywallParams: PresentPaywallParams): Promise<PaywallPurchaseResult>;
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
@@ -436,6 +585,7 @@ export class Purchases {
     static setLogHandler(handler: LogHandler | null): void;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
+    trackCustomPaywallImpression(params?: CustomPaywallImpressionParams): void;
     /* Excluded from this release type: _trackEvent */
     /* Excluded from this release type: _flushAllEvents */
 }
@@ -444,8 +594,10 @@ export class Purchases {
 export interface PurchasesConfig {
     apiKey: string;
     appUserId: string;
+    brandingAppearanceOverride?: Partial<BrandingAppearance>;
     flags?: FlagsConfig;
     httpConfig?: HttpConfig;
+    /* Excluded from this release type: subscriberToken */
     /* Excluded from this release type: context */
     /* Excluded from this release type: trace_id */
 }
@@ -473,6 +625,7 @@ export interface PurchasesErrorExtra {
 // @public
 export interface RedemptionInfo {
     readonly redeemUrl: string | null;
+    readonly redeemUrlRedirect?: string | null;
 }
 
 // @public
@@ -521,13 +674,17 @@ export enum ReservedCustomerAttribute {
     PhoneNumber = "$phoneNumber",
     PosthogUserId = "$posthogUserId",
     SegmentId = "$segmentId",
+    SingularDeviceId = "$singularDeviceId",
     TelemetryDeckAppId = "$telemetryDeckAppId",
     TelemetryDeckUserId = "$telemetryDeckUserId",
     TenjinId = "$tenjinId"
 }
 
 // @public
-export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "unknown";
+export type Store = "app_store" | "mac_app_store" | "play_store" | "amazon" | "stripe" | "rc_billing" | "promotional" | "paddle" | "test_store" | "galaxy" | "unknown";
+
+// @public @deprecated
+export type StoreLoadTime = "configuration" | "purchase_start";
 
 // @public
 export interface StoreTransaction {
@@ -538,7 +695,9 @@ export interface StoreTransaction {
 
 // @public
 export interface SubscriptionInfo {
+    readonly autoResumeDate: Date | null;
     readonly billingIssuesDetectedAt: Date | null;
+    readonly displayName: string | null;
     readonly expiresDate: Date | null;
     readonly gracePeriodExpiresDate: Date | null;
     readonly isActive: boolean;
@@ -547,7 +706,9 @@ export interface SubscriptionInfo {
     readonly originalPurchaseDate: Date | null;
     readonly ownershipType: OwnershipType;
     readonly periodType: PeriodType;
+    readonly price: Price | null;
     readonly productIdentifier: string;
+    readonly productPlanIdentifier: string | null;
     readonly purchaseDate: Date;
     readonly refundedAt: Date | null;
     readonly store: Store;

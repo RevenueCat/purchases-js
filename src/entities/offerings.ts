@@ -12,13 +12,13 @@ import type {
   SubscriptionOptionResponse,
 } from "../networking/responses/products-response";
 import { notEmpty } from "../helpers/type-helper";
-import { formatPrice } from "../helpers/price-labels";
-import { Logger } from "../helpers/logger";
 import {
-  parseISODuration,
-  type Period,
-  PeriodUnit,
-} from "../helpers/duration-helper";
+  floorMicrosToCurrencyUnit,
+  formatPrice,
+} from "../helpers/price-labels";
+import { Logger } from "../helpers/logger";
+import { parseISODuration, type Period } from "../helpers/duration-helper";
+import { getPricePerPeriodFactors } from "../helpers/price-conversion-helper";
 import type { PaywallData, UIConfig } from "@revenuecat/purchases-ui-js";
 
 /**
@@ -189,6 +189,18 @@ export interface DiscountPhase {
    * 0 if not applicable.
    */
   readonly cycleCount: number;
+  /**
+   * The type of discount applied to this purchase option.
+   */
+  readonly discountType: "percentage" | "fixed_amount";
+  /**
+   * The percentage discount amount, if this discount is percentage-based.
+   */
+  readonly percentage: number | null;
+  /**
+   * The fixed discount amount, if this discount is fixed-amount based.
+   */
+  readonly fixedAmount: Price | null;
 }
 
 /**
@@ -408,6 +420,10 @@ export interface Package {
    */
   readonly webBillingProduct: Product;
   /**
+   * The web checkout URL for this package, if available.
+   */
+  readonly webCheckoutURL?: string | null;
+  /**
    * The type of package.
    */
   readonly packageType: PackageType;
@@ -431,6 +447,10 @@ export interface Offering {
    * Offering metadata defined in RevenueCat dashboard.
    */
   readonly metadata: { [key: string]: unknown } | null;
+  /**
+   * The default web checkout URL for this offering, if available.
+   */
+  readonly webCheckoutURL?: string | null;
   /**
    * A map of all the packages available for purchase keyed by package ID.
    */
@@ -467,6 +487,10 @@ export interface Offering {
    * Weekly package type configured in the RevenueCat dashboard, if available.
    */
   readonly weekly: Package | null;
+  /**
+   * Whether this offering has an attached paywall configured in the RevenueCat dashboard.
+   */
+  readonly hasPaywall: boolean;
 
   /**
    * The paywall components configured in the RevenueCat dashboard, if available.
@@ -530,10 +554,13 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
   let pricePerYear: Price | null = null;
 
   if (price !== null && period !== null) {
-    const factor = getPriceConversionFactor(period);
+    const priceFactors = getPricePerPeriodFactors(period);
     const conversionFromMicrosToCents = 10000;
 
-    const weeklyAmountMicros = Math.round(price.amountMicros * factor.toWeek);
+    const weeklyAmountMicros = floorMicrosToCurrencyUnit(
+      price.amountMicros * priceFactors.perWeek,
+      price.currency,
+    );
     pricePerWeek = {
       amount: weeklyAmountMicros / conversionFromMicrosToCents,
       amountMicros: weeklyAmountMicros,
@@ -541,7 +568,10 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
       formattedPrice: formatPrice(weeklyAmountMicros, price.currency),
     };
 
-    const monthlyAmountMicros = Math.round(price.amountMicros * factor.toMonth);
+    const monthlyAmountMicros = floorMicrosToCurrencyUnit(
+      price.amountMicros * priceFactors.perMonth,
+      price.currency,
+    );
     pricePerMonth = {
       amount: monthlyAmountMicros / conversionFromMicrosToCents,
       amountMicros: monthlyAmountMicros,
@@ -549,7 +579,10 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
       formattedPrice: formatPrice(monthlyAmountMicros, price.currency),
     };
 
-    const yearlyAmountMicros = Math.round(price.amountMicros * factor.toYear);
+    const yearlyAmountMicros = floorMicrosToCurrencyUnit(
+      price.amountMicros * priceFactors.perYear,
+      price.currency,
+    );
     pricePerYear = {
       amount: yearlyAmountMicros / conversionFromMicrosToCents,
       amountMicros: yearlyAmountMicros,
@@ -603,46 +636,17 @@ const toDiscountPhase = (
     period: period,
     cycleCount: cycleCount ?? 0,
     periodDuration: periodDuration,
+    discountType: optionPhase.discount_type,
+    percentage: optionPhase.percentage ?? null,
+    fixedAmount:
+      optionPhase.fixed_amount_micros != null
+        ? getPriceForCurrency(
+            optionPhase.fixed_amount_micros,
+            optionPhase.currency,
+          )
+        : null,
   };
 };
-
-function getPriceConversionFactor(period: Period): {
-  toWeek: number;
-  toMonth: number;
-  toYear: number;
-} {
-  const { number, unit } = period;
-
-  const DAYS_PER_WEEK = 7;
-  const DAYS_PER_MONTH = 30.0;
-  const DAYS_PER_YEAR = 365.0;
-
-  let daysInPeriod: number;
-
-  switch (unit) {
-    case PeriodUnit.Day:
-      daysInPeriod = number;
-      break;
-    case PeriodUnit.Week:
-      daysInPeriod = number * DAYS_PER_WEEK;
-      break;
-    case PeriodUnit.Month:
-      daysInPeriod = number * DAYS_PER_MONTH;
-      break;
-    case PeriodUnit.Year:
-      daysInPeriod = number * DAYS_PER_YEAR;
-      break;
-    default:
-      daysInPeriod = 0;
-      Logger.errorLog(`Unknown period unit: ${unit}`);
-  }
-
-  const toWeek = daysInPeriod > 0 ? DAYS_PER_WEEK / daysInPeriod : 0;
-  const toMonth = daysInPeriod > 0 ? DAYS_PER_MONTH / daysInPeriod : 0;
-  const toYear = daysInPeriod > 0 ? DAYS_PER_YEAR / daysInPeriod : 0;
-
-  return { toWeek, toMonth, toYear };
-}
 
 const toSubscriptionOption = (
   option: SubscriptionOptionResponse,
@@ -680,7 +684,7 @@ const toNonSubscriptionOption = (
   };
 };
 
-const toProduct = (
+export const toProduct = (
   productDetailsData: ProductResponse,
   presentedOfferingContext: PresentedOfferingContext,
 ): Product | null => {
@@ -698,6 +702,25 @@ const toProduct = (
       productType,
     );
   }
+};
+
+export const toPurchaseOptionForProductType = (
+  productType: ProductType,
+  purchaseOptionResponse:
+    | SubscriptionOptionResponse
+    | NonSubscriptionOptionResponse,
+): PurchaseOption | null => {
+  if (productType === ProductType.Subscription) {
+    if ("base" in purchaseOptionResponse) {
+      return toSubscriptionOption(purchaseOptionResponse);
+    }
+    return null;
+  }
+
+  if ("base_price" in purchaseOptionResponse) {
+    return toNonSubscriptionOption(purchaseOptionResponse);
+  }
+  return null;
 };
 
 const toNonSubscriptionProduct = (
@@ -841,6 +864,9 @@ const toPackage = (
     identifier: packageData.identifier,
     rcBillingProduct: product,
     webBillingProduct: product,
+    ...(packageData.web_checkout_url
+      ? { webCheckoutURL: packageData.web_checkout_url }
+      : {}),
     packageType: getPackageType(packageData.identifier),
   };
 };
@@ -880,6 +906,9 @@ export const toOffering = (
     identifier: offeringsData.identifier,
     serverDescription: offeringsData.description,
     metadata: offeringsData.metadata,
+    ...(offeringsData.web_checkout_url
+      ? { webCheckoutURL: offeringsData.web_checkout_url }
+      : {}),
     packagesById: packagesById,
     availablePackages: packages as Package[],
     lifetime: packagesById[PackageType.Lifetime] ?? null,
@@ -889,8 +918,9 @@ export const toOffering = (
     twoMonth: packagesById[PackageType.TwoMonth] ?? null,
     monthly: packagesById[PackageType.Monthly] ?? null,
     weekly: packagesById[PackageType.Weekly] ?? null,
+    hasPaywall: offeringsData.paywall_components != null,
     paywallComponents: offeringsData.paywall_components,
-    uiConfig: uiConfig,
+    ...(uiConfig !== undefined ? { uiConfig } : {}),
   };
 };
 

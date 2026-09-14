@@ -3,15 +3,20 @@
   import type {
     Appearance,
     Stripe,
+    StripeAddressElementChangeEvent,
     StripeElements,
     StripeLinkAuthenticationElementChangeEvent,
     StripePaymentElementChangeEvent,
   } from "@stripe/stripe-js";
 
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import {
+    type BrandingInfoResponse,
+    shouldCollectFullAddress,
+  } from "../../networking/responses/branding-response";
   import PaymentElement from "./stripe-payment-element.svelte";
   import LinkAuthenticationElement from "./stripe-authentication-link-element.svelte";
   import ExpressCheckoutElement from "./stripe-express-checkout-element.svelte";
+  import AddressElement from "./stripe-address-element.svelte";
 
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
@@ -24,6 +29,7 @@
   } from "../../stripe/stripe-service";
   import { type Writable } from "svelte/store";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
+  import { Logger } from "../../helpers/logger";
 
   interface Props {
     stripe: Stripe | null;
@@ -35,18 +41,23 @@
     brandingInfo: BrandingInfoResponse | null;
     forceEnableWalletMethods: boolean;
     skipEmail: boolean;
-    billingAddressRequired: boolean;
     onLoadingComplete: () => void;
     onError: (error: StripeServiceError) => void;
     onEmailChange: (complete: boolean, email: string) => void;
     onPaymentInfoChange: (params: {
       complete: boolean;
       paymentMethod: string | undefined;
+      countryCode: string | undefined;
     }) => void;
+    onAddressInfoChange: (
+      complete: boolean,
+      address: StripeAddressElementChangeEvent["value"]["address"],
+    ) => void;
     onExpressCheckoutElementSubmit: (
       paymentMethod: string,
       emailValue: string,
     ) => void;
+    allowExpressCheckout?: boolean;
   }
 
   let {
@@ -59,12 +70,13 @@
     brandingInfo,
     forceEnableWalletMethods,
     skipEmail,
-    billingAddressRequired,
     onLoadingComplete,
     onError,
     onEmailChange,
     onPaymentInfoChange,
+    onAddressInfoChange,
     onExpressCheckoutElementSubmit,
+    allowExpressCheckout = true,
   }: Props = $props();
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
@@ -72,13 +84,79 @@
     $translator.bcp47Locale || $translator.fallbackBcp47Locale,
   );
 
+  // Country selected in the payment element. We listen to the payment element's
+  // `change` events to detect it and decide whether the full billing address is
+  // needed for tax purposes.
+  let selectedCountry: string | undefined = $state(undefined);
+
+  // Once the full billing address is required (a tax-relevant country was
+  // selected) we keep collecting it for the rest of the session. There is no way
+  // to push a country back into the payment element, so switching back to the
+  // minimal form would lose the selection; latching keeps the address element as
+  // the single source of truth and lets the customer freely change the country
+  // afterwards (e.g. Canada -> Bulgaria).
+  let collectFullBillingAddress = $state(
+    shouldCollectFullAddress(brandingInfo),
+  );
+  $effect(() => {
+    if (
+      shouldCollectFullAddress(
+        brandingInfo,
+        StripeService.countryRequiresFullAddressForTaxes(selectedCountry),
+      )
+    ) {
+      collectFullBillingAddress = true;
+    }
+  });
+
   let paymentElementReadyForSubmission = $state(false);
   let emailElementReadyForSubmission = $state(skipEmail);
-  let expressCheckoutElementReadyForSubmission = $state(false);
+  let addressElementReadyForSubmission = $state(
+    !shouldCollectFullAddress(brandingInfo),
+  );
+  let expressCheckoutElementReadyForSubmission = false;
+
+  // These three elements must be ready before the payment form will be displayed.
+  // A loading indicator will be displayed until they are ready.
+  const areRequiredElementsReadyForFormDisplay = $derived(
+    emailElementReadyForSubmission &&
+      paymentElementReadyForSubmission &&
+      addressElementReadyForSubmission,
+  );
 
   let stripeVariables: undefined | Appearance["variables"] = $state(undefined);
   let viewport: "mobile" | "desktop" = $state("mobile");
   let resizeTimeout: number | undefined = $state(undefined);
+
+  const stripeElementsLoadingStartedAt = performance.now();
+
+  const getPendingStripeElements = () => {
+    const pendingElements: string[] = [];
+
+    if (!emailElementReadyForSubmission) {
+      pendingElements.push("Link Authentication");
+    }
+    if (!paymentElementReadyForSubmission) {
+      pendingElements.push("Payment");
+    }
+    if (!expressCheckoutElementReadyForSubmission) {
+      pendingElements.push("Express Checkout");
+    }
+    if (!addressElementReadyForSubmission) {
+      pendingElements.push("Address");
+    }
+
+    return pendingElements;
+  };
+
+  const getStripeElementsElapsedTime = () =>
+    Math.round(performance.now() - stripeElementsLoadingStartedAt);
+
+  const logStripeElementReady = (element: string) => {
+    Logger.debugLog(
+      `[Stripe Elements] ${element} completed after ${getStripeElementsElapsedTime()}ms.`,
+    );
+  };
 
   // Maybe extract this to a hook
   function updateStripeVariables() {
@@ -112,55 +190,81 @@
   }
 
   const onStripeElementsLoadingError = (error: StripeServiceError) => {
+    const pendingElements = getPendingStripeElements();
+    Logger.debugLog(
+      `[Stripe Elements] Loading failed after ${getStripeElementsElapsedTime()}ms. ${pendingElements.length > 0 ? `Elements still pending: ${pendingElements.join(", ")}.` : "No elements were pending."}`,
+    );
     onError(error);
     onLoadingComplete();
+  };
+
+  const onExpressCheckoutElementLoadingError = (error: StripeServiceError) => {
+    Logger.debugLog(
+      `[Stripe Elements] Express Checkout Element failed after ${getStripeElementsElapsedTime()}ms and was hidden. ${error.message}`,
+    );
+  };
+
+  const maybeCompleteLoading = () => {
+    if (areRequiredElementsReadyForFormDisplay) {
+      Logger.debugLog(
+        `[Stripe Elements] Loading completed after ${getStripeElementsElapsedTime()}ms.`,
+      );
+      onLoadingComplete();
+    }
   };
 
   const onLinkAuthenticationElementReady = async () => {
     if (!emailElementReadyForSubmission) {
       emailElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      logStripeElementReady("Link Authentication Element");
+      maybeCompleteLoading();
     }
   };
 
   const onExpressCheckoutElementReady = async () => {
     if (!expressCheckoutElementReadyForSubmission) {
       expressCheckoutElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      logStripeElementReady("Express Checkout Element");
     }
   };
 
   const onPaymentElementReady = async () => {
     if (!paymentElementReadyForSubmission) {
       paymentElementReadyForSubmission = true;
-      if (
-        emailElementReadyForSubmission &&
-        paymentElementReadyForSubmission &&
-        expressCheckoutElementReadyForSubmission
-      ) {
-        onLoadingComplete();
-      }
+      logStripeElementReady("Payment Element");
+      maybeCompleteLoading();
     }
+  };
+
+  const onAddressElementReady = async () => {
+    if (!addressElementReadyForSubmission) {
+      addressElementReadyForSubmission = true;
+      logStripeElementReady("Address Element");
+      maybeCompleteLoading();
+    }
+  };
+
+  const onAddressElementChange = async (
+    complete: boolean,
+    address: StripeAddressElementChangeEvent["value"]["address"],
+  ) => {
+    onAddressInfoChange(complete, address);
   };
 
   const onPaymentElementChange = async (
     event: StripePaymentElementChangeEvent,
   ) => {
+    const country = event.value.billingDetails?.address?.country;
+    // Keep the last country reported by the payment element. Once the address
+    // element is shown Stripe stops reporting the billing country here, so we
+    // must not overwrite it with an empty value.
+    if (country) {
+      selectedCountry = country;
+    }
     onPaymentInfoChange({
       complete: event.complete,
       paymentMethod: event.complete ? event.value.type : undefined,
+      countryCode: selectedCountry,
     });
   };
 
@@ -179,6 +283,9 @@
   });
 
   onMount(async () => {
+    Logger.debugLog(
+      `[Stripe Elements] Loading started. Elements: ${getPendingStripeElements().join(", ")}.`,
+    );
     updateStripeVariables();
 
     if (stripe) return;
@@ -200,8 +307,14 @@
       .then(({ stripe: stripeInstance, elements: elementsInstance }) => {
         stripe = stripeInstance;
         elements = elementsInstance;
+        Logger.debugLog(
+          `[Stripe Elements] Stripe initialized after ${getStripeElementsElapsedTime()}ms.`,
+        );
       })
       .catch((error) => {
+        Logger.debugLog(
+          `[Stripe Elements] Stripe initialization failed after ${getStripeElementsElapsedTime()}ms.`,
+        );
         onError(error);
       });
   });
@@ -220,12 +333,12 @@
   <div class="rc-elements">
     <ExpressCheckoutElement
       {elements}
-      onError={onStripeElementsLoadingError}
+      onError={onExpressCheckoutElementLoadingError}
       onReady={onExpressCheckoutElementReady}
       onSubmit={onExpressCheckoutElementSubmit}
       {expressCheckoutOptions}
       {forceEnableWalletMethods}
-      {billingAddressRequired}
+      {allowExpressCheckout}
     />
     {#if !skipEmail}
       <LinkAuthenticationElement
@@ -242,6 +355,15 @@
       onChange={onPaymentElementChange}
       onError={onStripeElementsLoadingError}
     />
+    {#if collectFullBillingAddress}
+      <AddressElement
+        {elements}
+        defaultCountryCode={selectedCountry}
+        onReady={onAddressElementReady}
+        onChange={onAddressElementChange}
+        onError={onStripeElementsLoadingError}
+      />
+    {/if}
   </div>
 {/if}
 

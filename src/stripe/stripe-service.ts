@@ -5,20 +5,35 @@ import type {
   Stripe,
   StripeElementLocale,
   StripeElements,
+  StripeElementsOptionsMode,
+  StripeEmbeddedCheckout,
   StripeError,
 } from "@stripe/stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
+
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { Theme } from "../ui/theme/theme";
 import { DEFAULT_TEXT_STYLES } from "../ui/theme/text";
 import type { StripeElementsConfiguration } from "../networking/responses/stripe-elements";
-import type { Product, SubscriptionOption } from "../entities/offerings";
+import {
+  type PricingPhase,
+  type Product,
+  type SubscriptionOption,
+} from "../entities/offerings";
 import type { Translator } from "../ui/localization/translator";
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import type { StripeExpressCheckoutElementOptions } from "@stripe/stripe-js/dist/stripe-js/elements/index";
-import { type Period, PeriodUnit } from "../helpers/duration-helper";
+import type { LineItem } from "@stripe/stripe-js/dist/stripe-js/elements/express-checkout";
+import {
+  getNextRenewalDate,
+  type Period,
+  PeriodUnit,
+} from "../helpers/duration-helper";
+import type { ResolvedDiscountBreakdown } from "../helpers/discount-breakdown-helper";
 import type { StripeExpressCheckoutConfiguration } from "./stripe-express-checkout-configuration";
 import type { PriceBreakdown } from "../ui/ui-types";
+import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
+import type { ApplePayRegularBilling } from "@stripe/stripe-js/dist/stripe-js/elements/apple-pay";
 
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
@@ -37,6 +52,10 @@ export class StripeServiceError {
 export type TaxCustomerDetails = {
   countryCode: string | undefined;
   postalCode: string | undefined;
+  state: string | undefined;
+  city: string | undefined;
+  addressLine1: string | undefined;
+  addressLine2: string | undefined;
 };
 
 export class StripeService {
@@ -76,6 +95,27 @@ export class StripeService {
     return locale as StripeElementLocale;
   }
 
+  static async getStripeClient(
+    stripeAccountId: string,
+    publishableApiKey: string,
+  ): Promise<{ stripe: Stripe }> {
+    const stripe = await loadStripe(publishableApiKey, {
+      stripeAccount: stripeAccountId,
+    }).catch((error) => {
+      throw this.mapInitializationError(error);
+    });
+
+    if (!stripe) {
+      throw {
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: "Stripe client not found",
+      };
+    }
+
+    return { stripe };
+  }
+
   static async initializeStripe(
     stripeAccountId: string,
     publishableApiKey: string,
@@ -93,19 +133,10 @@ export class StripeService {
       };
     }
 
-    const stripe = await loadStripe(publishableApiKey, {
-      stripeAccount: stripeAccountId,
-    }).catch((error) => {
-      throw this.mapInitializationError(error);
-    });
-
-    if (!stripe) {
-      throw {
-        code: StripeServiceErrorCode.ErrorLoadingStripe,
-        gatewayErrorCode: undefined,
-        message: "Stripe client not found",
-      };
-    }
+    const { stripe } = await this.getStripeClient(
+      stripeAccountId,
+      publishableApiKey,
+    );
 
     const theme = new Theme(brandingInfo?.appearance);
     const customShape = theme.shape;
@@ -166,12 +197,50 @@ export class StripeService {
             },
           },
         },
-      });
+        // Backend guarantees payment-mode amount/currency; v9 types elements()
+        // options as a discriminated union, so assert the union shape.
+      } as StripeElementsOptionsMode);
     } catch (error) {
       throw this.mapInitializationError(error as StripeError);
     }
 
     return { stripe, elements };
+  }
+
+  static async initializeStripeCheckout(
+    stripeAccountId?: string,
+    publishableApiKey?: string,
+    StripeBillingParams?: StripeBillingParams,
+    onComplete?: () => void,
+  ): Promise<{ stripe: Stripe; embeddedCheckout: StripeEmbeddedCheckout }> {
+    if (!stripeAccountId || !publishableApiKey || !StripeBillingParams) {
+      throw {
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: "Stripe configuration is missing",
+      };
+    }
+
+    const { stripe } = await this.getStripeClient(
+      stripeAccountId,
+      publishableApiKey,
+    );
+
+    let embeddedCheckout: StripeEmbeddedCheckout;
+
+    try {
+      // createEmbeddedCheckoutPage works on every Stripe.js release train and is
+      // the only name that works on dahlia (initEmbeddedCheckout throws there).
+      embeddedCheckout = await stripe.createEmbeddedCheckoutPage({
+        fetchClientSecret: () =>
+          Promise.resolve(StripeBillingParams.client_secret),
+        onComplete,
+      });
+    } catch (error) {
+      throw this.mapInitializationError(error as StripeError);
+    }
+
+    return { stripe, embeddedCheckout };
   }
 
   static updateElementsConfiguration(
@@ -223,14 +292,53 @@ export class StripeService {
     });
   }
 
+  /**
+   * Country codes (ISO 3166-1 alpha-2) that require the full billing address to
+   * be collected when tax collection is enabled, because country alone is not
+   * enough to resolve the tax rate.
+   * See https://docs.stripe.com/tax/customer-locations?#supported-formats
+   */
+  private static FULL_ADDRESS_REQUIRED_TAX_COUNTRY_CODES = ["CA", "PR", "IN"];
+
+  /**
+   * Whether the given country requires the full billing address to be collected
+   * to resolve taxes via Stripe Tax.
+   */
+  static countryRequiresFullAddressForTaxes(
+    countryCode?: string | null,
+  ): boolean {
+    return (
+      !!countryCode &&
+      StripeService.FULL_ADDRESS_REQUIRED_TAX_COUNTRY_CODES.includes(
+        countryCode,
+      )
+    );
+  }
+
+  static createAddressElement(
+    elements: StripeElements,
+    defaultCountryCode?: string,
+  ) {
+    return elements.create("address", {
+      mode: "billing",
+      display: {
+        name: "full",
+      },
+      // Seed the country with the one already selected in the payment element so
+      // the full address form opens on the country the customer just picked.
+      ...(defaultCountryCode
+        ? { defaultValues: { address: { country: defaultCountryCode } } }
+        : {}),
+    });
+  }
+
   static createExpressCheckoutElement(
     elements: StripeElements,
-    billingAddressRequired: boolean,
     forceEnableWalletMethods: boolean,
     expressCheckoutOptions?: StripeExpressCheckoutConfiguration,
   ) {
     const options = {
-      billingAddressRequired,
+      billingAddressRequired: true,
       emailRequired: true,
       ...(forceEnableWalletMethods
         ? {
@@ -345,33 +453,17 @@ export class StripeService {
       customerDetails: {
         countryCode: billingAddress?.country ?? undefined,
         postalCode: billingAddress?.postal_code ?? undefined,
+        state: billingAddress?.state ?? undefined,
+        city: billingAddress?.city ?? undefined,
+        addressLine1: billingAddress?.line1 ?? undefined,
+        addressLine2: billingAddress?.line2 ?? undefined,
       },
       confirmationTokenId: confirmationToken.id,
     };
   }
 
   static nextDateForPeriod(period: Period, startDate: Date) {
-    if (period.unit === PeriodUnit.Year) {
-      startDate.setFullYear(startDate.getFullYear() + period.number);
-      return startDate;
-    }
-
-    if (period.unit === PeriodUnit.Month) {
-      startDate.setMonth(startDate.getMonth() + period.number);
-      return startDate;
-    }
-
-    if (period.unit === PeriodUnit.Week) {
-      startDate.setDate(startDate.getDate() + period.number * 7);
-      return startDate;
-    }
-
-    if (period.unit === PeriodUnit.Day) {
-      startDate.setDate(startDate.getDate() + period.number);
-      return startDate;
-    }
-
-    return startDate;
+    return getNextRenewalDate(startDate, period, true) ?? startDate;
   }
 
   static applePayPeriod(period: Period): {
@@ -388,6 +480,118 @@ export class StripeService {
       recurringPaymentIntervalUnit: period.unit,
       recurringPaymentIntervalCount: period.number,
     };
+  }
+
+  private static nextDateAfterPricingPhases(
+    phases: PricingPhase[],
+    startDate: Date,
+  ): Date | undefined {
+    let date = startDate;
+    for (const phase of phases) {
+      const period = phase.period;
+      if (!period) {
+        return undefined;
+      }
+      const cycleCount = Math.max(phase.cycleCount, 1);
+      date = StripeService.nextDateForPeriod(
+        {
+          ...period,
+          number: period.number * cycleCount,
+        },
+        date,
+      );
+    }
+    return date;
+  }
+
+  private static buildApplePayTrialBilling(
+    productTitle: string,
+    translator: Translator,
+    trialPhase: PricingPhase | null,
+    introPricePhase: PricingPhase | null,
+    currentDate: Date,
+  ): ApplePayRegularBilling | undefined {
+    if (introPricePhase?.price) {
+      const introBillingStartDate = trialPhase
+        ? StripeService.nextDateAfterPricingPhases(
+            [trialPhase],
+            new Date(currentDate),
+          )
+        : undefined;
+      const canCalculateIntroDates = !trialPhase || introBillingStartDate;
+      const introCycleCount = Math.max(introPricePhase.cycleCount, 1);
+
+      const baseBillingInfo: ApplePayRegularBilling = {
+        label: productTitle,
+        amount: StripeService.microsToMinimumAmountPrice(
+          introPricePhase.price.amountMicros,
+          introPricePhase.price.currency,
+        ),
+      };
+
+      if (!canCalculateIntroDates || !introPricePhase.period) {
+        return baseBillingInfo;
+      }
+
+      // Cycle length and number of cycles for the introductory period.
+      const recurringPaymentIntervalUnitAndCount = StripeService.applePayPeriod(
+        introPricePhase.period,
+      );
+
+      // Start date of the introductory period. In case of an initial trial it will be at the end of that trial.
+      const recurringPaymentStartDate = introBillingStartDate
+        ? { recurringPaymentStartDate: introBillingStartDate }
+        : {};
+
+      // Date of the final introductory payment. Stripe only accepts this field
+      // when it is strictly in the future and after the first payment date.
+      const recurringPaymentEndDate = StripeService.nextDateForPeriod(
+        {
+          ...introPricePhase.period,
+          number: introPricePhase.period.number * (introCycleCount - 1),
+        },
+        new Date(introBillingStartDate ?? currentDate),
+      );
+
+      const getRecurringPaymentEndDateInfo = () => {
+        const empty = {};
+        if (recurringPaymentEndDate.getTime() <= currentDate.getTime()) {
+          return empty;
+        }
+
+        if (!introBillingStartDate) {
+          return { recurringPaymentEndDate };
+        }
+
+        if (
+          recurringPaymentEndDate.getTime() > introBillingStartDate.getTime()
+        ) {
+          return { recurringPaymentEndDate };
+        }
+
+        return empty;
+      };
+
+      const recurringPaymentEndDateInfo = getRecurringPaymentEndDateInfo();
+
+      // Apple calls this field trialBilling, but it is the only initial
+      // recurring summary item available for a paid introductory phase.
+      return {
+        ...baseBillingInfo,
+        ...recurringPaymentIntervalUnitAndCount,
+        ...recurringPaymentStartDate,
+        ...recurringPaymentEndDateInfo,
+      };
+    }
+
+    if (trialPhase) {
+      return {
+        label: translator.translate(LocalizationKeys.ApplePayFreeTrial),
+        amount: 0,
+      };
+    }
+
+    return undefined;
   }
 
   // https://docs.stripe.com/js/elements_object/create_without_intent#stripe_elements_no_intent-options-amount
@@ -421,59 +625,127 @@ export class StripeService {
     return Math.floor(priceMicros / 10_000);
   }
 
+  static toExpressCheckoutLineItems(
+    productTitle: string,
+    priceBreakdown: PriceBreakdown,
+    resolvedDiscount: ResolvedDiscountBreakdown,
+  ): LineItem[] {
+    const { currency } = priceBreakdown;
+    const totalMinimumAmount = StripeService.microsToMinimumAmountPrice(
+      priceBreakdown.totalAmountInMicros,
+      currency,
+    );
+    const discountMinimumAmount = StripeService.microsToMinimumAmountPrice(
+      resolvedDiscount.discountAmountInMicros,
+      currency,
+    );
+
+    return [
+      {
+        name: productTitle,
+        amount: totalMinimumAmount + discountMinimumAmount,
+      },
+      { name: resolvedDiscount.label, amount: -discountMinimumAmount },
+    ];
+  }
+
   static buildStripeExpressCheckoutOptionsForSubscription(
     productDetails: Product,
     priceBreakdown: PriceBreakdown,
     subscriptionOption: SubscriptionOption,
     translator: Translator,
     managementUrl: string,
+    resolvedDiscount: ResolvedDiscountBreakdown | null,
     maxRows?: number,
     maxColumns?: number,
     overflow?: "auto" | "never",
   ): StripeExpressCheckoutConfiguration {
-    const priceMinimumAmount = StripeService.microsToMinimumAmountPrice(
-      priceBreakdown.totalAmountInMicros,
-      priceBreakdown.currency,
+    const layout = { maxRows, maxColumns, overflow };
+
+    const lineItems =
+      resolvedDiscount && resolvedDiscount.discountAmountInMicros > 0
+        ? StripeService.toExpressCheckoutLineItems(
+            productDetails.title,
+            priceBreakdown,
+            resolvedDiscount,
+          )
+        : undefined;
+
+    const trialPhase = subscriptionOption.trial;
+    const introPricePhase = subscriptionOption.introPrice;
+    const basePeriod = subscriptionOption.base.period;
+    const currentDate = new Date();
+    const initialPhases = [trialPhase, introPricePhase].filter(
+      (phase): phase is PricingPhase => phase !== null,
     );
 
-    const hasTrial = subscriptionOption.trial;
-    const trialPeriod = subscriptionOption.trial?.period;
-    const basePeriod = subscriptionOption.base.period;
-
     const recurringPaymentStartDate =
-      hasTrial && trialPeriod
-        ? StripeService.nextDateForPeriod(trialPeriod, new Date())
+      initialPhases.length > 0
+        ? StripeService.nextDateAfterPricingPhases(
+            initialPhases,
+            new Date(currentDate),
+          )
         : undefined;
 
     const recurringPeriod = basePeriod
       ? StripeService.applePayPeriod(basePeriod)
       : {};
 
-    return {
-      layout: {
-        maxRows,
-        maxColumns,
-        overflow,
-      },
+    const basePrice = subscriptionOption.base.price;
+    const regularBillingAmount = StripeService.microsToMinimumAmountPrice(
+      basePrice?.amountMicros ?? priceBreakdown.totalAmountInMicros,
+      basePrice?.currency ?? priceBreakdown.currency,
+    );
 
+    const trialBilling = StripeService.buildApplePayTrialBilling(
+      productDetails.title,
+      translator,
+      trialPhase,
+      introPricePhase,
+      currentDate,
+    );
+
+    return {
+      layout,
+      ...(lineItems ? { lineItems } : {}),
       applePay: {
         recurringPaymentRequest: {
           paymentDescription: productDetails.title,
           managementURL: managementUrl,
-          trialBilling: hasTrial
-            ? {
-                label: translator.translate(LocalizationKeys.ApplePayFreeTrial),
-                amount: 0,
-              }
-            : undefined,
+          ...(trialBilling ? { trialBilling } : {}),
           regularBilling: {
             label: productDetails.title,
-            amount: priceMinimumAmount,
+            amount: regularBillingAmount,
             recurringPaymentStartDate: recurringPaymentStartDate,
             ...recurringPeriod,
           },
         },
       },
+    };
+  }
+
+  static buildStripeExpressCheckoutOptionsForNonSubscription(
+    productDetails: Product,
+    priceBreakdown: PriceBreakdown,
+    resolvedDiscount: ResolvedDiscountBreakdown | null,
+    maxRows?: number,
+    maxColumns?: number,
+    overflow?: "auto" | "never",
+  ): StripeExpressCheckoutConfiguration {
+    const layout = { maxRows, maxColumns, overflow };
+
+    const lineItems =
+      resolvedDiscount && resolvedDiscount.discountAmountInMicros > 0
+        ? StripeService.toExpressCheckoutLineItems(
+            productDetails.title,
+            priceBreakdown,
+            resolvedDiscount,
+          )
+        : undefined;
+
+    return {
+      layout,
+      ...(lineItems ? { lineItems } : {}),
     };
   }
 }

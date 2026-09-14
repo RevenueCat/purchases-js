@@ -1,4 +1,4 @@
-type HttpMethodType = "GET" | "POST";
+type HttpMethodType = "GET" | "POST" | "PATCH";
 
 const SUBSCRIBERS_PATH = "/v1/subscribers";
 const RC_BILLING_PATH = "/rcbilling/v1";
@@ -41,11 +41,18 @@ export class GetProductsEndpoint implements Endpoint {
   private readonly appUserId: string;
   private readonly productIds: string[];
   private readonly currency: string | undefined;
+  private readonly discountCode: string | undefined;
 
-  constructor(appUserId: string, productIds: string[], currency?: string) {
+  constructor(
+    appUserId: string,
+    productIds: string[],
+    currency?: string,
+    discountCode?: string,
+  ) {
     this.appUserId = appUserId;
     this.productIds = productIds;
     this.currency = currency;
+    this.discountCode = discountCode;
   }
 
   urlPath(): string {
@@ -54,7 +61,10 @@ export class GetProductsEndpoint implements Endpoint {
       .map(encodeURIComponent)
       .join("&id=");
     const currencyParam = this.currency ? `&currency=${this.currency}` : "";
-    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?support_discounts=true&id=${encodedProductIds}${currencyParam}`;
+    const discountCodeParam = this.discountCode
+      ? `&discount_code=${encodeURIComponent(this.discountCode)}`
+      : "";
+    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}${currencyParam}${discountCodeParam}`;
   }
 }
 
@@ -109,9 +119,9 @@ export class CheckoutStartEndpoint implements Endpoint {
   }
 }
 
-export class CheckoutCalculateTaxEndpoint implements Endpoint {
-  method: HttpMethodType = "POST";
-  name: string = "postCheckoutCalculateTax";
+export class CheckoutRefreshPricingEndpoint implements Endpoint {
+  method: HttpMethodType = "PATCH";
+  name: string = "patchCheckoutRefreshPricing";
   private readonly operationSessionId: string;
 
   constructor(operationSessionId: string) {
@@ -119,7 +129,7 @@ export class CheckoutCalculateTaxEndpoint implements Endpoint {
   }
 
   urlPath(): string {
-    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}/calculate_taxes`;
+    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}`;
   }
 }
 
@@ -190,6 +200,36 @@ export class GetVirtualCurrenciesEndpoint implements Endpoint {
   }
 }
 
+export class GetWorkflowsEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getWorkflows";
+  private readonly appUserId: string;
+
+  constructor(appUserId: string) {
+    this.appUserId = appUserId;
+  }
+
+  urlPath(): string {
+    return `${SUBSCRIBERS_PATH}/${encodeURIComponent(this.appUserId)}/workflows?type=paywall`;
+  }
+}
+
+export class GetWorkflowDataByIdEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getWorkflowData";
+  private readonly appUserId: string;
+  private readonly workflowId: string;
+
+  constructor(appUserId: string, workflowId: string) {
+    this.appUserId = appUserId;
+    this.workflowId = workflowId;
+  }
+
+  urlPath(): string {
+    return `${SUBSCRIBERS_PATH}/${encodeURIComponent(this.appUserId)}/workflows/${encodeURIComponent(this.workflowId)}`;
+  }
+}
+
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
   | PurchaseEndpoint
@@ -199,4 +239,6 @@ export type SupportedEndpoint =
   | GetCheckoutStatusEndpoint
   | SetAttributesEndpoint
   | PostReceiptEndpoint
-  | GetVirtualCurrenciesEndpoint;
+  | GetVirtualCurrenciesEndpoint
+  | GetWorkflowsEndpoint
+  | GetWorkflowDataByIdEndpoint;

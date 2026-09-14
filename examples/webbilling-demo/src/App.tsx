@@ -10,13 +10,23 @@ import LoginPage from "./pages/login";
 import LandingPage from "./pages/landingPage";
 import PaywallPage from "./pages/paywall";
 import SuccessPage from "./pages/success";
-import { loadPurchases } from "./util/PurchasesLoader";
+import {
+  loadPurchases,
+  loadPurchasesWithAppearanceOverride,
+  loadPurchasesWithDelayedStore,
+} from "./util/PurchasesLoader";
 import RCPaywallPage from "./pages/rc_paywall";
+import DelayedStoreLoadPage from "./pages/delayed_store_load";
 import RCPaywallNoOfferingPassedPage from "./pages/rc_paywall_no_offering_passed";
 import RCPaywallNoTargetElementPassedPage from "./pages/rc_paywall_no_target_element_passed";
 import RedemptionLinksTester from "./pages/redemption_links_tester";
 import RCPaywallLauncherPage from "./pages/rc_paywall_launcher";
 import ExpressPurchaseButtonsPackageSelector from "./pages/express_purchase_buttons";
+import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
+import UpgradePage from "./pages/upgrade";
+import UpgradePaywallPage from "./pages/upgrade_paywall";
+import AppearanceOverridesPage from "./pages/appearance_overrides";
+import StripeBillingApplePayPage from "./pages/stripe_billing_apple_pay";
 
 const router = createBrowserRouter([
   {
@@ -41,6 +51,11 @@ const router = createBrowserRouter([
         <PaywallPage />
       </WithoutEntitlement>
     ),
+  },
+  {
+    path: "/appearance-overrides/:app_user_id",
+    loader: loadPurchasesWithAppearanceOverride,
+    element: <AppearanceOverridesPage />,
   },
   {
     path: "/rc_paywall/:app_user_id",
@@ -79,11 +94,33 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: "/rc_paywall_settings",
+    element: <RCPaywallSettingsPage />,
+  },
+  {
     path: "/express_purchase_buttons/:app_user_id",
     loader: loadPurchases,
     element: (
       <WithoutEntitlement>
         <ExpressPurchaseButtonsPackageSelector />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/stripe_billing_apple_pay/:app_user_id",
+    loader: loadPurchases,
+    element: (
+      <WithoutEntitlement>
+        <StripeBillingApplePayPage />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/delayed_store_load/:app_user_id",
+    loader: loadPurchasesWithDelayedStore,
+    element: (
+      <WithoutEntitlement>
+        <DelayedStoreLoadPage />
       </WithoutEntitlement>
     ),
   },
@@ -95,6 +132,16 @@ const router = createBrowserRouter([
         <RedemptionLinksTester />
       </WithoutEntitlement>
     ),
+  },
+  {
+    path: "/upgrade/:app_user_id",
+    loader: loadPurchases,
+    element: <UpgradePage />,
+  },
+  {
+    path: "/upgrade-paywall/:app_user_id",
+    loader: loadPurchases,
+    element: <UpgradePaywallPage />,
   },
   {
     path: "/success/:app_user_id",

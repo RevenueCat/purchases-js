@@ -10,13 +10,15 @@ import {
 } from "@revenuecat/purchases-js";
 import React, { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { usePurchasesLoaderData, apiKey } from "../../util/PurchasesLoader";
+import {
+  usePurchasesLoaderData,
+  isPaddleApiKey,
+  isStripeApiKey,
+} from "../../util/PurchasesLoader";
+import { getLongPeriodLabel, pluralizePeriod } from "../../util/period-label";
 import Button from "../../components/Button";
 import LogoutButton from "../../components/LogoutButton";
-
-const isPaddleApiKey = (apiKey: string): boolean => {
-  return /^pdl_[a-zA-Z0-9_.-]+$/.test(apiKey);
-};
+import { getExternalPurchaseTokenId } from "../../util/external-purchase-token";
 
 interface IPackageCardProps {
   pkg: Package;
@@ -35,34 +37,10 @@ const shortPeriodLabels: Record<string, string> = {
   P1W: "wk",
 };
 
-const longPeriodLabels: Record<string, string> = {
-  P3D: "3 days",
-  P1W: "1 week",
-  P2W: "2 weeks",
-  P1M: "1 month",
-  P2M: "2 months",
-  P3M: "3 months",
-  P6M: "6 months",
-  P1Y: "1 year",
-};
-
 const getPeriodLabel = (
   period: string | null,
   labels: Record<string, string>,
 ) => labels[period ?? ""] ?? period ?? "";
-
-const getLongPeriodLabel = (period: string | null) =>
-  getPeriodLabel(period, longPeriodLabels);
-
-// True for a subscription with a forever discount or a non-subscription product with any discount
-const hasPermanentDiscount = (webBillingProduct: Product) => {
-  // @ts-expect-error - accessing @internal field
-  const { discountPhase, productType } = webBillingProduct;
-  if (!discountPhase) return false;
-  return (
-    discountPhase.durationMode === "forever" || productType !== "subscription"
-  );
-};
 
 const getFormattedPrice = (price: Price | null, period: string | null) => {
   if (!price?.formattedPrice) return "";
@@ -71,18 +49,15 @@ const getFormattedPrice = (price: Price | null, period: string | null) => {
 };
 
 const getCurrentPrice = (webBillingProduct: Product) => {
-  // @ts-expect-error - accessing @internal field
-  const { price, normalPeriodDuration, discountPhase, introPricePhase } =
-    webBillingProduct;
+  const { price, normalPeriodDuration, introPricePhase } = webBillingProduct;
 
-  const promotionalPrice = discountPhase ?? introPricePhase;
-  if (!promotionalPrice) {
+  if (!introPricePhase) {
     return getFormattedPrice(price, normalPeriodDuration);
   }
 
   return getFormattedPrice(
-    promotionalPrice.price,
-    promotionalPrice?.periodDuration ?? null,
+    introPricePhase.price,
+    introPricePhase?.periodDuration ?? null,
   );
 };
 
@@ -94,26 +69,18 @@ const formattedCombinedPeriod = (
   if (!period || !unit) {
     return "";
   }
-  const cyclesInIntroDuration = cycleCount * period;
-  return `${cyclesInIntroDuration} ${unit}${cyclesInIntroDuration > 1 ? "s" : ""}`;
+  return pluralizePeriod(cycleCount * period, unit);
 };
 
 const getPriceDetails = (webBillingProduct: Product) => {
-  // @ts-expect-error - accessing @internal field
-  const { discountPhase, introPricePhase, price, normalPeriodDuration } =
-    webBillingProduct;
-  const promotionalPrice = discountPhase ?? introPricePhase;
-  if (!promotionalPrice) return null;
+  const { introPricePhase, price, normalPeriodDuration } = webBillingProduct;
+  if (!introPricePhase) return null;
   const formattedBasePrice = getFormattedPrice(price, normalPeriodDuration);
 
-  if (hasPermanentDiscount(webBillingProduct)) {
-    return `discounted from ${formattedBasePrice}`;
-  }
-
   const promoPeriod = formattedCombinedPeriod(
-    promotionalPrice.cycleCount,
-    promotionalPrice.period?.number,
-    promotionalPrice.period?.unit,
+    introPricePhase.cycleCount,
+    introPricePhase.period?.number,
+    introPricePhase.period?.unit,
   );
   return `${promoPeriod ? `for ${promoPeriod}, ` : ""}then ${formattedBasePrice}`;
 };
@@ -123,23 +90,12 @@ export const Badge = ({
 }: {
   webBillingProduct: Product;
 }) => {
-  // @ts-expect-error - accessing @internal field
-  const { discountPhase, freeTrialPhase } = webBillingProduct;
-  if (discountPhase) {
-    return (
-      <div className="freeTrial">
-        {hasPermanentDiscount(webBillingProduct)
-          ? "Lifetime"
-          : getLongPeriodLabel(discountPhase.timeWindow)}{" "}
-        Discount
-      </div>
-    );
-  }
+  const { freeTrialPhase } = webBillingProduct;
 
   if (freeTrialPhase) {
     return (
       <div className="freeTrial">
-        {getLongPeriodLabel(freeTrialPhase.periodDuration)} free trial
+        {getLongPeriodLabel(freeTrialPhase.period)} free trial
       </div>
     );
   }
@@ -214,7 +170,10 @@ const PaywallPage: React.FC = () => {
   const email = searchParams.get("email");
   const displayName = searchParams.get("$displayName");
   const nickname = searchParams.get("nickname");
+  const externalPurchaseTokenId = getExternalPurchaseTokenId(searchParams);
   const skipSuccessPage = searchParams.get("skipSuccessPage") === "true";
+  const showDiscountCodeField =
+    searchParams.get("showDiscountCodeField") === "true";
   const attributesSetRef = useRef(false);
 
   useEffect(() => {
@@ -278,8 +237,10 @@ const PaywallPage: React.FC = () => {
         await purchases.purchase({
           rcPackage: pkg,
           purchaseOption: option,
+          showDiscountCodeField,
           selectedLocale: lang || navigator.language,
           customerEmail: email || undefined,
+          externalPurchaseTokenId,
           skipSuccessPage: skipSuccessPage,
           // @ts-expect-error This method is marked as internal for now but it's public.'
           labelsOverride: {
@@ -330,7 +291,11 @@ const PaywallPage: React.FC = () => {
             fontWeight: "500",
           }}
         >
-          {isPaddleApiKey(apiKey) ? "Paddle demo" : "Web Billing demo"}
+          {isPaddleApiKey
+            ? "Paddle demo"
+            : isStripeApiKey
+              ? "Stripe Checkout demo"
+              : "Web Billing demo"}
         </div>
 
         <h1>

@@ -6,17 +6,38 @@ import {
 import type {
   Stripe,
   StripeElementLocale,
+  StripeEmbeddedCheckout,
   StripeElements,
   StripeError,
 } from "@stripe/stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
 import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 import { Translator } from "../../ui/localization/translator";
-import { product, trialProduct } from "../../stories/fixtures";
+import {
+  consumableProduct,
+  nonSubscriptionOption,
+  nonSubscriptionOptionWithDiscount,
+  product,
+  subscriptionOption,
+  subscriptionOptionWithDiscount,
+  subscriptionOptionWithDiscountOneTime,
+  subscriptionOptionWithIntroPriceRecurring,
+  subscriptionOptionWithSingleMonthIntroPriceRecurring,
+  subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+  subscriptionOptionWithTrialAndIntroPriceRecurring,
+  trialProduct,
+} from "../../stories/fixtures";
 import type { PriceBreakdown } from "../../ui/ui-types";
+import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discount-breakdown-helper";
+import type {
+  Product,
+  PurchaseOption,
+  SubscriptionOption,
+} from "../../entities/offerings";
+import { PeriodUnit } from "../../helpers/duration-helper";
 
-vi.mock("@stripe/stripe-js", () => ({
+vi.mock("@stripe/stripe-js/pure", () => ({
   loadStripe: vi.fn(),
 }));
 
@@ -164,6 +185,88 @@ describe("StripeService", () => {
     });
   });
 
+  describe("initializeStripeCheckout", () => {
+    const stripeBillingParams = {
+      client_secret: "cs_test_123",
+      environment: "sandbox",
+      publishable_api_key: "pk_test_123",
+      stripe_account_id: "acct_123",
+      branding_settings: null,
+      appearance: null,
+    };
+
+    test("throws error when required configuration is missing", async () => {
+      await expect(
+        StripeService.initializeStripeCheckout("", "", undefined, undefined),
+      ).rejects.toEqual({
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: undefined,
+        message: "Stripe configuration is missing",
+      });
+    });
+
+    test("initializes embedded checkout via createEmbeddedCheckoutPage", async () => {
+      const mockEmbeddedCheckout = {} as StripeEmbeddedCheckout;
+      const createEmbeddedCheckoutPage = vi
+        .fn()
+        .mockResolvedValue(mockEmbeddedCheckout);
+      const mockStripe: Partial<Stripe> = {
+        createEmbeddedCheckoutPage,
+      };
+      const onComplete = vi.fn();
+
+      vi.mocked(loadStripe).mockResolvedValue(mockStripe as Stripe);
+
+      const result = await StripeService.initializeStripeCheckout(
+        "acct_123",
+        "pk_test_123",
+        stripeBillingParams,
+        onComplete,
+      );
+
+      expect(loadStripe).toHaveBeenCalledWith("pk_test_123", {
+        stripeAccount: "acct_123",
+      });
+      expect(createEmbeddedCheckoutPage).toHaveBeenCalledWith({
+        fetchClientSecret: expect.any(Function),
+        onComplete,
+      });
+
+      const fetchClientSecret = createEmbeddedCheckoutPage.mock.calls[0]?.[0]
+        ?.fetchClientSecret as () => Promise<string>;
+      await expect(fetchClientSecret()).resolves.toBe("cs_test_123");
+
+      expect(result).toEqual({
+        stripe: mockStripe,
+        embeddedCheckout: mockEmbeddedCheckout,
+      });
+    });
+
+    test("throws mapped initialization error when embedded checkout initialization fails", async () => {
+      const mockStripe: Partial<Stripe> = {
+        createEmbeddedCheckoutPage: vi.fn().mockRejectedValue({
+          type: "api_connection_error",
+          code: "failed_to_load",
+          message: "Failed to load",
+        } as StripeError),
+      };
+
+      vi.mocked(loadStripe).mockResolvedValue(mockStripe as Stripe);
+
+      await expect(
+        StripeService.initializeStripeCheckout(
+          "acct_123",
+          "pk_test_123",
+          stripeBillingParams,
+        ),
+      ).rejects.toEqual({
+        code: StripeServiceErrorCode.ErrorLoadingStripe,
+        gatewayErrorCode: "failed_to_load",
+        message: "Failed to load",
+      });
+    });
+  });
+
   describe("isStripeHandledFormError", () => {
     test("returns true for validation error", () => {
       const error = { type: "validation_error" } as StripeError;
@@ -297,6 +400,107 @@ describe("StripeService", () => {
     });
   });
 
+  describe("createAddressElement", () => {
+    test("creates a billing address element collecting the full name", () => {
+      const mockElements: Partial<StripeElements> = {
+        create: vi.fn(),
+      };
+
+      StripeService.createAddressElement(mockElements as StripeElements);
+
+      expect(mockElements.create).toHaveBeenCalledWith("address", {
+        mode: "billing",
+        display: {
+          name: "full",
+        },
+      });
+    });
+
+    test("seeds the address element with the provided default country", () => {
+      const mockElements: Partial<StripeElements> = {
+        create: vi.fn(),
+      };
+
+      StripeService.createAddressElement(mockElements as StripeElements, "CA");
+
+      expect(mockElements.create).toHaveBeenCalledWith("address", {
+        mode: "billing",
+        display: {
+          name: "full",
+        },
+        defaultValues: {
+          address: {
+            country: "CA",
+          },
+        },
+      });
+    });
+  });
+
+  describe("extractTaxCustomerDetails", () => {
+    test("returns the full billing address from the confirmation token", async () => {
+      const mockElements = {} as StripeElements;
+      const mockStripe = {
+        createConfirmationToken: vi.fn().mockResolvedValue({
+          confirmationToken: {
+            id: "ctoken_123",
+            payment_method_preview: {
+              billing_details: {
+                address: {
+                  country: "US",
+                  postal_code: "10001",
+                  state: "NY",
+                  city: "New York",
+                  line1: "123 Main St",
+                  line2: "Apt 4",
+                },
+              },
+            },
+          },
+        }),
+      } as unknown as Stripe;
+
+      const { customerDetails, confirmationTokenId } =
+        await StripeService.extractTaxCustomerDetails(mockElements, mockStripe);
+
+      expect(confirmationTokenId).toBe("ctoken_123");
+      expect(customerDetails).toEqual({
+        countryCode: "US",
+        postalCode: "10001",
+        state: "NY",
+        city: "New York",
+        addressLine1: "123 Main St",
+        addressLine2: "Apt 4",
+      });
+    });
+
+    test("returns undefined fields when the billing address is missing", async () => {
+      const mockElements = {} as StripeElements;
+      const mockStripe = {
+        createConfirmationToken: vi.fn().mockResolvedValue({
+          confirmationToken: {
+            id: "ctoken_456",
+            payment_method_preview: {},
+          },
+        }),
+      } as unknown as Stripe;
+
+      const { customerDetails } = await StripeService.extractTaxCustomerDetails(
+        mockElements,
+        mockStripe,
+      );
+
+      expect(customerDetails).toEqual({
+        countryCode: undefined,
+        postalCode: undefined,
+        state: undefined,
+        city: undefined,
+        addressLine1: undefined,
+        addressLine2: undefined,
+      });
+    });
+  });
+
   describe("createLinkAuthenticationElement", () => {
     test("creates link authentication element with email", () => {
       const mockElements: Partial<StripeElements> = {
@@ -351,7 +555,7 @@ describe("StripeService", () => {
   describe("buildStripeExpressCheckoutOptionsForSubscription", () => {
     beforeEach(() => {
       vi.useFakeTimers();
-      vi.setSystemTime(new Date("2025-01-01T00:00:00.000Z"));
+      vi.setSystemTime(new Date(2025, 0, 1));
     });
 
     afterEach(() => {
@@ -361,82 +565,623 @@ describe("StripeService", () => {
     const translator = new Translator();
     const managementUrl =
       "https://somewhere.com/manage/subscriptions/1234567890";
-    const priceBreakdown: PriceBreakdown = {
+    const baseLayout = {
+      maxColumns: undefined,
+      maxRows: undefined,
+      overflow: undefined,
+    };
+    const baseBreakdown: PriceBreakdown = {
       currency: "USD",
-      totalAmountInMicros: 10000,
-      totalExcludingTaxInMicros: 10000,
+      totalAmountInMicros: 9_900_000,
+      totalExcludingTaxInMicros: 9_900_000,
       taxCalculationStatus: "calculated",
       taxAmountInMicros: 0,
       taxBreakdown: [],
     };
 
-    test("creates the ApplePay configuration correctly for a Trial Subscription Option", () => {
-      const expressCheckoutOptionsStripeService =
+    const makeBreakdown = (totalAmountInMicros: number): PriceBreakdown => ({
+      ...baseBreakdown,
+      totalAmountInMicros,
+      totalExcludingTaxInMicros: totalAmountInMicros,
+    });
+
+    // Asserts that line items always sum to elements.amount, which Stripe
+    // enforces silently — mismatches cause the wallet to drop them.
+    const expectLineItemsBalance = (
+      lineItems: Array<{ amount: number }> | undefined,
+      totalMinimumAmount: number,
+    ) => {
+      if (lineItems === undefined) return;
+      const sum = lineItems.reduce((acc, item) => acc + item.amount, 0);
+      expect(sum).toBe(totalMinimumAmount);
+    };
+
+    const resolveDiscount = (
+      priceBreakdown: PriceBreakdown,
+      productDetails: Product,
+      purchaseOption: PurchaseOption,
+    ) =>
+      resolveDiscountBreakdownForPurchaseOption({
+        priceBreakdown,
+        productDetails,
+        purchaseOption,
+        translator,
+      });
+
+    test("subscription with trial: no line items, free trial in Apple Pay", () => {
+      const subscriptionOptionForTrial =
+        trialProduct.subscriptionOptions.option_id_1;
+      const result =
         StripeService.buildStripeExpressCheckoutOptionsForSubscription(
           trialProduct,
-          priceBreakdown,
-          trialProduct.subscriptionOptions.option_id_1,
+          baseBreakdown,
+          subscriptionOptionForTrial,
           translator,
           managementUrl,
+          resolveDiscount(
+            baseBreakdown,
+            trialProduct,
+            subscriptionOptionForTrial,
+          ),
         );
 
-      expect(expressCheckoutOptionsStripeService).toStrictEqual({
+      expect(result).toStrictEqual({
+        layout: baseLayout,
         applePay: {
           recurringPaymentRequest: {
             paymentDescription: trialProduct.title,
             managementURL: managementUrl,
-            regularBilling: {
-              amount: 1,
-              label: trialProduct.title,
-              recurringPaymentStartDate: new Date("2025-01-08T00:00:00.000Z"),
-              recurringPaymentIntervalUnit: "month",
-              recurringPaymentIntervalCount: 1,
-            },
             trialBilling: {
               amount: 0,
               label: "Free Trial",
             },
+            regularBilling: {
+              amount: 990,
+              label: trialProduct.title,
+              recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
           },
-        },
-        layout: {
-          maxColumns: undefined,
-          maxRows: undefined,
-          overflow: undefined,
         },
       });
     });
 
-    test("creates the ApplePay configuration correctly for a Subscription Option without Trial", () => {
-      const expressCheckoutOptionsStripeService =
+    test("subscription with a paid-once weekly intro omits its non-future end date", () => {
+      const basePrice = {
+        amount: 4_999,
+        amountMicros: 49_990_000,
+        currency: "USD",
+        formattedPrice: "$49.99",
+      };
+      const introPrice = {
+        amount: 499,
+        amountMicros: 4_990_000,
+        currency: "USD",
+        formattedPrice: "$4.99",
+      };
+      const paidIntroOption: SubscriptionOption = {
+        ...subscriptionOption,
+        base: {
+          ...subscriptionOption.base,
+          price: basePrice,
+        },
+        introPrice: {
+          periodDuration: "P1W",
+          period: {
+            number: 1,
+            unit: PeriodUnit.Week,
+          },
+          cycleCount: 1,
+          price: introPrice,
+          pricePerWeek: introPrice,
+          pricePerMonth: null,
+          pricePerYear: null,
+        },
+      };
+      const breakdown = makeBreakdown(4_990_000);
+
+      const result =
         StripeService.buildStripeExpressCheckoutOptionsForSubscription(
           product,
-          priceBreakdown,
-          product.subscriptionOptions.option_id_1,
+          breakdown,
+          paidIntroOption,
           translator,
           managementUrl,
+          resolveDiscount(breakdown, product, paidIntroOption),
         );
 
-      expect(expressCheckoutOptionsStripeService).toStrictEqual({
+      expect(result).toStrictEqual({
+        layout: baseLayout,
         applePay: {
           recurringPaymentRequest: {
-            paymentDescription: trialProduct.title,
+            paymentDescription: product.title,
+            managementURL: managementUrl,
+            trialBilling: {
+              amount: 499,
+              label: product.title,
+              recurringPaymentIntervalUnit: "day",
+              recurringPaymentIntervalCount: 7,
+            },
+            regularBilling: {
+              amount: 4_999,
+              label: product.title,
+              recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
+          },
+        },
+      });
+    });
+
+    test("subscription with a trial and single-cycle intro omits an end date equal to its start date", () => {
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          baseBreakdown,
+          subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+          translator,
+          managementUrl,
+          resolveDiscount(
+            baseBreakdown,
+            product,
+            subscriptionOptionWithSingleWeekWithTrialAndIntroPriceRecurring,
+          ),
+        );
+
+      expect(result).toStrictEqual({
+        layout: baseLayout,
+        applePay: {
+          recurringPaymentRequest: {
+            paymentDescription: product.title,
+            managementURL: managementUrl,
+            trialBilling: {
+              amount: 149,
+              label: product.title,
+              recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentIntervalUnit: "day",
+              recurringPaymentIntervalCount: 7,
+            },
+            regularBilling: {
+              amount: 990,
+              label: product.title,
+              recurringPaymentStartDate: new Date(2025, 0, 15),
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
+          },
+        },
+      });
+    });
+
+    test("subscription with a multi-cycle intro delays regular billing until every intro cycle ends", () => {
+      const breakdown = makeBreakdown(3_490_000);
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOptionWithIntroPriceRecurring,
+          translator,
+          managementUrl,
+          resolveDiscount(
+            breakdown,
+            product,
+            subscriptionOptionWithIntroPriceRecurring,
+          ),
+        );
+
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            trialBilling: {
+              amount: 349,
+              recurringPaymentEndDate: new Date(2025, 2, 1),
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
+            regularBilling: {
+              amount: 990,
+              recurringPaymentStartDate: new Date(2025, 3, 1),
+            },
+          },
+        },
+      });
+    });
+
+    test("subscription with a monthly intro uses the last day of the month for the regular billing start", () => {
+      vi.setSystemTime(new Date(2025, 0, 31));
+      const breakdown = makeBreakdown(3_490_000);
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOptionWithSingleMonthIntroPriceRecurring,
+          translator,
+          managementUrl,
+          resolveDiscount(
+            breakdown,
+            product,
+            subscriptionOptionWithSingleMonthIntroPriceRecurring,
+          ),
+        );
+
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            regularBilling: {
+              recurringPaymentStartDate: new Date(2025, 1, 28),
+            },
+          },
+        },
+      });
+    });
+
+    test("subscription with an intro missing its period omits unknown billing dates", () => {
+      const optionWithUnknownIntroPeriod: SubscriptionOption = {
+        ...subscriptionOptionWithIntroPriceRecurring,
+        introPrice: {
+          ...subscriptionOptionWithIntroPriceRecurring.introPrice!,
+          periodDuration: null,
+          period: null,
+        },
+      };
+      const breakdown = makeBreakdown(3_490_000);
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          optionWithUnknownIntroPeriod,
+          translator,
+          managementUrl,
+          resolveDiscount(breakdown, product, optionWithUnknownIntroPeriod),
+        );
+      const recurringRequest = result.applePay?.recurringPaymentRequest;
+      if (!recurringRequest) {
+        throw new Error("Expected an Apple Pay recurring payment request");
+      }
+
+      expect(recurringRequest.trialBilling).toStrictEqual({
+        amount: 349,
+        label: product.title,
+      });
+      expect(recurringRequest.regularBilling).toMatchObject({
+        amount: 990,
+        recurringPaymentStartDate: undefined,
+      });
+    });
+
+    test("subscription with a missing base price falls back to the current amount", () => {
+      const optionWithoutBasePrice: SubscriptionOption = {
+        ...subscriptionOption,
+        base: {
+          ...subscriptionOption.base,
+          price: null,
+        },
+      };
+      const breakdown = makeBreakdown(1_230_000);
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          optionWithoutBasePrice,
+          translator,
+          managementUrl,
+          resolveDiscount(breakdown, product, optionWithoutBasePrice),
+        );
+
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            regularBilling: { amount: 123 },
+          },
+        },
+      });
+    });
+
+    test("subscription with a trial and intro starts the paid intro after the trial and base billing after both", () => {
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          baseBreakdown,
+          subscriptionOptionWithTrialAndIntroPriceRecurring,
+          translator,
+          managementUrl,
+          resolveDiscount(
+            baseBreakdown,
+            product,
+            subscriptionOptionWithTrialAndIntroPriceRecurring,
+          ),
+        );
+
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            trialBilling: {
+              amount: 349,
+              label: product.title,
+              recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentEndDate: new Date(2025, 2, 8),
+              recurringPaymentIntervalUnit: "month",
+              recurringPaymentIntervalCount: 1,
+            },
+            regularBilling: {
+              amount: 990,
+              recurringPaymentStartDate: new Date(2025, 3, 8),
+            },
+          },
+        },
+      });
+    });
+
+    test("subscription without trial or discount: no line items", () => {
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          baseBreakdown,
+          subscriptionOption,
+          translator,
+          managementUrl,
+          resolveDiscount(baseBreakdown, product, subscriptionOption),
+        );
+
+      expect(result).toStrictEqual({
+        layout: baseLayout,
+        applePay: {
+          recurringPaymentRequest: {
+            paymentDescription: product.title,
             managementURL: managementUrl,
             regularBilling: {
-              amount: 1,
-              label: trialProduct.title,
+              amount: 990,
+              label: product.title,
               recurringPaymentStartDate: undefined,
               recurringPaymentIntervalUnit: "month",
               recurringPaymentIntervalCount: 1,
             },
-            trialBilling: undefined,
           },
         },
-        layout: {
-          maxColumns: undefined,
-          maxRows: undefined,
-          overflow: undefined,
+      });
+    });
+
+    test("subscription with one_time discount: line items", () => {
+      const breakdown = makeBreakdown(1_000_000);
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOptionWithDiscountOneTime,
+          translator,
+          managementUrl,
+          resolveDiscount(
+            breakdown,
+            product,
+            subscriptionOptionWithDiscountOneTime,
+          ),
+        );
+
+      expect(result.lineItems).toStrictEqual([
+        { name: product.title, amount: 990 },
+        { name: "One-time Discount to $1 (20% off)", amount: -890 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 100);
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            regularBilling: { amount: 990 },
+          },
         },
       });
+    });
+
+    test("subscription with time_window discount: line items", () => {
+      const breakdown = makeBreakdown(7_990_000);
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOptionWithDiscount,
+          translator,
+          managementUrl,
+          resolveDiscount(breakdown, product, subscriptionOptionWithDiscount),
+        );
+
+      expect(result.lineItems).toStrictEqual([
+        { name: product.title, amount: 990 },
+        { name: "Holiday Sale $7.99 (20% off for 3 months)", amount: -191 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 799);
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            regularBilling: { amount: 990 },
+          },
+        },
+      });
+    });
+
+    test("subscription with applied promo code only: line items from appliedDiscounts", () => {
+      const breakdown: PriceBreakdown = {
+        ...makeBreakdown(8_900_000),
+        originalAmountInMicros: 9_900_000,
+        appliedDiscounts: [
+          {
+            identifier: "save10",
+            displayName: "SAVE10",
+            discountedAmountInMicros: 1_000_000,
+            percentage: 10,
+            discountCode: "SAVE10",
+          },
+        ],
+      };
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOption,
+          translator,
+          managementUrl,
+          resolveDiscount(breakdown, product, subscriptionOption),
+        );
+
+      expect(result.lineItems).toStrictEqual([
+        { name: product.title, amount: 990 },
+        { name: "SAVE10 (10% off)", amount: -100 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 890);
+      expect(result).toMatchObject({
+        applePay: {
+          recurringPaymentRequest: {
+            regularBilling: { amount: 990 },
+          },
+        },
+      });
+    });
+
+    test("subscription with applied time_window promo: line items with duration suffix", () => {
+      const breakdown: PriceBreakdown = {
+        ...makeBreakdown(8_900_000),
+        originalAmountInMicros: 9_900_000,
+        appliedDiscounts: [
+          {
+            identifier: "holiday",
+            displayName: "Holiday Sale",
+            discountedAmountInMicros: 1_000_000,
+            percentage: 10,
+            discountCode: "HOLIDAY",
+            durationMode: "time_window",
+            timeWindow: "P3M",
+          },
+        ],
+      };
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          subscriptionOption,
+          translator,
+          managementUrl,
+          resolveDiscount(breakdown, product, subscriptionOption),
+        );
+
+      expect(result.lineItems).toStrictEqual([
+        { name: product.title, amount: 990 },
+        { name: "Holiday Sale (10% off for 3 months)", amount: -100 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 890);
+    });
+  });
+
+  describe("buildStripeExpressCheckoutOptionsForNonSubscription", () => {
+    const translator = new Translator();
+    const baseLayout = {
+      maxColumns: undefined,
+      maxRows: undefined,
+      overflow: undefined,
+    };
+    const baseBreakdown: PriceBreakdown = {
+      currency: "USD",
+      totalAmountInMicros: 9_900_000,
+      totalExcludingTaxInMicros: 9_900_000,
+      taxCalculationStatus: "calculated",
+      taxAmountInMicros: 0,
+      taxBreakdown: [],
+    };
+
+    const makeBreakdown = (totalAmountInMicros: number): PriceBreakdown => ({
+      ...baseBreakdown,
+      totalAmountInMicros,
+      totalExcludingTaxInMicros: totalAmountInMicros,
+    });
+
+    const expectLineItemsBalance = (
+      lineItems: Array<{ amount: number }> | undefined,
+      totalMinimumAmount: number,
+    ) => {
+      if (lineItems === undefined) return;
+      const sum = lineItems.reduce((acc, item) => acc + item.amount, 0);
+      expect(sum).toBe(totalMinimumAmount);
+    };
+
+    const resolveDiscount = (
+      priceBreakdown: PriceBreakdown,
+      productDetails: Product,
+      purchaseOption: PurchaseOption,
+    ) =>
+      resolveDiscountBreakdownForPurchaseOption({
+        priceBreakdown,
+        productDetails,
+        purchaseOption,
+        translator,
+      });
+
+    test("consumable without discount: no recurring request, no line items", () => {
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+          consumableProduct,
+          baseBreakdown,
+          resolveDiscount(
+            baseBreakdown,
+            consumableProduct,
+            nonSubscriptionOption,
+          ),
+        );
+
+      expect(result).toStrictEqual({ layout: baseLayout });
+      expect(result.applePay).toBeUndefined();
+    });
+
+    test("consumable with discount: line items, no recurring request", () => {
+      const breakdown = makeBreakdown(1_000_000);
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+          consumableProduct,
+          breakdown,
+          resolveDiscount(
+            breakdown,
+            consumableProduct,
+            nonSubscriptionOptionWithDiscount,
+          ),
+        );
+
+      expect(result.applePay).toBeUndefined();
+      expect(result.lineItems).toStrictEqual([
+        { name: consumableProduct.title, amount: 990 },
+        { name: "One-time Discount to $1 (20% off)", amount: -890 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 100);
+    });
+
+    test("consumable with applied promo code only: line items from appliedDiscounts", () => {
+      const breakdown: PriceBreakdown = {
+        ...makeBreakdown(8_900_000),
+        originalAmountInMicros: 9_900_000,
+        appliedDiscounts: [
+          {
+            identifier: "save10",
+            displayName: "SAVE10",
+            discountedAmountInMicros: 1_000_000,
+            percentage: 10,
+            discountCode: "SAVE10",
+          },
+        ],
+      };
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForNonSubscription(
+          consumableProduct,
+          breakdown,
+          resolveDiscount(breakdown, consumableProduct, nonSubscriptionOption),
+        );
+
+      expect(result.applePay).toBeUndefined();
+      expect(result.lineItems).toStrictEqual([
+        { name: consumableProduct.title, amount: 990 },
+        { name: "SAVE10 (10% off)", amount: -100 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 890);
     });
   });
 });

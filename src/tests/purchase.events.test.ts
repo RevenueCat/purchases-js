@@ -1,11 +1,17 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { configurePurchases } from "./base.purchases_test";
+import {
+  configurePurchases,
+  server,
+  testApiKey,
+  testUserId,
+} from "./base.purchases_test";
 import { APIPostRequest } from "./test-responses";
 import "./utils/to-have-been-called-exactly-once-with";
 import { Logger } from "../helpers/logger";
 import { ErrorCode, Purchases, PurchasesError } from "../main";
 import { mount } from "svelte";
 import { defaultPurchaseMode } from "../behavioural-events/event";
+import { http, HttpResponse } from "msw";
 
 vi.mock("svelte", () => ({
   mount: vi.fn(),
@@ -335,5 +341,47 @@ describe("Purchases.configure()", () => {
       },
       keepalive: true,
     });
+  });
+});
+
+describe("Purchases with unreachable eventsURL", () => {
+  beforeEach(() => {
+    vi.spyOn(Logger, "debugLog").mockImplementation(() => undefined);
+    vi.useFakeTimers();
+
+    const unreachableEventsURL = "http://unreachable.local:9999";
+    server.use(
+      http.post(`${unreachableEventsURL}/v1/events`, () => {
+        return HttpResponse.error();
+      }),
+    );
+
+    Purchases.configure({
+      apiKey: testApiKey,
+      appUserId: testUserId,
+      httpConfig: { eventsURL: unreachableEventsURL },
+      flags: { rcSource: "rcSource" },
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.resetAllMocks();
+    vi.useRealTimers();
+  });
+
+  test("getCustomerInfo succeeds when eventsURL is unreachable", async () => {
+    await vi.advanceTimersToNextTimerAsync();
+
+    const customerInfo = await Purchases.getSharedInstance().getCustomerInfo();
+    expect(customerInfo).toBeDefined();
+  });
+
+  test("getOfferings succeeds when eventsURL is unreachable", async () => {
+    await vi.advanceTimersToNextTimerAsync();
+
+    const offerings = await Purchases.getSharedInstance().getOfferings();
+    expect(offerings).toBeDefined();
+    expect(offerings.current).toBeDefined();
   });
 });

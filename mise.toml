@@ -1,0 +1,12 @@
+[settings]
+lockfile = true
+
+[settings.node]
+corepack = true
+
+[settings.ruby]
+compile = false
+
+[tools]
+node = "24.18.0"
+ruby = "3.3.0"

@@ -5,9 +5,34 @@ import {
 } from "../entities/offerings";
 import { type PackageInfo } from "@revenuecat/purchases-ui-js";
 
-function getPackageInfo(pkg: Package): PackageInfo {
+function resolveWebCheckoutURL(
+  pkg: Package,
+  offeringWebCheckoutURL?: string | null,
+): string | undefined {
+  const fromPackage = pkg.webCheckoutURL;
+  if (typeof fromPackage === "string" && fromPackage.length > 0) {
+    return fromPackage;
+  }
+
+  if (
+    typeof offeringWebCheckoutURL === "string" &&
+    offeringWebCheckoutURL.length > 0
+  ) {
+    return offeringWebCheckoutURL;
+  }
+
+  return undefined;
+}
+
+function getPackageInfo(
+  pkg: Package,
+  offeringWebCheckoutURL?: string | null,
+): PackageInfo {
   // This would not work with Paddle.
   const product = pkg.webBillingProduct;
+
+  const webCheckoutURL = resolveWebCheckoutURL(pkg, offeringWebCheckoutURL);
+  const checkoutFields = webCheckoutURL !== undefined ? { webCheckoutURL } : {};
 
   const isSubscription = product.productType === ProductType.Subscription;
   const subscriptionOption = product.defaultSubscriptionOption;
@@ -15,9 +40,9 @@ function getPackageInfo(pkg: Package): PackageInfo {
   if (isSubscription && subscriptionOption) {
     return {
       hasTrial: subscriptionOption.trial !== null,
-      hasIntroOffer:
-        subscriptionOption.discount !== null ||
-        subscriptionOption.introPrice !== null,
+      hasIntroOffer: subscriptionOption.introPrice !== null,
+      hasPromoOffer: subscriptionOption.discount !== null,
+      ...checkoutFields,
     };
   }
 
@@ -25,18 +50,28 @@ function getPackageInfo(pkg: Package): PackageInfo {
   if (!isSubscription && nonSubscriptionOption) {
     return {
       hasTrial: false,
-      hasIntroOffer: nonSubscriptionOption.discount !== null,
+      hasIntroOffer: false,
+      hasPromoOffer: nonSubscriptionOption.discount !== null,
+      ...checkoutFields,
     };
   }
 
-  return {};
+  return {
+    hasTrial: false,
+    hasIntroOffer: false,
+    hasPromoOffer: false,
+    ...checkoutFields,
+  };
 }
 
 export function parseOfferingIntoPackageInfoPerPackage(
   offering: Offering,
 ): Record<string, PackageInfo> {
   const mappedEntries = Object.entries(offering.packagesById).map(
-    ([packageId, pkg]) => [packageId, getPackageInfo(pkg)],
+    ([packageId, pkg]) => [
+      packageId,
+      getPackageInfo(pkg, offering.webCheckoutURL),
+    ],
   );
   return Object.fromEntries(mappedEntries);
 }
