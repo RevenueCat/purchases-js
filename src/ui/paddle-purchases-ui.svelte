@@ -252,7 +252,7 @@
           customerEmail,
           locale: selectedLocale || defaultLocale,
           ...(discountCode && { discountCode }),
-          ...(discountId && { discountId }),
+          discountId,
         },
         ...(useInlineCheckout && {
           displayMode: "inline" as const,
