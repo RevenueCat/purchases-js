@@ -37,10 +37,10 @@ vi.mock("react-native", () => ({
 import { loadAmazonAppstoreIAPSDK } from "../amazon/amazon-appstore-iap-sdk-loader";
 import { loadKeplerFileSystem } from "../amazon/kepler-file-system-loader";
 import { loadReactNativeAppState } from "../amazon/react-native-app-state-loader";
-import { defaultHttpConfig } from "../../entities/http-config";
+import { defaultHttpConfig } from "../../../src/entities/http-config";
 import { Purchases } from "../index";
-import { testUserId } from "../../tests/base.purchases_test";
-import { APIGetRequest } from "../../tests/test-responses";
+import { testUserId } from "../../../src/tests/base.purchases_test";
+import { APIGetRequest } from "../../../src/tests/test-responses";
 
 /**
  * The Vega entry point configures the loader as an import side effect. This

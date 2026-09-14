@@ -8,11 +8,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export default defineConfig({
-  envDir: resolve(__dirname, "../.."),
+  envDir: resolve(__dirname, ".."),
   build: {
+    outDir: resolve(__dirname, "dist"),
     emptyOutDir: true,
     lib: {
-      entry: resolve(__dirname, "index.ts"),
+      entry: resolve(__dirname, "src/index.ts"),
       name: "Purchases",
       fileName: (format) => `Purchases.vega.${format}.js`,
     },

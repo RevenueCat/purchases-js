@@ -11,8 +11,8 @@ const amazonModule = "@amazon-devices/keplerscript-appstore-iap-lib";
 const fileSystemModule = "@amazon-devices/kepler-file-system";
 const defaultArtifacts = ["dist/Purchases.es.js", "dist/Purchases.umd.js"];
 const vegaArtifacts = [
-  "src/vega/dist/Purchases.vega.es.js",
-  "src/vega/dist/Purchases.vega.umd.js",
+  "vega/dist/Purchases.vega.es.js",
+  "vega/dist/Purchases.vega.umd.js",
 ];
 
 for (const artifact of defaultArtifacts) {
@@ -46,7 +46,7 @@ for (const artifact of vegaArtifacts) {
 }
 
 const webPackage = JSON.parse(readFileSync("package.json", "utf8"));
-const vegaPackage = JSON.parse(readFileSync("src/vega/package.json", "utf8"));
+const vegaPackage = JSON.parse(readFileSync("vega/package.json", "utf8"));
 assert.equal(webPackage.exports["./vega"], undefined);
 for (const dependency of Object.keys(vegaPackage.peerDependencies)) {
   assert.equal(webPackage.dependencies?.[dependency], undefined);

@@ -1,5 +1,5 @@
 import type * as AmazonVegaSdk from "@amazon-devices/keplerscript-appstore-iap-lib";
-import { ErrorCode, PurchasesError } from "../../entities/errors";
+import { ErrorCode, PurchasesError } from "../../../src/entities/errors";
 
 /** Native SDK loader installed by the Vega package entry point. */
 export type AmazonAppstoreIAPSDK = typeof AmazonVegaSdk;

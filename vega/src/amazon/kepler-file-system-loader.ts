@@ -1,5 +1,5 @@
 import type { KeplerFileSystem as AmazonKeplerFileSystem } from "@amazon-devices/kepler-file-system";
-import { ErrorCode, PurchasesError } from "../../entities/errors";
+import { ErrorCode, PurchasesError } from "../../../src/entities/errors";
 
 /**
  * Shared Kepler File System loader contract used by VegaDeviceCache.

@@ -28,8 +28,8 @@ import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
-import { AmazonBillingWrapper } from "../vega/amazon/amazon-billing-wrapper";
-import { resetAmazonAppstoreIAPSDKLoader } from "../vega/amazon/amazon-appstore-iap-sdk-loader";
+import { AmazonBillingWrapper } from "../../vega/src/amazon/amazon-billing-wrapper";
+import { resetAmazonAppstoreIAPSDKLoader } from "../../vega/src/amazon/amazon-appstore-iap-sdk-loader";
 import { Logger } from "../helpers/logger";
 import {
   registerBillingProvider,

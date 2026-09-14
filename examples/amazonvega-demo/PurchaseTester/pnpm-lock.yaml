@@ -20,8 +20,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.9000000000(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0)
       '@revenuecat/purchases-js-vega':
-        specifier: file:../../../src/vega
-        version: file:../../../src/vega(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))
+        specifier: file:../../../vega
+        version: file:../../../vega(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -1828,8 +1828,8 @@ packages:
     peerDependencies:
       react-native: '*'
 
-  '@revenuecat/purchases-js-vega@file:../../../src/vega':
-    resolution: {directory: ../../../src/vega, type: directory}
+  '@revenuecat/purchases-js-vega@file:../../../vega':
+    resolution: {directory: ../../../vega, type: directory}
     peerDependencies:
       '@amazon-devices/kepler-compatibility': 1.0.5
       '@amazon-devices/kepler-file-system': 0.0.7
@@ -8791,7 +8791,7 @@ snapshots:
       nullthrows: 1.1.1
       react-native: 0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0)
 
-  '@revenuecat/purchases-js-vega@file:../../../src/vega(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))':
+  '@revenuecat/purchases-js-vega@file:../../../vega(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))':
     dependencies:
       '@amazon-devices/kepler-compatibility': 1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       '@amazon-devices/kepler-file-system': 0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))

@@ -1,4 +1,4 @@
-import { ErrorCode, PurchasesError } from "../../entities/errors";
+import { ErrorCode, PurchasesError } from "../../../src/entities/errors";
 
 /**
  * Shared Kepler File System compatibility contract used by VegaDeviceCache.

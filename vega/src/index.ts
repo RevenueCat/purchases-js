@@ -6,9 +6,9 @@ import { setAmazonAppstoreIAPSDKLoader } from "./amazon/amazon-appstore-iap-sdk-
 import { setKeplerFileSystemExistsSupportCheck } from "./amazon/kepler-compatibility-loader";
 import { setKeplerFileSystemLoader } from "./amazon/kepler-file-system-loader";
 import { setReactNativeAppStateLoader } from "./amazon/react-native-app-state-loader";
-import { registerBillingProvider } from "../helpers/billing-provider";
-import { isAmazonApiKey } from "../helpers/api-key-helper";
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import { registerBillingProvider } from "../../src/helpers/billing-provider";
+import { isAmazonApiKey } from "../../src/helpers/api-key-helper";
+import { ErrorCode, PurchasesError } from "../../src/entities/errors";
 import { AmazonBillingWrapper } from "./amazon/amazon-billing-wrapper";
 
 setAmazonAppstoreIAPSDKLoader(async () => AmazonVegaSdk);
@@ -30,4 +30,4 @@ registerBillingProvider({
     new AmazonBillingWrapper(backend, apiKey, getAppUserId, getIsAnonymous),
 });
 
-export * from "../main";
+export * from "../../src/main";

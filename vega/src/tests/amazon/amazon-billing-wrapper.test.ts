@@ -68,12 +68,12 @@ import {
 } from "../../amazon/react-native-app-state-loader";
 import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
 import { VegaDeviceCache } from "../../amazon/vega-device-cache";
-import { ErrorCode } from "../../../entities/errors";
-import type { PurchasesError } from "../../../entities/errors";
-import { Logger } from "../../../helpers/logger";
-import type { Backend } from "../../../networking/backend";
-import { customerInfoResponse } from "../../../tests/test-responses";
-import { createMonthlyPackageMock } from "../../../tests/mocks/offering-mock-provider";
+import { ErrorCode } from "../../../../src/entities/errors";
+import type { PurchasesError } from "../../../../src/entities/errors";
+import { Logger } from "../../../../src/helpers/logger";
+import type { Backend } from "../../../../src/networking/backend";
+import { customerInfoResponse } from "../../../../src/tests/test-responses";
+import { createMonthlyPackageMock } from "../../../../src/tests/mocks/offering-mock-provider";
 
 const amazonApiKey = "amazon-api-key";
 const getNoAppUserId = () => undefined;
