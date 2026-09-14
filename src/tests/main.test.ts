@@ -233,7 +233,7 @@ describe("Purchases.configure()", () => {
     expect(() =>
       Purchases.configure({ apiKey: "amzn_valid_key", appUserId: testUserId }),
     ).toThrowError(
-      "Amazon Appstore requires the @revenuecat/purchases-js-vega package.",
+      "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
     );
   });
 

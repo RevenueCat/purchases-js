@@ -29,7 +29,7 @@ export function validateApiKey(apiKey: string) {
   if (isAmazonApiKey(apiKey) && !provider) {
     throw new PurchasesError(
       ErrorCode.ConfigurationError,
-      "Amazon Appstore requires the @revenuecat/purchases-js-vega package.",
+      "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
     );
   }
 }

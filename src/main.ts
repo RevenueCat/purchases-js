@@ -641,7 +641,14 @@ export class Purchases {
       eventName: SDKEventName.SDKInitialized,
     });
     if (isAmazonApiKey(this._API_KEY)) {
-      this.amazonBillingWrapper = getBillingProvider()!.createBillingWrapper({
+      const billingProvider = getBillingProvider();
+      if (!billingProvider) {
+        throw new PurchasesError(
+          ErrorCode.ConfigurationError,
+          "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
+        );
+      }
+      this.amazonBillingWrapper = billingProvider.createBillingWrapper({
         backend: this.backend,
         apiKey: this._API_KEY,
         getAppUserId: () => this._appUserId,
