@@ -143,6 +143,10 @@ temp/
 report.xml
 fastlane/.env
 
+# bundler, vendored by CI before running fastlane
+.bundle/
+vendor/
+
 # docs
 purchases-js-docs/
 
