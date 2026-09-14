@@ -519,6 +519,7 @@ export interface PurchaseParams {
     skipSuccessPage?: boolean;
     termsAndConditionsUrl?: string;
     /* Excluded from this release type: productChangeInfo */
+    /* Excluded from this release type: tryWithApplePay */
 }
 
 // @public
@@ -548,6 +549,8 @@ export class Purchases {
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
     /* Excluded from this release type: cachedCurrentOffering */
+    /* Excluded from this release type: stripeBillingQuickPurchaseState */
+    /* Excluded from this release type: stripeBillingQuickPurchasePreparation */
     /* Excluded from this release type: instance */
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;

@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "Confirmar agendamento",
   "upgrade_confirm_page.on_file": "Em arquivo",
   "credit_for_unused_time.title": "Crédito por tempo não utilizado",
-  "credit_for_unused_time.message": "Seu método de pagamento será cobrado pela diferença entre as assinaturas, com um crédito por tempo não utilizado em sua assinatura {{previousProductName}}.",
+  "credit_for_unused_time.message": "Qualquer tempo não utilizado da sua assinatura existente será descontado da sua compra.",
   "paddle_checkout.return_to": "Voltar para {{appName}}",
   "paddle_order_summary.billed_frequency": "faturado {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "primeiro {{firstPeriod}}, depois {{price}} {{frequency}}",

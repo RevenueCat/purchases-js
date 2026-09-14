@@ -83,6 +83,7 @@ interface CheckoutStartRequestParams {
     productIdentifier?: string;
   };
   subscriberToken?: string;
+  purchaseFlow?: "apple_pay";
 }
 
 interface CheckoutRefreshPricingParams {
@@ -301,6 +302,7 @@ export class Backend {
     appearanceOverride,
     productChange,
     subscriberToken,
+    purchaseFlow,
   }: CheckoutStartRequestParams): Promise<T> {
     type CheckoutStartRequestBody = {
       app_user_id: string;
@@ -331,6 +333,7 @@ export class Backend {
         subscription_id?: string;
         from_product_id?: string;
       };
+      purchase_flow?: "apple_pay";
     };
 
     const requestBody: CheckoutStartRequestBody = {
@@ -410,6 +413,10 @@ export class Backend {
       };
     }
 
+    if (purchaseFlow) {
+      requestBody.purchase_flow = purchaseFlow;
+    }
+
     return (await performRequest<CheckoutStartRequestBody, T>(
       new CheckoutStartEndpoint(),
       {
@@ -476,11 +483,29 @@ export class Backend {
       email?: string;
       locale?: string;
       subscriberToken?: string;
+      billingName?: string;
+      billingAddress?: {
+        countryCode: string;
+        postalCode?: string;
+        state?: string;
+        city?: string;
+        addressLine1?: string;
+        addressLine2?: string;
+      };
     } = {},
   ): Promise<CheckoutCompleteResponse | SubscriptionChangeCompleteResponse> {
     type CheckoutCompleteRequestBody = {
       email?: string;
       locale?: string;
+      billing_name?: string;
+      billing_address?: {
+        country_code: string;
+        postal_code?: string;
+        state?: string;
+        city?: string;
+        address_line1?: string;
+        address_line2?: string;
+      };
     };
 
     const requestBody: CheckoutCompleteRequestBody = {};
@@ -489,6 +514,19 @@ export class Backend {
     }
     if (options.locale) {
       requestBody.locale = options.locale;
+    }
+    if (options.billingName) {
+      requestBody.billing_name = options.billingName;
+    }
+    if (options.billingAddress) {
+      requestBody.billing_address = {
+        country_code: options.billingAddress.countryCode,
+        postal_code: options.billingAddress.postalCode,
+        state: options.billingAddress.state,
+        city: options.billingAddress.city,
+        address_line1: options.billingAddress.addressLine1,
+        address_line2: options.billingAddress.addressLine2,
+      };
     }
 
     return await performRequest<

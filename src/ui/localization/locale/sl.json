@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "Potrdi urnik",
   "upgrade_confirm_page.on_file": "V evidenci",
   "credit_for_unused_time.title": "Dobroimetje za neizkoriščen čas",
-  "credit_for_unused_time.message": "Vašemu plačilnemu sredstvu bo zaračunana razlika med naročninami, z dobroimetjem za neizkoriščen čas vaše naročnine {{previousProductName}}.",
+  "credit_for_unused_time.message": "Vsak neizkoriščen čas na vaši obstoječi naročnini bo odštet od vašega nakupa.",
   "paddle_checkout.return_to": "Nazaj na {{appName}}",
   "paddle_order_summary.billed_frequency": "zaračunano {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "prvi {{firstPeriod}}, nato {{price}} {{frequency}}",
