@@ -1,7 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { PricePreviewResponse } from "@paddle/paddle-js";
 import {
-  paddleAmountToMicros,
   toDiscountPhaseFromPricePreview,
   withPaddleDiscountsOnOffering,
 } from "../../paddle/paddle-discount-preview";
@@ -10,7 +9,7 @@ import { buildOffering } from "../utils/fixtures-utils";
 import { buildVariablesPerPackage } from "../../helpers/paywall-variables-helpers";
 import { parseOfferingIntoPackageInfoPerPackage } from "../../helpers/paywall-package-info-helpers";
 import { PeriodUnit } from "../../helpers/duration-helper";
-import type { DiscountPhase } from "../../entities/offerings";
+import type { DiscountPhase, Price } from "../../entities/offerings";
 
 type LineItem = PricePreviewResponse["data"]["details"]["lineItems"][number];
 type Discount = LineItem["discounts"][number]["discount"];
@@ -87,23 +86,20 @@ function buildResponse({
   };
 }
 
-describe("paddleAmountToMicros", () => {
-  test("converts minor units for two-decimal currencies", () => {
-    expect(paddleAmountToMicros("1999", "USD")).toBe(19_990_000);
-  });
-
-  test("converts whole units for zero-decimal currencies", () => {
-    expect(paddleAmountToMicros("1500", "JPY")).toBe(1_500_000_000);
-  });
-
-  test("returns 0 for non numeric input", () => {
-    expect(paddleAmountToMicros("abc", "USD")).toBe(0);
-  });
-});
+const basePrice: Price = {
+  amount: 300,
+  amountMicros: 3_000_000,
+  currency: "USD",
+  formattedPrice: "$3.00",
+};
 
 describe("toDiscountPhaseFromPricePreview", () => {
   test("maps a one-time percentage discount", () => {
-    const phase = toDiscountPhaseFromPricePreview(buildResponse(), "P1M");
+    const phase = toDiscountPhaseFromPricePreview(
+      buildResponse(),
+      "P1M",
+      basePrice,
+    );
 
     expect(phase).toEqual<DiscountPhase>({
       durationMode: "one_time",
@@ -143,7 +139,7 @@ describe("toDiscountPhaseFromPricePreview", () => {
       ],
     });
 
-    const phase = toDiscountPhaseFromPricePreview(response, "P1M");
+    const phase = toDiscountPhaseFromPricePreview(response, "P1M", basePrice);
 
     expect(phase?.durationMode).toBe("time_window");
     expect(phase?.cycleCount).toBe(3);
@@ -165,15 +161,16 @@ describe("toDiscountPhaseFromPricePreview", () => {
       ],
     });
 
-    expect(toDiscountPhaseFromPricePreview(response, "P1M")?.durationMode).toBe(
-      "forever",
-    );
+    expect(
+      toDiscountPhaseFromPricePreview(response, "P1M", basePrice)?.durationMode,
+    ).toBe("forever");
   });
 
   test("uses the fallback period when Paddle has no billing cycle", () => {
     const phase = toDiscountPhaseFromPricePreview(
       buildResponse({ billingCycle: null }),
       "P1Y",
+      basePrice,
     );
 
     expect(phase?.periodDuration).toBe("P1Y");
@@ -185,13 +182,95 @@ describe("toDiscountPhaseFromPricePreview", () => {
       toDiscountPhaseFromPricePreview(
         buildResponse({ discount: "0", discounts: [] }),
         "P1M",
+        basePrice,
       ),
     ).toBeNull();
+  });
+
+  test("derives the offer price from the displayed price for tax-inclusive pricing", () => {
+    // $29.99 catalog price in a 22% VAT-inclusive country: Paddle discounts
+    // the pre-tax subtotal ($24.58) and charges $14.99 in total.
+    const response = buildResponse({
+      subtotal: "2458",
+      discount: "1229",
+      discounts: [
+        {
+          discount: { ...baseDiscount, amount: "50" },
+          total: "1229",
+          formattedTotal: "$12.29",
+        },
+      ],
+    });
+
+    const phase = toDiscountPhaseFromPricePreview(response, "P1M", {
+      amount: 2999,
+      amountMicros: 29_990_000,
+      currency: "USD",
+      formattedPrice: "$29.99",
+    });
+
+    expect(phase?.price.amountMicros).toBe(14_990_000);
+    expect(phase?.price.formattedPrice).toBe("$14.99");
+  });
+
+  test("keeps exact results for tax-exclusive flat discounts", () => {
+    // $29.99 with no tax, $10.00 off → $19.99.
+    const response = buildResponse({
+      subtotal: "2999",
+      discount: "1000",
+      discounts: [
+        {
+          discount: {
+            ...baseDiscount,
+            type: "flat",
+            amount: "1000",
+            currencyCode: "USD" as Discount["currencyCode"],
+          },
+          total: "1000",
+          formattedTotal: "$10.00",
+        },
+      ],
+    });
+
+    const phase = toDiscountPhaseFromPricePreview(response, "P1M", {
+      amount: 2999,
+      amountMicros: 29_990_000,
+      currency: "USD",
+      formattedPrice: "$29.99",
+    });
+
+    expect(phase?.price.amountMicros).toBe(19_990_000);
+    expect(phase?.fixedAmount?.amountMicros).toBe(10_000_000);
+  });
+
+  test("rounds to whole units for zero-decimal currencies", () => {
+    // ¥1500 with 20% off → ¥1200.
+    const response = buildResponse({
+      currencyCode: "JPY",
+      subtotal: "1500",
+      discount: "300",
+      discounts: [
+        { discount: baseDiscount, total: "300", formattedTotal: "¥300" },
+      ],
+    });
+
+    const phase = toDiscountPhaseFromPricePreview(response, "P1M", {
+      amount: 1500,
+      amountMicros: 1_500_000_000,
+      currency: "JPY",
+      formattedPrice: "¥1,500",
+    });
+
+    expect(phase?.price.amountMicros).toBe(1_200_000_000);
   });
 });
 
 describe("withPaddleDiscountsOnOffering", () => {
-  const discount = toDiscountPhaseFromPricePreview(buildResponse(), "P1M")!;
+  const discount = toDiscountPhaseFromPricePreview(
+    buildResponse(),
+    "P1M",
+    basePrice,
+  )!;
 
   test("applies the discount to the matching package only", () => {
     const monthly = createMonthlyPackageMock();

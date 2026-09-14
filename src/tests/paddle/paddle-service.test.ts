@@ -559,7 +559,12 @@ describe("PaddleService", () => {
       const phase = await paddleService.previewDiscount({
         priceId: "pri_01test",
         discountId: "dsc_01test",
-        currencyCode: "USD",
+        basePrice: {
+          amount: 300,
+          amountMicros: 3_000_000,
+          currency: "USD",
+          formattedPrice: "$3.00",
+        },
         fallbackPeriodDuration: "P1M",
       });
 
@@ -578,6 +583,12 @@ describe("PaddleService", () => {
         paddleService.previewDiscount({
           priceId: "pri_01test",
           discountId: "dsc_01test",
+          basePrice: {
+            amount: 300,
+            amountMicros: 3_000_000,
+            currency: "USD",
+            formattedPrice: "$3.00",
+          },
         }),
       ).rejects.toThrow("Paddle not initialized.");
     });

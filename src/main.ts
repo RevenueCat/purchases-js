@@ -483,7 +483,7 @@ export class Purchases {
           const discount = await paddleService.previewDiscount({
             priceId: product.identifier,
             discountId,
-            currencyCode: product.price.currency,
+            basePrice: product.price,
             fallbackPeriodDuration: product.normalPeriodDuration,
           });
           if (discount) {

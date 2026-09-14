@@ -36,7 +36,7 @@ import { handleCheckoutSessionFailed } from "../helpers/checkout-error-handler";
 import type { PaddleCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { PaddleCheckoutSettings } from "../networking/responses/paddle-checkout-settings";
 import type { IEventsTracker } from "../behavioural-events/events-tracker";
-import type { DiscountPhase } from "../entities/offerings";
+import type { DiscountPhase, Price } from "../entities/offerings";
 import { toDiscountPhaseFromPricePreview } from "./paddle-discount-preview";
 
 interface PaddlePurchaseParams {
@@ -56,7 +56,11 @@ interface PaddlePreviewDiscountParams {
   priceId: string;
   /** Paddle discount id (`dsc_...`). */
   discountId: string;
-  currencyCode?: string;
+  /**
+   * RevenueCat price displayed for the product. The discounted price is
+   * derived from it so tax-inclusive pricing stays consistent on the paywall.
+   */
+  basePrice: Price;
 }
 
 /**
@@ -309,7 +313,7 @@ export class PaddleService {
   async previewDiscount({
     priceId,
     discountId,
-    currencyCode,
+    basePrice,
     fallbackPeriodDuration = null,
   }: PaddlePreviewDiscountParams & {
     fallbackPeriodDuration?: string | null;
@@ -318,9 +322,13 @@ export class PaddleService {
     const response = await paddleInstance.PricePreview({
       items: [{ priceId, quantity: 1 }],
       discountId,
-      ...(currencyCode && { currencyCode: currencyCode as CurrencyCode }),
+      currencyCode: basePrice.currency as CurrencyCode,
     });
-    return toDiscountPhaseFromPricePreview(response, fallbackPeriodDuration);
+    return toDiscountPhaseFromPricePreview(
+      response,
+      fallbackPeriodDuration,
+      basePrice,
+    );
   }
 
   async startCheckout({

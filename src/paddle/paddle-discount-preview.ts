@@ -5,6 +5,7 @@ import {
   type NonSubscriptionOption,
   type Offering,
   type Package,
+  type Price,
   type Product,
   ProductType,
   type SubscriptionOption,
@@ -14,19 +15,6 @@ import { getCurrencyFractionDigits } from "../helpers/price-labels";
 
 type PricePreviewLineItem =
   PricePreviewResponse["data"]["details"]["lineItems"][number];
-
-/**
- * Paddle returns amounts as strings in the currency's minor unit (e.g. "1999"
- * for $19.99, "1500" for ¥1500). Convert to RevenueCat micros.
- */
-export function paddleAmountToMicros(amount: string, currency: string): number {
-  const minorUnits = Number(amount);
-  if (!Number.isFinite(minorUnits)) {
-    return 0;
-  }
-  const fractionDigits = getCurrencyFractionDigits(currency);
-  return Math.round(minorUnits * 10 ** (6 - fractionDigits));
-}
 
 function toPeriod(
   billingCycle: PricePreviewLineItem["price"]["billingCycle"],
@@ -49,13 +37,43 @@ function toPeriod(
 }
 
 /**
+ * Scales `basePrice` by the fraction of the pre-tax subtotal Paddle keeps
+ * after the discount, rounded down to the currency's minor unit.
+ *
+ * Paddle applies discounts to the pre-tax `subtotal`, which for tax-inclusive
+ * prices is lower than the catalog price shown to the customer (e.g. $29.99
+ * with 22% VAT has a $24.58 subtotal). Scaling the displayed price instead of
+ * subtracting the raw discount keeps the offer price consistent with the base
+ * price on the paywall and with the total charged at checkout, whether the
+ * price is tax-inclusive or not.
+ */
+function scalePriceByPaidFraction(
+  basePrice: Price,
+  subtotalMinorUnits: number,
+  discountMinorUnits: number,
+): number {
+  const fractionDigits = getCurrencyFractionDigits(basePrice.currency);
+  const microsPerMinorUnit = 10 ** (6 - fractionDigits);
+  const paidMinorUnits = Math.max(subtotalMinorUnits - discountMinorUnits, 0);
+  const discountedMinorUnits =
+    (basePrice.amountMicros * paidMinorUnits) /
+    (subtotalMinorUnits * microsPerMinorUnit);
+  // Small epsilon so exact results (e.g. 1999.0000000001) are not floored down.
+  return Math.floor(discountedMinorUnits + 1e-6) * microsPerMinorUnit;
+}
+
+/**
  * Maps the first line item of a Paddle `PricePreview` response into a
  * RevenueCat {@link DiscountPhase}. Returns `null` when Paddle did not apply
  * any discount to the item (unknown, expired or non-applicable discount).
+ *
+ * `basePrice` is the RevenueCat product price displayed on the paywall; the
+ * discounted price is derived from it (see {@link scalePriceByPaidFraction}).
  */
 export function toDiscountPhaseFromPricePreview(
   response: PricePreviewResponse,
   fallbackPeriodDuration: string | null,
+  basePrice: Price,
 ): DiscountPhase | null {
   const lineItem = response.data.details.lineItems[0];
   const applied = lineItem?.discounts?.[0];
@@ -63,19 +81,23 @@ export function toDiscountPhaseFromPricePreview(
     return null;
   }
 
-  const currency = response.data.currencyCode;
-  const subtotalMicros = paddleAmountToMicros(
-    lineItem.totals.subtotal,
-    currency,
-  );
-  const discountMicros = paddleAmountToMicros(
-    lineItem.totals.discount,
-    currency,
-  );
-  if (discountMicros <= 0) {
+  const subtotalMinorUnits = Number(lineItem.totals.subtotal);
+  const discountMinorUnits = Number(lineItem.totals.discount);
+  if (
+    !Number.isFinite(subtotalMinorUnits) ||
+    !Number.isFinite(discountMinorUnits) ||
+    subtotalMinorUnits <= 0 ||
+    discountMinorUnits <= 0
+  ) {
     return null;
   }
-  const discountedMicros = Math.max(subtotalMicros - discountMicros, 0);
+
+  const currency = basePrice.currency;
+  const discountedMicros = scalePriceByPaidFraction(
+    basePrice,
+    subtotalMinorUnits,
+    discountMinorUnits,
+  );
 
   const { discount } = applied;
   const isPercentage = discount.type === "percentage";
@@ -105,14 +127,13 @@ export function toDiscountPhaseFromPricePreview(
     cycleCount,
     discountType: isPercentage ? "percentage" : "fixed_amount",
     percentage: isPercentage ? Number(discount.amount) : null,
+    // Expressed against the displayed base price so "X off" matches the
+    // base → offer price pair shown on the paywall.
     fixedAmount: isPercentage
       ? null
       : getPriceForCurrency(
-          paddleAmountToMicros(
-            discount.amount,
-            discount.currencyCode ?? currency,
-          ),
-          discount.currencyCode ?? currency,
+          Math.max(basePrice.amountMicros - discountedMicros, 0),
+          currency,
         ),
   };
 }
