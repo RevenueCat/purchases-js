@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "Confirmă programarea",
   "upgrade_confirm_page.on_file": "Înregistrat",
   "credit_for_unused_time.title": "Credit pentru timp neutilizat",
-  "credit_for_unused_time.message": "Metoda ta de plată va fi debitată pentru diferența dintre abonamente, cu un credit pentru timpul neutilizat la abonamentul tău {{previousProductName}}.",
+  "credit_for_unused_time.message": "Orice timp neutilizat din abonamentul tău existent va fi dedus din achiziția ta.",
   "paddle_checkout.return_to": "Înapoi la {{appName}}",
   "paddle_order_summary.billed_frequency": "facturat {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "prima {{firstPeriod}}, apoi {{price}} {{frequency}}",

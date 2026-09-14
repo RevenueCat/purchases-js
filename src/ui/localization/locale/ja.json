@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "スケジュールを確定",
   "upgrade_confirm_page.on_file": "登録済み",
   "credit_for_unused_time.title": "未使用期間分のクレジット",
-  "credit_for_unused_time.message": "お客様の{{previousProductName}}サブスクリプションの未使用期間分のクレジットが適用され、サブスクリプション間の差額がお支払い方法に請求されます。",
+  "credit_for_unused_time.message": "既存のサブスクリプションの未使用期間は、ご購入金額から割引されます。",
   "paddle_checkout.return_to": "{{appName}}に戻る",
   "paddle_order_summary.billed_frequency": "{{frequency}}請求",
   "paddle_order_summary.intro_then_recurring": "最初の{{firstPeriod}}、その後{{price}} {{frequency}}",

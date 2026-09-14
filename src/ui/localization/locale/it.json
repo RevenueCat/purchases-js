@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "Conferma pianificazione",
   "upgrade_confirm_page.on_file": "In archivio",
   "credit_for_unused_time.title": "Credito per il tempo inutilizzato",
-  "credit_for_unused_time.message": "Il tuo metodo di pagamento verrà addebitato per la differenza tra gli abbonamenti, con un credito per il tempo inutilizzato sul tuo abbonamento {{previousProductName}}.",
+  "credit_for_unused_time.message": "Qualsiasi tempo non utilizzato sul tuo abbonamento esistente verrà scontato dal tuo acquisto.",
   "paddle_checkout.return_to": "Torna a {{appName}}",
   "paddle_order_summary.billed_frequency": "fatturato {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "primo {{firstPeriod}}, poi {{price}} {{frequency}}",
