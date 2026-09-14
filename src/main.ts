@@ -364,7 +364,11 @@ export class Purchases {
     Promise<OfferingsResponse>
   >();
 
-  /** @internal */
+  /**
+   * Last current offering returned by getOfferings, retained for fallback
+   * impression attribution. Request data cache invalidation intentionally preserves it.
+   * @internal
+   */
   private cachedCurrentOffering: Offering | null = null;
 
   /** @internal */
@@ -1609,7 +1613,7 @@ export class Purchases {
     }
   }
 
-  private invalidateAllCaches(): void {
+  private invalidateRequestDataCaches(): void {
     this.offeringsRequests.clear();
     this.inMemoryCache.invalidateAllCaches();
   }
@@ -1982,7 +1986,7 @@ export class Purchases {
           mode: "express_purchase_button",
         });
         this.eventsTracker.trackSDKEvent(sessionEndFinishedEvent);
-        this.invalidateAllCaches();
+        this.invalidateRequestDataCaches();
 
         Logger.debugLog("Purchase finished");
 
@@ -2224,7 +2228,7 @@ export class Purchases {
             redemptionInfo: result.operationResult.redemptionInfo,
           }),
         );
-        this.inMemoryCache.invalidateAllCaches();
+        this.invalidateRequestDataCaches();
         return {
           customerInfo: await this._getCustomerInfoForUserId(appUserId),
           redemptionInfo: result.operationResult.redemptionInfo,
@@ -2277,7 +2281,7 @@ export class Purchases {
         this.backend,
         this._appUserId,
       );
-      this.invalidateAllCaches();
+      this.invalidateRequestDataCaches();
       return purchaseResult;
     }
 
@@ -2383,7 +2387,7 @@ export class Purchases {
       );
 
       const onProductChangeFinished = async (result: ProductChangeResult) => {
-        this.invalidateAllCaches();
+        this.invalidateRequestDataCaches();
         unmountPurchaseUi();
         try {
           const customerInfo = await this.getCustomerInfo();
@@ -2530,7 +2534,7 @@ export class Purchases {
       );
 
       const onProductChangeFinished = async (result: ProductChangeResult) => {
-        this.invalidateAllCaches();
+        this.invalidateRequestDataCaches();
         unmountPurchaseUi();
         try {
           const customerInfo = await this.getCustomerInfo();
@@ -2787,7 +2791,7 @@ export class Purchases {
         redemptionInfo: operationResult.redemptionInfo,
       });
       this.eventsTracker.trackSDKEvent(event);
-      this.invalidateAllCaches();
+      this.invalidateRequestDataCaches();
       Logger.debugLog("Purchase finished");
 
       callback?.();
@@ -2863,7 +2867,7 @@ export class Purchases {
       this._appUserId,
       undefined,
     );
-    this.invalidateAllCaches();
+    this.invalidateRequestDataCaches();
     return purchaseResult;
   }
 
@@ -3015,7 +3019,7 @@ export class Purchases {
     this.stripeBillingQuickPurchasePreparation = null;
     this._appUserId = newAppUserId;
     await this.eventsTracker.updateUser(newAppUserId);
-    this.invalidateAllCaches();
+    this.invalidateRequestDataCaches();
     this.cachedCurrentOffering = null;
   }
 
