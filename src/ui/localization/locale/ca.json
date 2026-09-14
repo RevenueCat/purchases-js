@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "Confirmar programació",
   "upgrade_confirm_page.on_file": "Registrat",
   "credit_for_unused_time.title": "Crèdit pel temps no utilitzat",
-  "credit_for_unused_time.message": "El vostre mètode de pagament es carregarà amb la diferència entre les subscripcions, amb un crèdit pel temps no utilitzat de la vostra subscripció a {{previousProductName}}.",
+  "credit_for_unused_time.message": "Qualsevol temps no utilitzat de la vostra subscripció existent es descomptarà de la vostra compra.",
   "paddle_checkout.return_to": "Tornar a {{appName}}",
   "paddle_order_summary.billed_frequency": "facturat {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "primer {{firstPeriod}}, després {{price}} {{frequency}}",

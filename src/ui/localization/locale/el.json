@@ -125,7 +125,7 @@
   "upgrade_confirm_page.confirm_schedule": "Επιβεβαίωση προγράμματος",
   "upgrade_confirm_page.on_file": "Καταχωρημένο",
   "credit_for_unused_time.title": "Πίστωση για αχρησιμοποίητο χρόνο",
-  "credit_for_unused_time.message": "Η μέθοδος πληρωμής σας θα χρεωθεί για τη διαφορά μεταξύ των συνδρομών, με πίστωση για τον αχρησιμοποίητο χρόνο της συνδρομής σας {{previousProductName}}.",
+  "credit_for_unused_time.message": "Οποιοσδήποτε αχρησιμοποίητος χρόνος από την υπάρχουσα συνδρομή σας θα εκπτωθεί από την αγορά σας.",
   "paddle_checkout.return_to": "Επιστροφή στο {{appName}}",
   "paddle_order_summary.billed_frequency": "χρέωση {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "πρώτο διάστημα {{firstPeriod}}, μετά {{price}} {{frequency}}",
