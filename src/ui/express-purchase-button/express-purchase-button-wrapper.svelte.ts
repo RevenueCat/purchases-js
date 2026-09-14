@@ -43,6 +43,6 @@ export class ExpressPurchaseButtonWrapper {
     }
     this.state.props.rcPackage = pkg;
     this.state.props.purchaseOption =
-      purchaseOption ?? pkg.product.defaultPurchaseOption;
+      purchaseOption ?? pkg.storeProduct.defaultPurchaseOption;
   }
 }

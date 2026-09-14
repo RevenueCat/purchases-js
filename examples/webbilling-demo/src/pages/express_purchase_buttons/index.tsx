@@ -44,7 +44,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     const listener: PaywallListener = {
       onPurchaseStarted: (rcPackage) => {
         showToast(
-          `Purchase started: ${rcPackage.product.title} (${rcPackage.identifier})`,
+          `Purchase started: ${rcPackage.storeProduct.title} (${rcPackage.identifier})`,
           "info",
         );
       },
@@ -59,7 +59,7 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
     purchases
       .presentExpressPurchaseButton({
         rcPackage: pkg,
-        purchaseOption: pkg.product.defaultPurchaseOption,
+        purchaseOption: pkg.storeProduct.defaultPurchaseOption,
         htmlTarget: purchaseButtonContainerRef.current,
         listener: listener,
       })
@@ -71,12 +71,15 @@ export const PackageCard: React.FC<IPackageCardProps> = ({
 
   return (
     <div className="card">
-      <Badge webBillingProduct={pkg.product} />
+      <Badge webBillingProduct={pkg.storeProduct} />
       <div className="cardContent">
-        <PriceContainer webBillingProduct={pkg.product} offering={offering} />
+        <PriceContainer
+          webBillingProduct={pkg.storeProduct}
+          offering={offering}
+        />
 
         <div>
-          <div className="productName">{pkg.product.title}</div>
+          <div className="productName">{pkg.storeProduct.title}</div>
 
           <div className="packageCTA">
             <div ref={purchaseButtonContainerRef} />
@@ -154,7 +157,7 @@ const ExpressPurchaseButtonsPackageSelector: React.FC = () => {
         </h1>
         <div className="packages">
           {packages.map((pkg) =>
-            pkg.product !== null ? (
+            pkg.storeProduct !== null ? (
               <PackageCard
                 key={pkg.identifier}
                 pkg={pkg}

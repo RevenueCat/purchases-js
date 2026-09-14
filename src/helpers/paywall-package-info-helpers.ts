@@ -29,7 +29,7 @@ function getPackageInfo(
   offeringWebCheckoutURL?: string | null,
 ): PackageInfo {
   // This would not work with Paddle.
-  const product = pkg.product;
+  const product = pkg.storeProduct;
 
   const webCheckoutURL = resolveWebCheckoutURL(pkg, offeringWebCheckoutURL);
   const checkoutFields = webCheckoutURL !== undefined ? { webCheckoutURL } : {};

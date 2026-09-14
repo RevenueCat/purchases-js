@@ -81,7 +81,7 @@ export const toExpressPurchaseOptions = (
   appName?: string | null,
   walletButtonTheme?: WalletButtonTheme,
 ) => {
-  const productDetails: Product = rcPackage.product;
+  const productDetails: Product = rcPackage.storeProduct;
   const checkoutPurchaseOption = getCheckoutPurchaseOption(
     productDetails,
     purchaseOption,

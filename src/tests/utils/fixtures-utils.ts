@@ -92,7 +92,7 @@ export const buildPackage = (packageId: string, product: Product) => {
     identifier: packageId,
     rcBillingProduct: product,
     webBillingProduct: product,
-    product: product,
+    storeProduct: product,
     packageType: Object.values<string>(PackageType).includes(packageId)
       ? packageId
       : PackageType.Custom,

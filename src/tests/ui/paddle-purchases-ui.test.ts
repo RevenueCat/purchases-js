@@ -86,7 +86,7 @@ const baseProps: ComponentProps<PaddlePurchasesUI> = {
   onClose: vi.fn(),
   onFinished: vi.fn(),
   onError: vi.fn(),
-  productDetails: rcPackage.product,
+  productDetails: rcPackage.storeProduct,
   rcPackage: rcPackage,
   appUserId: "test-app-user-id",
   purchaseOption: subscriptionOption,
@@ -124,10 +124,10 @@ describe("PaddlePurchasesUI", () => {
     await waitFor(() => {
       expect(startCheckoutSpy).toHaveBeenCalledWith({
         appUserId: "test-app-user-id",
-        productId: rcPackage.product.identifier,
+        productId: rcPackage.storeProduct.identifier,
         presentedOfferingContext: {
           offeringIdentifier:
-            rcPackage.product.presentedOfferingContext.offeringIdentifier,
+            rcPackage.storeProduct.presentedOfferingContext.offeringIdentifier,
           targetingContext: null,
           placementIdentifier: null,
         },
@@ -149,7 +149,7 @@ describe("PaddlePurchasesUI", () => {
           purchaseOption: subscriptionOption,
           appUserId: "test-app-user-id",
           presentedOfferingIdentifier:
-            rcPackage.product.presentedOfferingContext.offeringIdentifier,
+            rcPackage.storeProduct.presentedOfferingContext.offeringIdentifier,
           customerEmail: undefined,
           locale: "en",
         },

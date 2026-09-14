@@ -20,9 +20,9 @@ const addPlacementContextToPackage = (
   placementId: string,
 ): Package => {
   const product = {
-    ...rcPackage.product,
+    ...rcPackage.storeProduct,
     presentedOfferingContext: {
-      ...rcPackage.product.presentedOfferingContext,
+      ...rcPackage.storeProduct.presentedOfferingContext,
       placementIdentifier: placementId,
     },
   };
@@ -31,7 +31,7 @@ const addPlacementContextToPackage = (
     ...rcPackage,
     webBillingProduct: product,
     rcBillingProduct: product,
-    product: product,
+    storeProduct: product,
   };
 };
 

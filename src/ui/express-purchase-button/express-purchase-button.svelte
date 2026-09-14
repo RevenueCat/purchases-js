@@ -94,7 +94,7 @@
     let prepareCheckoutResponse: CheckoutPrepareResponse;
     try {
       prepareCheckoutResponse = await purchaseOperationHelper.prepareCheckout(
-        rcPackage.product.identifier,
+        rcPackage.storeProduct.identifier,
         purchaseOption,
       );
     } catch (e) {
@@ -294,9 +294,10 @@
     try {
       const checkoutStartResult = await purchaseOperationHelper.checkoutStart({
         appUserId,
-        productId: rcPackage.product.identifier,
+        productId: rcPackage.storeProduct.identifier,
         purchaseOption,
-        presentedOfferingContext: rcPackage.product.presentedOfferingContext,
+        presentedOfferingContext:
+          rcPackage.storeProduct.presentedOfferingContext,
         customerEmail,
         externalPurchaseTokenId,
         metadata,

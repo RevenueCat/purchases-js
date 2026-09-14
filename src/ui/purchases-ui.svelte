@@ -121,7 +121,7 @@
   const emailError = customerEmail ? validateEmail(customerEmail) : null;
   let email = $state(emailError ? undefined : customerEmail);
 
-  let productDetails: Product = $state(rcPackage.product);
+  let productDetails: Product = $state(rcPackage.storeProduct);
   let latestCheckoutPricingResponse = $state<CheckoutPricingResponse | null>(
     null,
   );

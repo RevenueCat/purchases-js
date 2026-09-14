@@ -490,7 +490,7 @@ export const rcPackage: Package = {
   packageType: PackageType.Monthly,
   rcBillingProduct: product,
   webBillingProduct: product,
-  product: product,
+  storeProduct: product,
 };
 
 /**

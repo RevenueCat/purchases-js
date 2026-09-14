@@ -752,7 +752,7 @@ export class Purchases {
       paywallRevision: 0,
       paywallRcPublicId: offering.paywallComponents?.id ?? null,
       presentedOfferingContext:
-        offering.availablePackages[0]?.product?.presentedOfferingContext,
+        offering.availablePackages[0]?.storeProduct?.presentedOfferingContext,
     };
     const paywallDisplayData = {
       displayMode: "full_screen",
@@ -764,7 +764,7 @@ export class Purchases {
     const productIdsByPackage = new Map(
       offering.availablePackages.map((pkg) => [
         pkg.identifier,
-        pkg.product.identifier,
+        pkg.storeProduct.identifier,
       ]),
     );
 
@@ -1400,7 +1400,7 @@ export class Purchases {
   ): void {
     const offering = params.offering ?? this.cachedCurrentOffering;
     const presentedOfferingContext =
-      offering?.availablePackages[0]?.product.presentedOfferingContext;
+      offering?.availablePackages[0]?.storeProduct.presentedOfferingContext;
 
     this.eventsTracker.trackCustomPaywallImpression({
       paywallId: params.paywallId,
@@ -1603,7 +1603,7 @@ export class Purchases {
     }
 
     const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.product.defaultPurchaseOption;
+      purchaseOption ?? rcPackage.storeProduct.defaultPurchaseOption;
 
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
@@ -1737,7 +1737,7 @@ export class Purchases {
             if (!pkg) {
               return;
             }
-            const purchaseOptionToUse = pkg.product.defaultPurchaseOption;
+            const purchaseOptionToUse = pkg.storeProduct.defaultPurchaseOption;
             currentPkg = pkg;
             buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
           }
@@ -1838,7 +1838,7 @@ export class Purchases {
     const localeToBeUsed = selectedLocale || defaultLocale;
 
     const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.product.defaultPurchaseOption;
+      purchaseOption ?? rcPackage.storeProduct.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
       appearance: brandingInfo?.appearance,
@@ -1980,7 +1980,7 @@ export class Purchases {
     const localeToBeUsed = selectedLocale || defaultLocale;
 
     const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.product.defaultPurchaseOption;
+      purchaseOption ?? rcPackage.storeProduct.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
       appearance: brandingInfo?.appearance,
@@ -2125,7 +2125,7 @@ export class Purchases {
     );
 
     const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.product.defaultPurchaseOption;
+      purchaseOption ?? rcPackage.storeProduct.defaultPurchaseOption;
 
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
@@ -2201,7 +2201,7 @@ export class Purchases {
             onFinished,
             onError,
             skipSuccessPage,
-            productDetails: rcPackage.product,
+            productDetails: rcPackage.storeProduct,
             rcPackage,
             appUserId,
             purchaseOption: purchaseOptionToUse,
@@ -2304,7 +2304,7 @@ export class Purchases {
         customerEmail: operationResult.customerEmail,
         storeTransaction: {
           storeTransactionId: operationResult.storeTransactionIdentifier,
-          productIdentifier: rcPackage.product.identifier,
+          productIdentifier: rcPackage.storeProduct.identifier,
           purchaseDate: operationResult.purchaseDate,
         },
       };

@@ -140,7 +140,7 @@ const UpgradePage: React.FC = () => {
               <option value="">Select a package</option>
               {packages.map((pkg) => (
                 <option key={pkg.identifier} value={pkg.identifier}>
-                  {pkg.identifier} → {pkg.product.identifier}
+                  {pkg.identifier} → {pkg.storeProduct.identifier}
                 </option>
               ))}
             </select>

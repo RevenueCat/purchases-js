@@ -412,18 +412,18 @@ export interface Package {
   readonly identifier: string;
   /**
    * The {@link Product} assigned to this package.
-   * @deprecated - Use {@link Package.product} instead.
+   * @deprecated - Use {@link Package.storeProduct} instead.
    */
   readonly rcBillingProduct: Product;
   /**
    * The {@link Product} assigned to this package.
-   * @deprecated - Use {@link Package.product} instead.
+   * @deprecated - Use {@link Package.storeProduct} instead.
    */
   readonly webBillingProduct: Product;
   /**
    * The {@link Product} assigned to this package.
    */
-  readonly product: Product;
+  readonly storeProduct: Product;
   /**
    * The web checkout URL for this package, if available.
    */
@@ -869,7 +869,7 @@ const toPackage = (
     identifier: packageData.identifier,
     rcBillingProduct: product,
     webBillingProduct: product,
-    product: product,
+    storeProduct: product,
     ...(packageData.web_checkout_url
       ? { webCheckoutURL: packageData.web_checkout_url }
       : {}),

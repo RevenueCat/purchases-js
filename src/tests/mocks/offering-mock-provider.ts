@@ -99,7 +99,7 @@ export function createMonthlyPackageMock(
     packageType: PackageType.Monthly,
     rcBillingProduct: webBillingProduct,
     webBillingProduct: webBillingProduct,
-    product: webBillingProduct,
+    storeProduct: webBillingProduct,
   };
 }
 
@@ -254,7 +254,7 @@ export function createMonthlyPackageWithIntroPriceMock(): Package {
     packageType: PackageType.Monthly,
     rcBillingProduct: webBillingProduct,
     webBillingProduct: webBillingProduct,
-    product: webBillingProduct,
+    storeProduct: webBillingProduct,
   };
 }
 
@@ -431,7 +431,7 @@ export function createMonthlyPackageWithTrialAndIntroPriceMock(): Package {
     packageType: PackageType.Monthly,
     rcBillingProduct: webBillingProduct,
     webBillingProduct: webBillingProduct,
-    product: webBillingProduct,
+    storeProduct: webBillingProduct,
   };
 }
 
@@ -496,6 +496,6 @@ export function createConsumablePackageMock(): Package {
     packageType: PackageType.Custom,
     rcBillingProduct: webBillingProduct,
     webBillingProduct: webBillingProduct,
-    product: webBillingProduct,
+    storeProduct: webBillingProduct,
   };
 }

@@ -36,7 +36,7 @@ const nonSubscriptionOptionResponse: NonSubscriptionOptionResponse = {
 };
 
 describe("toOffering", () => {
-  test("populates package product and both deprecated aliases with the same product", () => {
+  test("populates package storeProduct and both deprecated aliases with the same product", () => {
     const offering = toOffering(
       true,
       {
@@ -67,9 +67,9 @@ describe("toOffering", () => {
 
     const pkg = offering?.availablePackages[0];
     assert(pkg);
-    expect(pkg.product).toMatchObject({ identifier: "monthly" });
-    expect(pkg.rcBillingProduct).toBe(pkg.product);
-    expect(pkg.webBillingProduct).toBe(pkg.product);
+    expect(pkg.storeProduct).toMatchObject({ identifier: "monthly" });
+    expect(pkg.rcBillingProduct).toBe(pkg.storeProduct);
+    expect(pkg.webBillingProduct).toBe(pkg.storeProduct);
   });
 });
 

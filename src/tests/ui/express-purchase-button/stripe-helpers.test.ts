@@ -5,7 +5,7 @@ import { rcPackage } from "../../../stories/fixtures";
 
 describe("toExpressPurchaseOptions", () => {
   const translator = new Translator();
-  const purchaseOption = rcPackage.product.defaultPurchaseOption;
+  const purchaseOption = rcPackage.storeProduct.defaultPurchaseOption;
   const managementUrl = "https://example.com/manage/subscriptions/123";
 
   test("sets the business name when an app name is provided", () => {
