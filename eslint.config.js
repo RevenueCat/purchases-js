@@ -4,7 +4,6 @@ import tseslint from "typescript-eslint";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  { ignores: ["vega/dist/**"] },
   { files: ["**/*.{js, ts, svelte}"] },
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
