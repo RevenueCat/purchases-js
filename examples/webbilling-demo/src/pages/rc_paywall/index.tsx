@@ -17,6 +17,8 @@ const RCPaywallPage: React.FC = () => {
   const hideBackButtons = searchParams.get("hideBackButtons") === "true";
   const showDiscountCodeField =
     searchParams.get("showDiscountCodeField") === "true";
+  const paywallDiscountCode =
+    searchParams.get("paywallDiscountCode") || undefined;
   const {
     openSettings,
     settings: { customVariables },
@@ -35,6 +37,7 @@ const RCPaywallPage: React.FC = () => {
         offering: offering,
         htmlTarget: document.getElementById("paywall") || undefined,
         showDiscountCodeField,
+        discountCode: paywallDiscountCode,
         selectedLocale: lang || undefined,
         hideBackButtons: hideBackButtons,
         customVariables,
@@ -63,6 +66,7 @@ const RCPaywallPage: React.FC = () => {
     navigate,
     lang,
     hideBackButtons,
+    paywallDiscountCode,
     customVariables,
     email,
     externalPurchaseTokenId,

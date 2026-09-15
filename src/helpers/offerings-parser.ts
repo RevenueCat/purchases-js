@@ -12,6 +12,7 @@ import {
   type Offerings,
   type Package,
   toOffering as entitiesToOffering,
+  toProduct,
 } from "../entities/offerings";
 import { Logger } from "./logger";
 
@@ -34,14 +35,35 @@ const addPlacementContextToPackage = (
   };
 };
 
-const addPlacementContextToNullablePackage = (
-  rcPackage: Package | null,
-  placementId: string,
-): Package | null => {
-  if (rcPackage == null) {
-    return null;
-  }
-  return addPlacementContextToPackage(rcPackage, placementId);
+// Keeps the majority of the offering data, only replacing
+// the product data which is changed by the discount.
+export const replaceOfferingProducts = (
+  offering: Offering,
+  productsData: ProductsResponse,
+): Offering => {
+  const productsByIdentifier = toProductsByIdentifier(productsData);
+
+  return mapOfferingPackages(offering, (rcPackage) => {
+    const productDetailsData =
+      productsByIdentifier[rcPackage.webBillingProduct.identifier];
+    if (productDetailsData === undefined) {
+      return rcPackage;
+    }
+
+    const product = toProduct(
+      productDetailsData,
+      rcPackage.webBillingProduct.presentedOfferingContext,
+    );
+    if (product === null) {
+      return rcPackage;
+    }
+
+    return {
+      ...rcPackage,
+      rcBillingProduct: product,
+      webBillingProduct: product,
+    };
+  });
 };
 
 export const getOfferingIdForPlacement = (
@@ -77,39 +99,34 @@ export const enrichPackagesWithPlacementContext = (
   placementId: string,
   offering: Offering,
 ): Offering => {
-  const packagesById = Object.fromEntries(
-    Object.entries(offering.packagesById).map(([packageId, rcPackage]) => [
-      packageId,
-      addPlacementContextToPackage(rcPackage, placementId),
-    ]),
+  return mapOfferingPackages(offering, (rcPackage) =>
+    addPlacementContextToPackage(rcPackage, placementId),
   );
+};
+
+// Keep every package view in sync when package data is replaced.
+const mapOfferingPackages = (
+  offering: Offering,
+  transform: (rcPackage: Package) => Package,
+): Offering => {
+  const availablePackages = offering.availablePackages.map(transform);
+  const packagesById = Object.fromEntries(
+    availablePackages.map((rcPackage) => [rcPackage.identifier, rcPackage]),
+  );
+  const resolvePackage = (rcPackage: Package | null): Package | null =>
+    rcPackage === null ? null : (packagesById[rcPackage.identifier] ?? null);
 
   return {
     ...offering,
-    packagesById: packagesById,
-    availablePackages: Object.values(packagesById),
-    weekly: addPlacementContextToNullablePackage(offering.weekly, placementId),
-    monthly: addPlacementContextToNullablePackage(
-      offering.monthly,
-      placementId,
-    ),
-    twoMonth: addPlacementContextToNullablePackage(
-      offering.twoMonth,
-      placementId,
-    ),
-    threeMonth: addPlacementContextToNullablePackage(
-      offering.threeMonth,
-      placementId,
-    ),
-    sixMonth: addPlacementContextToNullablePackage(
-      offering.sixMonth,
-      placementId,
-    ),
-    annual: addPlacementContextToNullablePackage(offering.annual, placementId),
-    lifetime: addPlacementContextToNullablePackage(
-      offering.lifetime,
-      placementId,
-    ),
+    packagesById,
+    availablePackages,
+    weekly: resolvePackage(offering.weekly),
+    monthly: resolvePackage(offering.monthly),
+    twoMonth: resolvePackage(offering.twoMonth),
+    threeMonth: resolvePackage(offering.threeMonth),
+    sixMonth: resolvePackage(offering.sixMonth),
+    annual: resolvePackage(offering.annual),
+    lifetime: resolvePackage(offering.lifetime),
   };
 };
 
