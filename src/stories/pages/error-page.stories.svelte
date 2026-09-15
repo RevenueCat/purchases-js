@@ -18,6 +18,7 @@
     purchaseOptionToUse: subscriptionOption,
     purchaseOption: subscriptionOption,
     lastError: purchaseFlowErrors.unknownError,
+    isSandbox: false,
   };
 
   let { Story } = defineMeta({
@@ -40,6 +41,7 @@
     purchaseOptionToUse: typeof subscriptionOption;
     purchaseOption: typeof subscriptionOption;
     lastError: (typeof purchaseFlowErrors)[keyof typeof purchaseFlowErrors];
+    isSandbox: boolean;
   };
 </script>
 
@@ -49,7 +51,7 @@
 )}
   {@const brandingInfo = { ...brandingInfos[context.globals.brandingName] }}
   <PurchasesInner
-    isSandbox={false}
+    isSandbox={args.isSandbox}
     currentPage="error"
     productDetails={args.productDetails}
     purchaseOptionToUse={args.purchaseOptionToUse}
@@ -95,6 +97,19 @@
   args={{ lastError: purchaseFlowErrors.stripeInvalidTaxOriginAddress }}
 />
 <Story
+  name="Stripe Invalid Tax Origin Address During Checkout - Production"
+  args={{
+    lastError: purchaseFlowErrors.stripeInvalidTaxOriginAddressDuringCheckout,
+  }}
+/>
+<Story
+  name="Stripe Invalid Tax Origin Address During Checkout - Sandbox"
+  args={{
+    lastError: purchaseFlowErrors.stripeInvalidTaxOriginAddressDuringCheckout,
+    isSandbox: true,
+  }}
+/>
+<Story
   name="Stripe Missing Required Permission"
   args={{ lastError: purchaseFlowErrors.stripeMissingRequiredPermission }}
 />
@@ -114,6 +129,7 @@
           supportEmail={brandingInfo?.support_email ?? null}
           onDismiss={() => {}}
           appName={brandingInfo?.app_name ?? null}
+          isSandbox={false}
           fullWidth={true}
         />
       {/snippet}

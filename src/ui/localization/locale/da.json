@@ -79,6 +79,7 @@
   "error_page.error_title_stripe_missing_required_permission": "Manglende Stripe-tilladelse",
   "error_page.button_close": "Luk",
   "error_page.error_message_stripe_invalid_tax_origin_address": "Købet mislykkedes, fordi skatteoprindelsesadressen er ugyldig. I produktion vil køb fungere uden påførte skatter.",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "Købet mislykkedes, fordi skatteoprindelsesadressen er ugyldig.",
   "error_page.error_message_stripe_tax_not_active": "Købet mislykkedes, fordi Stripe Tax ikke er aktiveret. I produktion vil køb fungere uden påførte skatter.",
   "error_page.error_only_in_sandbox": "Denne meddelelse vises kun i sandkassen.",
   "error_page.error_message_stripe_missing_required_permission": "Købet mislykkedes, fordi Stripe-appen mangler en påkrævet tilladelse. I produktion vil køb fungere uden påførte skatter.",
