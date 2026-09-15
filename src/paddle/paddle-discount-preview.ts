@@ -157,6 +157,11 @@ function withDiscountOnNonSubscriptionOption(
  * purchase option (and the matching entry in `subscriptionOptions`), so the
  * existing paywall variable/package-info helpers surface it like a catalog
  * discount.
+ *
+ * Trial and intro phases are intentionally kept: Paddle never discounts the
+ * trial charge and instead applies the discount to the first billing period
+ * after the trial, so both offers are genuinely present at checkout. The
+ * paywall helpers already prefer the discount when both exist.
  */
 export function withPaddleDiscountOnProduct(
   product: Product,
