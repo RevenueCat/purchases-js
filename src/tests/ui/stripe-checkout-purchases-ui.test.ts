@@ -362,6 +362,29 @@ describe("StripeCheckoutPurchasesUi", () => {
     expect(await screen.findByText("SANDBOX")).toBeInTheDocument();
   });
 
+  test("interpolates the previous product name in a custom credit message", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      subscriptionChangeImmediateWithTax,
+    );
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        customTranslations: {
+          en: {
+            "credit_for_unused_time.message":
+              "Credit for unused time on {{previousProductName}}.",
+          },
+        },
+        productChange: { subscriberToken: "subscriber.token" },
+      },
+    });
+
+    expect(
+      await screen.findByText("Credit for unused time on Basic Monthly."),
+    ).toBeInTheDocument();
+  });
+
   test("renders the close button on the upgrade confirm page", async () => {
     vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
       subscriptionChangeImmediateWithTax,

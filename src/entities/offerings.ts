@@ -531,7 +531,7 @@ export interface Offerings {
  */
 export type PurchaseMetadata = Record<string, string | null>;
 
-const getPriceForCurrency = (
+export const getPriceForCurrency = (
   amountMicros: number,
   currency: string,
 ): Price => ({

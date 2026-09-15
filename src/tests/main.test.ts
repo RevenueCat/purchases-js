@@ -929,11 +929,9 @@ describe("Purchases.purchase()", () => {
   test("passes attributionMetadata through the purchase result", async () => {
     const purchases = configurePurchases();
     const customerInfo = { originalAppUserId: "test-user-id" } as CustomerInfo;
-    type PurchasesWithCustomerInfoGetter = Purchases & {
+    const purchasesWithCustomerInfoGetter = purchases as unknown as {
       _getCustomerInfoForUserId: (appUserId: string) => Promise<CustomerInfo>;
     };
-    const purchasesWithCustomerInfoGetter =
-      purchases as PurchasesWithCustomerInfoGetter;
     vi.spyOn(
       purchasesWithCustomerInfoGetter,
       "_getCustomerInfoForUserId",
@@ -982,11 +980,9 @@ describe("Purchases.purchase()", () => {
   test("passes customerEmail through the purchase result", async () => {
     const purchases = configurePurchases();
     const customerInfo = { originalAppUserId: "test-user-id" } as CustomerInfo;
-    type PurchasesWithCustomerInfoGetter = Purchases & {
+    const purchasesWithCustomerInfoGetter = purchases as unknown as {
       _getCustomerInfoForUserId: (appUserId: string) => Promise<CustomerInfo>;
     };
-    const purchasesWithCustomerInfoGetter =
-      purchases as PurchasesWithCustomerInfoGetter;
     vi.spyOn(
       purchasesWithCustomerInfoGetter,
       "_getCustomerInfoForUserId",
