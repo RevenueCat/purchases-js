@@ -93,6 +93,7 @@ pnpm run pack-build       # Build + npm pack
   - `purchasePackage()` — Process purchase
   - `getCustomerInfo()` — Get user subscription data
   - `logIn()` / `logOut()` — User authentication
+  - `changeUser()` — Change user without aliasing
   - `presentPaywall()` — Display native paywall UI
 
 ### Payment Gateways
