@@ -74,6 +74,10 @@ const createAnnualPackageMock = (): Package => {
       ...monthlyPackage.webBillingProduct,
       identifier: "annual",
     },
+    product: {
+      ...monthlyPackage.product,
+      identifier: "annual",
+    },
   };
 };
 

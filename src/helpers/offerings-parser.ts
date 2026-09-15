@@ -19,18 +19,19 @@ const addPlacementContextToPackage = (
   rcPackage: Package,
   placementId: string,
 ): Package => {
-  const webBillingProduct = {
-    ...rcPackage.webBillingProduct,
+  const product = {
+    ...rcPackage.product,
     presentedOfferingContext: {
-      ...rcPackage.webBillingProduct.presentedOfferingContext,
+      ...rcPackage.product.presentedOfferingContext,
       placementIdentifier: placementId,
     },
   };
 
   return {
     ...rcPackage,
-    webBillingProduct: webBillingProduct,
-    rcBillingProduct: webBillingProduct,
+    webBillingProduct: product,
+    rcBillingProduct: product,
+    product: product,
   };
 };
 
