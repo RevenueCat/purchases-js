@@ -53,6 +53,8 @@
   "payment_entry_page.subscription_info": "Text indicating that the subscription renews automatically and can be cancelled at any time.",
   "payment_entry_page.button_pay": "Button text prompting the user to pay immediately.",
   "payment_entry_page.button_start_trial": "Button text prompting the user to start the free trial.",
+  "payment_entry_page.payment_method_error": "Customer-facing error shown beside the payment form when the entered payment method cannot be used. It should ask the customer to check their details or use another payment method.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Customer-facing error shown when a card does not support this type of purchase. It should ask the customer to use a different payment method.",
   "loading_page.processing_payment": "Title displayed on the loading page while payment is being processed.",
   "loading_page.keep_page_open": "Instructional message on the loading page advising the user to keep the browser tab open while the payment process completes.",
   "success_page.purchase_successful": "Message confirming that payment was successfully completed.",
