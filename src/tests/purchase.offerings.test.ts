@@ -135,7 +135,7 @@ describe("getOfferings", () => {
       packageType: PackageType.Custom,
       rcBillingProduct: webBillingProduct,
       webBillingProduct: webBillingProduct,
-      storeProduct: webBillingProduct,
+      product: webBillingProduct,
     };
 
     const expectedOfferings: Offerings = {
@@ -214,7 +214,7 @@ describe("getOfferings", () => {
       packageType: PackageType.Custom,
       rcBillingProduct: webBillingProduct,
       webBillingProduct: webBillingProduct,
-      storeProduct: webBillingProduct,
+      product: webBillingProduct,
     };
     const packageWithoutTargeting = createMonthlyPackageMock(null);
     const expectedOfferings: Offerings = {
@@ -325,8 +325,7 @@ describe("getOfferings", () => {
       current: expectedOffering,
     });
 
-    const offeringProduct =
-      offerings.current?.availablePackages[0].storeProduct;
+    const offeringProduct = offerings.current?.availablePackages[0].product;
     const nonSubscriptionOption = offeringProduct?.defaultNonSubscriptionOption;
 
     expect(nonSubscriptionOption?.basePrice).toBeDefined();
@@ -450,7 +449,7 @@ describe("getOfferings", () => {
       packageType: PackageType.Custom,
       rcBillingProduct: webBillingProduct,
       webBillingProduct: webBillingProduct,
-      storeProduct: webBillingProduct,
+      product: webBillingProduct,
     };
 
     const expectedOfferings: Offerings = {
@@ -514,8 +513,7 @@ describe("getOfferings", () => {
 
     expect(offerings).toEqual(expectedOfferings);
 
-    const offeringProduct =
-      offerings.current?.availablePackages[0].storeProduct;
+    const offeringProduct = offerings.current?.availablePackages[0].product;
     const subscriptionOption = offeringProduct?.defaultSubscriptionOption;
 
     expect(subscriptionOption?.base).toBeDefined();
@@ -547,7 +545,7 @@ describe("getOfferings", () => {
 
       // Find the product with intro pricing
       const offeringProduct =
-        offerings.all["offering_intro"]?.availablePackages[0].storeProduct;
+        offerings.all["offering_intro"]?.availablePackages[0].product;
       const subscriptionOption = offeringProduct?.defaultSubscriptionOption;
 
       const expectedIntroPrice = {
@@ -583,8 +581,7 @@ describe("getOfferings", () => {
       const offerings = await purchases.getOfferings();
 
       const offeringProduct =
-        offerings.all["offering_trial_intro"]?.availablePackages[0]
-          .storeProduct;
+        offerings.all["offering_trial_intro"]?.availablePackages[0].product;
       const subscriptionOption = offeringProduct?.defaultSubscriptionOption;
 
       const expectedIntroPrice = {
@@ -627,7 +624,7 @@ describe("getOfferings", () => {
       expect(monthlyPackage).toBeDefined();
 
       const subscriptionOption =
-        monthlyPackage!.storeProduct.defaultSubscriptionOption;
+        monthlyPackage!.product.defaultSubscriptionOption;
       expect(subscriptionOption).toBeDefined();
       expect(subscriptionOption!.introPrice).toBeNull();
     });
@@ -638,7 +635,7 @@ describe("getOfferings", () => {
 
       const subscriptionOption =
         offerings.all["offering_intro_null_price"]?.availablePackages[0]
-          ?.storeProduct.defaultSubscriptionOption;
+          ?.product.defaultSubscriptionOption;
 
       expect(subscriptionOption?.introPrice).toStrictEqual({
         cycleCount: 3,
@@ -656,8 +653,8 @@ describe("getOfferings", () => {
       const offerings = await purchases.getOfferings();
 
       const subscriptionOption =
-        offerings.all["offering_intro_upfront"]?.availablePackages[0]
-          ?.storeProduct.defaultSubscriptionOption;
+        offerings.all["offering_intro_upfront"]?.availablePackages[0]?.product
+          .defaultSubscriptionOption;
 
       expect(subscriptionOption?.introPrice).toStrictEqual({
         cycleCount: 1,
@@ -695,7 +692,7 @@ describe("getOfferings", () => {
         introPricePhase,
       } =
         offerings.all["offering_one_time_discount"].availablePackages[0]
-          .storeProduct;
+          .product;
 
       const expectedDiscount = {
         durationMode: "one_time",
@@ -739,7 +736,7 @@ describe("getOfferings", () => {
         defaultSubscriptionOption,
       } =
         offerings.all["offering_consumable_discount"].availablePackages[0]
-          .storeProduct;
+          .product;
 
       const expectedDiscount = {
         durationMode: "one_time",
@@ -776,7 +773,7 @@ describe("getOfferings", () => {
 
       const { defaultSubscriptionOption, discountPhase } =
         offerings.all["offering_fixed_amount_discount"].availablePackages[0]
-          .storeProduct;
+          .product;
 
       const expectedDiscount = {
         durationMode: "one_time",
@@ -813,7 +810,7 @@ describe("getOfferings", () => {
 
       const { defaultSubscriptionOption, discountPhase } =
         offerings.all["offering_time_window_discount"].availablePackages[0]
-          .storeProduct;
+          .product;
 
       const expectedDiscount = {
         durationMode: "time_window",
@@ -844,8 +841,7 @@ describe("getOfferings", () => {
       const offerings = await purchases.getOfferings();
 
       const { defaultSubscriptionOption, discountPhase } =
-        offerings.all["offering_forever_discount"].availablePackages[0]
-          .storeProduct;
+        offerings.all["offering_forever_discount"].availablePackages[0].product;
 
       const expectedDiscount = {
         durationMode: "forever",
@@ -880,7 +876,7 @@ describe("getOfferings placements", () => {
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_1");
     expect(
-      offeringWithPlacement!.availablePackages[0].storeProduct
+      offeringWithPlacement!.availablePackages[0].product
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("missing_placement_id");
   });
@@ -912,7 +908,7 @@ describe("getOfferings placements", () => {
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_1");
     expect(
-      offeringWithPlacement!.availablePackages[0].storeProduct
+      offeringWithPlacement!.availablePackages[0].product
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("test_unknown_offering_placement_id");
   });
@@ -924,7 +920,7 @@ describe("getOfferings placements", () => {
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_2");
     expect(
-      offeringWithPlacement!.availablePackages[0].storeProduct
+      offeringWithPlacement!.availablePackages[0].product
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("test_placement_id");
   });
@@ -1031,7 +1027,7 @@ describe("getOfferings placements", () => {
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_1");
     expect(
-      offeringWithPlacement!.availablePackages[0].storeProduct
+      offeringWithPlacement!.availablePackages[0].product
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("any_placement_id");
   });

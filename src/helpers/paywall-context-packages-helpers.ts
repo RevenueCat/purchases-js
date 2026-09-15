@@ -25,7 +25,7 @@ export function buildPaywallContextPackages(
 }
 
 function mapPackage(pkg: Package): PaywallPackage {
-  const product = pkg.storeProduct;
+  const product = pkg.product;
   return {
     identifier: pkg.identifier,
     display_name: product?.title || pkg.identifier,

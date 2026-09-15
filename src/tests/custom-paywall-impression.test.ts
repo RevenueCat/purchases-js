@@ -22,7 +22,7 @@ describe("Purchases.trackCustomPaywallImpression", () => {
       identifier: "placement-offering",
       availablePackages: offering.availablePackages.map((pkg) => {
         const product = {
-          ...pkg.storeProduct,
+          ...pkg.product,
           presentedOfferingContext: {
             offeringIdentifier: "placement-offering",
             placementIdentifier: "home_banner",
@@ -31,7 +31,7 @@ describe("Purchases.trackCustomPaywallImpression", () => {
         };
         return {
           ...pkg,
-          storeProduct: product,
+          product,
           webBillingProduct: product,
         };
       }),
@@ -63,7 +63,7 @@ describe("Purchases.trackCustomPaywallImpression", () => {
       identifier: "placement-offering",
       availablePackages: offering.availablePackages.map((pkg) => {
         const product = {
-          ...pkg.storeProduct,
+          ...pkg.product,
           presentedOfferingContext: {
             offeringIdentifier: "placement-offering",
             placementIdentifier: "home_banner",
@@ -72,7 +72,7 @@ describe("Purchases.trackCustomPaywallImpression", () => {
         };
         return {
           ...pkg,
-          storeProduct: product,
+          product,
           webBillingProduct: product,
         };
       }),

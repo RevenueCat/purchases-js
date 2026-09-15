@@ -48,11 +48,10 @@ export function buildVariablesPerPackage(
 }
 
 function getPackageMonthlyPrice(pkg: Package): number {
-  const price = pkg.storeProduct.price;
+  const price = pkg.product.price;
   const purchaseOption = getDefaultPurchaseOption(pkg);
   const period =
-    pkg.storeProduct.period ||
-    (purchaseOption as SubscriptionOption)?.base?.period;
+    pkg.product.period || (purchaseOption as SubscriptionOption)?.base?.period;
 
   if (!period || !period.number || period.number <= 0) {
     return price.amountMicros;
@@ -64,16 +63,16 @@ function getPackageMonthlyPrice(pkg: Package): number {
 function getDefaultPurchaseOption(
   pkg: Package,
 ): PurchaseOption | undefined | null {
-  if (pkg.storeProduct.productType === ProductType.Subscription) {
-    return pkg.storeProduct.defaultSubscriptionOption;
+  if (pkg.product.productType === ProductType.Subscription) {
+    return pkg.product.defaultSubscriptionOption;
   }
   if (
-    pkg.storeProduct.productType === ProductType.NonConsumable ||
-    pkg.storeProduct.productType === ProductType.Consumable
+    pkg.product.productType === ProductType.NonConsumable ||
+    pkg.product.productType === ProductType.Consumable
   ) {
-    return pkg.storeProduct.defaultNonSubscriptionOption;
+    return pkg.product.defaultNonSubscriptionOption;
   }
-  return pkg.storeProduct.defaultPurchaseOption;
+  return pkg.product.defaultPurchaseOption;
 }
 
 function productIsSubscription(
@@ -123,7 +122,7 @@ export function parseOfferingIntoVariables(
   const packages = offering.availablePackages;
 
   const subscriptionPackages = packages.filter(
-    (pkg) => pkg.storeProduct.productType === ProductType.Subscription,
+    (pkg) => pkg.product.productType === ProductType.Subscription,
   );
 
   const highestPricePackage =
@@ -153,7 +152,7 @@ function parsePackageIntoVariables(
   highestPricePackage: Package | null,
   translator: Translator,
 ) {
-  const product = pkg.storeProduct;
+  const product = pkg.product;
   const productPrice = product.price;
   const formattedPrice = translator.formatPrice(
     productPrice.amountMicros,

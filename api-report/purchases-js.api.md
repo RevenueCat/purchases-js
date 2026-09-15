@@ -260,9 +260,9 @@ export type OwnershipType = "PURCHASED" | "FAMILY_SHARED" | "UNKNOWN";
 export interface Package {
     readonly identifier: string;
     readonly packageType: PackageType;
+    readonly product: Product;
     // @deprecated
     readonly rcBillingProduct: Product;
-    readonly storeProduct: Product;
     // @deprecated
     readonly webBillingProduct: Product;
     readonly webCheckoutURL?: string | null;
