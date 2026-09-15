@@ -8,7 +8,7 @@ RevenueCat's official JavaScript/TypeScript SDK for web-based in-app billing. Su
 
 **Related repositories:**
 - **UI Components**: https://github.com/RevenueCat/purchases-ui-js — Shared UI components
-- **Hybrid Common**: https://github.com/RevenueCat/purchases-hybrid-common — Shared types and mappings
+- **Hybrid Common**: https://github.com/RevenueCat/purchases-hybrid-common — Shared types and mappings for hybrid SDKs. Part of the `purchases-js-hybrid-mappings` in that repo. Currently react-native-purchases and purchases-flutter are the hybrids using this SDK.
 
 When implementing features or debugging, check these repos for reference and patterns.
 
