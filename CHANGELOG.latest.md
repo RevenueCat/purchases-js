@@ -1,10 +1,16 @@
 ## RevenueCat SDK
 ### ✨ New Features
-* Bump purchases-ui-js to 4.8.22 (#1126) via Facundo Menzella (@facumenzella)
+* feat: internal support for prepared Apple Pay purchases for Stripe Billing (#1124) via Nicola Sacco (@nicfix)
 ### 🐞 Bugfixes
-* fix(paddle): localize hardcoded strings in the inline checkout (#1125) via Roger Solé (@rogersole)
-* fix: send X-Is-Sandbox header when using a Test Store API key (#1120) via Álvaro Brey (@AlvaroBrey)
+* chore(deps): bump purchases-ui-js from 4.8.22 to 4.8.25 (#1144) via Drago Crnjac (@popcorn)
+### 📦 Dependency Updates
+* [AUTOMATIC] purchases-ui-js 4.10.0 => 4.10.1 (#1155) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC] purchases-ui-js 4.9.0 => 4.10.0 (#1153) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC] purchases-ui-js 4.8.25 => 4.9.0 (#1146) via RevenueCat Git Bot (@RCGitBot)
 
 ### 🔄 Other Changes
-* ci: bump external PR notifications workflow to v8 (#1119) via Álvaro Brey (@AlvaroBrey)
-* ci: notify external PRs feed on PRs from outside the org (#1118) via Álvaro Brey (@AlvaroBrey)
+* other: bump to the version that was just published (#1152) via Facundo Menzella (@facumenzella)
+* Stop formatting pnpm-lock.yaml (#1147) via Facundo Menzella (@facumenzella)
+* Ignore bundler artifacts so the dependency-update lane can run (#1145) via Facundo Menzella (@facumenzella)
+* Update unused credit message (#1134) via Burdock (@lburdock)
+* chore(deps-dev): bump vitest from 3.2.4 to 4.1.11 (#1135) via dependabot[bot] (@dependabot[bot])
