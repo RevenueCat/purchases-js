@@ -62,6 +62,7 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendInvalidAppleSubscriptionKey:
       case BackendErrorCode.BackendBadRequest:
       case BackendErrorCode.BackendInternalServerError:
+      case BackendErrorCode.BackendTooManyRequests:
         return ErrorCode.UnexpectedBackendResponseError;
       case BackendErrorCode.BackendProductIDsMalformed:
         return ErrorCode.UnsupportedError;
@@ -113,6 +114,7 @@ export enum BackendErrorCode {
   BackendProductIdForGoogleReceiptNotProvided = 7106,
   BackendInvalidPlayStoreCredentials = 7107,
   BackendInternalServerError = 7110,
+  BackendTooManyRequests = 7114,
   BackendEmptyAppUserId = 7220,
   BackendInvalidAuthToken = 7224,
   BackendInvalidAPIKey = 7225,
