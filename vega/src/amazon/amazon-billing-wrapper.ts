@@ -4,29 +4,29 @@ import type {
   ProductType as AmazonProductType,
   Receipt,
 } from "@amazon-devices/keplerscript-appstore-iap-lib";
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import { ErrorCode, PurchasesError } from "../../../src/entities/errors";
 import {
   ProductType as RevenueCatProductType,
   type NonSubscriptionOption,
   type Price,
   type SubscriptionOption,
-} from "../entities/offerings";
-import { Logger } from "../helpers/logger";
-import type { BillingWrapper } from "../helpers/billing-wrapper";
+} from "../../../src/entities/offerings";
+import { Logger } from "../../../src/helpers/logger";
+import type { BillingWrapper } from "../../../src/helpers/billing-wrapper";
 import type {
   NonSubscriptionOptionResponse,
   PriceResponse,
   ProductResponse,
   ProductsResponse,
   SubscriptionOptionResponse,
-} from "../networking/responses/products-response";
-import type { PurchaseParams, PurchaseResult } from "../main";
-import type { Backend } from "../networking/backend";
-import { PostReceiptInitiationSource } from "../networking/backend";
-import { toCustomerInfo } from "../entities/customer-info";
-import type { CustomerInfo } from "../entities/customer-info";
-import type { RestorePurchasesResult } from "../entities/restore-purchases-result";
-import type { SyncPurchasesResult } from "../entities/sync-purchases-result";
+} from "../../../src/networking/responses/products-response";
+import type { PurchaseParams, PurchaseResult } from "../../../src/main";
+import type { Backend } from "../../../src/networking/backend";
+import { PostReceiptInitiationSource } from "../../../src/networking/backend";
+import { toCustomerInfo } from "../../../src/entities/customer-info";
+import type { CustomerInfo } from "../../../src/entities/customer-info";
+import type { RestorePurchasesResult } from "../../../src/entities/restore-purchases-result";
+import type { SyncPurchasesResult } from "../../../src/entities/sync-purchases-result";
 import {
   loadAmazonAppstoreIAPSDK,
   type AmazonAppstoreIAPSDK,
@@ -43,8 +43,7 @@ type ReceiptWithStoreUserId = {
 };
 
 /**
- * Amazon billing wrapper. Defers loading the Amazon Appstore IAP SDK until
- * it is needed, so importing the core SDK remains safe in web environments.
+ * Amazon billing wrapper, bundled only in the Vega package.
  * @internal
  */
 export class AmazonBillingWrapper implements BillingWrapper {
