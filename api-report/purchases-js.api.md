@@ -508,7 +508,6 @@ export interface PurchaseParams {
     customerEmail?: string;
     defaultLocale?: string;
     discountCode?: string;
-    discountId?: string;
     externalPurchaseTokenId?: string;
     htmlTarget?: HTMLElement;
     metadata?: PurchaseMetadata;
