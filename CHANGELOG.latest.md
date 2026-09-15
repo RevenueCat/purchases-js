@@ -1,6 +1,9 @@
 ## RevenueCat SDK
-### ✨ New Features
-* FUN-2346 Paddle package discounts: PricePreview and discountId at checkout (#1143) via Franco Correa (@francocorreasosa)
+### 🐞 Bugfixes
+* WEB-4685 Show a card decline message for /confirmation-token errors (#1112) via Burdock (@lburdock)
+* Display better terms text when the app name is absent (#1139) via Burdock (@lburdock)
+### 📦 Dependency Updates
+* [AUTOMATIC] purchases-ui-js 4.10.1 => 4.10.2 (#1160) via RevenueCat Git Bot (@RCGitBot)
 
 ### 🔄 Other Changes
-* fix: Map the server rate-limit error code and carry HTTP status on unknown backend errors (#1154) via Jamie Holwill (@jholwill)
+* Display a better error message when automatic tax is enabled for chec… (#1122) via Burdock (@lburdock)
