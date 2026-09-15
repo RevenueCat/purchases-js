@@ -18,8 +18,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       '@revenuecat/purchases-ui-js':
-        specifier: 4.10.0
-        version: 4.10.0(svelte@5.46.4)
+        specifier: 4.10.1
+        version: 4.10.1(svelte@5.46.4)
       '@storybook/addon-essentials':
         specifier: ^8.6.15
         version: 8.6.15(@types/react@19.0.10)(storybook@8.6.15(prettier@3.4.2))
@@ -487,8 +487,8 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@revenuecat/purchases-ui-js@4.10.0':
-    resolution: {integrity: sha512-QF5bWqZGpgcOuUlgTuk1B1KgZkz/+Qk7pJqKcblqxRgFhDuy3MhKuxHelIvT9BQxrpwFdYEbf23Qxv2bsq5/TA==}
+  '@revenuecat/purchases-ui-js@4.10.1':
+    resolution: {integrity: sha512-dE6Ekgzc3JjlcPRqlWwLHCn3XBZ1EDh1gHpOxvjSOhNFLwityoJsLimvU0Vx7674WOXuP0MV3/sOolc51zk1kA==}
     engines: {node: ^22.18 || ^24.11}
     peerDependencies:
       svelte: ^5.46.4
@@ -3867,7 +3867,7 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@revenuecat/purchases-ui-js@4.10.0(svelte@5.46.4)':
+  '@revenuecat/purchases-ui-js@4.10.1(svelte@5.46.4)':
     dependencies:
       '@revenuecat/workflow-web-components-sdk': 0.1.7
       qrcode: 1.5.4
