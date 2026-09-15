@@ -12,7 +12,7 @@ import {
  *
  * Mapping rules:
  * - offering.availablePackages -> PaywallPackage[]
- * - package.identifier; display_name from storeProduct.title (fallback identifier)
+ * - package.identifier; display_name from product.title (fallback identifier)
  * - product.identifier; display_name from title; is_subscription when ProductType.Subscription; period from normalPeriodDuration
  * - price: amountMicros / 1_000_000 (NOT deprecated Price.amount cents); omit price if missing
  * - store.store_type: "rc_billing"; omit country and is_family_shareable
