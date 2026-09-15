@@ -21,6 +21,7 @@
     productDetails: Product;
     onDismiss: () => void;
     appName: string | null;
+    isSandbox: boolean;
     fullWidth?: boolean;
   }
 
@@ -30,6 +31,7 @@
     productDetails,
     onDismiss,
     appName,
+    isSandbox,
     fullWidth = false,
   }: Props = $props();
 
@@ -49,6 +51,12 @@
       error.errorCode === PurchaseFlowErrorCode.StripeMissingRequiredPermission,
   );
 
+  const shouldShowCloseButton = $derived(
+    showOnlyInSandboxNote ||
+      error.errorCode ===
+        PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout,
+  );
+
   onMount(() => {
     Logger.errorLog(
       `Displayed error: ${PurchaseFlowErrorCode[error.errorCode]}. Message: ${error.message ?? "None"}. Underlying error: ${error.underlyingErrorMessage ?? "None"}`,
@@ -60,7 +68,7 @@
       return $translator.translate(LocalizationKeys.ErrorPageCloseButtonTitle, {
         appName: appName ?? "App",
       });
-    } else if (showOnlyInSandboxNote) {
+    } else if (shouldShowCloseButton) {
       return $translator.translate(LocalizationKeys.ErrorButtonClose);
     } else {
       return $translator.translate(LocalizationKeys.ErrorButtonTryAgain);
@@ -89,6 +97,14 @@
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorTitleStripeInvalidTaxOriginAddress,
         );
+      case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout:
+        return isSandbox
+          ? $translator.translate(
+              LocalizationKeys.ErrorPageErrorTitleStripeInvalidTaxOriginAddress,
+            )
+          : $translator.translate(
+              LocalizationKeys.ErrorPageErrorTitleOtherErrors,
+            );
       case PurchaseFlowErrorCode.StripeMissingRequiredPermission:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorTitleStripeMissingRequiredPermission,
@@ -136,6 +152,16 @@
           LocalizationKeys.ErrorPageErrorMessageStripeInvalidTaxOriginAddress,
           { errorCode: publicErrorCode },
         );
+      case PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout:
+        return isSandbox
+          ? $translator.translate(
+              LocalizationKeys.ErrorPageErrorMessageStripeInvalidTaxOriginAddressDuringCheckout,
+              { errorCode: publicErrorCode },
+            )
+          : $translator.translate(
+              LocalizationKeys.ErrorPageErrorMessageErrorSettingUpPurchase,
+              { errorCode: publicErrorCode },
+            );
       case PurchaseFlowErrorCode.StripeMissingRequiredPermission:
         return $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageStripeMissingRequiredPermission,

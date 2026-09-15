@@ -79,6 +79,7 @@
   "error_page.error_title_stripe_missing_required_permission": "חסרה הרשאה של Stripe",
   "error_page.button_close": "סגור",
   "error_page.error_message_stripe_invalid_tax_origin_address": "הרכישה נכשלה מכיוון שכתובת מקור המס אינה חוקית. בייצור, רכישות יעבדו ללא מסים.",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "הרכישה נכשלה מכיוון שכתובת מקור המס אינה חוקית.",
   "error_page.error_message_stripe_tax_not_active": "הרכישה נכשלה מכיוון שמס Stripe אינו מופעל. בייצור, רכישות יעבדו ללא מסים.",
   "error_page.error_only_in_sandbox": "הודעה זו מופיעה רק בארגז חול.",
   "error_page.error_message_stripe_missing_required_permission": "הרכישה נכשלה מכיוון שלאפליקציית Stripe חסרה הרשאה נדרשת. בייצור, רכישות יעבדו ללא מסים.",
@@ -94,8 +95,10 @@
   "payment_entry_page.trial_subscription_terms_info": "לאחר סיום תקופת הניסיון שלך, תחויב בסך {{price}} {{perFrequency}} החל מ-{{renewalDate}}. באפשרותך לבטל בכל עת לפני תאריך זה.",
   "payment_entry_page.subscription_info": "המנוי מתחדש אוטומטית. ניתן לבטל בכל עת.",
   "payment_entry_page.otp_terms_info": "ברכישה, אתה מסכים לאפשר ל-{{appName}} לחייב אותך בהתאם לתנאים שלהם.",
+  "payment_entry_page.otp_terms_info_without_app_name": "ברכישה, הנך מסכים/ה לחיוב בהתאם לתנאים החלים.",
   "payment_entry_page.terms_link_label": "תנאים",
   "payment_entry_page.subscription_terms_info": "על ידי הרשמה כמנוי, אתה מסכים לאפשר ל-{{appName}} לחייב אותך בהתאם לתנאים שלהם עד שתבטל.",
+  "payment_entry_page.subscription_terms_info_without_app_name": "בהרשמה למנוי, הנך מסכים/ה לחיובים חוזרים בהתאם לתנאים החלים עד לביטול המנוי.",
   "loading_page.keep_page_open": "התהליך כמעט הסתיים. השאר דף זה פתוח.",
   "loading_page.processing_payment": "מעבד תשלום תבעה",
   "pricing_table.discount": "הנחה",
@@ -104,6 +107,7 @@
   "discount_input.label": "קוד פרומו",
   "payment_entry_page.checkout_consent_terms_of_service": "תנאי השירות",
   "payment_entry_page.checkout_consent_agreement": "אני מסכים/ה ל{{termsOfService}} של {{appName}}.",
+  "payment_entry_page.checkout_consent_agreement_without_app_name": "אני מסכים/ה ל-{{termsOfService}}.",
   "upgrade_confirm_page.subtitle_immediate": "בדוק את פרטי התשלום שלך ואשר שדרוג",
   "upgrade_confirm_page.confirm_upgrade_with_price": "אשר שדרוג ∙ {{formattedPrice}}",
   "upgrade_product_info.estimated_at_next_renewal": "מוערך בחידוש הבא",
@@ -130,5 +134,7 @@
   "paddle_order_summary.billed_frequency": "חיוב {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}} ראשון, לאחר מכן {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "כולל מס",
-  "paddle_order_summary.due_on": "לתשלום ב-{{date}}"
+  "paddle_order_summary.due_on": "לתשלום ב-{{date}}",
+  "payment_entry_page.payment_method_error": "לא הצלחנו להשתמש באמצעי תשלום זה. אנא בדוק את הפרטים שלך או נסה אמצעי תשלום אחר.",
+  "payment_entry_page.payment_method_error_card_not_supported": "סוג כרטיס זה אינו מקובל. נסה כרטיס אחר."
 }
