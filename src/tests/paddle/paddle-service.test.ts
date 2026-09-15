@@ -696,7 +696,7 @@ describe("PaddleService", () => {
         "Unknown backend error.",
         "Request: postCheckoutStart. Status code: 500. Body: null.",
         ErrorCode.UnknownBackendError,
-        { backendErrorCode: undefined },
+        { statusCode: 500, backendErrorCode: undefined },
         false,
       );
 
