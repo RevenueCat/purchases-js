@@ -202,6 +202,26 @@ describe("getCustomerInfo request", () => {
     );
   });
 
+  test("throws a known error mapped to UnexpectedBackendResponseError if the backend returns a rate limit error", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendTooManyRequests,
+          message: "Too many requests",
+        },
+        { status: StatusCodes.TOO_MANY_REQUESTS },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getCustomerInfo("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.UnexpectedBackendResponseError,
+        "Received unexpected response from the backend.",
+        "Too many requests",
+      ),
+    );
+  });
+
   test("throws unknown error if the backend returns a request error with unknown error code in body", async () => {
     setCustomerInfoResponse(
       HttpResponse.json(
@@ -212,14 +232,18 @@ describe("getCustomerInfo request", () => {
         { status: StatusCodes.BAD_REQUEST },
       ),
     );
+    const promise = backend.getCustomerInfo("someAppUserId");
     await expectPromiseToError(
-      backend.getCustomerInfo("someAppUserId"),
+      promise,
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
         'Request: getCustomerInfo. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
       ),
     );
+    await expect(promise).rejects.toMatchObject({
+      extra: { statusCode: StatusCodes.BAD_REQUEST },
+    });
   });
 
   test("throws unknown error if the backend returns a request error without error code in body", async () => {
