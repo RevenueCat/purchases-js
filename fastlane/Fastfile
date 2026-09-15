@@ -209,8 +209,10 @@ end
 
 def wait_for_npm_version(package, version, attempts: 10, delay: 15)
   attempts.times do |attempt|
+    # `pnpm view` exits non-zero until the version exists, and fastlane's `sh` raises on
+    # that, so swallow the status: a missing version is the case we are waiting out.
     published = Dir.chdir(get_root_folder) do
-      sh("pnpm view #{package}@#{version} version 2>/dev/null", log: false).strip
+      sh("pnpm view #{package}@#{version} version 2>/dev/null || true", log: false).strip
     end
     return version if published == version
 
