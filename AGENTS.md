@@ -4,7 +4,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 ## Project Overview
 
-RevenueCat's official JavaScript/TypeScript SDK for web-based in-app billing. Supports Stripe and Paddle payment gateways with native paywall UI components built with Svelte.
+RevenueCat's official JavaScript/TypeScript SDK for web-based in-app billing. Supports RevenueCat Billing (powered by Stripe), Stripe billing and Paddle payment gateways with native paywall UI components built with Svelte.
 
 **Related repositories:**
 - **UI Components**: https://github.com/RevenueCat/purchases-ui-js — Shared UI components
