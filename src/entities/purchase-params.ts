@@ -159,6 +159,17 @@ export interface PurchaseParams {
   discountCode?: string;
 
   /**
+   * @internal
+   * Paddle discount id (`dsc_...`) to apply at checkout. Paddle only.
+   * Takes precedence over {@link PurchaseParams.discountCode}, since Paddle
+   * Checkout accepts one or the other but not both.
+   *
+   * Set by hosts that resolve the id from the paywall configuration (see
+   * `Purchases.applyPaddleDiscountsToOffering`); not part of the public API.
+   */
+  discountId?: string;
+
+  /**
    * @experimental
    * Called when the applied discount code changes in the Web Billing checkout.
    * This can be used by host applications to keep external state, such as the URL,
