@@ -812,7 +812,7 @@ export class Purchases {
   /**
    * Renders an RC Paywall and allows the user to purchase from it using Web Billing.
    *
-   * Unsupported for Amazon apps running on Vega.
+   * Unsupported for Amazon apps.
    *
    * @param paywallParams - The parameters object to customise the paywall render. Check {@link PresentPaywallParams}
    * @returns Promise<PurchaseResult>
@@ -2080,7 +2080,7 @@ export class Purchases {
    * When clicked it uses the wallet UI to execute the purchase instead of
    * the checkout flow that would be shown with `.purchase`.
    *
-   * Unsupported for Amazon apps running on Vega OS.
+   * Unsupported for Amazon apps.
    *
    * @param params - The parameters object to customise the purchase flow. Check {@link PresentExpressPurchaseButtonParams}
    * @returns Promise<PurchaseResult>
