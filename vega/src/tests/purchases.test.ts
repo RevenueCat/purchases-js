@@ -31,6 +31,41 @@ describe("Vega Purchases", () => {
     vi.restoreAllMocks();
   });
 
+  test("rejects paywall presentation without loading resources or modifying the target", async () => {
+    const purchases = Purchases.configure({
+      apiKey: "amzn_valid_key",
+      appUserId: testUserId,
+    });
+    const htmlTarget = document.createElement("div");
+    htmlTarget.textContent = "Existing app content";
+    const getOfferings = vi.spyOn(purchases, "getOfferings");
+    const preload = vi.spyOn(purchases, "preload");
+
+    await expect(purchases.presentPaywall({ htmlTarget })).rejects.toThrow(
+      "Paywalls are not currently available for Amazon apps.",
+    );
+
+    expect(htmlTarget.textContent).toBe("Existing app content");
+    expect(getOfferings).not.toHaveBeenCalled();
+    expect(preload).not.toHaveBeenCalled();
+  });
+
+  test("rejects paywall presentation with the Amazon error when no document is available", async () => {
+    const purchases = Purchases.configure({
+      apiKey: "amzn_valid_key",
+      appUserId: testUserId,
+    });
+    vi.stubGlobal("document", undefined);
+
+    try {
+      await expect(purchases.presentPaywall({})).rejects.toThrow(
+        "Paywalls are not currently available for Amazon apps.",
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   test.each(["syncPurchases", "restorePurchases"] as const)(
     "%s delegates to the Amazon billing wrapper",
     async (method) => {
