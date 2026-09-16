@@ -79,6 +79,7 @@
   "error_page.error_title_stripe_missing_required_permission": "Puuttuva Stripe-käyttöoikeus",
   "error_page.button_close": "Sulje",
   "error_page.error_message_stripe_invalid_tax_origin_address": "Osto epäonnistui, koska veron alkuperäosoite on virheellinen. Tuotantoympäristössä ostot toimivat ilman veroja.",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "Osto epäonnistui, koska veron alkuperäosoite on virheellinen.",
   "error_page.error_message_stripe_tax_not_active": "Osto epäonnistui, koska Stripe Tax ei ole käytössä. Tuotantoympäristössä ostot toimivat ilman veroja.",
   "error_page.error_only_in_sandbox": "Tämä viesti näkyy vain hiekkalaatikossa.",
   "error_page.error_message_stripe_missing_required_permission": "Osto epäonnistui, koska Stripe-sovellukselta puuttuu vaadittu käyttöoikeus. Tuotantoympäristössä ostot toimivat ilman veroja.",
@@ -94,8 +95,10 @@
   "payment_entry_page.trial_subscription_terms_info": "Kokeilujakson päätyttyä sinulta veloitetaan {{price}} {{perFrequency}} alkaen {{renewalDate}}. Voit peruuttaa milloin tahansa ennen tätä päivämäärää.",
   "payment_entry_page.subscription_info": "Tilaus uusiutuu automaattisesti. Peruuta milloin tahansa.",
   "payment_entry_page.otp_terms_info": "Ostamalla hyväksyt, että {{appName}} veloittaa sinua heidän ehtojensa mukaisesti.",
+  "payment_entry_page.otp_terms_info_without_app_name": "Ostamalla hyväksyt veloituksen sovellettavien ehtojen mukaisesti.",
   "payment_entry_page.terms_link_label": "Ehdot",
   "payment_entry_page.subscription_terms_info": "Tilaamalla hyväksyt, että {{appName}} veloittaa sinulta ehtojensa mukaisesti, kunnes peruutat tilauksen.",
+  "payment_entry_page.subscription_terms_info_without_app_name": "Tilaamalla hyväksyt toistuvat veloitukset sovellettavien ehtojen mukaisesti, kunnes peruutat tilauksesi.",
   "loading_page.keep_page_open": "Prosessi on melkein valmis. Pidä tämä sivu auki.",
   "loading_page.processing_payment": "Maksua käsitellään",
   "pricing_table.discount": "Alennus",
@@ -104,6 +107,7 @@
   "discount_input.label": "Kampanjakoodi",
   "payment_entry_page.checkout_consent_terms_of_service": "käyttöehdot",
   "payment_entry_page.checkout_consent_agreement": "Hyväksyn {{appName}}-palvelun {{termsOfService}}.",
+  "payment_entry_page.checkout_consent_agreement_without_app_name": "Hyväksyn {{termsOfService}}.",
   "upgrade_confirm_page.subtitle_immediate": "Tarkista maksutietosi ja vahvista päivitys",
   "upgrade_confirm_page.confirm_upgrade_with_price": "Vahvista päivitys ∙ {{formattedPrice}}",
   "upgrade_product_info.estimated_at_next_renewal": "Arvioitu seuraavan uusimisen yhteydessä",
@@ -130,5 +134,7 @@
   "paddle_order_summary.billed_frequency": "laskutetaan {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "ensimmäinen {{firstPeriod}}, sen jälkeen {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "sis. verot",
-  "paddle_order_summary.due_on": "Eräpäivä {{date}}"
+  "paddle_order_summary.due_on": "Eräpäivä {{date}}",
+  "payment_entry_page.payment_method_error": "Emme voineet käyttää tätä maksutapaa. Tarkista tietosi tai kokeile toista maksutapaa.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Tätä korttityyppiä ei hyväksytä. Kokeile toista korttia."
 }
