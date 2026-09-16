@@ -53,6 +53,18 @@ describe("Vega module", () => {
     ).not.toThrow();
   });
 
+  test("configures the Vega Purchases implementation", () => {
+    const purchases = Purchases.configure({
+      apiKey: "amzn_valid_key",
+      appUserId: testUserId,
+    });
+
+    expect(purchases).toBeInstanceOf(Purchases);
+    expect(Purchases.getSharedInstance()).toBe(purchases);
+    expect(purchases.restorePurchases).toBeTypeOf("function");
+    expect(purchases.syncPurchases).toBeTypeOf("function");
+  });
+
   test("throws when configured with a non-Amazon API key", () => {
     expect(() =>
       Purchases.configure({
