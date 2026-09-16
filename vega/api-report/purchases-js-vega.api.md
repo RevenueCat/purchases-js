@@ -533,8 +533,23 @@ export interface PurchaseResult {
     /* Excluded from this release type: productChange */
 }
 
+// Warning: (ae-forgotten-export) The symbol "Purchases_2" needs to be exported by the entry point Purchases.vega.es.d.ts
+//
+// @public (undocumented)
+export class Purchases extends Purchases_2 {
+    /* Excluded from this release type: __constructor */
+    // (undocumented)
+    static configure(config: PurchasesConfig): Purchases;
+    // (undocumented)
+    static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig, flags?: FlagsConfig): Purchases;
+    // (undocumented)
+    static getSharedInstance(): Purchases;
+    restorePurchases(): Promise<RestorePurchasesResult>;
+    syncPurchases(): Promise<SyncPurchasesResult>;
+}
+
 // @public
-export class Purchases {
+class Purchases_2 {
     /* Excluded from this release type: _API_KEY */
     /* Excluded from this release type: _appUserId */
     /* Excluded from this release type: _brandingInfo */
@@ -548,7 +563,7 @@ export class Purchases {
     /* Excluded from this release type: eventsTracker */
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
-    /* Excluded from this release type: amazonBillingWrapper */
+    /* Excluded from this release type: billingWrapper */
     /* Excluded from this release type: offeringsRequests */
     /* Excluded from this release type: cachedCurrentOffering */
     /* Excluded from this release type: stripeBillingQuickPurchaseState */
@@ -556,16 +571,16 @@ export class Purchases {
     /* Excluded from this release type: instance */
     changeUser(newAppUserId: string): Promise<CustomerInfo>;
     close(): void;
-    static configure(config: PurchasesConfig): Purchases;
+    static configure(config: PurchasesConfig): Purchases_2;
     // @deprecated
-    static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig, flags?: FlagsConfig): Purchases;
+    static configure(apiKey: string, appUserId: string, httpConfig?: HttpConfig, flags?: FlagsConfig): Purchases_2;
     static generateRevenueCatAnonymousAppUserId(): string;
     getAppUserId(): string;
     getCachedVirtualCurrencies(): VirtualCurrencies | null;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
-    static getSharedInstance(): Purchases;
+    static getSharedInstance(): Purchases_2;
     getVirtualCurrencies(): Promise<VirtualCurrencies>;
     identifyUser(appUserId: string): Promise<IdentifyResult>;
     invalidateOfferingsCache(): void;
@@ -582,17 +597,16 @@ export class Purchases {
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
-    restorePurchases(): Promise<RestorePurchasesResult>;
     setAttributes(attributes: {
         [key: string | ReservedCustomerAttribute]: string | null;
     }): Promise<void>;
     static setLogHandler(handler: LogHandler | null): void;
     static setLogLevel(logLevel: LogLevel): void;
     static setPlatformInfo(platformInfo: PlatformInfo): void;
-    syncPurchases(): Promise<SyncPurchasesResult>;
     trackCustomPaywallImpression(params?: CustomPaywallImpressionParams): void;
     /* Excluded from this release type: _trackEvent */
     /* Excluded from this release type: _flushAllEvents */
+    /* Excluded from this release type: unwrappedBillingWrapper */
 }
 
 // @public
