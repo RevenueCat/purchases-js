@@ -261,10 +261,12 @@ describe("PurchasesUI", () => {
     });
 
     await vi.advanceTimersByTimeAsync(0);
+    expect(screen.queryByTestId("express-checkout-ready")).toBeNull();
     expect(screen.queryByText("OR PAY BY CARD")).toBeNull();
 
     await vi.advanceTimersByTimeAsync(10);
     expect(screen.getByText("OR PAY BY CARD")).toBeTruthy();
+    expect(screen.getByTestId("express-checkout-ready")).toBeTruthy();
   });
 
   test("does not display the card separator when no Express Checkout payment methods are available", async () => {
