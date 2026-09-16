@@ -7,7 +7,7 @@ import {
   isStripeApiKey,
   isWebBillingApiKey,
 } from "./api-key-helper";
-import { isVegaEntryPoint } from "../vega-entry-point";
+import { getBillingProvider } from "./billing-provider";
 
 export function validateApiKey(apiKey: string) {
   const isValidApiKey =
@@ -24,10 +24,12 @@ export function validateApiKey(apiKey: string) {
     );
   }
 
-  if (isVegaEntryPoint() && !isAmazonApiKey(apiKey)) {
+  const provider = getBillingProvider();
+  provider?.validateApiKey(apiKey);
+  if (isAmazonApiKey(apiKey) && !provider) {
     throw new PurchasesError(
       ErrorCode.ConfigurationError,
-      "Vega applications must be configured with an Amazon Appstore API key.",
+      "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
     );
   }
 }
