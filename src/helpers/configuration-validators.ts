@@ -7,7 +7,6 @@ import {
   isStripeApiKey,
   isWebBillingApiKey,
 } from "./api-key-helper";
-import { getBillingProvider } from "./billing-provider";
 
 export function validateApiKey(apiKey: string) {
   const isValidApiKey =
@@ -21,15 +20,6 @@ export function validateApiKey(apiKey: string) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,
       "Invalid API key. Use a valid API key obtained from the RevenueCat Dashboard.",
-    );
-  }
-
-  const provider = getBillingProvider();
-  provider?.validateApiKey(apiKey);
-  if (isAmazonApiKey(apiKey) && !provider) {
-    throw new PurchasesError(
-      ErrorCode.ConfigurationError,
-      "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
     );
   }
 }

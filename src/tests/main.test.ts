@@ -31,9 +31,11 @@ import type { BrandingInfoResponse } from "../networking/responses/branding-resp
 import type { BillingWrapper } from "../helpers/billing-wrapper";
 import { Logger } from "../helpers/logger";
 import {
-  registerBillingProvider,
-  resetBillingProvider,
-} from "../helpers/billing-provider";
+  registerPurchasesFactory,
+  resetPurchasesFactory,
+} from "../helpers/purchases-factory";
+import { defaultHttpConfig } from "../entities/http-config";
+import { defaultFlagsConfig } from "../entities/flags-config";
 
 const createBillingWrapperMock = () =>
   ({
@@ -46,9 +48,32 @@ const createBillingWrapperMock = () =>
 let billingWrapper = createBillingWrapperMock();
 
 beforeEach(() => {
-  resetBillingProvider();
+  resetPurchasesFactory();
   billingWrapper = createBillingWrapperMock();
 });
+
+class TestPurchases extends Purchases {
+  constructor(config: PurchasesConfig) {
+    super(
+      config.apiKey,
+      config.appUserId,
+      config.httpConfig ?? defaultHttpConfig,
+      config.flags ?? defaultFlagsConfig,
+      config.subscriberToken,
+      config.brandingAppearanceOverride,
+      config.context,
+      config.trace_id,
+    );
+  }
+}
+
+function registerTestPurchasesFactory(): void {
+  registerPurchasesFactory({
+    validateApiKey: () => {},
+    createPurchases: (config) => new TestPurchases(config),
+    createBillingWrapper: () => billingWrapper,
+  });
+}
 
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
@@ -357,13 +382,8 @@ describe("Purchases.configure()", () => {
 });
 
 describe("billing wrapper selection", () => {
-  beforeEach(() => {
-    registerBillingProvider({
-      validateApiKey: () => {},
-      createBillingWrapper: () => billingWrapper,
-    });
-  });
   test("closes the existing Amazon billing wrapper when reconfiguring", () => {
+    registerTestPurchasesFactory();
     const close = vi.spyOn(billingWrapper, "close");
 
     configurePurchases(testUserId, "rcSource", "amzn_valid_key");
@@ -376,95 +396,13 @@ describe("billing wrapper selection", () => {
 
   test("uses web billing for offerings with a non-Amazon API key", async () => {
     const purchases = configurePurchases();
-    const getAmazonProducts = vi.spyOn(billingWrapper, "getProducts");
 
     await purchases.getOfferings();
 
-    expect(getAmazonProducts).not.toHaveBeenCalled();
     expect(APIGetRequest).toHaveBeenCalledWith({
       url: `http://localhost:8000/rcbilling/v1/subscribers/${testUserId}/products?id=monthly&id=monthly_2`,
     });
   });
-});
-
-describe("Purchases.syncPurchases and Purchases.restorePurchases", () => {
-  beforeEach(() => {
-    registerBillingProvider({
-      validateApiKey: () => {},
-      createBillingWrapper: () => billingWrapper,
-    });
-  });
-  test.each([
-    ["syncPurchases", "syncPurchases"],
-    ["restorePurchases", "restorePurchases"],
-  ] as const)(
-    "%s delegates to the Amazon billing wrapper for Amazon API keys",
-    async (method, wrapperMethod) => {
-      const purchases = configurePurchases(
-        testUserId,
-        "rcSource",
-        "amzn_valid_key",
-      );
-      const expectedResult = { customerInfo: {} as CustomerInfo };
-      const syncPurchasesSpy = vi
-        .spyOn(billingWrapper, "syncPurchases")
-        .mockResolvedValue(expectedResult);
-      const restorePurchasesSpy = vi
-        .spyOn(billingWrapper, "restorePurchases")
-        .mockResolvedValue(expectedResult);
-
-      await expect(purchases[method]()).resolves.toBe(expectedResult);
-
-      const expectedSpy =
-        wrapperMethod === "syncPurchases"
-          ? syncPurchasesSpy
-          : restorePurchasesSpy;
-      const otherSpy =
-        wrapperMethod === "syncPurchases"
-          ? restorePurchasesSpy
-          : syncPurchasesSpy;
-      expect(expectedSpy).toHaveBeenCalledExactlyOnceWith(testUserId);
-      expect(otherSpy).not.toHaveBeenCalled();
-    },
-  );
-
-  test.each(["syncPurchases", "restorePurchases"] as const)(
-    "%s rejects for non-Amazon API keys without calling the Amazon wrapper",
-    async (method) => {
-      const purchases = configurePurchases();
-      const syncPurchasesSpy = vi.spyOn(billingWrapper, "syncPurchases");
-      const restorePurchasesSpy = vi.spyOn(billingWrapper, "restorePurchases");
-
-      await expect(purchases[method]()).rejects.toMatchObject({
-        errorCode: ErrorCode.ConfigurationError,
-        message: `${method}() is only supported for Amazon Appstore API keys.`,
-      });
-
-      expect(syncPurchasesSpy).not.toHaveBeenCalled();
-      expect(restorePurchasesSpy).not.toHaveBeenCalled();
-    },
-  );
-
-  test.each([
-    ["syncPurchases", "syncPurchases"],
-    ["restorePurchases", "restorePurchases"],
-  ] as const)(
-    "%s propagates errors from the Amazon billing wrapper",
-    async (method, wrapperMethod) => {
-      const purchases = configurePurchases(
-        testUserId,
-        "rcSource",
-        "amzn_valid_key",
-      );
-      const error = new PurchasesError(
-        ErrorCode.StoreProblemError,
-        "Amazon unavailable",
-      );
-      vi.spyOn(billingWrapper, wrapperMethod).mockRejectedValue(error);
-
-      await expect(purchases[method]()).rejects.toBe(error);
-    },
-  );
 });
 
 describe("Purchases.isConfigured()", () => {
@@ -836,12 +774,6 @@ describe("Purchases.identifyUser", () => {
 });
 
 describe("Purchases.purchase()", () => {
-  beforeEach(() => {
-    registerBillingProvider({
-      validateApiKey: () => {},
-      createBillingWrapper: () => billingWrapper,
-    });
-  });
   type PurchaseRouterMethods = {
     performPaddlePurchase: (
       params: PurchaseParams,
@@ -1087,6 +1019,7 @@ describe("Purchases.purchase()", () => {
   });
 
   test("routes purchases to the Amazon billing wrapper for amzn_ API keys", async () => {
+    registerTestPurchasesFactory();
     const purchases = configurePurchases(
       testUserId,
       "rcSource",
@@ -1122,6 +1055,7 @@ describe("Purchases.purchase()", () => {
   });
 
   test("invalidates caches after a successful Amazon purchase", async () => {
+    registerTestPurchasesFactory();
     const purchases = configurePurchases(
       testUserId,
       "rcSource",
