@@ -29,6 +29,7 @@ import {
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
+  isAmazonApiKey,
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
@@ -170,6 +171,10 @@ import {
   applyBrandingAppearanceOverride,
   mergeBrandingAppearanceOverrides,
 } from "./helpers/branding-appearance-helper";
+import type { BillingWrapper } from "./helpers/billing-wrapper";
+import { getBillingProvider } from "./helpers/billing-provider";
+import type { RestorePurchasesResult } from "./entities/restore-purchases-result";
+import type { SyncPurchasesResult } from "./entities/sync-purchases-result";
 import {
   type PreparedStripeBillingApplePayPurchase,
   prepareStripeBillingApplePayPurchase,
@@ -236,6 +241,8 @@ export type { FlagsConfig, StoreLoadTime } from "./entities/flags-config";
 export { LogLevel } from "./entities/logging";
 export type { LogHandler } from "./entities/logging";
 export type { IdentifyResult } from "./entities/identify-result";
+export type { RestorePurchasesResult } from "./entities/restore-purchases-result";
+export type { SyncPurchasesResult } from "./entities/sync-purchases-result";
 export type { GetOfferingsParams } from "./entities/get-offerings-params";
 export { OfferingKeyword } from "./entities/get-offerings-params";
 export type {
@@ -355,6 +362,9 @@ export class Purchases {
 
   /** @internal */
   private readonly inMemoryCache: InMemoryCache;
+
+  /** @internal */
+  private readonly amazonBillingWrapper: BillingWrapper | null = null;
 
   /**
    * Unfinished offerings requests keyed by app user ID. This lets concurrent
@@ -624,6 +634,17 @@ export class Purchases {
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
+
+    // Vega does not surface console.debug() at its default logging threshold,
+    // so use console.log() for SDK debug messages when using the Amazon store.
+    if (isAmazonApiKey(apiKey)) {
+      Logger.enableConsoleLogForDebugMessages();
+    }
+
+    // Reconfiguring replaces the singleton instance. Close the old Amazon
+    // wrapper first so its AppState listener does not keep syncing in the
+    // background after it is no longer reachable.
+    Purchases.instance?.amazonBillingWrapper?.close();
     Purchases.instance = new Purchases(
       apiKey,
       appUserId,
@@ -676,8 +697,13 @@ export class Purchases {
   /** @internal */
   private async fetchAndCacheBrandingInfo(): Promise<void> {
     if (isSimulatedStoreApiKey(this._API_KEY)) {
-      Logger.warnLog(
+      Logger.verboseLog(
         "Branding info is not available for RC Test Store API keys.",
+      );
+      return;
+    } else if (isAmazonApiKey(this._API_KEY)) {
+      Logger.verboseLog(
+        "Branding info is not available for Amazon Store API keys.",
       );
       return;
     }
@@ -759,6 +785,21 @@ export class Purchases {
     this.eventsTracker.trackSDKEvent({
       eventName: SDKEventName.SDKInitialized,
     });
+    if (isAmazonApiKey(this._API_KEY)) {
+      const billingProvider = getBillingProvider();
+      if (!billingProvider) {
+        throw new PurchasesError(
+          ErrorCode.ConfigurationError,
+          "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
+        );
+      }
+      this.amazonBillingWrapper = billingProvider.createBillingWrapper({
+        backend: this.backend,
+        apiKey: this._API_KEY,
+        getAppUserId: () => this._appUserId,
+        getIsAnonymous: () => this.isAnonymous(),
+      });
+    }
   }
 
   /**
@@ -1735,12 +1776,22 @@ export class Purchases {
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
-    const productsResponse = await this.backend.getProducts(
-      appUserId,
-      productIds,
-      params?.currency,
-      params?.discountCode,
-    );
+    let productsResponse: ProductsResponse;
+    if (isAmazonApiKey(this._API_KEY)) {
+      productsResponse = await this.unwrappedAmazonBillingWrapper().getProducts(
+        appUserId,
+        productIds,
+        params?.currency,
+        params?.discountCode,
+      );
+    } else {
+      productsResponse = await this.backend.getProducts(
+        appUserId,
+        productIds,
+        params?.currency,
+        params?.discountCode,
+      );
+    }
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
     return productsResponse;
@@ -2005,6 +2056,62 @@ export class Purchases {
       customerEmail,
       htmlTarget,
     });
+  }
+
+  /**
+   * Restores purchases made with the current store account for the current user.
+   * This method posts all purchases associated with the current Amazon Appstore account to RevenueCat and associates
+   * them with the current `appUserId`. If a receipt is already used by an existing user, the current `appUserId`
+   * may be aliased with that user's `appUserId` depending on your app's Restore Behavior. For more information,
+   * refer to https://www.revenuecat.com/docs/projects/restore-behavior
+   *
+   * This method also sends expired subscriptions and consumed one-time purchases to RevenueCat.
+   *
+   * You shouldn't use this method if you have your own account system. In that case, restoration is provided by
+   * your app passing the same `appUserId` that was used for the original purchase.
+   *
+   * Currently only supported on the Amazon Store when configured with an Amazon API key.
+   *
+   * @warning This operation can take a relatively long time when the user has many purchases.
+   * @returns The {@link CustomerInfo} with restored purchases.
+   * @throws {@link PurchasesError} if the SDK is not configured with an Amazon Appstore API key or restoration fails.
+   */
+  public async restorePurchases(): Promise<RestorePurchasesResult> {
+    if (!isAmazonApiKey(this._API_KEY)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "restorePurchases() is only supported for Amazon Appstore API keys.",
+      );
+    }
+    return await this.unwrappedAmazonBillingWrapper().restorePurchases(
+      this._appUserId,
+    );
+  }
+
+  /**
+   * Sends purchases made with the current store account to the RevenueCat backend.
+   * Call this when using your own purchase implementation whenever a sync is needed, such as while migrating
+   * existing users to RevenueCat. It resolves when all purchases have been synced successfully or when there are
+   * no purchases to sync; otherwise it throws with the first error encountered.
+   *
+   * This method also sends expired subscriptions and consumed one-time purchases to RevenueCat.
+   *
+   * Currently only supported on the Amazon Store when configured with an Amazon API key.
+   *
+   * @warning This operation can take a relatively long time when the user has many purchases.
+   * @returns The {@link CustomerInfo} after purchases have been synced.
+   * @throws {@link PurchasesError} if the SDK is not configured with an Amazon Appstore API key or syncing fails.
+   */
+  public async syncPurchases(): Promise<SyncPurchasesResult> {
+    if (!isAmazonApiKey(this._API_KEY)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "syncPurchases() is only supported for Amazon Appstore API keys.",
+      );
+    }
+    return await this.unwrappedAmazonBillingWrapper().syncPurchases(
+      this._appUserId,
+    );
   }
 
   /**
@@ -2370,6 +2477,17 @@ export class Purchases {
         effectiveParams,
         effectiveBrandingInfo,
       );
+    }
+
+    const isAmazon = isAmazonApiKey(this._API_KEY);
+    if (isAmazon) {
+      const purchaseResult =
+        await this.unwrappedAmazonBillingWrapper().purchase(
+          params,
+          this._appUserId,
+        );
+      this.invalidateRequestDataCaches();
+      return purchaseResult;
     }
 
     return await this.performWebBillingPurchase(
@@ -3178,6 +3296,7 @@ export class Purchases {
       if (this.eventsTracker) {
         this.eventsTracker.dispose();
       }
+      this.amazonBillingWrapper?.close();
       if (this._flags.applePayBrandingLogoEnabled) {
         const doc = getNullableDocument();
         if (doc) {
@@ -3264,5 +3383,16 @@ export class Purchases {
    */
   public _flushAllEvents(): Promise<void> {
     return this.eventsTracker.flushAllEvents();
+  }
+
+  private unwrappedAmazonBillingWrapper(): BillingWrapper {
+    if (this.amazonBillingWrapper === null) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Ensure that you have configured the SDK using an Amazon API key.",
+      );
+    }
+
+    return this.amazonBillingWrapper;
   }
 }

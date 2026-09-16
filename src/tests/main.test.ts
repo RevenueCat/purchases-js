@@ -28,6 +28,27 @@ import { http, HttpResponse } from "msw";
 import { expectPromiseToError } from "./test-helpers";
 import { StatusCodes } from "http-status-codes";
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
+import type { BillingWrapper } from "../helpers/billing-wrapper";
+import { Logger } from "../helpers/logger";
+import {
+  registerBillingProvider,
+  resetBillingProvider,
+} from "../helpers/billing-provider";
+
+const createBillingWrapperMock = () =>
+  ({
+    close: vi.fn<BillingWrapper["close"]>(),
+    getProducts: vi.fn<BillingWrapper["getProducts"]>(),
+    purchase: vi.fn<BillingWrapper["purchase"]>(),
+    syncPurchases: vi.fn<BillingWrapper["syncPurchases"]>(),
+    restorePurchases: vi.fn<BillingWrapper["restorePurchases"]>(),
+  }) satisfies BillingWrapper;
+let billingWrapper = createBillingWrapperMock();
+
+beforeEach(() => {
+  resetBillingProvider();
+  billingWrapper = createBillingWrapperMock();
+});
 
 describe("Purchases.configure() legacy", () => {
   test("throws error if given invalid api key", () => {
@@ -208,6 +229,23 @@ describe("Purchases.configure()", () => {
     ).not.toThrow();
   });
 
+  test("throws error if given invalid Amazon API key", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: "amzn_test invalidchar",
+        appUserId: testUserId,
+      }),
+    ).toThrowError(PurchasesError);
+  });
+
+  test("requires the Vega package for an Amazon API key", () => {
+    expect(() =>
+      Purchases.configure({ apiKey: "amzn_valid_key", appUserId: testUserId }),
+    ).toThrowError(
+      "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
+    );
+  });
+
   test("identifies stripe sandbox api keys as sandbox", () => {
     const purchases = Purchases.configure({
       apiKey: "strp_sb_valid_key",
@@ -227,12 +265,17 @@ describe("Purchases.configure()", () => {
   });
 
   test("does not throw error if given valid web billing api key", () => {
+    const loggerSpy = vi.spyOn(Logger, "enableConsoleLogForDebugMessages");
+
     expect(() =>
       Purchases.configure({
         apiKey: testApiKey,
         appUserId: testUserId,
       }),
     ).not.toThrow();
+
+    expect(loggerSpy).not.toHaveBeenCalled();
+    loggerSpy.mockRestore();
   });
 
   test("does not throw error if given valid simulated store api key", () => {
@@ -311,6 +354,117 @@ describe("Purchases.configure()", () => {
       } as PurchasesConfig),
     ).toThrowError(PurchasesError);
   });
+});
+
+describe("billing wrapper selection", () => {
+  beforeEach(() => {
+    registerBillingProvider({
+      validateApiKey: () => {},
+      createBillingWrapper: () => billingWrapper,
+    });
+  });
+  test("closes the existing Amazon billing wrapper when reconfiguring", () => {
+    const close = vi.spyOn(billingWrapper, "close");
+
+    configurePurchases(testUserId, "rcSource", "amzn_valid_key");
+    const purchases = configurePurchases(testUserId, "rcSource", testApiKey);
+
+    expect(close).toHaveBeenCalledOnce();
+
+    purchases.close();
+  });
+
+  test("uses web billing for offerings with a non-Amazon API key", async () => {
+    const purchases = configurePurchases();
+    const getAmazonProducts = vi.spyOn(billingWrapper, "getProducts");
+
+    await purchases.getOfferings();
+
+    expect(getAmazonProducts).not.toHaveBeenCalled();
+    expect(APIGetRequest).toHaveBeenCalledWith({
+      url: `http://localhost:8000/rcbilling/v1/subscribers/${testUserId}/products?id=monthly&id=monthly_2`,
+    });
+  });
+});
+
+describe("Purchases.syncPurchases and Purchases.restorePurchases", () => {
+  beforeEach(() => {
+    registerBillingProvider({
+      validateApiKey: () => {},
+      createBillingWrapper: () => billingWrapper,
+    });
+  });
+  test.each([
+    ["syncPurchases", "syncPurchases"],
+    ["restorePurchases", "restorePurchases"],
+  ] as const)(
+    "%s delegates to the Amazon billing wrapper for Amazon API keys",
+    async (method, wrapperMethod) => {
+      const purchases = configurePurchases(
+        testUserId,
+        "rcSource",
+        "amzn_valid_key",
+      );
+      const expectedResult = { customerInfo: {} as CustomerInfo };
+      const syncPurchasesSpy = vi
+        .spyOn(billingWrapper, "syncPurchases")
+        .mockResolvedValue(expectedResult);
+      const restorePurchasesSpy = vi
+        .spyOn(billingWrapper, "restorePurchases")
+        .mockResolvedValue(expectedResult);
+
+      await expect(purchases[method]()).resolves.toBe(expectedResult);
+
+      const expectedSpy =
+        wrapperMethod === "syncPurchases"
+          ? syncPurchasesSpy
+          : restorePurchasesSpy;
+      const otherSpy =
+        wrapperMethod === "syncPurchases"
+          ? restorePurchasesSpy
+          : syncPurchasesSpy;
+      expect(expectedSpy).toHaveBeenCalledExactlyOnceWith(testUserId);
+      expect(otherSpy).not.toHaveBeenCalled();
+    },
+  );
+
+  test.each(["syncPurchases", "restorePurchases"] as const)(
+    "%s rejects for non-Amazon API keys without calling the Amazon wrapper",
+    async (method) => {
+      const purchases = configurePurchases();
+      const syncPurchasesSpy = vi.spyOn(billingWrapper, "syncPurchases");
+      const restorePurchasesSpy = vi.spyOn(billingWrapper, "restorePurchases");
+
+      await expect(purchases[method]()).rejects.toMatchObject({
+        errorCode: ErrorCode.ConfigurationError,
+        message: `${method}() is only supported for Amazon Appstore API keys.`,
+      });
+
+      expect(syncPurchasesSpy).not.toHaveBeenCalled();
+      expect(restorePurchasesSpy).not.toHaveBeenCalled();
+    },
+  );
+
+  test.each([
+    ["syncPurchases", "syncPurchases"],
+    ["restorePurchases", "restorePurchases"],
+  ] as const)(
+    "%s propagates errors from the Amazon billing wrapper",
+    async (method, wrapperMethod) => {
+      const purchases = configurePurchases(
+        testUserId,
+        "rcSource",
+        "amzn_valid_key",
+      );
+      const error = new PurchasesError(
+        ErrorCode.StoreProblemError,
+        "Amazon unavailable",
+      );
+      vi.spyOn(billingWrapper, wrapperMethod).mockRejectedValue(error);
+
+      await expect(purchases[method]()).rejects.toBe(error);
+    },
+  );
 });
 
 describe("Purchases.isConfigured()", () => {
@@ -682,6 +836,12 @@ describe("Purchases.identifyUser", () => {
 });
 
 describe("Purchases.purchase()", () => {
+  beforeEach(() => {
+    registerBillingProvider({
+      validateApiKey: () => {},
+      createBillingWrapper: () => billingWrapper,
+    });
+  });
   type PurchaseRouterMethods = {
     performPaddlePurchase: (
       params: PurchaseParams,
@@ -924,6 +1084,82 @@ describe("Purchases.purchase()", () => {
     expect(performWebBillingPurchaseSpy).toHaveBeenCalledOnce();
     expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
     expect(performStripePurchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("routes purchases to the Amazon billing wrapper for amzn_ API keys", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "amzn_valid_key",
+    );
+    const params = { rcPackage: createMonthlyPackageMock() };
+    const amazonPurchaseSpy = vi
+      .spyOn(billingWrapper, "purchase")
+      .mockResolvedValue({} as never);
+    const purchasesInternal = purchases as unknown as PurchaseRouterMethods;
+    const performPaddlePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performPaddlePurchase",
+    );
+    const performStripePurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performStripePurchase",
+    );
+    const performWebBillingPurchaseSpy = vi.spyOn(
+      purchasesInternal,
+      "performWebBillingPurchase",
+    );
+
+    await purchases.purchase(params);
+
+    expect(amazonPurchaseSpy).toHaveBeenCalledExactlyOnceWith(
+      { ...params, tryWithApplePay: false },
+      testUserId,
+    );
+    expect(performPaddlePurchaseSpy).not.toHaveBeenCalled();
+    expect(performStripePurchaseSpy).not.toHaveBeenCalled();
+    expect(performWebBillingPurchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("invalidates caches after a successful Amazon purchase", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "amzn_valid_key",
+    );
+    const params = { rcPackage: createMonthlyPackageMock() };
+    let completeAmazonPurchase: () => void;
+    const amazonPurchaseSpy = vi
+      .spyOn(billingWrapper, "purchase")
+      .mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            completeAmazonPurchase = () => resolve({} as never);
+          }),
+      );
+    const invalidateAllCachesSpy = vi.spyOn(
+      purchases["inMemoryCache"],
+      "invalidateAllCaches",
+    );
+
+    purchases["offeringsRequests"].set(testUserId, new Promise(() => {}));
+
+    const purchasePromise = purchases.purchase(params);
+
+    await waitFor(() => {
+      expect(amazonPurchaseSpy).toHaveBeenCalledExactlyOnceWith(
+        { ...params, tryWithApplePay: false },
+        testUserId,
+      );
+    });
+    expect(invalidateAllCachesSpy).not.toHaveBeenCalled();
+    expect(purchases["offeringsRequests"].has(testUserId)).toBe(true);
+
+    completeAmazonPurchase!();
+    await purchasePromise;
+
+    expect(invalidateAllCachesSpy).toHaveBeenCalledOnce();
+    expect(purchases["offeringsRequests"].size).toBe(0);
   });
 
   test("passes attributionMetadata through the purchase result", async () => {
