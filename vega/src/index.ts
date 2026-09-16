@@ -26,6 +26,9 @@ export class Purchases extends CorePurchases {
     );
   }
 
+  // CorePurchases creates this subclass through the registered factory, but its
+  // static methods are typed to return CorePurchases. Redeclare them here so
+  // Vega callers retain access to the Vega-only APIs.
   static configure(config: PurchasesConfig): Purchases;
   static configure(
     apiKey: string,
