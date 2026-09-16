@@ -221,7 +221,7 @@ jobs:
           command: pnpm run extract-api
       - run:
           name: Check if API has changed
-          command: git diff --exit-code api-report/purchases-js.api.md
+          command: git diff --exit-code api-report/purchases-js.api.md vega/api-report/purchases-js-vega.api.md
       - run:
           name: Pack
           command: pnpm pack
@@ -363,7 +363,7 @@ workflows:
       - revenuecat/update-error-codes:
           platform: js
           outputs: "error-codes.ts:src/generated/error-codes.ts"
-          commit_paths: "src/generated/error-codes.ts,api-report"
+          commit_paths: "src/generated/error-codes.ts,api-report,vega/api-report"
           update_api_steps:
             - install-dependencies
             - run:
