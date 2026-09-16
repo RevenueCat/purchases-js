@@ -811,12 +811,22 @@ export class Purchases {
 
   /**
    * Renders an RC Paywall and allows the user to purchase from it using Web Billing.
+   *
+   * Unsupported for Amazon apps running on Vega.
+   *
    * @param paywallParams - The parameters object to customise the paywall render. Check {@link PresentPaywallParams}
    * @returns Promise<PurchaseResult>
    */
   public async presentPaywall(
     paywallParams: PresentPaywallParams,
   ): Promise<PaywallPurchaseResult> {
+    if (isAmazonApiKey(this._API_KEY)) {
+      Logger.verboseLog(
+        "Paywalls are not currently available for Amazon apps.",
+      );
+      throw new Error("Paywalls are not currently available for Amazon apps.");
+    }
+
     const htmlTarget = paywallParams.htmlTarget;
     let wasRootAutoCreated = false;
 
@@ -2069,6 +2079,9 @@ export class Purchases {
    * Renders an Express Purchase button for the supported wallets (Apple Pay/Google Pay).
    * When clicked it uses the wallet UI to execute the purchase instead of
    * the checkout flow that would be shown with `.purchase`.
+   *
+   * Unsupported for Amazon apps running on Vega OS.
+   *
    * @param params - The parameters object to customise the purchase flow. Check {@link PresentExpressPurchaseButtonParams}
    * @returns Promise<PurchaseResult>
    */
