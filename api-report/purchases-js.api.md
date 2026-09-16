@@ -548,7 +548,7 @@ export class Purchases {
     /* Excluded from this release type: eventsTracker */
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
-    /* Excluded from this release type: amazonBillingWrapper */
+    /* Excluded from this release type: billingWrapper */
     /* Excluded from this release type: offeringsRequests */
     /* Excluded from this release type: cachedCurrentOffering */
     /* Excluded from this release type: stripeBillingQuickPurchaseState */
@@ -591,6 +591,7 @@ export class Purchases {
     trackCustomPaywallImpression(params?: CustomPaywallImpressionParams): void;
     /* Excluded from this release type: _trackEvent */
     /* Excluded from this release type: _flushAllEvents */
+    /* Excluded from this release type: unwrappedBillingWrapper */
 }
 
 // @public
