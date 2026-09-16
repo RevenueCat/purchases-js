@@ -49,6 +49,8 @@ export class Purchases extends CorePurchases {
     return super.getSharedInstance() as Purchases;
   }
 
+  public tempFunctionToMakeAPIExtractorFail() {}
+
   /**
    * Restores purchases made with the current store account for the current user.
    * This method posts all purchases associated with the current Amazon Appstore account to RevenueCat and associates
