@@ -3,6 +3,10 @@ import { isPresentOnOS } from "@amazon-devices/kepler-compatibility";
 
 type ReceiptCache = string[];
 
+const KEPLER_FILE_SYSTEM_DEPENDENCY = "@amazon-devices/kepler-file-system";
+// Kepler File System 0.0.7 introduced the `exists()` function.
+const KEPLER_FILE_SYSTEM_EXISTS_MIN_VERSION = "0.0.7";
+
 /**
  * Class capable of caching items on a Vega device.
  *
@@ -78,9 +82,13 @@ export class VegaDeviceCache {
   private async doesCacheFileExist(
     fileSystem: typeof KeplerFileSystem,
   ): Promise<boolean> {
-    // `exists` arrived in Kepler File System 0.0.7. On older Vega OS versions,
-    // use a read attempt to determine whether the cache file is present.
-    if (isPresentOnOS("@amazon-devices/kepler-file-system", "0.0.7")) {
+    // On older Vega OS versions, use a read attempt to determine whether the cache file is present.
+    if (
+      isPresentOnOS(
+        KEPLER_FILE_SYSTEM_DEPENDENCY,
+        KEPLER_FILE_SYSTEM_EXISTS_MIN_VERSION,
+      )
+    ) {
       return await fileSystem.exists(this.tokensCachePath);
     }
 
