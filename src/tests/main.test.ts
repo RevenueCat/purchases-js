@@ -1142,6 +1142,8 @@ describe("Purchases.purchase()", () => {
       "invalidateAllCaches",
     );
 
+    purchases["offeringsRequests"].set(testUserId, new Promise(() => {}));
+
     const purchasePromise = purchases.purchase(params);
 
     await waitFor(() => {
@@ -1151,11 +1153,13 @@ describe("Purchases.purchase()", () => {
       );
     });
     expect(invalidateAllCachesSpy).not.toHaveBeenCalled();
+    expect(purchases["offeringsRequests"].has(testUserId)).toBe(true);
 
     completeAmazonPurchase!();
     await purchasePromise;
 
     expect(invalidateAllCachesSpy).toHaveBeenCalledOnce();
+    expect(purchases["offeringsRequests"].size).toBe(0);
   });
 
   test("passes attributionMetadata through the purchase result", async () => {

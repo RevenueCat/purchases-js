@@ -549,6 +549,7 @@ export class Purchases {
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
     /* Excluded from this release type: amazonBillingWrapper */
+    /* Excluded from this release type: offeringsRequests */
     /* Excluded from this release type: cachedCurrentOffering */
     /* Excluded from this release type: stripeBillingQuickPurchaseState */
     /* Excluded from this release type: stripeBillingQuickPurchasePreparation */
@@ -567,6 +568,7 @@ export class Purchases {
     static getSharedInstance(): Purchases;
     getVirtualCurrencies(): Promise<VirtualCurrencies>;
     identifyUser(appUserId: string): Promise<IdentifyResult>;
+    invalidateOfferingsCache(): void;
     invalidateVirtualCurrenciesCache(): void;
     // (undocumented)
     isAnonymous(): boolean;
