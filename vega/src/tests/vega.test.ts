@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const { purchasingService } = vi.hoisted(() => ({
   purchasingService: { getProductData: vi.fn() },
@@ -38,10 +38,17 @@ import { defaultHttpConfig } from "../../../src/entities/http-config";
 import { Purchases } from "../index";
 import { testUserId } from "../../../src/tests/base.purchases_test";
 import { APIGetRequest } from "../../../src/tests/test-responses";
+import { AmazonBillingWrapper } from "../amazon/amazon-billing-wrapper";
+import type { CustomerInfo } from "../../../src/entities/customer-info";
+import { ErrorCode, PurchasesError } from "../../../src/entities/errors";
 
 describe("Vega module", () => {
   beforeEach(() => {
     purchasingService.getProductData.mockReset();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   test("configures with an Amazon API key", () => {
@@ -123,4 +130,38 @@ describe("Vega module", () => {
       url: `http://localhost:8000/v1/subscribers/${testUserId}/offerings`,
     });
   });
+
+  test.each(["syncPurchases", "restorePurchases"] as const)(
+    "%s delegates to the Amazon billing wrapper",
+    async (method) => {
+      const expectedResult = { customerInfo: {} as CustomerInfo };
+      const wrapperMethod = vi
+        .spyOn(AmazonBillingWrapper.prototype, method)
+        .mockResolvedValue(expectedResult);
+      const purchases = Purchases.configure({
+        apiKey: "amzn_valid_key",
+        appUserId: testUserId,
+      });
+
+      await expect(purchases[method]()).resolves.toBe(expectedResult);
+      expect(wrapperMethod).toHaveBeenCalledExactlyOnceWith(testUserId);
+    },
+  );
+
+  test.each(["syncPurchases", "restorePurchases"] as const)(
+    "%s propagates errors from the Amazon billing wrapper",
+    async (method) => {
+      const error = new PurchasesError(
+        ErrorCode.StoreProblemError,
+        "Amazon unavailable",
+      );
+      vi.spyOn(AmazonBillingWrapper.prototype, method).mockRejectedValue(error);
+      const purchases = Purchases.configure({
+        apiKey: "amzn_valid_key",
+        appUserId: testUserId,
+      });
+
+      await expect(purchases[method]()).rejects.toBe(error);
+    },
+  );
 });
