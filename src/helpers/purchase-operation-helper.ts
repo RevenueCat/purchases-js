@@ -5,7 +5,10 @@ import {
   type PurchasesErrorExtra,
 } from "../entities/errors";
 import { type Backend } from "../networking/backend";
-import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import type {
+  StripeBillingApplePayCheckoutStartResponse,
+  WebBillingCheckoutStartResponse,
+} from "../networking/responses/checkout-start-response";
 import {
   CheckoutSessionStatus,
   type CheckoutStatusResponse,
@@ -51,6 +54,7 @@ export enum PurchaseFlowErrorCode {
   StripeInvalidTaxOriginAddress = 7,
   StripeMissingRequiredPermission = 8,
   InvalidPaddleAPIKeyError = 9,
+  StripeInvalidTaxOriginAddressDuringCheckout = 10,
 }
 
 export class PurchaseFlowError extends Error {
@@ -110,6 +114,8 @@ export class PurchaseFlowError extends Error {
         return PurchaseFlowErrorCode.StripeTaxNotActive;
       case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress:
         return PurchaseFlowErrorCode.StripeInvalidTaxOriginAddress;
+      case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddressDuringCheckout:
+        return PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout;
       case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
         return PurchaseFlowErrorCode.StripeMissingRequiredPermission;
       case BackendErrorCode.BackendInvalidPaddleAPIKey:
@@ -154,6 +160,7 @@ interface CheckoutStartParams {
     productIdentifier?: string;
   };
   subscriberToken?: string;
+  purchaseFlow?: "apple_pay";
 }
 
 interface CheckoutRefreshPricingParams {
@@ -268,6 +275,14 @@ export class PurchaseOperationHelper {
     }
   }
 
+  async checkoutStart(
+    params: CheckoutStartParams & { purchaseFlow: "apple_pay" },
+  ): Promise<StripeBillingApplePayCheckoutStartResponse>;
+  async checkoutStart(
+    params: CheckoutStartParams,
+  ): Promise<
+    WebBillingCheckoutStartResponse | SubscriptionChangeCheckoutStartResponse
+  >;
   async checkoutStart({
     appUserId,
     productId,
@@ -284,8 +299,11 @@ export class PurchaseOperationHelper {
     appearanceOverride,
     productChange,
     subscriberToken,
+    purchaseFlow,
   }: CheckoutStartParams): Promise<
-    WebBillingCheckoutStartResponse | SubscriptionChangeCheckoutStartResponse
+    | WebBillingCheckoutStartResponse
+    | StripeBillingApplePayCheckoutStartResponse
+    | SubscriptionChangeCheckoutStartResponse
   > {
     try {
       const traceId = this.eventsTracker.getTraceId();
@@ -294,6 +312,7 @@ export class PurchaseOperationHelper {
 
       const checkoutStartResponse = await this.backend.postCheckoutStart<
         | WebBillingCheckoutStartResponse
+        | StripeBillingApplePayCheckoutStartResponse
         | SubscriptionChangeCheckoutStartResponse
       >({
         appUserId,
@@ -313,6 +332,7 @@ export class PurchaseOperationHelper {
         ...(appearanceOverride ? { appearanceOverride } : {}),
         productChange,
         subscriberToken,
+        purchaseFlow,
       });
       this.operationSessionId = checkoutStartResponse.operation_session_id;
       this.completedCustomerEmail = undefined;
@@ -394,6 +414,8 @@ export class PurchaseOperationHelper {
     options: {
       email?: string;
       locale?: string;
+      billingName?: string;
+      billingAddress?: CheckoutRefreshPricingParams & { countryCode: string };
     } = {},
   ): Promise<CheckoutCompleteResponse> {
     const operationSessionId = this.operationSessionId;
@@ -410,6 +432,8 @@ export class PurchaseOperationHelper {
         {
           email: options.email,
           locale: options.locale,
+          billingName: options.billingName,
+          billingAddress: options.billingAddress,
         },
       );
       if (isSubscriptionChangeCompleteResponse(response)) {

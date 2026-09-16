@@ -159,6 +159,17 @@ export interface PurchaseParams {
   discountCode?: string;
 
   /**
+   * @internal
+   * Paddle discount id (`dsc_...`) to apply at checkout. Paddle only.
+   * Takes precedence over {@link PurchaseParams.discountCode}, since Paddle
+   * Checkout accepts one or the other but not both.
+   *
+   * Set by hosts that resolve the id from the paywall configuration (see
+   * `Purchases.applyPaddleDiscountsToOffering`); not part of the public API.
+   */
+  discountId?: string;
+
+  /**
    * @experimental
    * Called when the applied discount code changes in the Web Billing checkout.
    * This can be used by host applications to keep external state, such as the URL,
@@ -198,4 +209,35 @@ export interface PurchaseParams {
    * @internal
    */
   productChangeInfo?: ProductChangeInfo | null;
+
+  /**
+   * Tries a package-specific Apple Pay purchase prepared with
+   * {@link Purchases.prepareForQuickPurchases} before opening the normal
+   * Stripe Billing checkout.
+   *
+   * Defaults to `false`.
+   * @internal
+   */
+  tryWithApplePay?: boolean;
+}
+
+/**
+ * Parameters used to prepare a package-specific quick purchase.
+ *
+ * Pass the same values to {@link Purchases.purchase}; changing purchase
+ * context invalidates the prepared Apple Pay request and uses normal checkout.
+ * @internal
+ */
+export type PrepareQuickPurchaseParams = Omit<
+  PurchaseParams,
+  "htmlTarget" | "tryWithApplePay"
+>;
+
+/**
+ * Result returned after checking whether Apple Pay can be used for a prepared
+ * package-specific purchase.
+ * @internal
+ */
+export interface QuickPurchasePreparationResult {
+  applePayAvailable: boolean;
 }

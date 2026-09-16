@@ -19,12 +19,12 @@ import type { CheckoutStartResponse } from "../../../networking/responses/checko
 import { get, writable } from "svelte/store";
 import { Translator } from "../../../ui/localization/translator";
 import { translatorContextKey } from "../../../ui/localization/constants";
-import type {
+import type { TaxCustomerDetails } from "../../../stripe/stripe-service";
+import {
+  StripeService,
   StripeServiceError,
   StripeServiceErrorCode,
-  TaxCustomerDetails,
 } from "../../../stripe/stripe-service";
-import { StripeService } from "../../../stripe/stripe-service";
 import type {
   StripeError,
   StripePaymentElementChangeEvent,
@@ -33,6 +33,7 @@ import type { ComponentProps } from "svelte";
 import type { GatewayParams } from "../../../networking/responses/stripe-elements";
 import type { CheckoutPricingResponse } from "../../../networking/responses/checkout-pricing-response";
 import { defaultPurchaseMode } from "../../../behavioural-events/event";
+import { Logger } from "../../../helpers/logger";
 
 vi.mock("../../../stripe/stripe-service", async () => {
   const actual = await vi.importActual<{
@@ -69,21 +70,24 @@ vi.mock("../../../stripe/stripe-service", async () => {
         on: vi.fn(),
         destroy: vi.fn(),
       }),
-      // Bare mock so create throws and the error path completes form loading.
-      // A stub that never fires `ready` leaves the form stuck loading.
-      createExpressCheckoutElement: vi.fn(),
+      createExpressCheckoutElement: vi.fn().mockReturnValue({
+        mount: vi.fn(),
+        on: vi.fn(),
+        destroy: vi.fn(),
+      }),
       countryRequiresFullAddressForTaxes:
         actual.StripeService.countryRequiresFullAddressForTaxes,
       isStripeHandledFormError: vi.fn(),
       updateElementsConfiguration: vi.fn(),
       getStripeLocale: vi.fn().mockImplementation((locale: string) => locale),
-      confirmIntent: vi.fn(),
+      confirmElements: vi.fn(),
       extractTaxCustomerDetails: vi.fn(),
     },
   };
 });
 
 const eventsTrackerMock = createEventsTrackerMock();
+const trackSDKEventMock = vi.mocked(eventsTrackerMock.trackSDKEvent);
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
   checkoutRefreshPricing: async () =>
@@ -163,9 +167,20 @@ const createCompleteAddressElementMock = () => ({
   destroy: vi.fn(),
 });
 
+const createElementReadyAfter = (delay: number, readyEvent?: object) => ({
+  mount: vi.fn(),
+  on: (eventType: string, callback: (event?: object) => void) => {
+    if (eventType === "ready") {
+      setTimeout(() => callback(readyEvent), delay);
+    }
+  },
+  destroy: vi.fn(),
+});
+
 describe("PurchasesUI", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReset();
 
     vi.mocked(StripeService.initializeStripe).mockResolvedValue({
       // @ts-expect-error - This is a mock
@@ -179,13 +194,33 @@ describe("PurchasesUI", () => {
     vi.mocked(StripeService.isStripeHandledFormError).mockReturnValue(false);
   });
 
-  test("tracks the CheckoutPaymentFormImpression event when the payment entry is displayed and form loaded", async () => {
-    render(PaymentEntryPage, {
+  test("displays the payment form without waiting for Express Checkout to complete", async () => {
+    const expressCheckoutElement = {
+      mount: vi.fn(),
+      on: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValueOnce(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(0),
+    );
+    vi.mocked(
+      StripeService.createLinkAuthenticationElement,
+    ).mockReturnValueOnce(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(0),
+    );
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValueOnce(
+      // @ts-expect-error - This is a mock
+      expressCheckoutElement,
+    );
+
+    const { container } = render(PaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
 
-    await vi.advanceTimersToNextTimerAsync();
+    await vi.advanceTimersByTimeAsync(0);
 
     expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
       eventName: SDKEventName.CheckoutPaymentFormImpression,
@@ -193,6 +228,139 @@ describe("PurchasesUI", () => {
         mode: defaultPurchaseMode,
       },
     });
+    expect(container.querySelector(".rc-loading")).toBeNull();
+    expect(
+      container
+        .querySelector(".rc-checkout-form-container")
+        ?.classList.contains("invisible"),
+    ).toBe(false);
+    expect(expressCheckoutElement.mount).toHaveBeenCalledOnce();
+  });
+
+  test("displays the card separator only after Express Checkout reports available payment methods", async () => {
+    vi.mocked(StripeService.createPaymentElement).mockReturnValueOnce(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(0),
+    );
+    vi.mocked(
+      StripeService.createLinkAuthenticationElement,
+    ).mockReturnValueOnce(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(0),
+    );
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValueOnce(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(10, {
+        availablePaymentMethods: { applePay: true },
+      }),
+    );
+
+    render(PaymentEntryPage, {
+      props: { ...basicProps },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersByTimeAsync(0);
+    expect(screen.queryByText("OR PAY BY CARD")).toBeNull();
+
+    await vi.advanceTimersByTimeAsync(10);
+    expect(screen.getByText("OR PAY BY CARD")).toBeTruthy();
+  });
+
+  test("does not display the card separator when no Express Checkout payment methods are available", async () => {
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValueOnce(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(0, { availablePaymentMethods: undefined }),
+    );
+
+    render(PaymentEntryPage, {
+      props: { ...basicProps },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(screen.queryByText("OR PAY BY CARD")).toBeNull();
+  });
+
+  test("keeps the payment form available after a nonfatal Express Checkout load error", async () => {
+    const expressCheckoutElement = {
+      mount: vi.fn(),
+      on: (
+        eventType: string,
+        callback: (event?: {
+          elementType: "expressCheckout";
+          error: StripeError;
+        }) => void,
+      ) => {
+        if (eventType === "loaderror") {
+          setTimeout(
+            () =>
+              callback({
+                elementType: "expressCheckout",
+                error: {
+                  type: "api_connection_error",
+                  code: "0",
+                  message: "Failed to initialize Express Checkout",
+                } as StripeError,
+              }),
+            10,
+          );
+        }
+      },
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValueOnce(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(0),
+    );
+    vi.mocked(
+      StripeService.createLinkAuthenticationElement,
+    ).mockReturnValueOnce(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(0),
+    );
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValueOnce(
+      // @ts-expect-error - This is a mock
+      expressCheckoutElement,
+    );
+    trackSDKEventMock.mockClear();
+
+    const onError = vi.fn();
+    const debugLogSpy = vi
+      .spyOn(Logger, "debugLog")
+      .mockImplementation(() => undefined);
+    const { container } = render(PaymentEntryPage, {
+      props: { ...basicProps, onError },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersByTimeAsync(0);
+    await vi.advanceTimersByTimeAsync(10);
+
+    const formImpressionEvents = trackSDKEventMock.mock.calls.filter(
+      ([event]) =>
+        event.eventName === SDKEventName.CheckoutPaymentFormImpression,
+    );
+    expect(formImpressionEvents).toHaveLength(1);
+    expect(onError).not.toHaveBeenCalled();
+    expect(container.querySelector(".rc-loading")).toBeNull();
+    expect(
+      container
+        .querySelector('[id^="express-checkout-element-"]')
+        ?.classList.contains("rcb-express-checkout-hidden"),
+    ).toBe(true);
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Express Checkout Element failed after \d+ms and was hidden\. Failed to initialize Express Checkout$/,
+      ),
+    );
+    expect(eventsTrackerMock.trackSDKEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventName: SDKEventName.CheckoutPaymentFormGatewayError,
+      }),
+    );
+    debugLogSpy.mockRestore();
   });
 
   test("tracks the PaymentEntrySubmit event when the payment entry is submitted", async () => {
@@ -322,8 +490,10 @@ describe("PurchasesUI", () => {
       linkAuthenticationElement,
     );
 
-    render(PaymentEntryPage, {
-      props: { ...basicProps },
+    trackSDKEventMock.mockClear();
+    const onError = vi.fn();
+    const { container } = render(PaymentEntryPage, {
+      props: { ...basicProps, onError },
       context: defaultContext,
     });
 
@@ -335,6 +505,14 @@ describe("PurchasesUI", () => {
         mode: defaultPurchaseMode,
         errorCode: "0",
         errorMessage: "Failed to initialize payment form",
+      },
+    });
+    expect(onError).toHaveBeenCalledOnce();
+    expect(container.querySelector(".rc-loading")).toBeNull();
+    expect(eventsTrackerMock.trackSDKEvent).toHaveBeenCalledWith({
+      eventName: SDKEventName.CheckoutPaymentFormImpression,
+      properties: {
+        mode: defaultPurchaseMode,
       },
     });
   });
@@ -838,6 +1016,221 @@ describe("PurchasesUI", () => {
     expect(get(lastTaxCustomerDetailsStore)).toEqual(taxCustomerDetails);
   });
 
+  const cardNotSupportedErrorMessage =
+    "This card type isn't accepted. Try a different card.";
+  const genericPaymentMethodErrorMessage =
+    "We couldn't use this payment method. Check your details or try a different payment method.";
+
+  async function renderConfirmationTokenFlow() {
+    let paymentChangeCallback:
+      | ((event: StripePaymentElementChangeEvent) => void)
+      | undefined;
+    const expressCheckoutElement = {
+      mount: vi.fn(),
+      on: (eventType: string, callback: (event?: unknown) => void) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback({ availablePaymentMethods: null }), 0);
+        }
+      },
+      destroy: vi.fn(),
+    } as unknown as ReturnType<
+      typeof StripeService.createExpressCheckoutElement
+    >;
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValue(
+      expressCheckoutElement,
+    );
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          paymentChangeCallback = callback as (
+            event: StripePaymentElementChangeEvent,
+          ) => void;
+          setTimeout(() => {
+            paymentChangeCallback?.({
+              complete: true,
+              value: { type: "card" },
+              elementType: "payment",
+              empty: false,
+              collapsed: false,
+            });
+          }, 100);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+
+    const onError = vi.fn();
+    const component = render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        customerEmail: "test@test.com",
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: true,
+        },
+        onError,
+      },
+      context: defaultContext,
+    });
+
+    // Let the element change event schedule its debounced tax refresh.
+    await vi.advanceTimersByTimeAsync(100);
+
+    return { component, onError, paymentChangeCallback };
+  }
+
+  async function renderConfirmationTokenError(error: StripeServiceError) {
+    vi.mocked(StripeService.extractTaxCustomerDetails).mockRejectedValue(error);
+
+    const result = await renderConfirmationTokenFlow();
+    await vi.advanceTimersByTimeAsync(500);
+
+    return result;
+  }
+
+  test("shows and clears an owned confirmation-token error message", async () => {
+    const { onError, paymentChangeCallback } =
+      await renderConfirmationTokenError(
+        new StripeServiceError(
+          StripeServiceErrorCode.ConfirmationTokenError,
+          "card_declined",
+          "Stripe's raw error message",
+          "card_not_supported",
+        ),
+      );
+
+    expect(screen.getByText(cardNotSupportedErrorMessage)).not.toBeNull();
+    expect(screen.queryByText("Stripe's raw error message")).toBeNull();
+    expect(screen.getByTestId("payment-form")).not.toBeNull();
+    expect(onError).not.toHaveBeenCalled();
+
+    paymentChangeCallback?.({
+      complete: true,
+      value: { type: "card" },
+      elementType: "payment",
+      empty: false,
+      collapsed: false,
+    });
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(screen.queryByText(cardNotSupportedErrorMessage)).toBeNull();
+  });
+
+  test("shows the safe fallback for other confirmation-token errors", async () => {
+    const { onError } = await renderConfirmationTokenError(
+      new StripeServiceError(
+        StripeServiceErrorCode.ConfirmationTokenError,
+        "card_declined",
+        "Stripe's raw error message",
+        "insufficient_funds",
+      ),
+    );
+
+    expect(screen.getByText(genericPaymentMethodErrorMessage)).not.toBeNull();
+    expect(screen.queryByText("Stripe's raw error message")).toBeNull();
+    expect(onError).not.toHaveBeenCalled();
+  });
+
+  test("clears an owned confirmation-token error when a retry skips tax recalculation", async () => {
+    const { component, onError } = await renderConfirmationTokenError(
+      new StripeServiceError(
+        StripeServiceErrorCode.ConfirmationTokenError,
+        "card_declined",
+        "Stripe's raw error message",
+        "card_not_supported",
+      ),
+    );
+
+    await component.rerender({
+      ...basicProps,
+      customerEmail: "test@test.com",
+      brandingInfo: {
+        ...brandingInfo,
+        gateway_tax_collection_enabled: true,
+      },
+      defaultPriceBreakdown: {
+        currency: "USD",
+        totalAmountInMicros: 1000000,
+        totalExcludingTaxInMicros: 1000000,
+        taxCalculationStatus: "disabled",
+        taxAmountInMicros: null,
+        taxBreakdown: null,
+      },
+      onError,
+    });
+
+    expect(screen.getByText(cardNotSupportedErrorMessage)).not.toBeNull();
+
+    await fireEvent.submit(screen.getByTestId("payment-form"));
+
+    expect(screen.queryByText(cardNotSupportedErrorMessage)).toBeNull();
+  });
+
+  test("clears an older refresh error after the current refresh succeeds", async () => {
+    let rejectFirstExtraction: (error: StripeServiceError) => void = () => {};
+    const firstExtraction = new Promise<{
+      customerDetails: TaxCustomerDetails;
+      confirmationTokenId: string;
+    }>((_resolve, reject) => {
+      rejectFirstExtraction = reject;
+    });
+    vi.mocked(StripeService.extractTaxCustomerDetails)
+      .mockReturnValueOnce(firstExtraction)
+      .mockResolvedValueOnce({
+        customerDetails: {
+          countryCode: "US",
+          postalCode: "94107",
+          state: "CA",
+          city: "San Francisco",
+          addressLine1: "354 Oyster Point Blvd",
+          addressLine2: "Floor 2",
+        },
+        confirmationTokenId: "ctoken-id",
+      });
+
+    const { paymentChangeCallback } = await renderConfirmationTokenFlow();
+
+    // Start the first refresh, then schedule its replacement while the first
+    // confirmation-token request is still pending.
+    await vi.advanceTimersByTimeAsync(500);
+    paymentChangeCallback?.({
+      complete: true,
+      value: { type: "card" },
+      elementType: "payment",
+      empty: false,
+      collapsed: false,
+    });
+
+    // The older request fails before the replacement's debounce expires, so
+    // its error is briefly displayed.
+    rejectFirstExtraction(
+      new StripeServiceError(
+        StripeServiceErrorCode.ConfirmationTokenError,
+        "card_declined",
+        "Stripe's raw error message",
+        "card_not_supported",
+      ),
+    );
+    await vi.advanceTimersByTimeAsync(0);
+    expect(screen.getByText(cardNotSupportedErrorMessage)).not.toBeNull();
+
+    // The replacement refresh succeeds and owns the current form state, so the
+    // older error must no longer be shown.
+    await vi.advanceTimersByTimeAsync(500);
+    expect(screen.queryByText(cardNotSupportedErrorMessage)).toBeNull();
+  });
+
   test("does not recalculate taxes while the full billing address is incomplete", async () => {
     // Repro for the partial-address tax bug.
     //
@@ -1211,5 +1604,68 @@ describe("PurchasesUI", () => {
       await fireEvent.click(screen.getByTestId("CheckoutConsentCheckbox"));
       expect(payButton.disabled).toBe(false);
     });
+  });
+
+  test("logs Stripe Element completion relative to loading start", async () => {
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(10),
+    );
+    vi.mocked(StripeService.createLinkAuthenticationElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(20),
+    );
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      createElementReadyAfter(30, {
+        availablePaymentMethods: { applePay: true },
+      }),
+    );
+    const debugLogSpy = vi
+      .spyOn(Logger, "debugLog")
+      .mockImplementation(() => undefined);
+
+    render(PaymentEntryPage, {
+      props: { ...basicProps },
+      context: defaultContext,
+    });
+
+    await vi.advanceTimersByTimeAsync(0);
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      "[Stripe Elements] Loading started. Elements: Link Authentication, Payment, Express Checkout.",
+    );
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Stripe initialized after \d+ms\.$/,
+      ),
+    );
+
+    await vi.advanceTimersByTimeAsync(10);
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Payment Element completed after \d+ms\.$/,
+      ),
+    );
+
+    await vi.advanceTimersByTimeAsync(10);
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Link Authentication Element completed after \d+ms\.$/,
+      ),
+    );
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Loading completed after \d+ms\.$/,
+      ),
+    );
+
+    await vi.advanceTimersByTimeAsync(10);
+    expect(debugLogSpy).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /^\[Stripe Elements\] Express Checkout Element completed after \d+ms\.$/,
+      ),
+    );
+
+    debugLogSpy.mockRestore();
   });
 });

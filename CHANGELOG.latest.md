@@ -1,10 +1,9 @@
 ## RevenueCat SDK
-### ✨ New Features
-* Bump purchases-ui-js to 4.8.22 (#1126) via Facundo Menzella (@facumenzella)
 ### 🐞 Bugfixes
-* fix(paddle): localize hardcoded strings in the inline checkout (#1125) via Roger Solé (@rogersole)
-* fix: send X-Is-Sandbox header when using a Test Store API key (#1120) via Álvaro Brey (@AlvaroBrey)
+* WEB-4685 Show a card decline message for /confirmation-token errors (#1112) via Burdock (@lburdock)
+* Display better terms text when the app name is absent (#1139) via Burdock (@lburdock)
+### 📦 Dependency Updates
+* [AUTOMATIC] purchases-ui-js 4.10.1 => 4.10.2 (#1160) via RevenueCat Git Bot (@RCGitBot)
 
 ### 🔄 Other Changes
-* ci: bump external PR notifications workflow to v8 (#1119) via Álvaro Brey (@AlvaroBrey)
-* ci: notify external PRs feed on PRs from outside the org (#1118) via Álvaro Brey (@AlvaroBrey)
+* Display a better error message when automatic tax is enabled for chec… (#1122) via Burdock (@lburdock)

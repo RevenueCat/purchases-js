@@ -240,6 +240,26 @@ describe("getCustomerInfo request", () => {
     );
   });
 
+  test("throws a known error mapped to UnexpectedBackendResponseError if the backend returns a rate limit error", async () => {
+    setCustomerInfoResponse(
+      HttpResponse.json(
+        {
+          code: BackendErrorCode.BackendTooManyRequests,
+          message: "Too many requests",
+        },
+        { status: StatusCodes.TOO_MANY_REQUESTS },
+      ),
+    );
+    await expectPromiseToError(
+      backend.getCustomerInfo("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.UnexpectedBackendResponseError,
+        "Received unexpected response from the backend.",
+        "Too many requests",
+      ),
+    );
+  });
+
   test("throws unknown error if the backend returns a request error with unknown error code in body", async () => {
     setCustomerInfoResponse(
       HttpResponse.json(
@@ -250,14 +270,18 @@ describe("getCustomerInfo request", () => {
         { status: StatusCodes.BAD_REQUEST },
       ),
     );
+    const promise = backend.getCustomerInfo("someAppUserId");
     await expectPromiseToError(
-      backend.getCustomerInfo("someAppUserId"),
+      promise,
       new PurchasesError(
         ErrorCode.UnknownBackendError,
         "Unknown backend error.",
         'Request: getCustomerInfo. Status code: 400. Body: {"code":1234567890,"message":"Invalid error message"}.',
       ),
     );
+    await expect(promise).rejects.toMatchObject({
+      extra: { statusCode: StatusCodes.BAD_REQUEST },
+    });
   });
 
   test("throws unknown error if the backend returns a request error without error code in body", async () => {
@@ -876,6 +900,29 @@ describe("postCheckoutStart request", () => {
     expect(result).toEqual(checkoutStartResponse);
   });
 
+  test("requests a package-specific Apple Pay purchase when provided", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: { id: "base_option", priceId: "test_price_id" },
+      traceId: "test-trace-id",
+      purchaseFlow: "apple_pay",
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.purchase_flow).toBe("apple_pay");
+  });
+
   test("includes an external purchase token ID when provided", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
@@ -1447,6 +1494,38 @@ describe("postCheckoutComplete request", () => {
     });
 
     expect(result).toEqual(checkoutCompleteResponse);
+  });
+
+  test("includes Apple Pay billing details when provided", async () => {
+    setCheckoutCompleteResponse(
+      HttpResponse.json(checkoutCompleteResponse, { status: 200 }),
+    );
+
+    await backend.postCheckoutComplete("someOperationSessionId", {
+      billingName: "Billing Customer",
+      billingAddress: {
+        countryCode: "US",
+        postalCode: "94107",
+        state: "CA",
+        city: "San Francisco",
+        addressLine1: "123 Main Street",
+        addressLine2: "Apt 1",
+      },
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).toEqual({
+      billing_name: "Billing Customer",
+      billing_address: {
+        country_code: "US",
+        postal_code: "94107",
+        state: "CA",
+        city: "San Francisco",
+        address_line1: "123 Main Street",
+        address_line2: "Apt 1",
+      },
+    });
   });
 
   test("includes locale in request when provided", async () => {

@@ -26,6 +26,7 @@ import RCPaywallSettingsPage from "./pages/rc_paywall_settings";
 import UpgradePage from "./pages/upgrade";
 import UpgradePaywallPage from "./pages/upgrade_paywall";
 import AppearanceOverridesPage from "./pages/appearance_overrides";
+import StripeBillingApplePayPage from "./pages/stripe_billing_apple_pay";
 
 const router = createBrowserRouter([
   {
@@ -102,6 +103,15 @@ const router = createBrowserRouter([
     element: (
       <WithoutEntitlement>
         <ExpressPurchaseButtonsPackageSelector />
+      </WithoutEntitlement>
+    ),
+  },
+  {
+    path: "/stripe_billing_apple_pay/:app_user_id",
+    loader: loadPurchases,
+    element: (
+      <WithoutEntitlement>
+        <StripeBillingApplePayPage />
       </WithoutEntitlement>
     ),
   },
