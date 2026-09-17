@@ -365,16 +365,15 @@ workflows:
             - test
             - test-e2e
           <<: *only-main
-      - hold:
-          requires:
-            - test
-            - test-e2e
+      - wait-for-pr-approval:
           type: approval
           <<: *release-branches
       - revenuecat/tag-current-branch:
           ruby_version: "3.3.0"
           requires:
-            - hold
+            - wait-for-pr-approval
+            - test
+            - test-e2e
           <<: *release-branches
       - make-release:
           <<: *release-tags
