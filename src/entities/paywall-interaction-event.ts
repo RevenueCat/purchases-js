@@ -50,4 +50,5 @@ export const PAYWALL_COMPONENT_TYPES = {
   PACKAGE: "package",
   PACKAGE_SELECTION_SHEET: "package_selection_sheet",
   PURCHASE_BUTTON: "purchase_button",
+  WALLET_BUTTON: "wallet_button",
 } as const satisfies Record<string, ComponentInteractionType>;
