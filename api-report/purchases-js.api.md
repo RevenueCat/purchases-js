@@ -289,6 +289,7 @@ export const PAYWALL_COMPONENT_TYPES: {
     readonly PACKAGE: "package";
     readonly PACKAGE_SELECTION_SHEET: "package_selection_sheet";
     readonly PURCHASE_BUTTON: "purchase_button";
+    readonly WALLET_BUTTON: "wallet_button";
 };
 
 // @public
@@ -548,6 +549,7 @@ export class Purchases {
     /* Excluded from this release type: eventsTracker */
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
+    /* Excluded from this release type: offeringsRequests */
     /* Excluded from this release type: cachedCurrentOffering */
     /* Excluded from this release type: stripeBillingQuickPurchaseState */
     /* Excluded from this release type: stripeBillingQuickPurchasePreparation */
@@ -566,6 +568,7 @@ export class Purchases {
     static getSharedInstance(): Purchases;
     getVirtualCurrencies(): Promise<VirtualCurrencies>;
     identifyUser(appUserId: string): Promise<IdentifyResult>;
+    invalidateOfferingsCache(): void;
     invalidateVirtualCurrenciesCache(): void;
     // (undocumented)
     isAnonymous(): boolean;
