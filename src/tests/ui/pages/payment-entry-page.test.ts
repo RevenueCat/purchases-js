@@ -1608,6 +1608,84 @@ describe("PurchasesUI", () => {
     });
   });
 
+  test("sends the submitted billing country to checkoutComplete when tax collection is disabled", async () => {
+    const checkoutCompleteSpy = vi.fn(async () => ({
+      gateway_params: { client_secret: "test_client_secret" },
+    }));
+    const purchaseOperationHelper = {
+      ...purchaseOperationHelperMock,
+      checkoutComplete: checkoutCompleteSpy,
+    } as unknown as PurchaseOperationHelper;
+
+    const expressCheckoutElement = {
+      mount: vi.fn(),
+      on: (eventType: string, callback: (event?: unknown) => void) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback({ availablePaymentMethods: null }), 0);
+        }
+      },
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createExpressCheckoutElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      expressCheckoutElement,
+    );
+
+    const paymentElement = {
+      on: (
+        eventType: string,
+        callback: (event?: StripePaymentElementChangeEvent) => void,
+      ) => {
+        if (eventType === "ready") {
+          setTimeout(() => callback(), 0);
+        }
+        if (eventType === "change") {
+          setTimeout(() => {
+            callback({
+              complete: true,
+              value: {
+                type: "card",
+                billingDetails: { address: { country: "US" } },
+              },
+            } as StripePaymentElementChangeEvent);
+          }, 0);
+        }
+      },
+      mount: vi.fn(),
+      destroy: vi.fn(),
+    };
+    vi.mocked(StripeService.createPaymentElement).mockReturnValue(
+      // @ts-expect-error - This is a mock
+      paymentElement,
+    );
+
+    render(PaymentEntryPage, {
+      props: {
+        ...basicProps,
+        customerEmail: "test@test.com",
+        brandingInfo: {
+          ...brandingInfo,
+          gateway_tax_collection_enabled: false,
+        },
+        purchaseOperationHelper,
+      },
+      context: defaultContext,
+    });
+
+    for (let i = 0; i < 4; i++) {
+      await vi.advanceTimersToNextTimerAsync();
+    }
+
+    await fireEvent.submit(screen.getByTestId("payment-form"));
+    await vi.advanceTimersByTimeAsync(600);
+
+    expect(checkoutCompleteSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        billingAddress: { countryCode: "US" },
+      }),
+    );
+  });
+
   test("logs Stripe Element completion relative to loading start", async () => {
     vi.mocked(StripeService.createPaymentElement).mockReturnValue(
       // @ts-expect-error - This is a mock

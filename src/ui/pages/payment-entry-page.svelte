@@ -746,6 +746,13 @@
     const completeResponse = await purchaseOperationHelper.checkoutComplete({
       email,
       locale: $translator.selectedLocale,
+      // Persist the billing country the customer submitted at checkout so the
+      // receipt's country is populated even when tax collection is disabled and
+      // no tax calculation ran. The backend ignores it when a tax calculation
+      // already captured a country.
+      billingAddress: selectedCountry
+        ? { countryCode: selectedCountry }
+        : undefined,
     });
     const newClientSecret = completeResponse.gateway_params?.client_secret;
     if (newClientSecret) clientSecret = newClientSecret;
