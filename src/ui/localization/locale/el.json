@@ -55,6 +55,7 @@
   "error_page.button_try_again": "Προσπαθήστε ξανά",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}%",
+  "paywall_variables.free_price": "δωρεάν",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "navbar_header.details": "Λεπτομέρειες",
   "navbar_header.back_button": "Πίσω",
