@@ -107,8 +107,11 @@ export class AmazonBillingWrapper implements BillingWrapper {
           "Purchase not supported",
         );
       case PurchaseResponseCode.FAILED:
+        // Match the purchases-android implementation by treating FAILED as a
+        // cancellation because the Amazon IAP library does not distinguish
+        // purchase failures from user cancellations.
         throw new PurchasesError(
-          ErrorCode.StoreProblemError,
+          ErrorCode.UserCancelledError,
           "Amazon purchase failed",
         );
       default:
