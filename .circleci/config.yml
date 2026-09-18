@@ -212,6 +212,11 @@ jobs:
 
   dependency-update:
     description: "Opens a PR updating purchases-ui-js to the latest version published to npm"
+    parameters:
+      version:
+        description: "The version just published. Empty means whatever npm reports as latest."
+        type: string
+        default: ""
     docker:
       - image: cimg/ruby:3.3.0-node
     steps:
@@ -225,7 +230,7 @@ jobs:
       - revenuecat/setup-git-credentials
       - run:
           name: Update purchases-ui-js to latest version
-          command: bundle exec fastlane open_pr_upgrading_dependencies
+          command: bundle exec fastlane open_pr_upgrading_dependencies expected_version:"<< parameters.version >>"
 
   test-e2e:
     docker:
@@ -340,7 +345,8 @@ workflows:
             - equal: [ "dependency-update", << pipeline.schedule.name >> ]
         - equal: [ dependency-update, << pipeline.parameters.action >> ]
     jobs:
-      - dependency-update
+      - dependency-update:
+          version: << pipeline.parameters.version >>
 
   test-deploy:
     when:
@@ -359,16 +365,15 @@ workflows:
             - test
             - test-e2e
           <<: *only-main
-      - hold:
-          requires:
-            - test
-            - test-e2e
+      - wait-for-pr-approval:
           type: approval
           <<: *release-branches
       - revenuecat/tag-current-branch:
           ruby_version: "3.3.0"
           requires:
-            - hold
+            - wait-for-pr-approval
+            - test
+            - test-e2e
           <<: *release-branches
       - make-release:
           <<: *release-tags
