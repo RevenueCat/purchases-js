@@ -53,6 +53,7 @@
   "error_page.button_try_again": "다시 시도",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}%",
+  "paywall_variables.free_price": "무료",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "오늘 총 결제 금액",
   "product_info.subscribe_to": "구독하기",

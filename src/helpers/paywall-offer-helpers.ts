@@ -6,6 +6,7 @@ import type {
   SubscriptionOption,
 } from "../entities/offerings";
 import { type Translator } from "../ui/localization/translator";
+import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import { getNextRenewalDate, type Period } from "./duration-helper";
 import { getPeriodVariables } from "./paywall-period-helpers";
 import { getPriceVariables } from "./paywall-price-helpers";
@@ -87,6 +88,10 @@ export function setOfferVariables(
     variables["product.offer_price_per_week"] = priceVariables.pricePerWeek;
     variables["product.offer_price_per_month"] = priceVariables.pricePerMonth;
     variables["product.offer_price_per_year"] = priceVariables.pricePerYear;
+  } else {
+    variables["product.offer_price"] = translator.translate(
+      LocalizationKeys.PaywallVariablesFreePrice,
+    );
   }
 
   if (offerDuration !== null) {
