@@ -856,6 +856,7 @@ describe("getPaywallVariables", () => {
       expect(variables.lifetime).toEqual(
         expect.objectContaining({
           "product.offer_price": "$10.00",
+          "product.offer_price_with_zero": "$10.00",
         }),
       );
     });

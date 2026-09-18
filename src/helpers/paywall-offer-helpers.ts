@@ -161,4 +161,7 @@ export function setNonSubscriptionOfferVariables(
     primaryOfferPrice.amountMicros,
     primaryOfferPrice.currency,
   );
+  // A non-subscription discount always carries a price, so the twin matches it. The per-period
+  // variants stay empty: there is no period to normalize over.
+  variables["product.offer_price_with_zero"] = variables["product.offer_price"];
 }
