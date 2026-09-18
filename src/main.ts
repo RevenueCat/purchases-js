@@ -90,6 +90,7 @@ import {
 } from "./entities/present-paywall-params";
 import type {
   ComponentInteractionData as UIComponentInteractionData,
+  PurchaseCheckoutNavigateArgs,
   WalletButtonRender,
 } from "@revenuecat/purchases-ui-js";
 import {
@@ -161,7 +162,7 @@ import {
   getNullableWindow,
   getWindow,
 } from "./helpers/browser-globals";
-import { isAllowedCompleteWorkflowNavigateUrl } from "./helpers/complete-workflow-navigate-url";
+import { isAllowedNavigateUrl } from "./helpers/complete-workflow-navigate-url";
 import { buildAssetURL } from "./networking/assets";
 import {
   removeManagedAppleTouchIcon,
@@ -1103,7 +1104,7 @@ export class Purchases {
         return;
       }
 
-      if (!isAllowedCompleteWorkflowNavigateUrl(args.url, args.method)) {
+      if (!isAllowedNavigateUrl(args.url, args.method)) {
         Logger.warnLog(
           "Blocked complete-workflow navigation to a disallowed URL.",
         );
@@ -1112,6 +1113,37 @@ export class Purchases {
 
       const win = getWindow();
       if (args.method === "external_browser") {
+        win.open(args.url, "_blank", "noopener,noreferrer")?.focus();
+      } else {
+        win.location.assign(args.url);
+      }
+    };
+
+    const onPurchaseCheckoutNavigate = async (
+      args: PurchaseCheckoutNavigateArgs,
+    ) => {
+      const method = args.open_method ?? "external_browser";
+      if (!isAllowedNavigateUrl(args.url, method)) {
+        Logger.warnLog(
+          "Blocked custom web checkout navigation to a disallowed URL.",
+        );
+        return;
+      }
+
+      // The page may unload on navigation, so flush queued events first.
+      await this.eventsTracker.flushAllEvents().catch((error) => {
+        Logger.debugLog(
+          `Failed to flush paywall events before custom web checkout: ${error}`,
+        );
+      });
+
+      if (paywallParams.onNavigateToUrl) {
+        paywallParams.onNavigateToUrl(args.url);
+        return;
+      }
+
+      const win = getWindow();
+      if (method === "external_browser") {
         win.open(args.url, "_blank", "noopener,noreferrer")?.focus();
       } else {
         win.location.assign(args.url);
@@ -1458,6 +1490,9 @@ export class Purchases {
             onNavigateToUrlClicked: navigateToUrl,
             appUserId: this._appUserId,
             onCompleteWorkflowNavigate,
+            onPurchaseCheckoutNavigate: this._flags.customWebCheckoutEnabled
+              ? onPurchaseCheckoutNavigate
+              : undefined,
             onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
             uiConfig: offering.uiConfig!,
             onBackClicked: () => {

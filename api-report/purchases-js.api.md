@@ -163,6 +163,7 @@ export interface FlagsConfig {
     applePayBrandingLogoEnabled?: boolean;
     autoCollectUTMAsMetadata?: boolean;
     collectAnalyticsEvents?: boolean;
+    customWebCheckoutEnabled?: boolean;
     hideBackButton?: boolean;
     // @deprecated
     storeLoadTime?: StoreLoadTime;
