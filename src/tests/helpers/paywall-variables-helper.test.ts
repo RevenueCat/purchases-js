@@ -118,7 +118,7 @@ describe("getPaywallVariables", () => {
           "product.relative_discount": "77%",
           "product.currency_code": "EUR",
           "product.currency_symbol": "€",
-          "product.offer_price": "",
+          "product.offer_price": "free",
           "product.offer_price_per_day": "",
           "product.offer_price_per_week": "",
           "product.offer_price_per_month": "",
@@ -155,7 +155,7 @@ describe("getPaywallVariables", () => {
           "product.relative_discount": "",
           "product.currency_code": "EUR",
           "product.currency_symbol": "€",
-          "product.offer_price": "",
+          "product.offer_price": "free",
           "product.offer_price_per_day": "",
           "product.offer_price_per_week": "",
           "product.offer_price_per_month": "",
@@ -701,6 +701,52 @@ describe("getPaywallVariables", () => {
   });
 
   describe("Trial logic for subscriptions", () => {
+    test("Subscription with a free trial uses the localized free price", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_web_billing_trial",
+          title: "Monthly Web Billing Trial",
+          basePriceMicros: 9000000,
+          trial: trialPhaseP7D,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(
+        off,
+        new Translator({}, "de_DE", "en_US"),
+      );
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "kostenlos",
+          "product.offer_price_per_day": "",
+          "product.offer_price_per_week": "",
+          "product.offer_price_per_month": "",
+          "product.offer_price_per_year": "",
+        }),
+      );
+    });
+
+    test("Free trial price falls back to the default locale", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_stripe_trial",
+          title: "Monthly Stripe Trial",
+          basePriceMicros: 9000000,
+          trial: trialPhaseP7D,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(
+        off,
+        new Translator({}, "unsupported_LOCALE", "en_US"),
+      );
+
+      expect(variables.$rc_monthly["product.offer_price"]).toBe("free");
+    });
+
     test("Subscription with day-unit trial (e.g. Stripe trial_days) populates offer_period variables", () => {
       const off = toOffering([
         {
@@ -716,7 +762,7 @@ describe("getPaywallVariables", () => {
 
       expect(variables.$rc_monthly).toEqual(
         expect.objectContaining({
-          "product.offer_price": "",
+          "product.offer_price": "free",
           "product.offer_price_per_day": "",
           "product.offer_price_per_week": "",
           "product.offer_price_per_month": "",
