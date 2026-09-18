@@ -8,7 +8,12 @@ import type { PaywallListener } from "../entities/paywall-listener";
 import type { PaywallInteractionEvent } from "../entities/paywall-interaction-event";
 import type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
 import { ErrorCode, Purchases } from "../main";
-import { configurePurchases, server } from "./base.purchases_test";
+import {
+  configurePurchases,
+  server,
+  testApiKey,
+  testUserId,
+} from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { APIGetRequest } from "./test-responses";
 
@@ -248,6 +253,28 @@ describe("Purchases.presentPaywall() paywall context", () => {
     );
     expect(mountedProps?.isPreview).toBe(false);
     expect(mountedProps).not.toHaveProperty("workflow");
+  });
+
+  test("does not handle custom web checkout unless the flag is enabled", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    expect(mountedProps?.onPurchaseCheckoutNavigate).toBeUndefined();
+  });
+
+  test("handles custom web checkout when the flag is enabled", async () => {
+    const purchases = configurePurchases(testUserId, "rcSource", testApiKey, {
+      customWebCheckoutEnabled: true,
+    });
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    expect(typeof mountedProps?.onPurchaseCheckoutNavigate).toBe("function");
   });
 
   test("fetches discounted products before rendering a supplied offering", async () => {
