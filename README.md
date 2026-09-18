@@ -165,7 +165,7 @@ Please check the Demo app readme [here](./examples/webbilling-demo/README.md#e2e
 pnpm run extract-api
 ```
 
-This will update the files in `api-report` with the latest public API.
+This will update the files in `api-report` and `vega/api-report` with the latest public API for both packages.
 If it has uncommitted changes, CI tests will fail. Run this command and commit the changes if
 they are expected.
 
