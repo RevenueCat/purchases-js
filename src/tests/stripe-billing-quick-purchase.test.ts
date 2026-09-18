@@ -4,10 +4,15 @@ import { describe, expect, test, vi } from "vitest";
 
 import { BackendErrorCode } from "../entities/errors";
 import { ErrorCode, type PurchaseParams, type PurchaseResult } from "../main";
+import type { OperationSessionSuccessfulResult } from "../helpers/purchase-operation-helper";
 import type { StripeBillingApplePayCheckoutStartResponse } from "../networking/responses/checkout-start-response";
+import type { OfferingsResponse } from "../networking/responses/offerings-response";
+import type { PreparedStripeBillingApplePayPurchase } from "../stripe/stripe-billing-apple-pay-purchase";
+import * as stripeBillingApplePayPurchase from "../stripe/stripe-billing-apple-pay-purchase";
 import { StripeService } from "../stripe/stripe-service";
 import { configurePurchases, server, testUserId } from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
+import { offeringsArray } from "./test-responses";
 
 const applePayStartResponse =
   (): StripeBillingApplePayCheckoutStartResponse => ({
@@ -346,5 +351,86 @@ describe("Purchases Stripe Billing quick purchases", () => {
       }),
     ).resolves.toEqual({ applePayAvailable: false });
     expect(startCount).toBe(0);
+  });
+
+  test("does not retain an in-flight offerings request after Apple Pay succeeds", async () => {
+    const purchases = configurePurchases(
+      testUserId,
+      "rcSource",
+      "strp_test_api_key",
+    );
+    const params = { rcPackage: createMonthlyPackageMock() };
+    const offeringsResponse: OfferingsResponse = {
+      current_offering_id: "offering_1",
+      offerings: offeringsArray,
+    };
+    const internals = purchases as unknown as {
+      backend: {
+        getOfferings: (appUserId: string) => Promise<OfferingsResponse>;
+      };
+      resolveStripeBillingQuickPurchaseContext: (
+        params: PurchaseParams,
+      ) => unknown;
+      stripeBillingQuickPurchaseState: {
+        key: string;
+        purchase: PreparedStripeBillingApplePayPurchase;
+      } | null;
+    };
+    const quickPurchaseKey = "prepared-apple-pay-purchase";
+    internals.stripeBillingQuickPurchaseState = {
+      key: quickPurchaseKey,
+      purchase: {
+        expiresAt: Date.now() + 60_000,
+      } as PreparedStripeBillingApplePayPurchase,
+    };
+    vi.spyOn(
+      internals,
+      "resolveStripeBillingQuickPurchaseContext",
+    ).mockReturnValue({
+      key: quickPurchaseKey,
+      params,
+      purchaseOption: params.rcPackage.webBillingProduct.defaultPurchaseOption,
+      brandingInfo: null,
+      translator: null,
+    });
+    vi.spyOn(
+      stripeBillingApplePayPurchase,
+      "presentStripeBillingApplePayPurchase",
+    ).mockResolvedValue({
+      status: "finished",
+      operationResult: {
+        redemptionInfo: null,
+        operationSessionId: "operation-session-id",
+        storeTransactionIdentifier: "store-transaction-id",
+        productIdentifier: "monthly",
+        purchaseDate: new Date(),
+      } as OperationSessionSuccessfulResult,
+    });
+
+    let resolveFirstRequest:
+      | ((response: OfferingsResponse) => void)
+      | undefined;
+    const getOfferings = vi
+      .spyOn(internals.backend, "getOfferings")
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFirstRequest = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(offeringsResponse);
+
+    const firstLookup = purchases.getOfferings();
+    await vi.waitFor(() => expect(getOfferings).toHaveBeenCalledTimes(1));
+
+    await purchases.purchase({ ...params, tryWithApplePay: true });
+    const secondLookup = purchases.getOfferings();
+    await vi.waitFor(() => expect(getOfferings).toHaveBeenCalledTimes(2));
+
+    resolveFirstRequest?.(offeringsResponse);
+    await Promise.all([firstLookup, secondLookup]);
+    await purchases.getOfferings();
+
+    expect(getOfferings).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,3 +1,56 @@
+## 1.63.1
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* Bump @revenuecat/purchases-ui-js to 4.11.1 (#1173) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* ci: approve the release hold automatically when the release PR is approved (#1171) via Álvaro Brey (@AlvaroBrey)
+
+## 1.63.0
+## RevenueCat SDK
+### ✨ New Features
+* Cache getOfferings calls for 10 seconds (#1121) via Burdock (@lburdock)
+
+### 🔄 Other Changes
+* docs: Link the paywall interaction event reference (#1158) via Álvaro Brey (@AlvaroBrey)
+
+## 1.62.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* WEB-4685 Show a card decline message for /confirmation-token errors (#1112) via Burdock (@lburdock)
+* Display better terms text when the app name is absent (#1139) via Burdock (@lburdock)
+### 📦 Dependency Updates
+* [AUTOMATIC] purchases-ui-js 4.10.1 => 4.10.2 (#1160) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* Display a better error message when automatic tax is enabled for chec… (#1122) via Burdock (@lburdock)
+
+## 1.62.0
+## RevenueCat SDK
+### ✨ New Features
+* FUN-2346 Paddle package discounts: PricePreview and discountId at checkout (#1143) via Franco Correa (@francocorreasosa)
+
+### 🔄 Other Changes
+* fix: Map the server rate-limit error code and carry HTTP status on unknown backend errors (#1154) via Jamie Holwill (@jholwill)
+
+## 1.61.0
+## RevenueCat SDK
+### ✨ New Features
+* feat: internal support for prepared Apple Pay purchases for Stripe Billing (#1124) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* chore(deps): bump purchases-ui-js from 4.8.22 to 4.8.25 (#1144) via Drago Crnjac (@popcorn)
+### 📦 Dependency Updates
+* [AUTOMATIC] purchases-ui-js 4.10.0 => 4.10.1 (#1155) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC] purchases-ui-js 4.9.0 => 4.10.0 (#1153) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC] purchases-ui-js 4.8.25 => 4.9.0 (#1146) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* other: bump to the version that was just published (#1152) via Facundo Menzella (@facumenzella)
+* Stop formatting pnpm-lock.yaml (#1147) via Facundo Menzella (@facumenzella)
+* Ignore bundler artifacts so the dependency-update lane can run (#1145) via Facundo Menzella (@facumenzella)
+* Update unused credit message (#1134) via Burdock (@lburdock)
+* chore(deps-dev): bump vitest from 3.2.4 to 4.1.11 (#1135) via dependabot[bot] (@dependabot[bot])
+
 ## 1.60.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes

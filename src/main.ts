@@ -1,4 +1,5 @@
 import type {
+  DiscountPhase,
   Offering,
   Offerings,
   Package,
@@ -41,6 +42,7 @@ import {
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
+import { withPaddleDiscountsOnOffering } from "./paddle/paddle-discount-preview";
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {
@@ -72,6 +74,7 @@ import {
 import {
   enrichPackagesWithPlacementContext,
   getOfferingIdForPlacement,
+  replaceOfferingProducts,
   toOffering,
   toOfferings,
 } from "./helpers/offerings-parser";
@@ -354,7 +357,21 @@ export class Purchases {
   /** @internal */
   private readonly inMemoryCache: InMemoryCache;
 
-  /** @internal */
+  /**
+   * Unfinished offerings requests keyed by app user ID. This lets concurrent
+   * callers share one network request before its response can be cached.
+   * @internal
+   */
+  private readonly offeringsRequests = new Map<
+    string,
+    Promise<OfferingsResponse>
+  >();
+
+  /**
+   * Last current offering returned by getOfferings, retained for fallback
+   * impression attribution. Request data cache invalidation intentionally preserves it.
+   * @internal
+   */
   private cachedCurrentOffering: Offering | null = null;
 
   /** @internal */
@@ -395,6 +412,8 @@ export class Purchases {
    * */
   static setPlatformInfo(platformInfo: PlatformInfo) {
     Purchases._platformInfo = platformInfo;
+    // Platform flavor and version participate in backend offering targeting.
+    Purchases.instance?.clearOfferingsCache();
   }
 
   /**
@@ -431,6 +450,75 @@ export class Purchases {
   /** @internal */
   static getPlatformInfo(): PlatformInfo | undefined {
     return Purchases._platformInfo;
+  }
+
+  /**
+   * Resolve Paddle discounts configured on paywall package components and
+   * return a copy of `offering` where those packages carry the discounted
+   * price as their `discount` phase, so {@link Purchases.buildVariablesPerPackage}
+   * and {@link Purchases.buildInfoPerPackage} surface it (`product.offer_price`,
+   * `promo_offer` condition). Uses `Paddle.PricePreview` under the hood.
+   *
+   * Returns the offering untouched for non-Paddle apps or when the map is
+   * empty. Packages whose preview fails or applies no discount are left as-is.
+   * Used to support Paywalls in Workflows.
+   * @internal
+   */
+  async applyPaddleDiscountsToOffering(
+    offering: Offering,
+    discountIdsByPackage: Record<string, string>,
+  ): Promise<Offering> {
+    const entries = Object.entries(discountIdsByPackage).filter(
+      ([packageId, discountId]) =>
+        Boolean(discountId) && offering.packagesById[packageId] !== undefined,
+    );
+    if (entries.length === 0 || !isPaddleApiKey(this._API_KEY)) {
+      return offering;
+    }
+
+    const paddleService = new PaddleService(this.backend, this.eventsTracker);
+    const [firstPackageId] = entries[0];
+    const firstProduct =
+      offering.packagesById[firstPackageId].webBillingProduct;
+    try {
+      await paddleService.initializeForPreview(
+        firstProduct.identifier,
+        firstProduct.defaultPurchaseOption,
+      );
+    } catch (error) {
+      Logger.errorLog(
+        `Could not initialize Paddle for price preview: ${error}`,
+      );
+      return offering;
+    }
+
+    const discountsByPackage: Record<string, DiscountPhase> = {};
+    await Promise.all(
+      entries.map(async ([packageId, discountId]) => {
+        const product = offering.packagesById[packageId].webBillingProduct;
+        try {
+          const discount = await paddleService.previewDiscount({
+            priceId: product.identifier,
+            discountId,
+            basePrice: product.price,
+            fallbackPeriodDuration: product.normalPeriodDuration,
+          });
+          if (discount) {
+            discountsByPackage[packageId] = discount;
+          } else {
+            Logger.debugLog(
+              `Paddle discount ${discountId} did not apply to package ${packageId}`,
+            );
+          }
+        } catch (error) {
+          Logger.errorLog(
+            `Paddle price preview failed for package ${packageId}: ${error}`,
+          );
+        }
+      }),
+    );
+
+    return withPaddleDiscountsOnOffering(offering, discountsByPackage);
   }
 
   /**
@@ -722,8 +810,21 @@ export class Purchases {
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
     const offering = paywallParams.offering
-      ? paywallParams.offering
-      : (await this.getOfferings()).current;
+      ? // Fetch discounted products before building paywall prices and promo state.
+        await this.updatePaywallOfferingWithDiscountedProducts(
+          paywallParams.offering,
+          paywallParams.discountCode,
+        )
+      : (
+          await this.getOfferings(
+            paywallParams.discountCode
+              ? {
+                  offeringIdentifier: OfferingKeyword.Current,
+                  discountCode: paywallParams.discountCode,
+                }
+              : undefined,
+          )
+        ).current;
     if (!offering) {
       throw new Error("No offering found.");
     }
@@ -1410,22 +1511,25 @@ export class Purchases {
   public async getOfferings(params?: GetOfferingsParams): Promise<Offerings> {
     validateCurrency(params?.currency);
     const appUserId = this._appUserId;
-    const offeringsResponse = await this.backend.getOfferings(appUserId);
+    const offeringsResponse = await this.getOfferingsResponse(appUserId);
 
     const offeringIdFilter =
       params?.offeringIdentifier === OfferingKeyword.Current
         ? offeringsResponse.current_offering_id
         : params?.offeringIdentifier;
 
-    if (offeringIdFilter) {
-      offeringsResponse.offerings = offeringsResponse.offerings.filter(
-        (offering: OfferingResponse) =>
-          offering.identifier === offeringIdFilter,
-      );
-    }
+    const responseToParse = offeringIdFilter
+      ? {
+          ...offeringsResponse,
+          offerings: offeringsResponse.offerings.filter(
+            (offering: OfferingResponse) =>
+              offering.identifier === offeringIdFilter,
+          ),
+        }
+      : offeringsResponse;
 
     const offerings = await this.getAllOfferings(
-      offeringsResponse,
+      responseToParse,
       appUserId,
       params,
     );
@@ -1439,6 +1543,16 @@ export class Purchases {
       this.cachedCurrentOffering = offerings.current;
     }
     return offerings;
+  }
+
+  /**
+   * Invalidates the cached offerings response for the current user.
+   * The next call to {@link Purchases.getOfferings} or
+   * {@link Purchases.getCurrentOfferingForPlacement} will fetch the latest
+   * offerings from the network.
+   */
+  public invalidateOfferingsCache(): void {
+    this.clearOfferingsCache(this._appUserId);
   }
 
   /**
@@ -1485,7 +1599,7 @@ export class Purchases {
     params?: GetOfferingsParams,
   ): Promise<Offering | null> {
     const appUserId = this._appUserId;
-    const offeringsResponse = await this.backend.getOfferings(appUserId);
+    const offeringsResponse = await this.getOfferingsResponse(appUserId);
     const placementData = offeringsResponse.placements ?? null;
     if (placementData == null) {
       return null;
@@ -1537,6 +1651,58 @@ export class Purchases {
     return null;
   }
 
+  private async getOfferingsResponse(
+    appUserId: string,
+  ): Promise<OfferingsResponse> {
+    const cachedOfferings =
+      this.inMemoryCache.getCachedOfferingsResponse(appUserId);
+    if (cachedOfferings != null) {
+      return cachedOfferings;
+    }
+
+    const existingRequest = this.offeringsRequests.get(appUserId);
+    if (existingRequest !== undefined) {
+      return await existingRequest;
+    }
+
+    const request = this.backend
+      .getOfferings(appUserId)
+      .then((offeringsResponse) => {
+        // Invalidation may remove this request or allow a newer one to start.
+        // Only the currently tracked request may update the response cache.
+        if (this.offeringsRequests.get(appUserId) === request) {
+          this.inMemoryCache.cacheOfferingsResponse(
+            appUserId,
+            offeringsResponse,
+          );
+        }
+        return offeringsResponse;
+      })
+      .finally(() => {
+        // Do not remove a newer request that may have replaced this one.
+        if (this.offeringsRequests.get(appUserId) === request) {
+          this.offeringsRequests.delete(appUserId);
+        }
+      });
+
+    this.offeringsRequests.set(appUserId, request);
+    return await request;
+  }
+
+  private clearOfferingsCache(appUserId?: string): void {
+    this.inMemoryCache.invalidateOfferingsCache(appUserId);
+    if (appUserId === undefined) {
+      this.offeringsRequests.clear();
+    } else {
+      this.offeringsRequests.delete(appUserId);
+    }
+  }
+
+  private invalidateRequestDataCaches(): void {
+    this.offeringsRequests.clear();
+    this.inMemoryCache.invalidateAllCaches();
+  }
+
   private async findOfferingById(
     offeringIdentifier: string,
     offeringsResponse: OfferingsResponse,
@@ -1558,6 +1724,44 @@ export class Purchases {
     );
 
     return toOffering(offeringIdentifier, offeringsResponse, productsResponse);
+  }
+
+  private async updatePaywallOfferingWithDiscountedProducts(
+    offering: Offering,
+    discountCode?: string,
+  ): Promise<Offering> {
+    if (!discountCode) {
+      return offering;
+    }
+
+    // Only fetch the discounted products (instead of the entire offering) because the
+    // supplied offering already has the necessary data which isn't changed by the discount.
+    const productIds = offering.availablePackages.map(
+      (rcPackage) => rcPackage.webBillingProduct.identifier,
+    );
+    const currencies = new Set(
+      offering.availablePackages.map(
+        (rcPackage) => rcPackage.webBillingProduct.price.currency,
+      ),
+    );
+    const currency = currencies.size === 1 ? [...currencies][0] : undefined;
+    let productsResponse: ProductsResponse;
+    try {
+      productsResponse = await this.backend.getProducts(
+        this._appUserId,
+        productIds,
+        currency,
+        discountCode,
+      );
+    } catch (error) {
+      Logger.warnLog(
+        `Failed to refresh paywall products with discount pricing: ${String(error)}`,
+      );
+      return offering;
+    }
+
+    this.logMissingProductIds(productIds, productsResponse.product_details);
+    return replaceOfferingProducts(offering, productsResponse);
   }
 
   private async getAllOfferings(
@@ -1905,6 +2109,7 @@ export class Purchases {
           mode: "express_purchase_button",
         });
         this.eventsTracker.trackSDKEvent(sessionEndFinishedEvent);
+        this.invalidateRequestDataCaches();
 
         Logger.debugLog("Purchase finished");
 
@@ -2146,7 +2351,7 @@ export class Purchases {
             redemptionInfo: result.operationResult.redemptionInfo,
           }),
         );
-        this.inMemoryCache.invalidateAllCaches();
+        this.invalidateRequestDataCaches();
         return {
           customerInfo: await this._getCustomerInfoForUserId(appUserId),
           redemptionInfo: result.operationResult.redemptionInfo,
@@ -2199,7 +2404,7 @@ export class Purchases {
         this.backend,
         this._appUserId,
       );
-      this.inMemoryCache.invalidateAllCaches();
+      this.invalidateRequestDataCaches();
       return purchaseResult;
     }
 
@@ -2305,7 +2510,7 @@ export class Purchases {
       );
 
       const onProductChangeFinished = async (result: ProductChangeResult) => {
-        this.inMemoryCache.invalidateAllCaches();
+        this.invalidateRequestDataCaches();
         unmountPurchaseUi();
         try {
           const customerInfo = await this.getCustomerInfo();
@@ -2452,7 +2657,7 @@ export class Purchases {
       );
 
       const onProductChangeFinished = async (result: ProductChangeResult) => {
-        this.inMemoryCache.invalidateAllCaches();
+        this.invalidateRequestDataCaches();
         unmountPurchaseUi();
         try {
           const customerInfo = await this.getCustomerInfo();
@@ -2526,6 +2731,7 @@ export class Purchases {
       purchaseOption,
       customerEmail,
       discountCode,
+      discountId,
       attributionMetadata,
       workflowPurchaseContext,
       externalPurchaseTokenId,
@@ -2625,6 +2831,7 @@ export class Purchases {
             purchaseOption: purchaseOptionToUse,
             customerEmail,
             discountCode,
+            discountId,
             attributionMetadata,
             workflowPurchaseContext,
             externalPurchaseTokenId,
@@ -2709,7 +2916,7 @@ export class Purchases {
         redemptionInfo: operationResult.redemptionInfo,
       });
       this.eventsTracker.trackSDKEvent(event);
-      this.inMemoryCache.invalidateAllCaches();
+      this.invalidateRequestDataCaches();
       Logger.debugLog("Purchase finished");
 
       callback?.();
@@ -2779,12 +2986,14 @@ export class Purchases {
         "Posting a test store receipt is only available for RC Test Store API keys.",
       );
     }
-    return await postSimulatedStoreReceipt(
+    const purchaseResult = await postSimulatedStoreReceipt(
       product,
       this.backend,
       this._appUserId,
       undefined,
     );
+    this.invalidateRequestDataCaches();
+    return purchaseResult;
   }
 
   /**
@@ -2823,7 +3032,9 @@ export class Purchases {
      */
     await this.getCustomerInfo();
 
-    return await this.backend.setAttributes(this._appUserId, attributes);
+    const appUserId = this._appUserId;
+    await this.backend.setAttributes(appUserId, attributes);
+    this.clearOfferingsCache(appUserId);
   }
 
   /**
@@ -2933,7 +3144,7 @@ export class Purchases {
     this.stripeBillingQuickPurchasePreparation = null;
     this._appUserId = newAppUserId;
     await this.eventsTracker.updateUser(newAppUserId);
-    this.inMemoryCache.invalidateAllCaches();
+    this.invalidateRequestDataCaches();
     this.cachedCurrentOffering = null;
   }
 
