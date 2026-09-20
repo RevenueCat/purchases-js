@@ -49,8 +49,8 @@ export default defineConfig({
           viewport: { width: 1280, height: 720 }, // Set a smaller viewport
           ignoreHTTPSErrors: true, // Ignore HTTPS errors
           video: "off", // Disable video recording
-          screenshot: "off", // Disable screenshots
-          trace: "off", // Disable tracing
+          screenshot: "only-on-failure", // Capture a screenshot on failure for debugging
+          trace: "on-first-retry", // Capture a Playwright trace on retry for debugging
         }
       : {}),
   },
