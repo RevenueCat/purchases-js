@@ -2,6 +2,7 @@ import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
 import {
   type Offering,
   type Package,
+  PackageType,
   ProductType,
   type PurchaseOption,
   type SubscriptionOption,
@@ -278,19 +279,26 @@ function parsePackageIntoVariables(
     baseObject["product.price_per_period"] = formattedPrice;
     baseObject["product.price_per_period_abbreviated"] = formattedPrice;
     baseObject["product.price_per_month"] = formattedPrice;
-    baseObject["product.period_with_unit"] = translator.translate(
-      LocalizationKeys.PeriodsLifetime,
-    );
-    baseObject["product.period_in_months"] = translator.translate(
-      LocalizationKeys.PeriodsLifetime,
-    );
-    baseObject["product.periodly"] = translator.translate(
-      LocalizationKeys.PeriodsLifetime,
-    );
     baseObject["product.price_per_week"] = "";
     baseObject["product.relative_discount"] = "";
-    baseObject["product.period"] = "";
-    baseObject["product.period_abbreviated"] = "";
+
+    // Lifetime is declared by the package, not the product: a non-subscription product only
+    // describes a lifetime purchase when the developer placed it in the $rc_lifetime package.
+    // Anything else - a consumable coin pack, a one-off unlock in a custom package - has no
+    // period to describe, so the period variables stay empty, matching the native SDKs.
+    // Numeric period variables stay empty either way, as documented.
+    if (pkg.packageType === PackageType.Lifetime) {
+      const lifetime = translator.translate(LocalizationKeys.PeriodsLifetime);
+      baseObject["product.period"] = lifetime;
+      baseObject["product.period_abbreviated"] = lifetime;
+      baseObject["product.periodly"] = lifetime;
+      baseObject["product.period_with_unit"] = lifetime;
+    } else {
+      baseObject["product.period"] = "";
+      baseObject["product.period_abbreviated"] = "";
+      baseObject["product.periodly"] = "";
+      baseObject["product.period_with_unit"] = "";
+    }
 
     setNonSubscriptionOfferVariables(purchaseOption, translator, baseObject);
   }
