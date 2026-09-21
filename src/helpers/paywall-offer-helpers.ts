@@ -87,6 +87,28 @@ export function setOfferVariables(
     variables["product.offer_price_per_week"] = priceVariables.pricePerWeek;
     variables["product.offer_price_per_month"] = priceVariables.pricePerMonth;
     variables["product.offer_price_per_year"] = priceVariables.pricePerYear;
+    variables["product.offer_price_with_zero"] =
+      variables["product.offer_price"];
+    variables["product.offer_price_with_zero_per_day"] =
+      priceVariables.pricePerDay;
+    variables["product.offer_price_with_zero_per_week"] =
+      priceVariables.pricePerWeek;
+    variables["product.offer_price_with_zero_per_month"] =
+      priceVariables.pricePerMonth;
+    variables["product.offer_price_with_zero_per_year"] =
+      priceVariables.pricePerYear;
+  } else {
+    // A trial carries no price, so the variables above stay empty. The
+    // `_with_zero` family renders the amount anyway, in the product's currency.
+    const currency = product.base.price?.currency;
+    if (currency !== undefined) {
+      const zero = translator.formatPrice(0, currency);
+      variables["product.offer_price_with_zero"] = zero;
+      variables["product.offer_price_with_zero_per_day"] = zero;
+      variables["product.offer_price_with_zero_per_week"] = zero;
+      variables["product.offer_price_with_zero_per_month"] = zero;
+      variables["product.offer_price_with_zero_per_year"] = zero;
+    }
   }
 
   if (offerDuration !== null) {
@@ -139,4 +161,7 @@ export function setNonSubscriptionOfferVariables(
     primaryOfferPrice.amountMicros,
     primaryOfferPrice.currency,
   );
+  // A non-subscription discount always carries a price, so the twin matches it. The per-period
+  // variants stay empty: there is no period to normalize over.
+  variables["product.offer_price_with_zero"] = variables["product.offer_price"];
 }
