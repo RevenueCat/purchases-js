@@ -403,12 +403,11 @@ workflows:
             - test-e2e
             - build-vega-purchase-tester
           <<: *only-main
-      - hold:
+      - wait-for-pr-approval:
           requires:
             - test
             - test-e2e
             - build-vega-purchase-tester
-      - wait-for-pr-approval:
           type: approval
           <<: *release-branches
       - revenuecat/tag-current-branch:
@@ -417,6 +416,7 @@ workflows:
             - wait-for-pr-approval
             - test
             - test-e2e
+            - build-vega-purchase-tester
           <<: *release-branches
       - make-release:
           <<: *release-tags
