@@ -1435,11 +1435,6 @@ describe("AmazonBillingWrapper", () => {
         ErrorCode.PurchaseNotAllowedError,
         "Purchase not supported",
       ],
-      [
-        PurchaseResponseCode.FAILED,
-        ErrorCode.StoreProblemError,
-        "Amazon purchase failed",
-      ],
     ] as const)(
       "maps Amazon purchase response code %s to the appropriate error",
       async (responseCode, errorCode, message) => {
@@ -1462,6 +1457,29 @@ describe("AmazonBillingWrapper", () => {
         expect(notifyFulfillment).not.toHaveBeenCalled();
       },
     );
+
+    test("maps a failed Amazon purchase response to a user cancellation error", async () => {
+      const backend = createBackend();
+      purchase.mockResolvedValue({
+        ...successfulPurchaseResponse(),
+        responseCode: PurchaseResponseCode.FAILED,
+      });
+
+      await expect(
+        new AmazonBillingWrapper(
+          backend,
+          amazonApiKey,
+          getNoAppUserId,
+          getIsNotAnonymous,
+        ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId),
+      ).rejects.toMatchObject({
+        errorCode: ErrorCode.UserCancelledError,
+        message: "Amazon purchase failed",
+      });
+
+      expect(backend.postReceipt).not.toHaveBeenCalled();
+      expect(notifyFulfillment).not.toHaveBeenCalled();
+    });
 
     test("rejects an unrecognized Amazon purchase response without posting or fulfilling", async () => {
       const backend = createBackend();
