@@ -1,3 +1,19 @@
+## 1.63.1
+## RevenueCatUI SDK
+### 🐞 Bugfixes
+* Bump @revenuecat/purchases-ui-js to 4.11.1 (#1173) via Rosie Watson (@RosieWatson)
+
+### 🔄 Other Changes
+* ci: approve the release hold automatically when the release PR is approved (#1171) via Álvaro Brey (@AlvaroBrey)
+
+## 1.63.0
+## RevenueCat SDK
+### ✨ New Features
+* Cache getOfferings calls for 10 seconds (#1121) via Burdock (@lburdock)
+
+### 🔄 Other Changes
+* docs: Link the paywall interaction event reference (#1158) via Álvaro Brey (@AlvaroBrey)
+
 ## 1.62.1
 ## RevenueCat SDK
 ### 🐞 Bugfixes

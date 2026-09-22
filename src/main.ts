@@ -75,6 +75,7 @@ import {
 import {
   enrichPackagesWithPlacementContext,
   getOfferingIdForPlacement,
+  replaceOfferingProducts,
   toOffering,
   toOfferings,
 } from "./helpers/offerings-parser";
@@ -867,8 +868,21 @@ export class Purchases {
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
     const offering = paywallParams.offering
-      ? paywallParams.offering
-      : (await this.getOfferings()).current;
+      ? // Fetch discounted products before building paywall prices and promo state.
+        await this.updatePaywallOfferingWithDiscountedProducts(
+          paywallParams.offering,
+          paywallParams.discountCode,
+        )
+      : (
+          await this.getOfferings(
+            paywallParams.discountCode
+              ? {
+                  offeringIdentifier: OfferingKeyword.Current,
+                  discountCode: paywallParams.discountCode,
+                }
+              : undefined,
+          )
+        ).current;
     if (!offering) {
       throw new Error("No offering found.");
     }
@@ -1768,6 +1782,44 @@ export class Purchases {
     );
 
     return toOffering(offeringIdentifier, offeringsResponse, productsResponse);
+  }
+
+  private async updatePaywallOfferingWithDiscountedProducts(
+    offering: Offering,
+    discountCode?: string,
+  ): Promise<Offering> {
+    if (!discountCode) {
+      return offering;
+    }
+
+    // Only fetch the discounted products (instead of the entire offering) because the
+    // supplied offering already has the necessary data which isn't changed by the discount.
+    const productIds = offering.availablePackages.map(
+      (rcPackage) => rcPackage.webBillingProduct.identifier,
+    );
+    const currencies = new Set(
+      offering.availablePackages.map(
+        (rcPackage) => rcPackage.webBillingProduct.price.currency,
+      ),
+    );
+    const currency = currencies.size === 1 ? [...currencies][0] : undefined;
+    let productsResponse: ProductsResponse;
+    try {
+      productsResponse = await this.backend.getProducts(
+        this._appUserId,
+        productIds,
+        currency,
+        discountCode,
+      );
+    } catch (error) {
+      Logger.warnLog(
+        `Failed to refresh paywall products with discount pricing: ${String(error)}`,
+      );
+      return offering;
+    }
+
+    this.logMissingProductIds(productIds, productsResponse.product_details);
+    return replaceOfferingProducts(offering, productsResponse);
   }
 
   private async getAllOfferings(

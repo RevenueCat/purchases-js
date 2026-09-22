@@ -862,6 +862,32 @@ describe("postCheckoutStart request", () => {
     expect(result).toEqual(checkoutStartResponse);
   });
 
+  test("sends an encoded discounted purchase option as offer_id", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, { status: 200 }),
+    );
+    const discountedPurchaseOptionId = "discnt_test_discount;dc=SAVE50";
+
+    await backend.postCheckoutStart({
+      appUserId: "someAppUserId",
+      productId: "monthly",
+      presentedOfferingContext: {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      purchaseOption: {
+        id: discountedPurchaseOptionId,
+        priceId: "test_price_id",
+      },
+      traceId: "test-trace-id",
+    });
+
+    const request = purchaseMethodAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody.offer_id).toBe(discountedPurchaseOptionId);
+  });
+
   test("accepts an email if provided", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(checkoutStartResponse, { status: 200 }),
