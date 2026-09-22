@@ -54,7 +54,7 @@
     "svelte-check": "svelte-check",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "extract-api": "api-extractor run --local --verbose",
+    "extract-api": "api-extractor run --local --verbose && api-extractor run --local --verbose --config vega/api-extractor.json",
     "check-version-consistency": "node scripts/check-version-consistency.mjs",
     "prepare": "husky",
     "build:vega": "pnpm --filter @revenuecat/purchases-js-vega build"
