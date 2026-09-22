@@ -1032,6 +1032,10 @@ export class Purchases {
       url: string;
       defaultPrevented: boolean;
     } | null = null;
+    let lastCustomCheckoutInteraction: {
+      packageId: string;
+      url: string;
+    } | null = null;
 
     const recordTextLinkClick = (event: MouseEvent) => {
       const target = event.target;
@@ -1272,6 +1276,15 @@ export class Purchases {
                 componentType: data.componentType,
                 componentURL: interaction.componentURL,
               };
+        lastCustomCheckoutInteraction =
+          data.componentType === "purchase_button" &&
+          data.componentValue === "custom_web_checkout" &&
+          interaction.componentURL !== undefined
+            ? {
+                packageId: data.currentPackageId,
+                url: interaction.componentURL,
+              }
+            : null;
         trackComponentInteraction(data);
       };
 
@@ -1326,8 +1339,31 @@ export class Purchases {
         notifyPurchaseError(error);
       };
 
+      // Custom checkout hands off to a developer-owned URL instead of
+      // purchasing. Same tab, so that destination can send the user back.
+      const navigateToCustomCheckout = (url: string) => {
+        if (!isAllowedCompleteWorkflowNavigateUrl(url, "in_app_browser")) {
+          Logger.warnLog(
+            "Blocked custom checkout navigation to a disallowed URL.",
+          );
+          return;
+        }
+        getWindow().location.assign(url);
+      };
+
       const createPurchaseClickHandler = (checkoutLocale: string) => {
         return (selectedPackageId: string) => {
+          const customCheckout =
+            lastCustomCheckoutInteraction?.packageId === selectedPackageId
+              ? lastCustomCheckoutInteraction
+              : null;
+          lastCustomCheckoutInteraction = null;
+
+          if (customCheckout) {
+            navigateToCustomCheckout(customCheckout.url);
+            return;
+          }
+
           if (purchaseInFlight) {
             return;
           }

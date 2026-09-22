@@ -919,3 +919,123 @@ describe("Purchases.presentPaywall() custom variables", () => {
     expect(mountedProps?.customVariables).toBeUndefined();
   });
 });
+
+describe("Purchases.presentPaywall() custom checkout", () => {
+  let paywallProps: PaywallMountProps | undefined;
+  let assignMock: ReturnType<typeof vi.fn>;
+
+  const clickCustomCheckout = (
+    packageId: string,
+    componentURL: string | undefined,
+  ) => {
+    paywallProps!.onComponentInteraction({
+      componentType: "purchase_button",
+      componentName: "Continue",
+      componentValue: "custom_web_checkout",
+      currentPackageId: packageId,
+      ...(componentURL ? { componentURL } : {}),
+    } as ComponentInteractionData);
+  };
+
+  beforeEach(() => {
+    paywallProps = undefined;
+    assignMock = vi.fn();
+    vi.spyOn(browserGlobals, "getWindow").mockReturnValue({
+      open: vi.fn().mockReturnValue({ focus: vi.fn() }),
+      location: { assign: assignMock },
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    } as unknown as Window);
+
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      paywallProps = options.props as PaywallMountProps;
+      (options.target as Element).innerHTML =
+        "<div data-testid='paywall-root'></div>";
+      return {} as ReturnType<typeof mount>;
+    });
+  });
+
+  afterEach(() => {
+    vi.mocked(browserGlobals.getWindow).mockRestore();
+    vi.clearAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  test("navigates in the same tab instead of purchasing", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const packageId = offering.availablePackages[0]!.identifier;
+    const purchaseSpy = vi
+      .spyOn(purchases, "purchase")
+      .mockResolvedValue({} as PurchaseResult);
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    clickCustomCheckout(
+      packageId,
+      `https://auth.example.com/register?package_id=${packageId}`,
+    );
+    paywallProps!.onPurchaseClicked(packageId);
+
+    expect(assignMock).toHaveBeenCalledWith(
+      `https://auth.example.com/register?package_id=${packageId}`,
+    );
+    expect(purchaseSpy).not.toHaveBeenCalled();
+  });
+
+  test("purchases normally when the click is for a different package", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const packageId = offering.availablePackages[0]!.identifier;
+    const purchaseSpy = vi
+      .spyOn(purchases, "purchase")
+      .mockResolvedValue({} as PurchaseResult);
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    clickCustomCheckout("$rc_some_other_package", "https://auth.example.com/");
+    paywallProps!.onPurchaseClicked(packageId);
+
+    await vi.waitFor(() => expect(purchaseSpy).toHaveBeenCalled());
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
+  test("purchases normally when no custom URL is configured", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const packageId = offering.availablePackages[0]!.identifier;
+    const purchaseSpy = vi
+      .spyOn(purchases, "purchase")
+      .mockResolvedValue({} as PurchaseResult);
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    clickCustomCheckout(packageId, undefined);
+    paywallProps!.onPurchaseClicked(packageId);
+
+    await vi.waitFor(() => expect(purchaseSpy).toHaveBeenCalled());
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
+  test("blocks a disallowed URL without purchasing", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+    const packageId = offering.availablePackages[0]!.identifier;
+    const purchaseSpy = vi
+      .spyOn(purchases, "purchase")
+      .mockResolvedValue({} as PurchaseResult);
+    const warnSpy = vi.spyOn(Logger, "warnLog").mockImplementation(() => {});
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    clickCustomCheckout(packageId, "javascript:alert(1)");
+    paywallProps!.onPurchaseClicked(packageId);
+
+    expect(assignMock).not.toHaveBeenCalled();
+    expect(purchaseSpy).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
+  });
+});
