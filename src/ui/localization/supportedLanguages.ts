@@ -126,6 +126,7 @@ export enum LocalizationKeys {
   PaywallVariablesPricePerPeriod = "paywall_variables.price_per_period",
   PaywallVariablesSubRelativeDiscount = "paywall_variables.sub_relative_discount",
   PaywallVariablesTotalPriceAndPerMonth = "paywall_variables.total_price_and_per_month",
+  PaywallVariablesFreePrice = "paywall_variables.free_price",
   PricingDropdownShowDetails = "pricing_dropdown.show_details",
   PricingDropdownHideDetails = "pricing_dropdown.hide_details",
   PricingDropdownAddPromoCode = "pricing_dropdown.add_promo_code",
