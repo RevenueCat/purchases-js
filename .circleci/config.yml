@@ -127,7 +127,7 @@ jobs:
           command: pnpm run build
       - run:
           name: Pack
-          command: pnpm pack
+          command: pnpm pack && pnpm --dir vega pack
       - copy-npm-rc
       - run:
           name: release
@@ -224,7 +224,7 @@ jobs:
           command: git diff --exit-code api-report/purchases-js.api.md vega/api-report/purchases-js-vega.api.md
       - run:
           name: Pack
-          command: pnpm pack
+          command: pnpm pack && pnpm --dir vega pack
       - run:
           name: Publishing Storybook to Chromatic
           command: |
