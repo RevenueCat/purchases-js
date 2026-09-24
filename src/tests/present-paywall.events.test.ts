@@ -936,9 +936,11 @@ describe("Purchases.presentPaywall() custom checkout", () => {
 
     vi.mocked(mount).mockImplementation((_component, options) => {
       paywallProps = options.props as PaywallMountProps;
-      (options.target as Element).innerHTML =
-        "<div data-testid='paywall-root'></div>";
-      return {} as ReturnType<typeof mount>;
+      if (!(options.target instanceof Element)) {
+        expect.fail("mount target is not an element");
+      }
+      options.target.innerHTML = "<div data-testid='paywall-root'></div>";
+      return {};
     });
   });
 
@@ -953,8 +955,10 @@ describe("Purchases.presentPaywall() custom checkout", () => {
 
     void purchases.presentPaywall({ offering: createOfferingWithPaywall() });
 
-    await vi.waitFor(() => expect(paywallProps).toBeDefined());
-    paywallProps!.onCustomWebCheckout(
+    const props = await vi.waitFor(
+      () => paywallProps ?? expect.fail("paywall not mounted"),
+    );
+    props.onCustomWebCheckout(
       "https://auth.example.com/register?rc_package=monthly",
     );
 
@@ -969,8 +973,10 @@ describe("Purchases.presentPaywall() custom checkout", () => {
 
     void purchases.presentPaywall({ offering: createOfferingWithPaywall() });
 
-    await vi.waitFor(() => expect(paywallProps).toBeDefined());
-    paywallProps!.onCustomWebCheckout("javascript:alert(1)");
+    const props = await vi.waitFor(
+      () => paywallProps ?? expect.fail("paywall not mounted"),
+    );
+    props.onCustomWebCheckout("javascript:alert(1)");
 
     expect(assignMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
