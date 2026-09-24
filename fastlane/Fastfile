@@ -67,7 +67,6 @@ desc "Publishes purchases-js and purchases-js-vega, then creates a GitHub releas
 lane :release do |options|
   version_number = current_version_number
   is_prerelease = Gem::Version.new(version_number).prerelease?
-  root_folder = File.expand_path(get_root_folder)
 
   args = [
     'npm',
@@ -75,11 +74,9 @@ lane :release do |options|
     is_prerelease ? '--tag next' : nil
   ].compact
 
-  Dir.chdir(root_folder) do
+  Dir.chdir(get_root_folder) do
     sh(args)
-  end
-  Dir.chdir(File.join(root_folder, 'vega')) do
-    sh(args + ['--userconfig', File.join(root_folder, '.npmrc')])
+    sh(args + ['./vega'])
   end
   github_release(version: version_number)
 end
