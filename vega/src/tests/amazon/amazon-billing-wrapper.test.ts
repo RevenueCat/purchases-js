@@ -144,6 +144,7 @@ const successfulPurchaseResponse = (): PurchaseResponse => ({
   requestId: { requestIdStr: "request-id" },
   responseCode: PurchaseResponseCode.SUCCESSFUL,
   userData: {
+    // countryCode was added to UserData in IAP SDK 2.13.0.
     countryCode: "US",
     lwaConsentStatus: 1,
     marketplace: "US",
