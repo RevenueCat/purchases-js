@@ -53,6 +53,7 @@
   "error_page.button_try_again": "फिर से कोशिश करें",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}%",
+  "paywall_variables.free_price": "मुफ़्त",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "आज देय कुल राशि",
   "product_info.subscribe_to": "सदस्यता लें",
@@ -79,6 +80,7 @@
   "error_page.error_title_stripe_missing_required_permission": "स्ट्राइप अनुमति गुम है",
   "error_page.button_close": "बंद करें",
   "error_page.error_message_stripe_invalid_tax_origin_address": "खरीदारी विफल रही क्योंकि कर उत्पत्ति पता अमान्य है. उत्पादन में, खरीदारी बिना करों के लागू किए काम करेगी.",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "खरीदारी विफल रही क्योंकि कर उत्पत्ति पता अमान्य है.",
   "error_page.error_message_stripe_tax_not_active": "खरीदारी विफल रही क्योंकि स्ट्राइप टैक्स सक्षम नहीं है. उत्पादन में, खरीदारी बिना करों के लागू किए काम करेगी.",
   "error_page.error_only_in_sandbox": "यह संदेश केवल सैंडबॉक्स में दिखाई देता है.",
   "error_page.error_message_stripe_missing_required_permission": "खरीदारी विफल रही क्योंकि स्ट्राइप ऐप में आवश्यक अनुमति नहीं है. उत्पादन में, खरीदारी बिना करों के लागू किए काम करेगी.",
@@ -94,8 +96,10 @@
   "payment_entry_page.trial_subscription_terms_info": "आपकी परीक्षण अवधि समाप्त होने के बाद, आपसे {{renewalDate}} से शुरू होकर {{price}} {{perFrequency}} शुल्क लिया जाएगा. आप इस तिथि से पहले कभी भी रद्द कर सकते हैं.",
   "payment_entry_page.subscription_info": "सदस्यता स्वतः नवीनीकृत हो जाती है. कभी भी रद्द करें.",
   "payment_entry_page.otp_terms_info": "खरीदकर, आप {{appName}} को उनकी शर्तों के अनुसार आपसे शुल्क लेने की अनुमति देने के लिए सहमत हैं.",
+  "payment_entry_page.otp_terms_info_without_app_name": "खरीद कर, आप लागू शर्तों के अनुसार शुल्क लिए जाने के लिए सहमत हैं।",
   "payment_entry_page.terms_link_label": "नियम",
   "payment_entry_page.subscription_terms_info": "सदस्यता लेकर, आप {{appName}} को रद्द करने तक उनकी शर्तों के अनुसार आपसे शुल्क लेने की अनुमति देने के लिए सहमत हैं.",
+  "payment_entry_page.subscription_terms_info_without_app_name": "सदस्यता लेकर, आप रद्द करने तक लागू शर्तों के अनुसार आवर्ती शुल्कों के लिए सहमत हैं।",
   "loading_page.keep_page_open": "प्रक्रिया लगभग पूरी हो चुकी है. इस पृष्ठ को खुला रखें.",
   "loading_page.processing_payment": "भुगतान संसाधित किया जा रहा है",
   "pricing_table.discount": "छूट",
@@ -104,6 +108,7 @@
   "discount_input.label": "प्रोमो कोड",
   "payment_entry_page.checkout_consent_terms_of_service": "सेवा की शर्तें",
   "payment_entry_page.checkout_consent_agreement": "मैं {{appName}} की {{termsOfService}} से सहमत हूँ।",
+  "payment_entry_page.checkout_consent_agreement_without_app_name": "मैं {{termsOfService}} से सहमत हूँ।",
   "upgrade_confirm_page.subtitle_immediate": "अपने भुगतान विवरण की समीक्षा करें और अपग्रेड की पुष्टि करें",
   "upgrade_confirm_page.confirm_upgrade_with_price": "अपग्रेड की पुष्टि करें ∙ {{formattedPrice}}",
   "upgrade_product_info.estimated_at_next_renewal": "अगले नवीनीकरण पर अनुमानित",
@@ -130,5 +135,7 @@
   "paddle_order_summary.billed_frequency": "बिलिंग {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "पहला {{firstPeriod}}, फिर {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "कर सहित",
-  "paddle_order_summary.due_on": "{{date}} को देय"
+  "paddle_order_summary.due_on": "{{date}} को देय",
+  "payment_entry_page.payment_method_error": "हम इस भुगतान विधि का उपयोग नहीं कर सके। कृपया अपने विवरण जांचें या कोई भिन्न भुगतान विधि आज़माएँ।",
+  "payment_entry_page.payment_method_error_card_not_supported": "यह कार्ड प्रकार स्वीकार्य नहीं है। कोई भिन्न कार्ड आज़माएँ।"
 }

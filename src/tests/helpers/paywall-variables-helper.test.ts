@@ -118,11 +118,16 @@ describe("getPaywallVariables", () => {
           "product.relative_discount": "77%",
           "product.currency_code": "EUR",
           "product.currency_symbol": "€",
-          "product.offer_price": "",
+          "product.offer_price": "free",
           "product.offer_price_per_day": "",
           "product.offer_price_per_week": "",
           "product.offer_price_per_month": "",
           "product.offer_price_per_year": "",
+          "product.offer_price_with_zero": "€0",
+          "product.offer_price_with_zero_per_day": "€0",
+          "product.offer_price_with_zero_per_week": "€0",
+          "product.offer_price_with_zero_per_month": "€0",
+          "product.offer_price_with_zero_per_year": "€0",
           "product.offer_period": "week",
           "product.offer_period_abbreviated": "wk",
           "product.offer_period_in_days": "14",
@@ -155,11 +160,16 @@ describe("getPaywallVariables", () => {
           "product.relative_discount": "",
           "product.currency_code": "EUR",
           "product.currency_symbol": "€",
-          "product.offer_price": "",
+          "product.offer_price": "free",
           "product.offer_price_per_day": "",
           "product.offer_price_per_week": "",
           "product.offer_price_per_month": "",
           "product.offer_price_per_year": "",
+          "product.offer_price_with_zero": "€0",
+          "product.offer_price_with_zero_per_day": "€0",
+          "product.offer_price_with_zero_per_week": "€0",
+          "product.offer_price_with_zero_per_month": "€0",
+          "product.offer_price_with_zero_per_year": "€0",
           "product.offer_period": "week",
           "product.offer_period_abbreviated": "wk",
           "product.offer_period_in_days": "14",
@@ -428,6 +438,11 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_week": "$2.30",
           "product.offer_price_per_month": "$10.00",
           "product.offer_price_per_year": "$120.00",
+          "product.offer_price_with_zero": "$10.00",
+          "product.offer_price_with_zero_per_day": "$0.33",
+          "product.offer_price_with_zero_per_week": "$2.30",
+          "product.offer_price_with_zero_per_month": "$10.00",
+          "product.offer_price_with_zero_per_year": "$120.00",
           "product.offer_period": "month",
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_with_unit": "1 month",
@@ -463,6 +478,11 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_week": "$2.76",
           "product.offer_price_per_month": "$12.00",
           "product.offer_price_per_year": "$144.00",
+          "product.offer_price_with_zero": "$12.00",
+          "product.offer_price_with_zero_per_day": "$0.40",
+          "product.offer_price_with_zero_per_week": "$2.76",
+          "product.offer_price_with_zero_per_month": "$12.00",
+          "product.offer_price_with_zero_per_year": "$144.00",
           "product.offer_period": "month",
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_with_unit": "3 months",
@@ -516,6 +536,11 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_week": "$75.00",
           "product.offer_price_per_month": "$325.89",
           "product.offer_price_per_year": "$3,910.71",
+          "product.offer_price_with_zero": "$75.00",
+          "product.offer_price_with_zero_per_day": "$10.71",
+          "product.offer_price_with_zero_per_week": "$75.00",
+          "product.offer_price_with_zero_per_month": "$325.89",
+          "product.offer_price_with_zero_per_year": "$3,910.71",
           "product.offer_period": "month",
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_with_unit": "2 months",
@@ -568,6 +593,11 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_week": "$1.15",
           "product.offer_price_per_month": "$5.00",
           "product.offer_price_per_year": "$60.00",
+          "product.offer_price_with_zero": "$5.00",
+          "product.offer_price_with_zero_per_day": "$0.16",
+          "product.offer_price_with_zero_per_week": "$1.15",
+          "product.offer_price_with_zero_per_month": "$5.00",
+          "product.offer_price_with_zero_per_year": "$60.00",
           "product.offer_period": "week",
           "product.offer_period_abbreviated": "wk",
           "product.offer_period_with_unit": "1 week",
@@ -603,6 +633,11 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_week": "$0.45",
           "product.offer_price_per_month": "$1.99",
           "product.offer_price_per_year": "$23.88",
+          "product.offer_price_with_zero": "$1.99",
+          "product.offer_price_with_zero_per_day": "$0.06",
+          "product.offer_price_with_zero_per_week": "$0.45",
+          "product.offer_price_with_zero_per_month": "$1.99",
+          "product.offer_price_with_zero_per_year": "$23.88",
           "product.offer_period": "month",
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_with_unit": "3 months",
@@ -649,6 +684,11 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_week": "$0.26",
           "product.offer_price_per_month": "$1.16",
           "product.offer_price_per_year": "$13.98",
+          "product.offer_price_with_zero": "$6.99",
+          "product.offer_price_with_zero_per_day": "$0.03",
+          "product.offer_price_with_zero_per_week": "$0.26",
+          "product.offer_price_with_zero_per_month": "$1.16",
+          "product.offer_price_with_zero_per_year": "$13.98",
           "product.offer_period": "month",
           "product.offer_period_abbreviated": "mo",
           "product.offer_period_with_unit": "6 months",
@@ -684,6 +724,11 @@ describe("getPaywallVariables", () => {
           "product.offer_price_per_week": "$2.99",
           "product.offer_price_per_month": "$13.00",
           "product.offer_price_per_year": "$156.00",
+          "product.offer_price_with_zero": "$13.00",
+          "product.offer_price_with_zero_per_day": "$0.43",
+          "product.offer_price_with_zero_per_week": "$2.99",
+          "product.offer_price_with_zero_per_month": "$13.00",
+          "product.offer_price_with_zero_per_year": "$156.00",
           "product.offer_period": "",
           "product.offer_period_abbreviated": "",
           "product.offer_period_with_unit": "",
@@ -701,6 +746,52 @@ describe("getPaywallVariables", () => {
   });
 
   describe("Trial logic for subscriptions", () => {
+    test("Subscription with a free trial uses the localized free price", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_web_billing_trial",
+          title: "Monthly Web Billing Trial",
+          basePriceMicros: 9000000,
+          trial: trialPhaseP7D,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(
+        off,
+        new Translator({}, "de_DE", "en_US"),
+      );
+
+      expect(variables.$rc_monthly).toEqual(
+        expect.objectContaining({
+          "product.offer_price": "kostenlos",
+          "product.offer_price_per_day": "",
+          "product.offer_price_per_week": "",
+          "product.offer_price_per_month": "",
+          "product.offer_price_per_year": "",
+        }),
+      );
+    });
+
+    test("Free trial price falls back to the default locale", () => {
+      const off = toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly_stripe_trial",
+          title: "Monthly Stripe Trial",
+          basePriceMicros: 9000000,
+          trial: trialPhaseP7D,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(
+        off,
+        new Translator({}, "unsupported_LOCALE", "en_US"),
+      );
+
+      expect(variables.$rc_monthly["product.offer_price"]).toBe("free");
+    });
+
     test("Subscription with day-unit trial (e.g. Stripe trial_days) populates offer_period variables", () => {
       const off = toOffering([
         {
@@ -716,11 +807,16 @@ describe("getPaywallVariables", () => {
 
       expect(variables.$rc_monthly).toEqual(
         expect.objectContaining({
-          "product.offer_price": "",
+          "product.offer_price": "free",
           "product.offer_price_per_day": "",
           "product.offer_price_per_week": "",
           "product.offer_price_per_month": "",
           "product.offer_price_per_year": "",
+          "product.offer_price_with_zero": "€0",
+          "product.offer_price_with_zero_per_day": "€0",
+          "product.offer_price_with_zero_per_week": "€0",
+          "product.offer_price_with_zero_per_month": "€0",
+          "product.offer_price_with_zero_per_year": "€0",
           "product.offer_period": "day",
           "product.offer_period_abbreviated": "d",
           "product.offer_period_with_unit": "7 days",
@@ -806,6 +902,7 @@ describe("getPaywallVariables", () => {
       expect(variables.lifetime).toEqual(
         expect.objectContaining({
           "product.offer_price": "$10.00",
+          "product.offer_price_with_zero": "$10.00",
         }),
       );
     });

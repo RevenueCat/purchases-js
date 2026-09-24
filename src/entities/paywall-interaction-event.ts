@@ -3,6 +3,8 @@ import type { ComponentInteractionType } from "../behavioural-events/paywall-eve
 /**
  * A paywall control interaction, as passed to `PaywallListener.onInteraction`. Keys that do not apply
  * are omitted.
+ *
+ * See https://rev.cat/paywall-interaction-events for what each component type sends.
  * @public
  */
 export interface PaywallInteractionEvent {
@@ -48,4 +50,5 @@ export const PAYWALL_COMPONENT_TYPES = {
   PACKAGE: "package",
   PACKAGE_SELECTION_SHEET: "package_selection_sheet",
   PURCHASE_BUTTON: "purchase_button",
+  WALLET_BUTTON: "wallet_button",
 } as const satisfies Record<string, ComponentInteractionType>;

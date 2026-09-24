@@ -10,7 +10,11 @@ import {
   type SubscriptionOption,
 } from "../entities/offerings";
 import { PeriodUnit } from "../helpers/duration-helper";
-import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
+import {
+  PurchaseFlowError,
+  PurchaseFlowErrorCode,
+} from "../helpers/purchase-operation-helper";
+import { BackendErrorCode } from "../entities/errors";
 import type { WebBillingCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "../entities/branding";
 import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";
@@ -533,6 +537,16 @@ export const purchaseFlowErrors = {
   alreadyPurchasedError: new PurchaseFlowError(5),
   stripeNotActive: new PurchaseFlowError(6),
   stripeInvalidTaxOriginAddress: new PurchaseFlowError(7),
+  stripeInvalidTaxOriginAddressDuringCheckout: new PurchaseFlowError(
+    PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout,
+    "Invalid tax origin address",
+    null,
+    undefined,
+    {
+      backendErrorCode:
+        BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddressDuringCheckout,
+    },
+  ),
   stripeMissingRequiredPermission: new PurchaseFlowError(8),
   paddleMissingRequiredPermission: new PurchaseFlowError(9),
 };

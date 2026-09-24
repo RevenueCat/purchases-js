@@ -56,13 +56,17 @@
     ? purchaseOption
     : null;
 
-  $: termsKey = getTermsLocalizationKey(subscriptionOption);
+  $: appName = brandingInfo?.app_name ?? null;
+  $: termsKey = getTermsLocalizationKey(subscriptionOption, !!appName);
 
   function getTermsLocalizationKey(
     subscription: SubscriptionOption | null,
+    hasAppName: boolean,
   ): LocalizationKeys {
     if (!subscription) {
-      return LocalizationKeys.PaymentEntryPageOtpTermsInfo;
+      return hasAppName
+        ? LocalizationKeys.PaymentEntryPageOtpTermsInfo
+        : LocalizationKeys.PaymentEntryPageOtpTermsInfoWithoutAppName;
     }
 
     const hasTrial = !!subscription.trial;
@@ -71,7 +75,9 @@
       return LocalizationKeys.PaymentEntryPageTrialSubscriptionTermsInfo;
     }
 
-    return LocalizationKeys.PaymentEntryPageSubscriptionTermsInfo;
+    return hasAppName
+      ? LocalizationKeys.PaymentEntryPageSubscriptionTermsInfo
+      : LocalizationKeys.PaymentEntryPageSubscriptionTermsInfoWithoutAppName;
   }
 
   // TODO WEB-4205 - Translations
@@ -172,7 +178,7 @@
   $: translatedTermsInfo =
     brandingInfo && firstPaymentPrice
       ? $translator.translate(termsKey, {
-          appName: brandingInfo?.app_name,
+          appName,
           price: firstPriceFormatted,
           perFrequency,
           renewalDate,

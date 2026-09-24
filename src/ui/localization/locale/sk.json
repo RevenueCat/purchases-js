@@ -53,6 +53,7 @@
   "error_page.button_try_again": "Skúsiť znova",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}%",
+  "paywall_variables.free_price": "zadarmo",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Celková suma splatná dnes",
   "product_info.subscribe_to": "Prihlásiť sa na odber",
@@ -79,6 +80,7 @@
   "error_page.error_title_stripe_missing_required_permission": "Chýbajúce povolenie Stripe",
   "error_page.button_close": "Zavrieť",
   "error_page.error_message_stripe_invalid_tax_origin_address": "Nákup sa nepodaril, pretože adresa pôvodu dane je neplatná. V produkčnom prostredí budú nákupy fungovať bez uplatnenia daní.",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "Nákup sa nepodaril, pretože adresa pôvodu dane je neplatná.",
   "error_page.error_message_stripe_tax_not_active": "Nákup sa nepodaril, pretože Stripe Tax nie je povolený. V produkčnom prostredí budú nákupy fungovať bez uplatnenia daní.",
   "error_page.error_only_in_sandbox": "Táto správa sa zobrazuje iba v testovacom prostredí (sandbox).",
   "error_page.error_message_stripe_missing_required_permission": "Nákup sa nepodaril, pretože aplikácii Stripe chýba požadované povolenie. V produkčnom prostredí budú nákupy fungovať bez uplatnenia daní.",
@@ -94,8 +96,10 @@
   "payment_entry_page.trial_subscription_terms_info": "Po skončení skúšobného obdobia vám bude účtovaná suma {{price}} {{perFrequency}} počnúc dňom {{renewalDate}}. Pred týmto dátumom môžete kedykoľvek zrušiť.",
   "payment_entry_page.subscription_info": "Predplatné sa automaticky obnovuje. Zrušiť môžete kedykoľvek.",
   "payment_entry_page.otp_terms_info": "Zakúpením súhlasíte s tým, že spoločnosti {{appName}} umožníte účtovať vám poplatky v súlade s jej podmienkami.",
+  "payment_entry_page.otp_terms_info_without_app_name": "Zakúpením súhlasíte s účtovaním podľa platných podmienok.",
   "payment_entry_page.terms_link_label": "Podmienky",
   "payment_entry_page.subscription_terms_info": "Prihlásením na odber súhlasíte s tým, že spoločnosť {{appName}} vám bude účtovať poplatky podľa svojich podmienok, až kým odber nezrušíte.",
+  "payment_entry_page.subscription_terms_info_without_app_name": "Predplatením súhlasíte s opakovanými poplatkami podľa platných podmienok, kým nezrušíte.",
   "loading_page.keep_page_open": "Proces sa takmer dokončil. Nechajte túto stránku otvorenú.",
   "loading_page.processing_payment": "Spracováva sa platba",
   "pricing_table.discount": "Zľava",
@@ -104,6 +108,7 @@
   "discount_input.label": "Propagačný kód",
   "payment_entry_page.checkout_consent_terms_of_service": "podmienkami používania",
   "payment_entry_page.checkout_consent_agreement": "Súhlasím s {{appName}} {{termsOfService}}.",
+  "payment_entry_page.checkout_consent_agreement_without_app_name": "Súhlasím s {{termsOfService}}.",
   "upgrade_confirm_page.subtitle_immediate": "Skontrolujte svoje platobné údaje a potvrďte vylepšenie",
   "upgrade_confirm_page.confirm_upgrade_with_price": "Potvrdiť vylepšenie ∙ {{formattedPrice}}",
   "upgrade_product_info.estimated_at_next_renewal": "Odhadované pri ďalšom obnovení",
@@ -130,5 +135,7 @@
   "paddle_order_summary.billed_frequency": "účtované {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "prvý {{firstPeriod}}, potom {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "vr. dane",
-  "paddle_order_summary.due_on": "Splatné {{date}}"
+  "paddle_order_summary.due_on": "Splatné {{date}}",
+  "payment_entry_page.payment_method_error": "Túto platobnú metódu sa nám nepodarilo použiť. Skontrolujte svoje údaje alebo skúste inú platobnú metódu.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Tento typ karty nie je akceptovaný. Skúste inú kartu."
 }

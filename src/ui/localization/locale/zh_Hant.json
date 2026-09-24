@@ -53,6 +53,7 @@
   "error_page.button_try_again": "再試一次",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}%",
+  "paywall_variables.free_price": "免費",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "今日應付總額",
   "product_info.subscribe_to": "訂閱",
@@ -79,6 +80,7 @@
   "error_page.error_title_stripe_missing_required_permission": "缺少 Stripe 權限",
   "error_page.button_close": "關閉",
   "error_page.error_message_stripe_invalid_tax_origin_address": "購買失敗，因為稅務起始地址無效。在正式環境中，購買將在不套用稅金的情況下運作。",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "購買失敗，因為稅務起始地址無效。",
   "error_page.error_message_stripe_tax_not_active": "購買失敗，因為 Stripe Tax 未啟用。在正式環境中，購買將在不套用稅金的情況下運作。",
   "error_page.error_only_in_sandbox": "此訊息僅在沙盒中顯示。",
   "error_page.error_message_stripe_missing_required_permission": "購買失敗，因為 Stripe 應用程式缺少必要的權限。在正式環境中，購買將在不套用稅金的情況下運作。",
@@ -94,8 +96,10 @@
   "payment_entry_page.trial_subscription_terms_info": "在您的試用期結束後，您將被收取 {{price}} {{perFrequency}}，從 {{renewalDate}} 開始。您可以隨時在此日期之前取消。",
   "payment_entry_page.subscription_info": "訂閱會自動續訂。隨時取消。",
   "payment_entry_page.otp_terms_info": "購買即表示您同意授權 {{appName}} 根據其條款向您收費。",
+  "payment_entry_page.otp_terms_info_without_app_name": "購買即表示您同意根據適用條款支付費用。",
   "payment_entry_page.terms_link_label": "條款",
   "payment_entry_page.subscription_terms_info": "訂閱即表示您同意允許 {{appName}} 根據其條款向您收費，直到您取消為止。",
+  "payment_entry_page.subscription_terms_info_without_app_name": "訂閱即表示您同意根據適用條款定期收費，直到您取消為止。",
   "loading_page.keep_page_open": "程序即將完成。請保持此頁面開啟。",
   "loading_page.processing_payment": "正在處理付款",
   "pricing_table.discount": "折扣",
@@ -104,6 +108,7 @@
   "discount_input.label": "促銷代碼",
   "payment_entry_page.checkout_consent_terms_of_service": "服務條款",
   "payment_entry_page.checkout_consent_agreement": "我同意{{appName}}的{{termsOfService}}。",
+  "payment_entry_page.checkout_consent_agreement_without_app_name": "我同意{{termsOfService}}。",
   "upgrade_confirm_page.subtitle_immediate": "檢閱您的付款詳情並確認升級",
   "upgrade_confirm_page.confirm_upgrade_with_price": "確認升級 ∙ {{formattedPrice}}",
   "upgrade_product_info.estimated_at_next_renewal": "預計於下次續訂時計算",
@@ -130,5 +135,7 @@
   "paddle_order_summary.billed_frequency": "{{frequency}}計費",
   "paddle_order_summary.intro_then_recurring": "首個{{firstPeriod}}，之後 {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "含稅",
-  "paddle_order_summary.due_on": "{{date}}到期"
+  "paddle_order_summary.due_on": "{{date}}到期",
+  "payment_entry_page.payment_method_error": "我們無法使用此付款方式。請檢查您的資料，或嘗試其他付款方式。",
+  "payment_entry_page.payment_method_error_card_not_supported": "此卡片類型不被接受。請嘗試其他卡片。"
 }

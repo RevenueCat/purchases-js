@@ -53,6 +53,7 @@
   "error_page.button_try_again": "ลองอีกครั้ง",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}%",
+  "paywall_variables.free_price": "ฟรี",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "ยอดรวมที่ต้องชำระวันนี้",
   "product_info.subscribe_to": "สมัครสมาชิก",
@@ -79,6 +80,7 @@
   "error_page.error_title_stripe_missing_required_permission": "ขาดสิทธิ์ Stripe ที่จำเป็น",
   "error_page.button_close": "ปิด",
   "error_page.error_message_stripe_invalid_tax_origin_address": "การซื้อล้มเหลวเนื่องจากที่อยู่ต้นทางภาษีไม่ถูกต้อง ในสภาพแวดล้อมจริง การซื้อจะทำงานได้โดยไม่มีการเรียกเก็บภาษี",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "การซื้อล้มเหลวเนื่องจากที่อยู่ต้นทางภาษีไม่ถูกต้อง",
   "error_page.error_message_stripe_tax_not_active": "การซื้อล้มเหลวเนื่องจากไม่ได้เปิดใช้งาน Stripe Tax ในสภาพแวดล้อมจริง การซื้อจะทำงานได้โดยไม่มีการเรียกเก็บภาษี",
   "error_page.error_only_in_sandbox": "ข้อความนี้จะปรากฏเฉพาะใน sandbox เท่านั้น",
   "error_page.error_message_stripe_missing_required_permission": "การซื้อล้มเหลวเนื่องจากแอป Stripe ขาดสิทธิ์ที่จำเป็น ในสภาพแวดล้อมจริง การซื้อจะทำงานได้โดยไม่มีการเรียกเก็บภาษี",
@@ -94,8 +96,10 @@
   "payment_entry_page.trial_subscription_terms_info": "หลังจากช่วงทดลองใช้ของคุณสิ้นสุดลง คุณจะถูกเรียกเก็บเงิน {{price}} {{perFrequency}} เริ่มตั้งแต่วันที่ {{renewalDate}} คุณสามารถยกเลิกได้ตลอดเวลาก่อนวันดังกล่าว",
   "payment_entry_page.subscription_info": "การสมัครรับข้อมูลจะต่ออายุโดยอัตโนมัติ ยกเลิกได้ตลอดเวลา",
   "payment_entry_page.otp_terms_info": "เมื่อทำการซื้อ คุณตกลงที่จะอนุญาตให้ {{appName}} เรียกเก็บเงินจากคุณตามข้อกำหนดของพวกเขา",
+  "payment_entry_page.otp_terms_info_without_app_name": "เมื่อทำการซื้อ คุณตกลงที่จะถูกเรียกเก็บเงินตามข้อกำหนดที่เกี่ยวข้อง",
   "payment_entry_page.terms_link_label": "ข้อกำหนด",
   "payment_entry_page.subscription_terms_info": "เมื่อสมัครรับข้อมูล แสดงว่าคุณยินยอมให้ {{appName}} เรียกเก็บเงินจากคุณตามข้อกำหนดจนกว่าคุณจะยกเลิก",
+  "payment_entry_page.subscription_terms_info_without_app_name": "เมื่อสมัครสมาชิก คุณตกลงที่จะชำระเงินแบบเรียกเก็บซ้ำตามข้อกำหนดที่เกี่ยวข้องจนกว่าคุณจะยกเลิก",
   "loading_page.keep_page_open": "กระบวนการเกือบเสร็จสมบูรณ์แล้ว โปรดเปิดหน้านี้ไว้",
   "loading_page.processing_payment": "กำลังดำเนินการชำระเงิน",
   "pricing_table.discount": "ส่วนลด",
@@ -104,6 +108,7 @@
   "discount_input.label": "รหัสโปรโมชั่น",
   "payment_entry_page.checkout_consent_terms_of_service": "ข้อกำหนดในการให้บริการ",
   "payment_entry_page.checkout_consent_agreement": "ฉันยอมรับ{{termsOfService}}ของ{{appName}}",
+  "payment_entry_page.checkout_consent_agreement_without_app_name": "ฉันยอมรับ {{termsOfService}}",
   "upgrade_confirm_page.subtitle_immediate": "ตรวจสอบรายละเอียดการชำระเงินของคุณและยืนยันการอัปเกรด",
   "upgrade_confirm_page.confirm_upgrade_with_price": "ยืนยันการอัปเกรด ∙ {{formattedPrice}}",
   "upgrade_product_info.estimated_at_next_renewal": "ประมาณการในการต่ออายุครั้งถัดไป",
@@ -130,5 +135,7 @@
   "paddle_order_summary.billed_frequency": "เรียกเก็บ{{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}}แรก จากนั้น {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "รวมภาษี",
-  "paddle_order_summary.due_on": "ครบกำหนดวันที่ {{date}}"
+  "paddle_order_summary.due_on": "ครบกำหนดวันที่ {{date}}",
+  "payment_entry_page.payment_method_error": "เราไม่สามารถใช้วิธีการชำระเงินนี้ได้ โปรดตรวจสอบรายละเอียดของคุณหรือลองใช้วิธีการชำระเงินอื่น",
+  "payment_entry_page.payment_method_error_card_not_supported": "ไม่รองรับบัตรประเภทนี้ โปรดลองใช้บัตรอื่น"
 }
