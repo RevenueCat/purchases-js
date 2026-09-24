@@ -127,7 +127,7 @@ describe("Purchases.applyPaddleDiscountsToOffering", () => {
       currencyCode: "USD",
     });
 
-    const product = result.packagesById["$rc_monthly"].webBillingProduct;
+    const product = result.packagesById["$rc_monthly"].product;
     expect(product.discountPhase?.price.formattedPrice).toBe("$2.40");
     expect(product.defaultSubscriptionOption?.discount?.percentage).toBe(20);
 

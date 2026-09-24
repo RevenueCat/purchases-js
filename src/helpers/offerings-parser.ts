@@ -46,14 +46,14 @@ export const replaceOfferingProducts = (
 
   return mapOfferingPackages(offering, (rcPackage) => {
     const productDetailsData =
-      productsByIdentifier[rcPackage.webBillingProduct.identifier];
+      productsByIdentifier[rcPackage.product.identifier];
     if (productDetailsData === undefined) {
       return rcPackage;
     }
 
     const product = toProduct(
       productDetailsData,
-      rcPackage.webBillingProduct.presentedOfferingContext,
+      rcPackage.product.presentedOfferingContext,
     );
     if (product === null) {
       return rcPackage;
@@ -63,6 +63,7 @@ export const replaceOfferingProducts = (
       ...rcPackage,
       rcBillingProduct: product,
       webBillingProduct: product,
+      product,
     };
   });
 };
