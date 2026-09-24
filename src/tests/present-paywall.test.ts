@@ -408,16 +408,27 @@ describe("Purchases.presentPaywall() paywall context", () => {
     });
   });
 
-  test("passes the app user ID and environment for custom checkout URLs", async () => {
-    const purchases = configurePurchases();
-    const offering = createOfferingWithPaywall();
+  test.each([
+    { name: "forwards app", rcSource: "app", expected: "app" },
+    { name: "forwards embedded", rcSource: "embedded", expected: "embedded" },
+    { name: "drops unsupported", rcSource: "unsupported", expected: undefined },
+    { name: "omits when unset", rcSource: undefined, expected: undefined },
+  ])(
+    "passes custom checkout context on the Paywall mount: $name",
+    async ({ rcSource, expected }) => {
+      const purchases = configurePurchases(undefined, undefined, undefined, {
+        rcSource,
+      });
+      const offering = createOfferingWithPaywall();
 
-    void purchases.presentPaywall({ offering });
+      void purchases.presentPaywall({ offering });
 
-    await vi.waitFor(() => expect(mountedProps).toBeDefined());
-    expect(mountedProps).toMatchObject({
-      appUserId: purchases.getAppUserId(),
-      isSandbox: purchases.isSandbox(),
-    });
-  });
+      await vi.waitFor(() => expect(mountedProps).toBeDefined());
+      expect(mountedProps).toMatchObject({
+        appUserId: purchases.getAppUserId(),
+        isSandbox: purchases.isSandbox(),
+      });
+      expect(mountedProps?.rcSource).toBe(expected);
+    },
+  );
 });

@@ -82,7 +82,7 @@ import {
   type PaywallPurchaseResult,
   type PurchaseResult,
 } from "./entities/purchase-result";
-import { mount, unmount } from "svelte";
+import { type ComponentProps, mount, unmount } from "svelte";
 import { type PaywallListener } from "./entities/paywall-listener";
 import {
   type CompleteWorkflowNavigateArgs,
@@ -1450,6 +1450,7 @@ export class Purchases {
               infoPerPackage,
               appUserId: this._appUserId,
               isSandbox: this.isSandbox(),
+              rcSource: this.getSupportedRCSource(),
               walletButtonRender,
               onPurchaseClicked:
                 createPurchaseClickHandler(finalWorkflowLocale),
@@ -1480,7 +1481,7 @@ export class Purchases {
               maxContentWidth: workflowDataResponse.content_max_width
                 ? String(workflowDataResponse.content_max_width)
                 : undefined,
-            },
+            } satisfies ComponentProps<typeof Workflow>,
           });
         } catch (err) {
           unmountPaywall();
@@ -1496,6 +1497,7 @@ export class Purchases {
             onNavigateToUrlClicked: navigateToUrl,
             appUserId: this._appUserId,
             isSandbox: this.isSandbox(),
+            rcSource: this.getSupportedRCSource(),
             onCompleteWorkflowNavigate,
             onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
             uiConfig: offering.uiConfig!,
@@ -1524,7 +1526,7 @@ export class Purchases {
             packages: paywallContextPackages,
             isPreview: false,
             onComponentInteraction,
-          },
+          } satisfies ComponentProps<typeof Paywall>,
         });
       }
 
@@ -2932,6 +2934,13 @@ export class Purchases {
     };
 
     return onClose;
+  }
+
+  private getSupportedRCSource(): string | undefined {
+    const rcSource = this._flags.rcSource;
+    return rcSource && supportedRCSources.includes(rcSource)
+      ? rcSource
+      : undefined;
   }
 
   private shouldHideCheckoutBackButton(): boolean {
