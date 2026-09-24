@@ -6,13 +6,16 @@ function blockedProtocol(protocol: string): boolean {
   return BLOCKED_PROTOCOLS.has(protocol.toLowerCase());
 }
 
+/** Open methods shared by complete-workflow and purchase-button navigation. */
+type NavigateOpenMethod = CompleteWorkflowNavigateArgs["method"];
+
 /**
- * Returns whether a URL string is safe for default complete-workflow navigation
+ * Returns whether a URL string is safe for default paywall-driven navigation
  * using `window.open` or `location.assign`.
  */
-export function isAllowedCompleteWorkflowNavigateUrl(
+export function isAllowedNavigateUrl(
   rawUrl: string,
-  method: CompleteWorkflowNavigateArgs["method"],
+  method: NavigateOpenMethod,
 ): boolean {
   const trimmed = rawUrl.trim();
   if (trimmed.length === 0) {

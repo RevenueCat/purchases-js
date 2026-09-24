@@ -41,6 +41,20 @@ export interface FlagsConfig {
   applePayBrandingLogoEnabled?: boolean;
 
   /**
+   * If set to true, purchase buttons configured in the Dashboard with a custom
+   * web checkout URL navigate to that URL instead of opening the in-app
+   * checkout. The configured package parameter is appended to the URL.
+   *
+   * Navigation can be customised through
+   * {@link PresentPaywallParams.onNavigateToUrl}; otherwise the SDK opens the
+   * URL in a new tab for `external_browser` and in the current tab for
+   * `in_app_browser` / `deep_link`.
+   * @defaultValue false
+   * @experimental
+   */
+  customWebCheckoutEnabled?: boolean;
+
+  /**
    * Describes the platform that originated the purchase.
    * This does not technically belong here but since the public Purchase configuration
    * does not use objects, it is the easiest way to pass this internal parameter.

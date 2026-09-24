@@ -1,12 +1,19 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { mount } from "svelte";
-import { configurePurchases } from "./base.purchases_test";
+import {
+  configurePurchases,
+  testApiKey,
+  testUserId,
+} from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { CustomVariableValue, ErrorCode, PurchasesError } from "../main";
 import type { Offering, Package } from "../entities/offerings";
 import type { CompleteWorkflowNavigateArgs } from "../entities/present-paywall-params";
 import type { PurchaseResult } from "../entities/purchase-result";
-import type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
+import type {
+  ComponentInteractionData,
+  PurchaseCheckoutNavigateArgs,
+} from "@revenuecat/purchases-ui-js";
 import * as browserGlobals from "../helpers/browser-globals";
 import { Logger } from "../helpers/logger";
 
@@ -21,6 +28,9 @@ type PaywallMountProps = {
   onComponentInteraction: (data: ComponentInteractionData) => void;
   onCompleteWorkflowNavigate: (
     args: CompleteWorkflowNavigateArgs,
+  ) => void | Promise<void>;
+  onPurchaseCheckoutNavigate?: (
+    args: PurchaseCheckoutNavigateArgs,
   ) => void | Promise<void>;
   onNavigateToUrlClicked: (url: string) => void;
 };
@@ -873,6 +883,159 @@ describe("Purchases.presentPaywall() complete workflow navigation", () => {
     expect(warnSpy).toHaveBeenCalled();
     expect(openMock).not.toHaveBeenCalled();
     expect(assignMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("Purchases.presentPaywall() custom web checkout navigation", () => {
+  let paywallProps: PaywallMountProps | undefined;
+  let assignMock: ReturnType<typeof vi.fn>;
+  let openMock: ReturnType<typeof vi.fn>;
+
+  const configureWithCustomWebCheckout = () =>
+    configurePurchases(testUserId, "rcSource", testApiKey, {
+      customWebCheckoutEnabled: true,
+    });
+
+  beforeEach(() => {
+    paywallProps = undefined;
+    assignMock = vi.fn();
+    openMock = vi.fn().mockReturnValue({ focus: vi.fn() });
+    vi.spyOn(browserGlobals, "getWindow").mockReturnValue({
+      open: openMock,
+      location: { assign: assignMock },
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    } as unknown as Window);
+
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      paywallProps = options.props as PaywallMountProps;
+      (options.target as Element).innerHTML =
+        "<div data-testid='paywall-root'></div>";
+      return {} as ReturnType<typeof mount>;
+    });
+  });
+
+  afterEach(() => {
+    vi.mocked(browserGlobals.getWindow).mockRestore();
+    vi.clearAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  test("opens a new tab for external_browser", async () => {
+    const purchases = configureWithCustomWebCheckout();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    await paywallProps!.onPurchaseCheckoutNavigate!({
+      url: "https://example.com/checkout?rc_package=monthly",
+      packageId: "$rc_monthly",
+      open_method: "external_browser",
+    });
+
+    expect(openMock).toHaveBeenCalledWith(
+      "https://example.com/checkout?rc_package=monthly",
+      "_blank",
+      "noopener,noreferrer",
+    );
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
+  test("navigates in the same tab for in_app_browser", async () => {
+    const purchases = configureWithCustomWebCheckout();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    await paywallProps!.onPurchaseCheckoutNavigate!({
+      url: "https://example.com/checkout",
+      packageId: "$rc_monthly",
+      open_method: "in_app_browser",
+    });
+
+    expect(assignMock).toHaveBeenCalledWith("https://example.com/checkout");
+    expect(openMock).not.toHaveBeenCalled();
+  });
+
+  test("defaults to a new tab when no open method is configured", async () => {
+    const purchases = configureWithCustomWebCheckout();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    await paywallProps!.onPurchaseCheckoutNavigate!({
+      url: "https://example.com/checkout",
+      packageId: "$rc_monthly",
+    });
+
+    expect(openMock).toHaveBeenCalledWith(
+      "https://example.com/checkout",
+      "_blank",
+      "noopener,noreferrer",
+    );
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
+  test("onNavigateToUrl takes precedence over default navigation", async () => {
+    const onNavigateToUrl = vi.fn();
+    const purchases = configureWithCustomWebCheckout();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering, onNavigateToUrl });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    await paywallProps!.onPurchaseCheckoutNavigate!({
+      url: "https://example.com/checkout",
+      packageId: "$rc_monthly",
+      open_method: "external_browser",
+    });
+
+    expect(onNavigateToUrl).toHaveBeenCalledWith(
+      "https://example.com/checkout",
+    );
+    expect(openMock).not.toHaveBeenCalled();
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
+  test("blocks disallowed URLs", async () => {
+    const purchases = configureWithCustomWebCheckout();
+    const offering = createOfferingWithPaywall();
+    const warnSpy = vi.spyOn(Logger, "warnLog").mockImplementation(() => {});
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    await paywallProps!.onPurchaseCheckoutNavigate!({
+      url: "javascript:void(0)",
+      packageId: "$rc_monthly",
+      open_method: "in_app_browser",
+    });
+
+    expect(warnSpy).toHaveBeenCalled();
+    expect(openMock).not.toHaveBeenCalled();
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
+  test("flushes pending events before leaving the page", async () => {
+    const purchases = configureWithCustomWebCheckout();
+    const offering = createOfferingWithPaywall();
+    const flushSpy = vi
+      .spyOn(purchases["eventsTracker"], "flushAllEvents")
+      .mockResolvedValue(undefined);
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    await paywallProps!.onPurchaseCheckoutNavigate!({
+      url: "https://example.com/checkout",
+      packageId: "$rc_monthly",
+      open_method: "in_app_browser",
+    });
+
+    expect(flushSpy).toHaveBeenCalled();
+    expect(assignMock).toHaveBeenCalledWith("https://example.com/checkout");
   });
 });
 
