@@ -144,6 +144,7 @@ const successfulPurchaseResponse = (): PurchaseResponse => ({
   requestId: { requestIdStr: "request-id" },
   responseCode: PurchaseResponseCode.SUCCESSFUL,
   userData: {
+    countryCode: "US",
     lwaConsentStatus: 1,
     marketplace: "US",
     userId: "amazon-store-user-id",
