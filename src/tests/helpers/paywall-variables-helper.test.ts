@@ -885,6 +885,59 @@ describe("getPaywallVariables", () => {
     });
   });
 
+  describe("Lifetime period variables", () => {
+    test("Non-subscription in the $rc_lifetime package renders the lifetime period", () => {
+      const off = toNonSubscriptionOffering([
+        {
+          packageIdentifier: "$rc_lifetime",
+          identifier: "lifetime_product",
+          title: "Lifetime",
+          basePriceMicros: 100000000,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.$rc_lifetime).toEqual(
+        expect.objectContaining({
+          "product.period": "lifetime",
+          "product.period_abbreviated": "lifetime",
+          "product.periodly": "lifetime",
+          "product.period_with_unit": "lifetime",
+          // Numeric period variables have nothing to report for a lifetime purchase
+          "product.period_in_days": "",
+          "product.period_in_weeks": "",
+          "product.period_in_months": "",
+          "product.period_in_years": "",
+        }),
+      );
+    });
+
+    test("Non-subscription outside the $rc_lifetime package has no period", () => {
+      const off = toNonSubscriptionOffering([
+        {
+          packageIdentifier: "coins",
+          identifier: "coin_pack",
+          title: "100 Coins",
+          basePriceMicros: 4990000,
+        },
+      ]);
+
+      const variables = parseOfferingIntoVariables(off, enTranslator);
+
+      expect(variables.coins).toEqual(
+        expect.objectContaining({
+          "product.period": "",
+          "product.period_abbreviated": "",
+          "product.periodly": "",
+          "product.period_with_unit": "",
+          // The price is still rendered, just without a period
+          "product.price": "€4.99",
+        }),
+      );
+    });
+  });
+
   describe("Discount price logic for non-subscriptions", () => {
     test("Non-subscription with discount sets offer_price", () => {
       const off = toNonSubscriptionOffering([
