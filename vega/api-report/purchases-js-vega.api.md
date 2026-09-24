@@ -289,6 +289,7 @@ export const PAYWALL_COMPONENT_TYPES: {
     readonly PACKAGE: "package";
     readonly PACKAGE_SELECTION_SHEET: "package_selection_sheet";
     readonly PURCHASE_BUTTON: "purchase_button";
+    readonly WALLET_BUTTON: "wallet_button";
 };
 
 // @public
