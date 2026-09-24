@@ -76,11 +76,41 @@ describe("postSimulatedStoreReceipt", () => {
       mockProduct.presentedOfferingContext,
       "purchase",
       undefined,
+      undefined,
     );
 
     expect(result.storeTransaction.productIdentifier).toBe(
       "monthly_trial_intro",
     );
+  });
+
+  test("forwards paywall id and post receipt options to the backend", async () => {
+    const postReceiptOptions = {
+      presentedStepId: "step_123",
+      metadata: { utm_campaign: "spring_sale" },
+      externalPurchaseTokenId: "ext_token_123",
+    };
+
+    const result = await postSimulatedStoreReceipt(
+      mockProduct,
+      mockBackend,
+      "test-user-id",
+      "paywall_123",
+      "test@example.com",
+      postReceiptOptions,
+    );
+
+    expect(mockBackend.postReceipt).toHaveBeenCalledWith(
+      "test-user-id",
+      "monthly_trial_intro",
+      "USD",
+      expect.stringMatching(/^test_.*test-uuid-123$/),
+      mockProduct.presentedOfferingContext,
+      "purchase",
+      "paywall_123",
+      postReceiptOptions,
+    );
+    expect(result.customerEmail).toBe("test@example.com");
   });
 
   test("returns purchase result with correct structure", async () => {
@@ -120,6 +150,7 @@ describe("postSimulatedStoreReceipt", () => {
       expect.stringMatching(/^test_.*test-uuid-123$/),
       consumableProduct.presentedOfferingContext,
       "purchase",
+      undefined,
       undefined,
     );
 

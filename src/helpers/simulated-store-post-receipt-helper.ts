@@ -1,5 +1,5 @@
 import type { Product } from "../entities/offerings";
-import type { Backend } from "../networking/backend";
+import type { Backend, PostReceiptOptions } from "../networking/backend";
 import type { PurchaseResult } from "../entities/purchase-result";
 import { generateUUID } from "./uuid-helper";
 import type { StoreTransaction } from "../entities/store-transaction";
@@ -11,6 +11,7 @@ export async function postSimulatedStoreReceipt(
   appUserId: string,
   paywallId?: string,
   customerEmail?: string,
+  postReceiptOptions?: PostReceiptOptions,
 ): Promise<PurchaseResult> {
   const purchaseDate = new Date();
   const fetchToken = `test_${purchaseDate.getTime()}_${generateUUID()}`;
@@ -31,6 +32,7 @@ export async function postSimulatedStoreReceipt(
     product.presentedOfferingContext,
     "purchase",
     paywallId,
+    postReceiptOptions,
   );
 
   const customerInfo = toCustomerInfo(subscriberResponse);

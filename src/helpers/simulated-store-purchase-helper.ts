@@ -66,6 +66,13 @@ export function purchaseSimulatedStoreProduct(
                 appUserId,
                 purchaseParams.paywallId,
                 purchaseParams.customerEmail,
+                {
+                  presentedStepId:
+                    purchaseParams.workflowPurchaseContext?.stepId,
+                  metadata: purchaseParams.metadata,
+                  externalPurchaseTokenId:
+                    purchaseParams.externalPurchaseTokenId,
+                },
               ),
             );
           } catch (error) {
