@@ -136,7 +136,7 @@ describe("preload", () => {
     expect(APIGetRequest).toHaveBeenCalledWith(expectedRequest);
   });
 
-  test("does not load branding info if using simulated store api key", async () => {
+  test("loads branding info when using simulated store api key", async () => {
     const purchases = configurePurchases(
       "test-app-user-id",
       "test-rc-source",
@@ -147,7 +147,7 @@ describe("preload", () => {
     };
     expect(APIGetRequest).not.toHaveBeenCalledWith(expectedRequest);
     await purchases.preload();
-    expect(APIGetRequest).not.toHaveBeenCalledWith(expectedRequest);
+    expect(APIGetRequest).toHaveBeenCalledWith(expectedRequest);
   });
 
   test("does not inject an apple-touch-icon when the flag is disabled", async () => {

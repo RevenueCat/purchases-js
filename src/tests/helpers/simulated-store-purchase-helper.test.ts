@@ -3,6 +3,7 @@ import { purchaseSimulatedStoreProduct } from "../../helpers/simulated-store-pur
 import { ErrorCode, PurchasesError } from "../../entities/errors";
 import type { PurchaseParams } from "../../entities/purchase-params";
 import type { Backend } from "../../networking/backend";
+import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 import { mount, unmount } from "svelte";
 import { createMonthlyPackageWithTrialAndIntroPriceMock } from "../mocks/offering-mock-provider";
 import { expectPromiseToError } from "../test-helpers";
@@ -107,6 +108,52 @@ describe("purchaseSimulatedStoreProduct", () => {
     const props = mountCall[1].props;
     props?.onCancel();
 
+    await expect(promise).rejects.toThrow(PurchasesError);
+  });
+
+  test("passes the product title and branding to the modal", async () => {
+    const brandingInfo: BrandingInfoResponse = {
+      id: "app_config_id",
+      app_name: "Acme Fit",
+      app_icon: "icon.png",
+      app_icon_webp: "icon.webp",
+      app_wordmark: null,
+      app_wordmark_webp: null,
+      appearance: null,
+      gateway_tax_collection_enabled: false,
+      brand_font_config: null,
+    };
+
+    const promise = purchaseSimulatedStoreProduct(
+      mockPurchaseParams,
+      mockBackend,
+      "test-user-id",
+      brandingInfo,
+    );
+
+    const props = vi.mocked(mount).mock.calls[0][1].props;
+    expect(props).toEqual(
+      expect.objectContaining({
+        productTitle: mockPackage.webBillingProduct.title,
+        brandingInfo,
+      }),
+    );
+
+    props?.onCancel();
+    await expect(promise).rejects.toThrow(PurchasesError);
+  });
+
+  test("passes null branding to the modal when none is loaded", async () => {
+    const promise = purchaseSimulatedStoreProduct(
+      mockPurchaseParams,
+      mockBackend,
+      "test-user-id",
+    );
+
+    const props = vi.mocked(mount).mock.calls[0][1].props;
+    expect(props?.brandingInfo).toBeNull();
+
+    props?.onCancel();
     await expect(promise).rejects.toThrow(PurchasesError);
   });
 
