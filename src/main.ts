@@ -1032,10 +1032,6 @@ export class Purchases {
       url: string;
       defaultPrevented: boolean;
     } | null = null;
-    let lastCustomCheckoutInteraction: {
-      packageId: string;
-      url: string;
-    } | null = null;
 
     const recordTextLinkClick = (event: MouseEvent) => {
       const target = event.target;
@@ -1276,15 +1272,6 @@ export class Purchases {
                 componentType: data.componentType,
                 componentURL: interaction.componentURL,
               };
-        lastCustomCheckoutInteraction =
-          data.componentType === "purchase_button" &&
-          data.componentValue === "custom_web_checkout" &&
-          interaction.componentURL !== undefined
-            ? {
-                packageId: data.currentPackageId,
-                url: interaction.componentURL,
-              }
-            : null;
         trackComponentInteraction(data);
       };
 
@@ -1353,17 +1340,6 @@ export class Purchases {
 
       const createPurchaseClickHandler = (checkoutLocale: string) => {
         return (selectedPackageId: string) => {
-          const customCheckout =
-            lastCustomCheckoutInteraction?.packageId === selectedPackageId
-              ? lastCustomCheckoutInteraction
-              : null;
-          lastCustomCheckoutInteraction = null;
-
-          if (customCheckout) {
-            navigateToCustomCheckout(customCheckout.url);
-            return;
-          }
-
           if (purchaseInFlight) {
             return;
           }
@@ -1451,6 +1427,7 @@ export class Purchases {
               appUserId: this._appUserId,
               isSandbox: this.isSandbox(),
               rcSource: this.getSupportedRCSource(),
+              onCustomWebCheckout: navigateToCustomCheckout,
               walletButtonRender,
               onPurchaseClicked:
                 createPurchaseClickHandler(finalWorkflowLocale),
@@ -1498,6 +1475,7 @@ export class Purchases {
             appUserId: this._appUserId,
             isSandbox: this.isSandbox(),
             rcSource: this.getSupportedRCSource(),
+            onCustomWebCheckout: navigateToCustomCheckout,
             onCompleteWorkflowNavigate,
             onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
             uiConfig: offering.uiConfig!,
@@ -2914,10 +2892,7 @@ export class Purchases {
     reject: (error: PurchasesError) => void,
     callback?: () => void,
   ): (() => void) | undefined {
-    const shouldPassOnCloseBehaviour =
-      this._flags.rcSource && supportedRCSources.includes(this._flags.rcSource);
-
-    if (shouldPassOnCloseBehaviour) {
+    if (this.getSupportedRCSource()) {
       return undefined;
     }
 
@@ -2944,11 +2919,7 @@ export class Purchases {
   }
 
   private shouldHideCheckoutBackButton(): boolean {
-    return (
-      this._flags.hideBackButton === true ||
-      (!!this._flags.rcSource &&
-        supportedRCSources.includes(this._flags.rcSource))
-    );
+    return this._flags.hideBackButton === true || !!this.getSupportedRCSource();
   }
 
   private createCheckoutOnFinishedHandler(
