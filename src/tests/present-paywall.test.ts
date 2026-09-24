@@ -407,4 +407,17 @@ describe("Purchases.presentPaywall() paywall context", () => {
       discountCode: "SAVE50",
     });
   });
+
+  test("passes the app user ID and environment for custom checkout URLs", async () => {
+    const purchases = configurePurchases();
+    const offering = createOfferingWithPaywall();
+
+    void purchases.presentPaywall({ offering });
+
+    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    expect(mountedProps).toMatchObject({
+      appUserId: purchases.getAppUserId(),
+      isSandbox: purchases.isSandbox(),
+    });
+  });
 });

@@ -1448,6 +1448,8 @@ export class Purchases {
               hideBackButtons: paywallParams.hideBackButtons,
               variablesPerPackage,
               infoPerPackage,
+              appUserId: this._appUserId,
+              isSandbox: this.isSandbox(),
               walletButtonRender,
               onPurchaseClicked:
                 createPurchaseClickHandler(finalWorkflowLocale),
@@ -1493,6 +1495,7 @@ export class Purchases {
             selectedLocale: finalLocale,
             onNavigateToUrlClicked: navigateToUrl,
             appUserId: this._appUserId,
+            isSandbox: this.isSandbox(),
             onCompleteWorkflowNavigate,
             onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
             uiConfig: offering.uiConfig!,
