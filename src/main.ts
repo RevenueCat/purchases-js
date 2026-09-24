@@ -676,12 +676,6 @@ export class Purchases {
 
   /** @internal */
   private async fetchAndCacheBrandingInfo(): Promise<void> {
-    if (isSimulatedStoreApiKey(this._API_KEY)) {
-      Logger.warnLog(
-        "Branding info is not available for RC Test Store API keys.",
-      );
-      return;
-    }
     this._brandingInfo = await this.backend.getBrandingInfo();
     this.syncApplePayWebsiteIcon();
   }
@@ -2403,6 +2397,7 @@ export class Purchases {
         effectiveParams,
         this.backend,
         this._appUserId,
+        effectiveBrandingInfo,
       );
       this.invalidateRequestDataCaches();
       return purchaseResult;

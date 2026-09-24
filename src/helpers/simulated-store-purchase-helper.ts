@@ -4,6 +4,7 @@ import { ErrorCode, ErrorCodeUtils, PurchasesError } from "../entities/errors";
 import { mount, unmount } from "svelte";
 import SimulatedStoreModal from "../ui/molecules/simulated-store-modal.svelte";
 import type { Backend } from "../networking/backend";
+import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { postSimulatedStoreReceipt } from "./simulated-store-post-receipt-helper";
 import { Logger } from "./logger";
 import { getDocument } from "./browser-globals";
@@ -12,6 +13,7 @@ export function purchaseSimulatedStoreProduct(
   purchaseParams: PurchaseParams,
   backend: Backend,
   appUserId: string,
+  brandingInfo: BrandingInfoResponse | null = null,
 ): Promise<PurchaseResult> {
   const product = purchaseParams.rcPackage.webBillingProduct;
   const productType = product.productType;
@@ -46,6 +48,7 @@ export function purchaseSimulatedStoreProduct(
       target: container,
       props: {
         productIdentifier: product.identifier,
+        productTitle: product.title,
         productType: productType,
         basePrice: basePrice.formattedPrice,
         freeTrialPeriod: freeTrialPhase
@@ -53,6 +56,7 @@ export function purchaseSimulatedStoreProduct(
           : undefined,
         introPriceFormatted: introPricePhase?.price?.formattedPrice,
         discountFormatted: discountPhase?.price?.formattedPrice,
+        brandingInfo,
         onValidPurchase: async () => {
           cleanup();
           Logger.debugLog(
