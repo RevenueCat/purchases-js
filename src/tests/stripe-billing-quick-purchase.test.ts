@@ -389,7 +389,7 @@ describe("Purchases Stripe Billing quick purchases", () => {
     ).mockReturnValue({
       key: quickPurchaseKey,
       params,
-      purchaseOption: params.rcPackage.webBillingProduct.defaultPurchaseOption,
+      purchaseOption: params.rcPackage.product.defaultPurchaseOption,
       brandingInfo: null,
       translator: null,
     });
