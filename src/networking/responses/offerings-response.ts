@@ -31,4 +31,5 @@ export interface OfferingsResponse {
   targeting?: TargetingResponse;
   placements?: PlacementsResponse;
   ui_config?: UIConfig;
+  custom_web_checkout_enabled?: boolean;
 }

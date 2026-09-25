@@ -1,8 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { mount } from "svelte";
-import { configurePurchases } from "./base.purchases_test";
+import { configurePurchases, server, testUserId } from "./base.purchases_test";
+import { http, HttpResponse } from "msw";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
-import { CustomVariableValue, ErrorCode, PurchasesError } from "../main";
+import {
+  CustomVariableValue,
+  ErrorCode,
+  type Purchases,
+  PurchasesError,
+} from "../main";
 import type { Offering, Package } from "../entities/offerings";
 import type { CompleteWorkflowNavigateArgs } from "../entities/present-paywall-params";
 import type { PurchaseResult } from "../entities/purchase-result";
@@ -23,6 +29,7 @@ type PaywallMountProps = {
     args: CompleteWorkflowNavigateArgs,
   ) => void | Promise<void>;
   onNavigateToUrlClicked: (url: string) => void;
+  onCustomWebCheckout?: (url: string) => void;
 };
 
 const createOfferingWithPaywall = (
@@ -917,5 +924,122 @@ describe("Purchases.presentPaywall() custom variables", () => {
 
     await vi.waitFor(() => expect(mountedProps).toBeDefined());
     expect(mountedProps?.customVariables).toBeUndefined();
+  });
+});
+
+describe("Purchases.presentPaywall() custom checkout", () => {
+  let paywallProps: PaywallMountProps | undefined;
+  let assignMock: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    paywallProps = undefined;
+    assignMock = vi.fn();
+    vi.spyOn(browserGlobals, "getWindow").mockReturnValue({
+      open: vi.fn().mockReturnValue({ focus: vi.fn() }),
+      location: { assign: assignMock },
+      matchMedia: vi.fn().mockReturnValue({ matches: false }),
+    } as unknown as Window);
+
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      paywallProps = options.props as PaywallMountProps;
+      if (!(options.target instanceof Element)) {
+        expect.fail("mount target is not an element");
+      }
+      options.target.innerHTML = "<div data-testid='paywall-root'></div>";
+      return {};
+    });
+  });
+
+  afterEach(() => {
+    vi.mocked(browserGlobals.getWindow).mockRestore();
+    vi.clearAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  const configureWithOfferingsFlag = async (
+    customWebCheckoutEnabled: boolean | undefined,
+  ) => {
+    server.use(
+      http.get(
+        `http://localhost:8000/v1/subscribers/${testUserId}/offerings`,
+        () =>
+          HttpResponse.json({
+            current_offering_id: null,
+            offerings: [],
+            ...(customWebCheckoutEnabled === undefined
+              ? {}
+              : { custom_web_checkout_enabled: customWebCheckoutEnabled }),
+          }),
+      ),
+    );
+    const purchases = configurePurchases();
+    await purchases.getOfferings();
+    return purchases;
+  };
+
+  const presentAndGetMountProps = async (purchases: Purchases) => {
+    void purchases.presentPaywall({ offering: createOfferingWithPaywall() });
+    return await vi.waitFor(
+      () => paywallProps ?? expect.fail("paywall not mounted"),
+    );
+  };
+
+  const presentAndGetHandoff = async (purchases: Purchases) => {
+    const props = await presentAndGetMountProps(purchases);
+    return props.onCustomWebCheckout ?? expect.fail("custom checkout disabled");
+  };
+
+  test.each([
+    { name: "enabled", flag: true, expected: "function" },
+    { name: "disabled", flag: false, expected: "undefined" },
+    { name: "missing", flag: undefined, expected: "undefined" },
+  ])(
+    "hands custom checkout to the paywall only when the project flag is $name",
+    async ({ flag, expected }) => {
+      const purchases = await configureWithOfferingsFlag(flag);
+
+      const props = await presentAndGetMountProps(purchases);
+
+      expect(typeof props.onCustomWebCheckout).toBe(expected);
+    },
+  );
+
+  test.each([
+    {
+      name: "a web URL",
+      url: "https://auth.example.com/register?rc_package=monthly",
+    },
+    { name: "a native deep link", url: "uchad://paywall/stripe_checkout" },
+  ])(
+    "flushes events and navigates to $name in the same tab",
+    async ({ url }) => {
+      const purchases = await configureWithOfferingsFlag(true);
+      const flushAllEventsSpy = vi.spyOn(
+        purchases["eventsTracker"],
+        "flushAllEvents",
+      );
+
+      const onCustomWebCheckout = await presentAndGetHandoff(purchases);
+
+      onCustomWebCheckout(url);
+
+      expect(flushAllEventsSpy).toHaveBeenCalledOnce();
+      expect(assignMock).toHaveBeenCalledExactlyOnceWith(url);
+    },
+  );
+
+  test.each([
+    { name: "a script URL", url: "javascript:alert(1)" },
+    { name: "a data URL", url: "data:text/html,hi" },
+  ])("blocks $name", async ({ url }) => {
+    const purchases = await configureWithOfferingsFlag(true);
+    const warnSpy = vi.spyOn(Logger, "warnLog").mockImplementation(() => {});
+
+    const onCustomWebCheckout = await presentAndGetHandoff(purchases);
+
+    onCustomWebCheckout(url);
+
+    expect(assignMock).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
   });
 });

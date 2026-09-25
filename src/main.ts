@@ -82,7 +82,7 @@ import {
   type PaywallPurchaseResult,
   type PurchaseResult,
 } from "./entities/purchase-result";
-import { mount, unmount } from "svelte";
+import { type ComponentProps, mount, unmount } from "svelte";
 import { type PaywallListener } from "./entities/paywall-listener";
 import {
   type CompleteWorkflowNavigateArgs,
@@ -373,6 +373,13 @@ export class Purchases {
    * @internal
    */
   private cachedCurrentOffering: Offering | null = null;
+
+  /**
+   * Project-level switch from the last offerings response; off keeps custom
+   * checkout buttons on the purchase flow.
+   * @internal
+   */
+  private customWebCheckoutEnabled = false;
 
   /** @internal */
   private stripeBillingQuickPurchaseState: StripeBillingQuickPurchaseState | null =
@@ -1326,6 +1333,28 @@ export class Purchases {
         notifyPurchaseError(error);
       };
 
+      // Custom checkout hands off to a developer-owned URL instead of
+      // purchasing. Same tab, so that destination can send the user back.
+      const navigateToCustomCheckout = (url: string) => {
+        if (!isAllowedCompleteWorkflowNavigateUrl(url, "deep_link")) {
+          Logger.warnLog(
+            "Blocked custom checkout navigation to a disallowed URL.",
+          );
+          return;
+        }
+        // Keepalive requests outlive the navigation, so this needn't be awaited.
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(
+            `Failed to flush paywall events before custom checkout: ${error}`,
+          );
+        });
+        getWindow().location.assign(url);
+      };
+
+      const onCustomWebCheckout = this.customWebCheckoutEnabled
+        ? navigateToCustomCheckout
+        : undefined;
+
       const createPurchaseClickHandler = (checkoutLocale: string) => {
         return (selectedPackageId: string) => {
           if (purchaseInFlight) {
@@ -1412,6 +1441,10 @@ export class Purchases {
               hideBackButtons: paywallParams.hideBackButtons,
               variablesPerPackage,
               infoPerPackage,
+              appUserId: this._appUserId,
+              isSandbox: this.isSandbox(),
+              rcSource: this.getSupportedRCSource(),
+              onCustomWebCheckout,
               walletButtonRender,
               onPurchaseClicked:
                 createPurchaseClickHandler(finalWorkflowLocale),
@@ -1442,7 +1475,7 @@ export class Purchases {
               maxContentWidth: workflowDataResponse.content_max_width
                 ? String(workflowDataResponse.content_max_width)
                 : undefined,
-            },
+            } satisfies ComponentProps<typeof Workflow>,
           });
         } catch (err) {
           unmountPaywall();
@@ -1457,6 +1490,9 @@ export class Purchases {
             selectedLocale: finalLocale,
             onNavigateToUrlClicked: navigateToUrl,
             appUserId: this._appUserId,
+            isSandbox: this.isSandbox(),
+            rcSource: this.getSupportedRCSource(),
+            onCustomWebCheckout,
             onCompleteWorkflowNavigate,
             onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
             uiConfig: offering.uiConfig!,
@@ -1485,7 +1521,7 @@ export class Purchases {
             packages: paywallContextPackages,
             isPreview: false,
             onComponentInteraction,
-          },
+          } satisfies ComponentProps<typeof Paywall>,
         });
       }
 
@@ -1668,6 +1704,8 @@ export class Purchases {
     const request = this.backend
       .getOfferings(appUserId)
       .then((offeringsResponse) => {
+        this.customWebCheckoutEnabled =
+          offeringsResponse.custom_web_checkout_enabled === true;
         // Invalidation may remove this request or allow a newer one to start.
         // Only the currently tracked request may update the response cache.
         if (this.offeringsRequests.get(appUserId) === request) {
@@ -2873,10 +2911,7 @@ export class Purchases {
     reject: (error: PurchasesError) => void,
     callback?: () => void,
   ): (() => void) | undefined {
-    const shouldPassOnCloseBehaviour =
-      this._flags.rcSource && supportedRCSources.includes(this._flags.rcSource);
-
-    if (shouldPassOnCloseBehaviour) {
+    if (this.getSupportedRCSource()) {
       return undefined;
     }
 
@@ -2895,12 +2930,15 @@ export class Purchases {
     return onClose;
   }
 
+  private getSupportedRCSource(): string | undefined {
+    const rcSource = this._flags.rcSource;
+    return rcSource && supportedRCSources.includes(rcSource)
+      ? rcSource
+      : undefined;
+  }
+
   private shouldHideCheckoutBackButton(): boolean {
-    return (
-      this._flags.hideBackButton === true ||
-      (!!this._flags.rcSource &&
-        supportedRCSources.includes(this._flags.rcSource))
-    );
+    return this._flags.hideBackButton === true || !!this.getSupportedRCSource();
   }
 
   private createCheckoutOnFinishedHandler(
