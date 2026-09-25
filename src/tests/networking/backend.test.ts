@@ -1908,6 +1908,84 @@ describe("postReceipt request", () => {
     expect(requestBody.presented_workflow_id).toBeUndefined();
   });
 
+  test("includes step id, metadata and external purchase token when provided", async () => {
+    const backendWithContext = new Backend("test_api_key", undefined, {
+      workflowContext: { workflowIdentifier: "workflow_123" },
+    });
+
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backendWithContext.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "EUR",
+      "test_fetch_token",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      "purchase",
+      "paywall_123",
+      {
+        presentedStepId: "step_123",
+        metadata: { utm_campaign: "spring_sale", ref: null },
+        externalPurchaseTokenId: "ext_token_123",
+      },
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).toEqual({
+      fetch_token: "test_fetch_token",
+      product_id: "monthly",
+      currency: "EUR",
+      app_user_id: "someAppUserId",
+      presented_offering_identifier: "offering_1",
+      presented_placement_identifier: null,
+      presented_workflow_id: "workflow_123",
+      presented_step_id: "step_123",
+      applied_targeting_rule: null,
+      initiation_source: "purchase",
+      paywall: { paywall_id: "paywall_123" },
+      metadata: { utm_campaign: "spring_sale", ref: null },
+      rc_external_purchase_token_id: "ext_token_123",
+    });
+  });
+
+  test("omits step id, metadata and external purchase token when not provided", async () => {
+    setPostReceiptResponse(
+      HttpResponse.json(customerInfoResponse, { status: 200 }),
+    );
+
+    await backend.postReceipt(
+      "someAppUserId",
+      "monthly",
+      "EUR",
+      "test_fetch_token",
+      {
+        offeringIdentifier: "offering_1",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+      "purchase",
+      undefined,
+      {
+        presentedStepId: undefined,
+        metadata: undefined,
+        externalPurchaseTokenId: undefined,
+      },
+    );
+
+    const request = postReceiptAPIMock.mock.calls[0][0].request;
+    const requestBody = await request.json();
+    expect(requestBody).not.toHaveProperty("presented_step_id");
+    expect(requestBody).not.toHaveProperty("metadata");
+    expect(requestBody).not.toHaveProperty("rc_external_purchase_token_id");
+  });
+
   test("throws an error if the backend returns a server error", async () => {
     setPostReceiptResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),

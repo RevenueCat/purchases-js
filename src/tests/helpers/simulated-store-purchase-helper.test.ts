@@ -131,6 +131,11 @@ describe("purchaseSimulatedStoreProduct", () => {
       mockPurchaseParams.rcPackage.webBillingProduct.presentedOfferingContext,
       "purchase",
       undefined,
+      {
+        presentedStepId: undefined,
+        metadata: undefined,
+        externalPurchaseTokenId: undefined,
+      },
     );
 
     expect(result).toEqual({
@@ -144,6 +149,45 @@ describe("purchaseSimulatedStoreProduct", () => {
         purchaseDate: expect.any(Date),
       },
     });
+  });
+
+  test("forwards workflow step, metadata and external purchase token from PurchaseParams", async () => {
+    const promise = purchaseSimulatedStoreProduct(
+      {
+        ...mockPurchaseParams,
+        paywallId: "paywall_123",
+        workflowPurchaseContext: {
+          stepId: "step_123",
+          urlParameters: { utm_source: "newsletter" },
+        },
+        metadata: { utm_campaign: "spring_sale" },
+        externalPurchaseTokenId: "ext_token_123",
+        attributionMetadata: { fbp: "fb.1.123.456" },
+      },
+      mockBackend,
+      "test-user-id",
+    );
+
+    const mountCall = vi.mocked(mount).mock.calls[0];
+    const props = mountCall[1].props;
+
+    await props?.onValidPurchase();
+    await promise;
+
+    expect(mockBackend.postReceipt).toHaveBeenCalledWith(
+      "test-user-id",
+      "monthly_trial_intro",
+      "USD",
+      expect.stringMatching(/^test_.*test-uuid-123$/),
+      mockPurchaseParams.rcPackage.webBillingProduct.presentedOfferingContext,
+      "purchase",
+      "paywall_123",
+      {
+        presentedStepId: "step_123",
+        metadata: { utm_campaign: "spring_sale" },
+        externalPurchaseTokenId: "ext_token_123",
+      },
+    );
   });
 
   test("includes customerEmail from PurchaseParams when present", async () => {
