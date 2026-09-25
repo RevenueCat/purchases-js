@@ -286,6 +286,7 @@ describe("Purchases.presentPaywall() paywall context", () => {
         hasTrial: false,
         hasIntroOffer: false,
         hasPromoOffer: true,
+        pricePerMonthMicros: 3_000_000,
       },
     });
     expect(mountedProps?.variablesPerPackage).toMatchObject({
