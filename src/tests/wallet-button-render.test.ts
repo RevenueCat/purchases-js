@@ -24,6 +24,10 @@ const annualPackage: Package = {
     ...monthlyPackage.webBillingProduct,
     identifier: "annual",
   },
+  product: {
+    ...monthlyPackage.product,
+    identifier: "annual",
+  },
 };
 
 const offering = {
@@ -71,7 +75,7 @@ describe("Purchases.getWalletButtonRender()", () => {
       redemptionInfo: null,
       operationSessionId: "test-operation-session-id",
       storeTransactionIdentifier: "test-store-transaction-id",
-      productIdentifier: purchasedPackage.webBillingProduct.identifier,
+      productIdentifier: purchasedPackage.product.identifier,
       purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
     });
   };
@@ -124,7 +128,7 @@ describe("Purchases.getWalletButtonRender()", () => {
       redemptionInfo: null,
       operationSessionId: "test-operation-session-id",
       storeTransactionIdentifier: "test-store-transaction-id",
-      productIdentifier: monthlyPackage.webBillingProduct.identifier,
+      productIdentifier: monthlyPackage.product.identifier,
       purchaseDate: new Date("2024-01-01T00:00:00.000Z"),
       customerEmail: "typed@example.com",
     });

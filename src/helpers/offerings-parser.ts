@@ -20,18 +20,19 @@ const addPlacementContextToPackage = (
   rcPackage: Package,
   placementId: string,
 ): Package => {
-  const webBillingProduct = {
-    ...rcPackage.webBillingProduct,
+  const product = {
+    ...rcPackage.product,
     presentedOfferingContext: {
-      ...rcPackage.webBillingProduct.presentedOfferingContext,
+      ...rcPackage.product.presentedOfferingContext,
       placementIdentifier: placementId,
     },
   };
 
   return {
     ...rcPackage,
-    webBillingProduct: webBillingProduct,
-    rcBillingProduct: webBillingProduct,
+    webBillingProduct: product,
+    rcBillingProduct: product,
+    product: product,
   };
 };
 
@@ -45,14 +46,14 @@ export const replaceOfferingProducts = (
 
   return mapOfferingPackages(offering, (rcPackage) => {
     const productDetailsData =
-      productsByIdentifier[rcPackage.webBillingProduct.identifier];
+      productsByIdentifier[rcPackage.product.identifier];
     if (productDetailsData === undefined) {
       return rcPackage;
     }
 
     const product = toProduct(
       productDetailsData,
-      rcPackage.webBillingProduct.presentedOfferingContext,
+      rcPackage.product.presentedOfferingContext,
     );
     if (product === null) {
       return rcPackage;
@@ -62,6 +63,7 @@ export const replaceOfferingProducts = (
       ...rcPackage,
       rcBillingProduct: product,
       webBillingProduct: product,
+      product,
     };
   });
 };

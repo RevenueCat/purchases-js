@@ -128,7 +128,7 @@ describe("purchaseSimulatedStoreProduct", () => {
       "monthly_trial_intro",
       "USD",
       expect.stringMatching(/^test_.*test-uuid-123$/),
-      mockPurchaseParams.rcPackage.webBillingProduct.presentedOfferingContext,
+      mockPurchaseParams.rcPackage.product.presentedOfferingContext,
       "purchase",
       undefined,
     );

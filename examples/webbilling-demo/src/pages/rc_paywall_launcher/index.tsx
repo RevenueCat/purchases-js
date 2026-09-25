@@ -25,7 +25,7 @@ const RCPaywallLauncherPage: React.FC = () => {
     const listener: PaywallListener = {
       onPurchaseStarted: (rcPackage) => {
         showToast(
-          `Purchase started: ${rcPackage.webBillingProduct.title} (${rcPackage.identifier})`,
+          `Purchase started: ${rcPackage.product.title} (${rcPackage.identifier})`,
           "info",
         );
       },

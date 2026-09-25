@@ -13,7 +13,7 @@ export function purchaseSimulatedStoreProduct(
   backend: Backend,
   appUserId: string,
 ): Promise<PurchaseResult> {
-  const product = purchaseParams.rcPackage.webBillingProduct;
+  const product = purchaseParams.rcPackage.product;
   const productType = product.productType;
   const freeTrialPhase = product.freeTrialPhase;
   const introPricePhase = product.introPricePhase;

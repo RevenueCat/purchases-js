@@ -317,10 +317,9 @@ describe("PurchasesUI", () => {
 
     expect(checkoutStartSpy).toHaveBeenCalledWith({
       appUserId: "app-user-id",
-      productId: rcPackage.webBillingProduct.identifier,
+      productId: rcPackage.product.identifier,
       purchaseOption: subscriptionOption,
-      presentedOfferingContext:
-        rcPackage.webBillingProduct.presentedOfferingContext,
+      presentedOfferingContext: rcPackage.product.presentedOfferingContext,
       customerEmail: "test@test.com",
       metadata: { utm_term: "something" },
       workflowPurchaseContext: { stepId: "test-step-123" },
@@ -363,10 +362,9 @@ describe("PurchasesUI", () => {
 
     expect(checkoutStartSpy).toHaveBeenCalledWith({
       appUserId: "app-user-id",
-      productId: rcPackage.webBillingProduct.identifier,
+      productId: rcPackage.product.identifier,
       purchaseOption: subscriptionOption,
-      presentedOfferingContext:
-        rcPackage.webBillingProduct.presentedOfferingContext,
+      presentedOfferingContext: rcPackage.product.presentedOfferingContext,
       customerEmail: "test@test.com",
       metadata: { utm_term: "something" },
     });
@@ -391,10 +389,9 @@ describe("PurchasesUI", () => {
     await waitFor(() => {
       expect(checkoutStartSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          productId: rcPackage.webBillingProduct.identifier,
+          productId: rcPackage.product.identifier,
           purchaseOption: subscriptionOption,
-          presentedOfferingContext:
-            rcPackage.webBillingProduct.presentedOfferingContext,
+          presentedOfferingContext: rcPackage.product.presentedOfferingContext,
           customerEmail: "test@test.com",
         }),
       );
