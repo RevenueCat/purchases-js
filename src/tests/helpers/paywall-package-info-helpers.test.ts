@@ -28,6 +28,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         hasTrial: false,
         hasIntroOffer: false,
         hasPromoOffer: false,
+        pricePerMonthMicros: 9_000_000,
       },
     });
   });
@@ -49,6 +50,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         hasTrial: true,
         hasIntroOffer: false,
         hasPromoOffer: false,
+        pricePerMonthMicros: 9_000_000,
       },
     });
   });
@@ -70,6 +72,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         hasTrial: false,
         hasIntroOffer: true,
         hasPromoOffer: false,
+        pricePerMonthMicros: 9_000_000,
       },
     });
   });
@@ -92,6 +95,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         hasTrial: true,
         hasIntroOffer: true,
         hasPromoOffer: false,
+        pricePerMonthMicros: 9_000_000,
       },
     });
   });
@@ -112,6 +116,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         hasTrial: false,
         hasIntroOffer: false,
         hasPromoOffer: true,
+        pricePerMonthMicros: 9_000_000,
       },
     });
   });
@@ -198,26 +203,31 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         hasTrial: false,
         hasIntroOffer: false,
         hasPromoOffer: false,
+        pricePerMonthMicros: 9_000_000,
       },
       $rc_weekly: {
         hasTrial: true,
         hasIntroOffer: false,
         hasPromoOffer: false,
+        pricePerMonthMicros: 9_000_000,
       },
       $rc_yearly: {
         hasTrial: false,
         hasIntroOffer: true,
         hasPromoOffer: false,
+        pricePerMonthMicros: 9_000_000,
       },
       custom_both: {
         hasTrial: true,
         hasIntroOffer: true,
         hasPromoOffer: false,
+        pricePerMonthMicros: 9_000_000,
       },
       promo_only: {
         hasTrial: false,
         hasIntroOffer: false,
         hasPromoOffer: true,
+        pricePerMonthMicros: 9_000_000,
       },
     });
   });
@@ -246,6 +256,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         hasTrial: false,
         hasIntroOffer: false,
         hasPromoOffer: false,
+        pricePerMonthMicros: 9_000_000,
         webCheckoutURL: "https://checkout.example.com/monthly",
       },
     });
@@ -273,6 +284,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         hasTrial: false,
         hasIntroOffer: false,
         hasPromoOffer: false,
+        pricePerMonthMicros: 9_000_000,
         webCheckoutURL: "https://checkout.example.com/offering",
       },
     });

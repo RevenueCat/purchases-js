@@ -4,6 +4,7 @@ import {
   ProductType,
 } from "../entities/offerings";
 import { type PackageInfo } from "@revenuecat/purchases-ui-js";
+import { getPackageMonthlyPrice } from "./paywall-variables-helpers";
 
 function resolveWebCheckoutURL(
   pkg: Package,
@@ -42,6 +43,7 @@ function getPackageInfo(
       hasTrial: subscriptionOption.trial !== null,
       hasIntroOffer: subscriptionOption.introPrice !== null,
       hasPromoOffer: subscriptionOption.discount !== null,
+      pricePerMonthMicros: getPackageMonthlyPrice(pkg),
       ...checkoutFields,
     };
   }
