@@ -29,7 +29,7 @@ type PaywallMountProps = {
     args: CompleteWorkflowNavigateArgs,
   ) => void | Promise<void>;
   onNavigateToUrlClicked: (url: string) => void;
-  onCustomWebCheckout?: (url: string) => boolean;
+  onCustomWebCheckout?: (url: string) => void;
 };
 
 const createOfferingWithPaywall = (
@@ -1021,7 +1021,8 @@ describe("Purchases.presentPaywall() custom checkout", () => {
 
       const onCustomWebCheckout = await presentAndGetHandoff(purchases);
 
-      expect(onCustomWebCheckout(url)).toBe(true);
+      onCustomWebCheckout(url);
+
       expect(flushAllEventsSpy).toHaveBeenCalledOnce();
       expect(assignMock).toHaveBeenCalledExactlyOnceWith(url);
     },
@@ -1030,13 +1031,14 @@ describe("Purchases.presentPaywall() custom checkout", () => {
   test.each([
     { name: "a script URL", url: "javascript:alert(1)" },
     { name: "a data URL", url: "data:text/html,hi" },
-  ])("declines $name so the paywall purchases instead", async ({ url }) => {
+  ])("blocks $name", async ({ url }) => {
     const purchases = await configureWithOfferingsFlag(true);
     const warnSpy = vi.spyOn(Logger, "warnLog").mockImplementation(() => {});
 
     const onCustomWebCheckout = await presentAndGetHandoff(purchases);
 
-    expect(onCustomWebCheckout(url)).toBe(false);
+    onCustomWebCheckout(url);
+
     expect(assignMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
   });

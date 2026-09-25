@@ -1335,13 +1335,12 @@ export class Purchases {
 
       // Custom checkout hands off to a developer-owned URL instead of
       // purchasing. Same tab, so that destination can send the user back.
-      // Deep links are allowed; returning false keeps the purchase flow.
-      const navigateToCustomCheckout = (url: string): boolean => {
+      const navigateToCustomCheckout = (url: string) => {
         if (!isAllowedCompleteWorkflowNavigateUrl(url, "deep_link")) {
           Logger.warnLog(
-            "Blocked custom checkout navigation to a disallowed URL; purchasing instead.",
+            "Blocked custom checkout navigation to a disallowed URL.",
           );
-          return false;
+          return;
         }
         // Keepalive requests outlive the navigation, so this needn't be awaited.
         void this.eventsTracker.flushAllEvents().catch((error) => {
@@ -1350,7 +1349,6 @@ export class Purchases {
           );
         });
         getWindow().location.assign(url);
-        return true;
       };
 
       const onCustomWebCheckout = this.customWebCheckoutEnabled
