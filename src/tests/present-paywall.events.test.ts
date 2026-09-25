@@ -23,7 +23,7 @@ type PaywallMountProps = {
     args: CompleteWorkflowNavigateArgs,
   ) => void | Promise<void>;
   onNavigateToUrlClicked: (url: string) => void;
-  onCustomWebCheckout: (url: string) => void;
+  onCustomWebCheckout: (url: string) => boolean;
 };
 
 const createOfferingWithPaywall = (
@@ -950,24 +950,34 @@ describe("Purchases.presentPaywall() custom checkout", () => {
     document.body.innerHTML = "";
   });
 
-  test("navigates to the handed-off URL in the same tab", async () => {
+  test("flushes events and navigates to the handed-off URL in the same tab", async () => {
     const purchases = configurePurchases();
 
     void purchases.presentPaywall({ offering: createOfferingWithPaywall() });
 
+    const flushAllEventsSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "flushAllEvents",
+    );
+
     const props = await vi.waitFor(
       () => paywallProps ?? expect.fail("paywall not mounted"),
     );
-    props.onCustomWebCheckout(
+    const handled = props.onCustomWebCheckout(
       "https://auth.example.com/register?rc_package=monthly",
     );
 
+    expect(handled).toBe(true);
+    expect(flushAllEventsSpy).toHaveBeenCalledOnce();
     expect(assignMock).toHaveBeenCalledExactlyOnceWith(
       "https://auth.example.com/register?rc_package=monthly",
     );
   });
 
-  test("blocks a disallowed URL", async () => {
+  test.each([
+    { name: "a native deep link", url: "uchad://paywall/stripe_checkout" },
+    { name: "a script URL", url: "javascript:alert(1)" },
+  ])("declines $name so the paywall purchases instead", async ({ url }) => {
     const purchases = configurePurchases();
     const warnSpy = vi.spyOn(Logger, "warnLog").mockImplementation(() => {});
 
@@ -976,8 +986,8 @@ describe("Purchases.presentPaywall() custom checkout", () => {
     const props = await vi.waitFor(
       () => paywallProps ?? expect.fail("paywall not mounted"),
     );
-    props.onCustomWebCheckout("javascript:alert(1)");
 
+    expect(props.onCustomWebCheckout(url)).toBe(false);
     expect(assignMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
   });

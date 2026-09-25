@@ -1328,14 +1328,22 @@ export class Purchases {
 
       // Custom checkout hands off to a developer-owned URL instead of
       // purchasing. Same tab, so that destination can send the user back.
-      const navigateToCustomCheckout = (url: string) => {
+      // Returning false keeps the purchase flow, e.g. for native deep links.
+      const navigateToCustomCheckout = (url: string): boolean => {
         if (!isAllowedCompleteWorkflowNavigateUrl(url, "in_app_browser")) {
           Logger.warnLog(
-            "Blocked custom checkout navigation to a disallowed URL.",
+            "Custom checkout URL can't be opened on web; purchasing instead.",
           );
-          return;
+          return false;
         }
+        // Keepalive requests outlive the navigation, so this needn't be awaited.
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(
+            `Failed to flush paywall events before custom checkout: ${error}`,
+          );
+        });
         getWindow().location.assign(url);
+        return true;
       };
 
       const createPurchaseClickHandler = (checkoutLocale: string) => {
