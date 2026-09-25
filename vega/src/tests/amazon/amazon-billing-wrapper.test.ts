@@ -1251,7 +1251,7 @@ describe("AmazonBillingWrapper", () => {
         "monthly",
         "USD",
         "amazon-receipt-id",
-        params.rcPackage.webBillingProduct.presentedOfferingContext,
+        params.rcPackage.product.presentedOfferingContext,
         "purchase",
         undefined,
         "amazon-store-user-id",
@@ -1308,9 +1308,9 @@ describe("AmazonBillingWrapper", () => {
       vi.mocked(backend.postReceipt).mockResolvedValue(customerInfoResponse);
       const rcPackage = createMonthlyPackageMock();
       const selectedPurchaseOption = {
-        ...rcPackage.webBillingProduct.defaultSubscriptionOption!,
+        ...rcPackage.product.defaultSubscriptionOption!,
         base: {
-          ...rcPackage.webBillingProduct.defaultSubscriptionOption!.base,
+          ...rcPackage.product.defaultSubscriptionOption!.base,
           price: {
             amount: 499,
             amountMicros: 4_990_000,
@@ -1411,7 +1411,7 @@ describe("AmazonBillingWrapper", () => {
         "coin-pack",
         "USD",
         "amazon-receipt-id",
-        params.rcPackage.webBillingProduct.presentedOfferingContext,
+        params.rcPackage.product.presentedOfferingContext,
         "purchase",
         undefined,
         "amazon-store-user-id",
