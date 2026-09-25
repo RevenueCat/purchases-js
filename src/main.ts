@@ -374,6 +374,13 @@ export class Purchases {
    */
   private cachedCurrentOffering: Offering | null = null;
 
+  /**
+   * Project-level switch from the last offerings response; off keeps custom
+   * checkout buttons on the purchase flow.
+   * @internal
+   */
+  private customWebCheckoutEnabled = false;
+
   /** @internal */
   private stripeBillingQuickPurchaseState: StripeBillingQuickPurchaseState | null =
     null;
@@ -1346,6 +1353,10 @@ export class Purchases {
         return true;
       };
 
+      const onCustomWebCheckout = this.customWebCheckoutEnabled
+        ? navigateToCustomCheckout
+        : undefined;
+
       const createPurchaseClickHandler = (checkoutLocale: string) => {
         return (selectedPackageId: string) => {
           if (purchaseInFlight) {
@@ -1435,7 +1446,7 @@ export class Purchases {
               appUserId: this._appUserId,
               isSandbox: this.isSandbox(),
               rcSource: this.getSupportedRCSource(),
-              onCustomWebCheckout: navigateToCustomCheckout,
+              onCustomWebCheckout,
               walletButtonRender,
               onPurchaseClicked:
                 createPurchaseClickHandler(finalWorkflowLocale),
@@ -1483,7 +1494,7 @@ export class Purchases {
             appUserId: this._appUserId,
             isSandbox: this.isSandbox(),
             rcSource: this.getSupportedRCSource(),
-            onCustomWebCheckout: navigateToCustomCheckout,
+            onCustomWebCheckout,
             onCompleteWorkflowNavigate,
             onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
             uiConfig: offering.uiConfig!,
@@ -1695,6 +1706,8 @@ export class Purchases {
     const request = this.backend
       .getOfferings(appUserId)
       .then((offeringsResponse) => {
+        this.customWebCheckoutEnabled =
+          offeringsResponse.custom_web_checkout_enabled === true;
         // Invalidation may remove this request or allow a newer one to start.
         // Only the currently tracked request may update the response cache.
         if (this.offeringsRequests.get(appUserId) === request) {

@@ -1,8 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { mount } from "svelte";
-import { configurePurchases } from "./base.purchases_test";
+import { configurePurchases, server, testUserId } from "./base.purchases_test";
+import { http, HttpResponse } from "msw";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
-import { CustomVariableValue, ErrorCode, PurchasesError } from "../main";
+import {
+  CustomVariableValue,
+  ErrorCode,
+  type Purchases,
+  PurchasesError,
+} from "../main";
 import type { Offering, Package } from "../entities/offerings";
 import type { CompleteWorkflowNavigateArgs } from "../entities/present-paywall-params";
 import type { PurchaseResult } from "../entities/purchase-result";
@@ -23,7 +29,7 @@ type PaywallMountProps = {
     args: CompleteWorkflowNavigateArgs,
   ) => void | Promise<void>;
   onNavigateToUrlClicked: (url: string) => void;
-  onCustomWebCheckout: (url: string) => boolean;
+  onCustomWebCheckout?: (url: string) => boolean;
 };
 
 const createOfferingWithPaywall = (
@@ -950,6 +956,54 @@ describe("Purchases.presentPaywall() custom checkout", () => {
     document.body.innerHTML = "";
   });
 
+  const configureWithOfferingsFlag = async (
+    customWebCheckoutEnabled: boolean | undefined,
+  ) => {
+    server.use(
+      http.get(
+        `http://localhost:8000/v1/subscribers/${testUserId}/offerings`,
+        () =>
+          HttpResponse.json({
+            current_offering_id: null,
+            offerings: [],
+            ...(customWebCheckoutEnabled === undefined
+              ? {}
+              : { custom_web_checkout_enabled: customWebCheckoutEnabled }),
+          }),
+      ),
+    );
+    const purchases = configurePurchases();
+    await purchases.getOfferings();
+    return purchases;
+  };
+
+  const presentAndGetMountProps = async (purchases: Purchases) => {
+    void purchases.presentPaywall({ offering: createOfferingWithPaywall() });
+    return await vi.waitFor(
+      () => paywallProps ?? expect.fail("paywall not mounted"),
+    );
+  };
+
+  const presentAndGetHandoff = async (purchases: Purchases) => {
+    const props = await presentAndGetMountProps(purchases);
+    return props.onCustomWebCheckout ?? expect.fail("custom checkout disabled");
+  };
+
+  test.each([
+    { name: "enabled", flag: true, expected: "function" },
+    { name: "disabled", flag: false, expected: "undefined" },
+    { name: "missing", flag: undefined, expected: "undefined" },
+  ])(
+    "hands custom checkout to the paywall only when the project flag is $name",
+    async ({ flag, expected }) => {
+      const purchases = await configureWithOfferingsFlag(flag);
+
+      const props = await presentAndGetMountProps(purchases);
+
+      expect(typeof props.onCustomWebCheckout).toBe(expected);
+    },
+  );
+
   test.each([
     {
       name: "a web URL",
@@ -959,19 +1013,15 @@ describe("Purchases.presentPaywall() custom checkout", () => {
   ])(
     "flushes events and navigates to $name in the same tab",
     async ({ url }) => {
-      const purchases = configurePurchases();
-
-      void purchases.presentPaywall({ offering: createOfferingWithPaywall() });
-
+      const purchases = await configureWithOfferingsFlag(true);
       const flushAllEventsSpy = vi.spyOn(
         purchases["eventsTracker"],
         "flushAllEvents",
       );
 
-      const props = await vi.waitFor(
-        () => paywallProps ?? expect.fail("paywall not mounted"),
-      );
-      expect(props.onCustomWebCheckout(url)).toBe(true);
+      const onCustomWebCheckout = await presentAndGetHandoff(purchases);
+
+      expect(onCustomWebCheckout(url)).toBe(true);
       expect(flushAllEventsSpy).toHaveBeenCalledOnce();
       expect(assignMock).toHaveBeenCalledExactlyOnceWith(url);
     },
@@ -981,16 +1031,12 @@ describe("Purchases.presentPaywall() custom checkout", () => {
     { name: "a script URL", url: "javascript:alert(1)" },
     { name: "a data URL", url: "data:text/html,hi" },
   ])("declines $name so the paywall purchases instead", async ({ url }) => {
-    const purchases = configurePurchases();
+    const purchases = await configureWithOfferingsFlag(true);
     const warnSpy = vi.spyOn(Logger, "warnLog").mockImplementation(() => {});
 
-    void purchases.presentPaywall({ offering: createOfferingWithPaywall() });
+    const onCustomWebCheckout = await presentAndGetHandoff(purchases);
 
-    const props = await vi.waitFor(
-      () => paywallProps ?? expect.fail("paywall not mounted"),
-    );
-
-    expect(props.onCustomWebCheckout(url)).toBe(false);
+    expect(onCustomWebCheckout(url)).toBe(false);
     expect(assignMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
   });
