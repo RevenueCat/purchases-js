@@ -284,22 +284,18 @@ describe("withPaddleDiscountsOnOffering", () => {
       $rc_monthly: discount,
     });
 
-    const patched = result.packagesById["$rc_monthly"].webBillingProduct;
+    const patched = result.packagesById["$rc_monthly"].product;
     expect(patched.defaultSubscriptionOption?.discount).toEqual(discount);
     expect(patched.subscriptionOptions["base_option"].discount).toEqual(
       discount,
     );
     expect(patched.discountPhase).toEqual(discount);
-    expect(result.monthly?.webBillingProduct.discountPhase).toEqual(discount);
-    expect(result.availablePackages[0].webBillingProduct.discountPhase).toEqual(
-      discount,
-    );
+    expect(result.monthly?.product.discountPhase).toEqual(discount);
+    expect(result.availablePackages[0].product.discountPhase).toEqual(discount);
 
+    expect(result.packagesById["$rc_annual"].product.discountPhase).toBeNull();
     expect(
-      result.packagesById["$rc_annual"].webBillingProduct.discountPhase,
-    ).toBeNull();
-    expect(
-      offering.packagesById["$rc_monthly"].webBillingProduct.discountPhase,
+      offering.packagesById["$rc_monthly"].product.discountPhase,
     ).toBeNull();
   });
 

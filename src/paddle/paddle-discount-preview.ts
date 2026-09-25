@@ -208,8 +208,13 @@ export function withPaddleDiscountOnPackage(
   pkg: Package,
   discount: DiscountPhase,
 ): Package {
-  const product = withPaddleDiscountOnProduct(pkg.webBillingProduct, discount);
-  return { ...pkg, rcBillingProduct: product, webBillingProduct: product };
+  const product = withPaddleDiscountOnProduct(pkg.product, discount);
+  return {
+    ...pkg,
+    rcBillingProduct: product,
+    webBillingProduct: product,
+    product,
+  };
 }
 
 /**

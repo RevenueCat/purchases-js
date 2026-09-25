@@ -110,10 +110,9 @@ describe("StripeCheckoutPurchasesUi", () => {
     await waitFor(() => {
       expect(checkoutStartSpy).toHaveBeenCalledWith({
         appUserId: "test-app-user-id",
-        productId: rcPackage.webBillingProduct.identifier,
+        productId: rcPackage.product.identifier,
         purchaseOption: subscriptionOption,
-        presentedOfferingContext:
-          rcPackage.webBillingProduct.presentedOfferingContext,
+        presentedOfferingContext: rcPackage.product.presentedOfferingContext,
         customerEmail: "test@example.com",
         metadata: { utm_term: "something" },
         workflowPurchaseContext: { stepId: "test-step-123" },
@@ -182,10 +181,9 @@ describe("StripeCheckoutPurchasesUi", () => {
     await waitFor(() => {
       expect(checkoutStartSpy).toHaveBeenCalledWith({
         appUserId: "test-app-user-id",
-        productId: rcPackage.webBillingProduct.identifier,
+        productId: rcPackage.product.identifier,
         purchaseOption: subscriptionOption,
-        presentedOfferingContext:
-          rcPackage.webBillingProduct.presentedOfferingContext,
+        presentedOfferingContext: rcPackage.product.presentedOfferingContext,
         customerEmail: "test@example.com",
         metadata: { utm_term: "something" },
         locale: "en",
@@ -208,10 +206,9 @@ describe("StripeCheckoutPurchasesUi", () => {
     await waitFor(() => {
       expect(checkoutStartSpy).toHaveBeenCalledWith({
         appUserId: "test-app-user-id",
-        productId: rcPackage.webBillingProduct.identifier,
+        productId: rcPackage.product.identifier,
         purchaseOption: subscriptionOption,
-        presentedOfferingContext:
-          rcPackage.webBillingProduct.presentedOfferingContext,
+        presentedOfferingContext: rcPackage.product.presentedOfferingContext,
         customerEmail: undefined,
         metadata: { utm_term: "something" },
         locale: "en",
@@ -254,10 +251,9 @@ describe("StripeCheckoutPurchasesUi", () => {
     await waitFor(() => {
       expect(checkoutStartSpy).toHaveBeenCalledWith({
         appUserId: "test-app-user-id",
-        productId: rcPackage.webBillingProduct.identifier,
+        productId: rcPackage.product.identifier,
         purchaseOption: subscriptionOption,
-        presentedOfferingContext:
-          rcPackage.webBillingProduct.presentedOfferingContext,
+        presentedOfferingContext: rcPackage.product.presentedOfferingContext,
         customerEmail: "test@example.com",
         metadata: { utm_term: "something" },
         paywallId: "paywall-abc-123",
@@ -280,10 +276,9 @@ describe("StripeCheckoutPurchasesUi", () => {
     await waitFor(() => {
       expect(checkoutStartSpy).toHaveBeenCalledWith({
         appUserId: "test-app-user-id",
-        productId: rcPackage.webBillingProduct.identifier,
+        productId: rcPackage.product.identifier,
         purchaseOption: subscriptionOption,
-        presentedOfferingContext:
-          rcPackage.webBillingProduct.presentedOfferingContext,
+        presentedOfferingContext: rcPackage.product.presentedOfferingContext,
         customerEmail: "test@example.com",
         metadata: { utm_term: "something" },
         locale: "en",
