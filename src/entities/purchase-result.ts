@@ -20,6 +20,8 @@ export interface PurchaseResult {
 
   /**
    * The operation session id of the purchase.
+   *
+   * For Amazon Store purchases, this will contain the Amazon Store's receipt ID from the purchase.
    */
   readonly operationSessionId: string;
 

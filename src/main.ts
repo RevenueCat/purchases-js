@@ -29,6 +29,7 @@ import {
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
+  isAmazonApiKey,
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
@@ -171,6 +172,8 @@ import {
   applyBrandingAppearanceOverride,
   mergeBrandingAppearanceOverrides,
 } from "./helpers/branding-appearance-helper";
+import type { BillingWrapper } from "./helpers/billing-wrapper";
+import { getPurchasesFactory } from "./helpers/purchases-factory";
 import {
   type PreparedStripeBillingApplePayPurchase,
   prepareStripeBillingApplePayPurchase,
@@ -322,7 +325,7 @@ export class Purchases {
   readonly _API_KEY: string;
 
   /** @internal */
-  private _appUserId: string;
+  protected _appUserId: string;
 
   /** @internal */
   private _brandingInfo: BrandingInfoResponse | null = null;
@@ -356,6 +359,9 @@ export class Purchases {
 
   /** @internal */
   private readonly inMemoryCache: InMemoryCache;
+
+  /** @internal */
+  private readonly billingWrapper: BillingWrapper | null = null;
 
   /**
    * Unfinished offerings requests keyed by app user ID. This lets concurrent
@@ -632,16 +638,38 @@ export class Purchases {
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
-    Purchases.instance = new Purchases(
-      apiKey,
-      appUserId,
-      finalHttpConfig,
-      finalFlags,
-      subscriberToken,
-      brandingAppearanceOverride,
-      context,
-      trace_id,
-    );
+    const purchasesFactory = getPurchasesFactory();
+    if (purchasesFactory) {
+      purchasesFactory.validateApiKey(apiKey);
+    } else if (isAmazonApiKey(apiKey)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
+      );
+    }
+
+    // Vega does not surface console.debug() at its default logging threshold,
+    // so use console.log() for SDK debug messages when using the Amazon store.
+    if (isAmazonApiKey(apiKey)) {
+      Logger.enableConsoleLogForDebugMessages();
+    }
+
+    // Reconfiguring replaces the singleton instance. Close the old Amazon
+    // wrapper first so its AppState listener does not keep syncing in the
+    // background after it is no longer reachable.
+    Purchases.instance?.billingWrapper?.close();
+    Purchases.instance = purchasesFactory
+      ? purchasesFactory.createPurchases(config)
+      : new Purchases(
+          apiKey,
+          appUserId,
+          finalHttpConfig,
+          finalFlags,
+          subscriberToken,
+          brandingAppearanceOverride,
+          context,
+          trace_id,
+        );
   }
 
   private static validateConfig(config: PurchasesConfig) {
@@ -684,8 +712,13 @@ export class Purchases {
   /** @internal */
   private async fetchAndCacheBrandingInfo(): Promise<void> {
     if (isSimulatedStoreApiKey(this._API_KEY)) {
-      Logger.warnLog(
+      Logger.verboseLog(
         "Branding info is not available for RC Test Store API keys.",
+      );
+      return;
+    } else if (isAmazonApiKey(this._API_KEY)) {
+      Logger.verboseLog(
+        "Branding info is not available for Amazon Store API keys.",
       );
       return;
     }
@@ -719,7 +752,7 @@ export class Purchases {
   }
 
   /** @internal */
-  private constructor(
+  protected constructor(
     apiKey: string,
     appUserId: string,
     httpConfig: HttpConfig = defaultHttpConfig,
@@ -767,16 +800,41 @@ export class Purchases {
     this.eventsTracker.trackSDKEvent({
       eventName: SDKEventName.SDKInitialized,
     });
+    if (isAmazonApiKey(this._API_KEY)) {
+      const purchasesFactory = getPurchasesFactory();
+      if (!purchasesFactory) {
+        throw new PurchasesError(
+          ErrorCode.ConfigurationError,
+          "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
+        );
+      }
+      this.billingWrapper = purchasesFactory.createBillingWrapper({
+        backend: this.backend,
+        apiKey: this._API_KEY,
+        getAppUserId: () => this._appUserId,
+        getIsAnonymous: () => this.isAnonymous(),
+      });
+    }
   }
 
   /**
    * Renders an RC Paywall and allows the user to purchase from it using Web Billing.
+   *
+   * Unsupported for Amazon apps.
+   *
    * @param paywallParams - The parameters object to customise the paywall render. Check {@link PresentPaywallParams}
    * @returns Promise<PurchaseResult>
    */
   public async presentPaywall(
     paywallParams: PresentPaywallParams,
   ): Promise<PaywallPurchaseResult> {
+    if (isAmazonApiKey(this._API_KEY)) {
+      Logger.verboseLog(
+        "Paywalls are not currently available for Amazon apps.",
+      );
+      throw new Error("Paywalls are not currently available for Amazon apps.");
+    }
+
     const htmlTarget = paywallParams.htmlTarget;
     let wasRootAutoCreated = false;
 
@@ -1823,12 +1881,22 @@ export class Purchases {
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
-    const productsResponse = await this.backend.getProducts(
-      appUserId,
-      productIds,
-      params?.currency,
-      params?.discountCode,
-    );
+    let productsResponse: ProductsResponse;
+    if (isAmazonApiKey(this._API_KEY)) {
+      productsResponse = await this.unwrappedBillingWrapper().getProducts(
+        appUserId,
+        productIds,
+        params?.currency,
+        params?.discountCode,
+      );
+    } else {
+      productsResponse = await this.backend.getProducts(
+        appUserId,
+        productIds,
+        params?.currency,
+        params?.discountCode,
+      );
+    }
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
     return productsResponse;
@@ -2099,6 +2167,9 @@ export class Purchases {
    * Renders an Express Purchase button for the supported wallets (Apple Pay/Google Pay).
    * When clicked it uses the wallet UI to execute the purchase instead of
    * the checkout flow that would be shown with `.purchase`.
+   *
+   * Unsupported for Amazon apps.
+   *
    * @param params - The parameters object to customise the purchase flow. Check {@link PresentExpressPurchaseButtonParams}
    * @returns Promise<PurchaseResult>
    */
@@ -2457,6 +2528,16 @@ export class Purchases {
         effectiveParams,
         effectiveBrandingInfo,
       );
+    }
+
+    const isAmazon = isAmazonApiKey(this._API_KEY);
+    if (isAmazon) {
+      const purchaseResult = await this.unwrappedBillingWrapper().purchase(
+        params,
+        this._appUserId,
+      );
+      this.invalidateRequestDataCaches();
+      return purchaseResult;
     }
 
     return await this.performWebBillingPurchase(
@@ -3265,6 +3346,7 @@ export class Purchases {
       if (this.eventsTracker) {
         this.eventsTracker.dispose();
       }
+      this.billingWrapper?.close();
       if (this._flags.applePayBrandingLogoEnabled) {
         const doc = getNullableDocument();
         if (doc) {
@@ -3351,5 +3433,17 @@ export class Purchases {
    */
   public _flushAllEvents(): Promise<void> {
     return this.eventsTracker.flushAllEvents();
+  }
+
+  /** @internal */
+  protected unwrappedBillingWrapper(): BillingWrapper {
+    if (this.billingWrapper === null) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Ensure that you have configured the SDK using an Amazon API key.",
+      );
+    }
+
+    return this.billingWrapper;
   }
 }

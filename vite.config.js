@@ -18,6 +18,7 @@ export default defineConfig({
   plugins: [
     dts({
       rollupTypes: true,
+      exclude: ["vega/**", "src/tests/**", "**/*.test.ts"],
     }),
     svelte({ compilerOptions: { css: "injected" } }),
   ],
