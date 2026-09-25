@@ -14,14 +14,14 @@ importers:
         specifier: 0.0.7
         version: 0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       '@amazon-devices/keplerscript-appstore-iap-lib':
-        specifier: 2.12.16
-        version: 2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
+        specifier: 2.13.0
+        version: 2.13.0(@amazon-devices/react-native-kepler@2.0.9000000000(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0))(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0)
       '@amazon-devices/react-native-kepler':
         specifier: ^2.0.0
         version: 2.0.9000000000(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0)
       '@revenuecat/purchases-js-vega':
         specifier: file:../../../vega
-        version: file:../../../vega(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))
+        version: file:../../../vega(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.13.0(@amazon-devices/react-native-kepler@2.0.9000000000(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0))(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -136,11 +136,15 @@ packages:
       }
     hasBin: true
 
-  '@amazon-devices/keplerscript-appstore-iap-lib@2.12.16':
+  '@amazon-devices/keplerscript-appstore-iap-lib@2.13.0':
     resolution:
       {
-        integrity: sha512-31Bjn9kaX2ThY7VcezVzEM4+khrLoq2qnEeOs0NkwYZ+VnSMXgTQwdpMlWKxjvKhcBdBD9ZUAPLlrLigNVqQag==,
+        integrity: sha512-It0xpLrdWhgoTjk/e4H8hpr7JN1yMVcAv/HHF628yOhyUyRiPRAMusEORs41yLwh63Pqg2aX8pOG+ZsfdvyFAA==,
       }
+    peerDependencies:
+      '@amazon-devices/react-native-kepler': '*'
+      react: '*'
+      react-native: '*'
 
   '@amazon-devices/keplerscript-commonmodules@1.0.9000000000':
     resolution:
@@ -1619,6 +1623,14 @@ packages:
       }
     engines: {node: '>= 8'}
 
+  '@react-native-async-storage/async-storage@1.23.1':
+    resolution:
+      {
+        integrity: sha512-Qd2kQ3yi6Y3+AcUlrHxSLlnBvpdCEMVGFlVBneVOjaFaPU61g1huc38g339ysXspwY1QZA2aNhrk/KlHGO+ewA==,
+      }
+    peerDependencies:
+      react-native: ^0.0.0-0 || >=0.60 <1.0
+
   '@react-native-community/cli-clean@11.3.2':
     resolution:
       {
@@ -1833,7 +1845,7 @@ packages:
     peerDependencies:
       '@amazon-devices/kepler-compatibility': 1.0.5
       '@amazon-devices/kepler-file-system': 0.0.7
-      '@amazon-devices/keplerscript-appstore-iap-lib': 2.12.16
+      '@amazon-devices/keplerscript-appstore-iap-lib': '>=2.12.16 <=2.13.0'
       react-native: '>=0.72.0'
 
   '@rnx-kit/tools-node@2.1.2':
@@ -4055,6 +4067,13 @@ packages:
       }
     engines: {node: '>=8'}
 
+  is-plain-obj@2.1.0:
+    resolution:
+      {
+        integrity: sha512-YWnfyRwxL/+SsrWYfOpUtz5b3YD+nyfkHvjbcanzk8zgyO4ASD67uVMRt8k5bM4lLMDnXfriRhOpemw+NfT1eA==,
+      }
+    engines: {node: '>=8'}
+
   is-plain-object@2.0.4:
     resolution:
       {
@@ -4772,6 +4791,13 @@ packages:
         integrity: sha512-S3UwM3yj5mtUSEfP41UZmt/0SCoVYUcU1rkXv+BQ5Ig8ndL4sPoJNBUJERafdPb5jjHJGuMgytgKvKIf58XNBw==,
       }
     engines: {node: '>= 0.10.0'}
+
+  merge-options@3.0.4:
+    resolution:
+      {
+        integrity: sha512-2Sug1+knBjkaMsMgf1ctR1Ujx+Ayku4EdJN4Z+C2+JzoeF7A3OZ9KM2GY0CpQS51NR61LTurMJrRKPhSs3ZRTQ==,
+      }
+    engines: {node: '>=10'}
 
   merge-stream@2.0.0:
     resolution:
@@ -7083,20 +7109,17 @@ snapshots:
     optionalDependencies:
       '@amazon-devices/js-bundle-system-allow-list': 0.0.22
 
-  '@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))':
+  '@amazon-devices/keplerscript-appstore-iap-lib@2.13.0(@amazon-devices/react-native-kepler@2.0.9000000000(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0))(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@amazon-devices/keplerscript-turbomodule-api': 1.2.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       '@amazon-devices/react-native-kepler': 2.0.9000000000(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0)
+      '@react-native-async-storage/async-storage': 1.23.1(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))
       react: 18.2.0
       react-native: 0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0)
       react-native-uuid: 2.0.4
     transitivePeerDependencies:
-      - '@babel/core'
       - '@babel/preset-env'
-      - bufferutil
-      - encoding
       - supports-color
-      - utf-8-validate
 
   '@amazon-devices/keplerscript-commonmodules@1.0.9000000000':
     optionalDependencies:
@@ -8407,6 +8430,11 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
+  '@react-native-async-storage/async-storage@1.23.1(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))':
+    dependencies:
+      merge-options: 3.0.4
+      react-native: 0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0)
+
   '@react-native-community/cli-clean@11.3.2':
     dependencies:
       '@react-native-community/cli-tools': 11.3.2
@@ -8791,11 +8819,11 @@ snapshots:
       nullthrows: 1.1.1
       react-native: 0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0)
 
-  '@revenuecat/purchases-js-vega@file:../../../vega(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))':
+  '@revenuecat/purchases-js-vega@file:../../../vega(@amazon-devices/kepler-compatibility@1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/kepler-file-system@0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7)))(@amazon-devices/keplerscript-appstore-iap-lib@2.13.0(@amazon-devices/react-native-kepler@2.0.9000000000(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0))(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))':
     dependencies:
       '@amazon-devices/kepler-compatibility': 1.0.5(@babel/preset-env@7.29.7(@babel/core@7.29.7))
       '@amazon-devices/kepler-file-system': 0.0.7(@babel/preset-env@7.29.7(@babel/core@7.29.7))
-      '@amazon-devices/keplerscript-appstore-iap-lib': 2.12.16(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))
+      '@amazon-devices/keplerscript-appstore-iap-lib': 2.13.0(@amazon-devices/react-native-kepler@2.0.9000000000(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0))(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react-native@0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0))(react@18.2.0)
       react-native: 0.72.0(@babel/core@7.29.7)(@babel/preset-env@7.29.7(@babel/core@7.29.7))(react@18.2.0)
 
   '@rnx-kit/tools-node@2.1.2': {}
@@ -10281,6 +10309,8 @@ snapshots:
 
   is-path-inside@3.0.3: {}
 
+  is-plain-obj@2.1.0: {}
+
   is-plain-object@2.0.4:
     dependencies:
       isobject: 3.0.1
@@ -10911,6 +10941,10 @@ snapshots:
   memoize-one@5.2.1: {}
 
   memorystream@0.3.1: {}
+
+  merge-options@3.0.4:
+    dependencies:
+      is-plain-obj: 2.1.0
 
   merge-stream@2.0.0: {}
 
