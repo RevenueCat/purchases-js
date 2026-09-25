@@ -1,3 +1,8 @@
+## 1.65.0
+## RevenueCat SDK
+### 🐞 Bugfixes
+* feat: add support for custom checkout purchase buttons on web (#1185) via Jamie Holwill (@jholwill)
+
 ## 1.64.0
 ## RevenueCat SDK
 ### ✨ New Features
