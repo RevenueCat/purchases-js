@@ -1,3 +1,10 @@
+/**
+ * RevenueCat Purchases SDK for Amazon Vega.
+ *
+ * Support for the `@revenuecat/purchases-js-vega` package is currently in beta.
+ *
+ * @packageDocumentation
+ */
 import { isAmazonApiKey } from "../../src/helpers/api-key-helper";
 import { ErrorCode, PurchasesError } from "../../src/entities/errors";
 import type { RestorePurchasesResult } from "../../src/entities/restore-purchases-result";
