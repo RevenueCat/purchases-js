@@ -1328,11 +1328,11 @@ export class Purchases {
 
       // Custom checkout hands off to a developer-owned URL instead of
       // purchasing. Same tab, so that destination can send the user back.
-      // Returning false keeps the purchase flow, e.g. for native deep links.
+      // Deep links are allowed; returning false keeps the purchase flow.
       const navigateToCustomCheckout = (url: string): boolean => {
-        if (!isAllowedCompleteWorkflowNavigateUrl(url, "in_app_browser")) {
+        if (!isAllowedCompleteWorkflowNavigateUrl(url, "deep_link")) {
           Logger.warnLog(
-            "Custom checkout URL can't be opened on web; purchasing instead.",
+            "Blocked custom checkout navigation to a disallowed URL; purchasing instead.",
           );
           return false;
         }

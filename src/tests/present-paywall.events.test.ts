@@ -950,33 +950,36 @@ describe("Purchases.presentPaywall() custom checkout", () => {
     document.body.innerHTML = "";
   });
 
-  test("flushes events and navigates to the handed-off URL in the same tab", async () => {
-    const purchases = configurePurchases();
+  test.each([
+    {
+      name: "a web URL",
+      url: "https://auth.example.com/register?rc_package=monthly",
+    },
+    { name: "a native deep link", url: "uchad://paywall/stripe_checkout" },
+  ])(
+    "flushes events and navigates to $name in the same tab",
+    async ({ url }) => {
+      const purchases = configurePurchases();
 
-    void purchases.presentPaywall({ offering: createOfferingWithPaywall() });
+      void purchases.presentPaywall({ offering: createOfferingWithPaywall() });
 
-    const flushAllEventsSpy = vi.spyOn(
-      purchases["eventsTracker"],
-      "flushAllEvents",
-    );
+      const flushAllEventsSpy = vi.spyOn(
+        purchases["eventsTracker"],
+        "flushAllEvents",
+      );
 
-    const props = await vi.waitFor(
-      () => paywallProps ?? expect.fail("paywall not mounted"),
-    );
-    const handled = props.onCustomWebCheckout(
-      "https://auth.example.com/register?rc_package=monthly",
-    );
-
-    expect(handled).toBe(true);
-    expect(flushAllEventsSpy).toHaveBeenCalledOnce();
-    expect(assignMock).toHaveBeenCalledExactlyOnceWith(
-      "https://auth.example.com/register?rc_package=monthly",
-    );
-  });
+      const props = await vi.waitFor(
+        () => paywallProps ?? expect.fail("paywall not mounted"),
+      );
+      expect(props.onCustomWebCheckout(url)).toBe(true);
+      expect(flushAllEventsSpy).toHaveBeenCalledOnce();
+      expect(assignMock).toHaveBeenCalledExactlyOnceWith(url);
+    },
+  );
 
   test.each([
-    { name: "a native deep link", url: "uchad://paywall/stripe_checkout" },
     { name: "a script URL", url: "javascript:alert(1)" },
+    { name: "a data URL", url: "data:text/html,hi" },
   ])("declines $name so the paywall purchases instead", async ({ url }) => {
     const purchases = configurePurchases();
     const warnSpy = vi.spyOn(Logger, "warnLog").mockImplementation(() => {});
