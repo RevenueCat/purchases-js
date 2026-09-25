@@ -538,7 +538,7 @@ export interface PurchaseResult {
 
 // Warning: (ae-forgotten-export) The symbol "Purchases_2" needs to be exported by the entry point Purchases.vega.es.d.ts
 //
-// @public (undocumented)
+// @public
 export class Purchases extends Purchases_2 {
     /* Excluded from this release type: __constructor */
     // (undocumented)
