@@ -553,6 +553,7 @@ export class Purchases {
     /* Excluded from this release type: inMemoryCache */
     /* Excluded from this release type: offeringsRequests */
     /* Excluded from this release type: cachedCurrentOffering */
+    /* Excluded from this release type: customWebCheckoutEnabled */
     /* Excluded from this release type: stripeBillingQuickPurchaseState */
     /* Excluded from this release type: stripeBillingQuickPurchasePreparation */
     /* Excluded from this release type: instance */
