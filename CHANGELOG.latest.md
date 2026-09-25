@@ -1,6 +1,3 @@
-## RevenueCatUI SDK
+## RevenueCat SDK
 ### 🐞 Bugfixes
-* Bump @revenuecat/purchases-ui-js to 4.11.1 (#1173) via Rosie Watson (@RosieWatson)
-
-### 🔄 Other Changes
-* ci: approve the release hold automatically when the release PR is approved (#1171) via Álvaro Brey (@AlvaroBrey)
+* feat: add support for custom checkout purchase buttons on web (#1185) via Jamie Holwill (@jholwill)
