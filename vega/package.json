@@ -1,7 +1,10 @@
 {
   "name": "@revenuecat/purchases-js-vega",
-  "version": "0.0.0",
-  "private": true,
+  "version": "1.63.1",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "license": "MIT",
   "files": [
