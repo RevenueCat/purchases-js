@@ -144,9 +144,7 @@ describe("Purchases.applyPaddleDiscountsToOffering", () => {
       $rc_monthly: "dsc_01test",
     });
 
-    expect(
-      result.packagesById["$rc_monthly"].webBillingProduct.discountPhase,
-    ).toBeNull();
+    expect(result.packagesById["$rc_monthly"].product.discountPhase).toBeNull();
   });
 
   test("returns the offering untouched when Paddle cannot be initialized", async () => {
