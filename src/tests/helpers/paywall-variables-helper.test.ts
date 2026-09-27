@@ -239,19 +239,21 @@ describe("getPaywallVariables", () => {
           "product.relative_discount": "23%",
           "product.currency_code": "EUR",
           "product.currency_symbol": "€",
-          "product.offer_price": "",
-          "product.offer_price_per_day": "",
-          "product.offer_price_per_month": "",
-          "product.offer_price_per_week": "",
-          "product.offer_price_per_year": "",
-          "product.offer_period": "",
-          "product.offer_period_abbreviated": "",
-          "product.offer_period_in_days": "",
-          "product.offer_period_in_months": "",
-          "product.offer_period_in_weeks": "",
-          "product.offer_period_in_years": "",
-          "product.offer_period_with_unit": "",
-          "product.offer_end_date": "",
+          // No discount/trial/introPrice on this package: offer_* variables
+          // fall back to the base price/period rather than staying blank.
+          "product.offer_price": "€30.00",
+          "product.offer_price_per_day": "€1.00",
+          "product.offer_price_per_month": "€30.00",
+          "product.offer_price_per_week": "€6.90",
+          "product.offer_price_per_year": "€360.00",
+          "product.offer_period": "month",
+          "product.offer_period_abbreviated": "mo",
+          "product.offer_period_in_days": "30",
+          "product.offer_period_in_months": "1",
+          "product.offer_period_in_weeks": "4",
+          "product.offer_period_in_years": "0",
+          "product.offer_period_with_unit": "1 month",
+          "product.offer_end_date": "November 30, 2025",
           "product.secondary_offer_price": "",
           "product.secondary_offer_period": "",
           "product.secondary_offer_period_abbreviated": "",
@@ -859,7 +861,7 @@ describe("getPaywallVariables", () => {
       );
     });
 
-    test("Subscription without trial or other offers leaves offer variables empty", () => {
+    test("Subscription without trial or other offers falls back to the base price/period for offer variables", () => {
       const off = toOffering([
         {
           packageIdentifier: "$rc_monthly",
@@ -871,13 +873,16 @@ describe("getPaywallVariables", () => {
 
       const variables = parseOfferingIntoVariables(off, enTranslator);
 
+      // With no discount/trial/introPrice, offer_* variables must fall back to
+      // the base price/period (matching iOS/Android) instead of staying blank,
+      // so pricing rows relying on these variables still render.
       expect(variables.$rc_monthly).toEqual(
         expect.objectContaining({
-          "product.offer_price": "",
-          "product.offer_period": "",
-          "product.offer_period_with_unit": "",
-          "product.offer_period_in_days": "",
-          "product.offer_end_date": "",
+          "product.offer_price": "€9.00",
+          "product.offer_period": "month",
+          "product.offer_period_with_unit": "1 month",
+          "product.offer_period_in_days": "30",
+          "product.offer_end_date": "November 30, 2025",
           "product.secondary_offer_price": "",
           "product.secondary_offer_period": "",
         }),
