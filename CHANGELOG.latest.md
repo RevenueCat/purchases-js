@@ -1,3 +1,7 @@
 ## RevenueCat SDK
+### ✨ New Features
+* feat: introduce Package.product (#1130) via Will Taylor (@fire-at-will)
 ### 🐞 Bugfixes
-* feat: add support for custom checkout purchase buttons on web (#1185) via Jamie Holwill (@jholwill)
+* fix(paywalls): pass monthly price so relative_discount can scope to tabs (#1199) via Jamie Holwill (@jholwill)
+### 📦 Dependency Updates
+* [RENOVATE] Update dependency revenuecat to v4.6.2 (#1200) via RevenueCat Git Bot (@RCGitBot)
