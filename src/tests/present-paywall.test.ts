@@ -286,6 +286,7 @@ describe("Purchases.presentPaywall() paywall context", () => {
         hasTrial: false,
         hasIntroOffer: false,
         hasPromoOffer: true,
+        pricePerMonthMicros: 3_000_000,
       },
     });
     expect(mountedProps?.variablesPerPackage).toMatchObject({
@@ -382,9 +383,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
     await vi.waitFor(() => expect(mountedProps).toBeDefined());
     const walletOffering = getWalletButtonRenderSpy.mock.calls[0]?.[0];
     expect(walletOffering?.availablePackages).toHaveLength(2);
-    expect(
-      walletOffering?.monthly?.webBillingProduct.defaultPurchaseOption.id,
-    ).toBe(discountedPurchaseOptionId);
+    expect(walletOffering?.monthly?.product.defaultPurchaseOption.id).toBe(
+      discountedPurchaseOptionId,
+    );
     expect(walletOffering?.packagesById.additional_package?.product).toBe(
       offering.packagesById.additional_package?.product,
     );

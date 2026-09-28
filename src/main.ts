@@ -491,8 +491,7 @@ export class Purchases {
 
     const paddleService = new PaddleService(this.backend, this.eventsTracker);
     const [firstPackageId] = entries[0];
-    const firstProduct =
-      offering.packagesById[firstPackageId].webBillingProduct;
+    const firstProduct = offering.packagesById[firstPackageId].product;
     try {
       await paddleService.initializeForPreview(
         firstProduct.identifier,
@@ -508,7 +507,7 @@ export class Purchases {
     const discountsByPackage: Record<string, DiscountPhase> = {};
     await Promise.all(
       entries.map(async ([packageId, discountId]) => {
-        const product = offering.packagesById[packageId].webBillingProduct;
+        const product = offering.packagesById[packageId].product;
         try {
           const discount = await paddleService.previewDiscount({
             priceId: product.identifier,
@@ -1831,11 +1830,11 @@ export class Purchases {
     // Only fetch the discounted products (instead of the entire offering) because the
     // supplied offering already has the necessary data which isn't changed by the discount.
     const productIds = offering.availablePackages.map(
-      (rcPackage) => rcPackage.webBillingProduct.identifier,
+      (rcPackage) => rcPackage.product.identifier,
     );
     const currencies = new Set(
       offering.availablePackages.map(
-        (rcPackage) => rcPackage.webBillingProduct.price.currency,
+        (rcPackage) => rcPackage.product.price.currency,
       ),
     );
     const currency = currencies.size === 1 ? [...currencies][0] : undefined;
@@ -1995,7 +1994,7 @@ export class Purchases {
     context: StripeBillingQuickPurchaseContext,
   ): Promise<PreparedStripeBillingApplePayPurchase | null> {
     const { params, brandingInfo, purchaseOption, translator } = context;
-    const product = params.rcPackage.webBillingProduct;
+    const product = params.rcPackage.product;
     const operationHelper = new PurchaseOperationHelper(
       this.backend,
       this.eventsTracker,
@@ -2067,7 +2066,7 @@ export class Purchases {
       this._brandingInfo,
       appearanceOverride,
     );
-    const product = effectiveParams.rcPackage.webBillingProduct;
+    const product = effectiveParams.rcPackage.product;
     const purchaseOption =
       effectiveParams.purchaseOption ?? product.defaultPurchaseOption;
     const termsAndConditionsUrl = resolveTermsAndConditionsUrl({
@@ -2409,7 +2408,7 @@ export class Purchases {
       "Stripe Billing Apple Pay is prepared; presenting it from the purchase click",
     );
     const appUserId = this._appUserId;
-    const product = context.params.rcPackage.webBillingProduct;
+    const product = context.params.rcPackage.product;
     this.eventsTracker.trackSDKEvent(
       createCheckoutSessionStartEvent({
         appearance: context.brandingInfo?.appearance,

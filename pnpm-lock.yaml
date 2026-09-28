@@ -18,8 +18,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       '@revenuecat/purchases-ui-js':
-        specifier: 4.12.1
-        version: 4.12.1(svelte@5.46.4)
+        specifier: 4.12.2
+        version: 4.12.2(svelte@5.46.4)
       '@storybook/addon-essentials':
         specifier: ^8.6.15
         version: 8.6.15(@types/react@19.0.10)(storybook@8.6.15(prettier@3.4.2))
@@ -1438,8 +1438,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@revenuecat/purchases-ui-js@4.12.1':
-    resolution: {integrity: sha512-0DJmdFtqaAr4TrO62/6rsca2p8ZgkbxfDnOkH0gWjy5QoedhX8/ntSDreP4JFC3drzwGPtrHx5XWtFnifQ52OQ==}
+  '@revenuecat/purchases-ui-js@4.12.2':
+    resolution: {integrity: sha512-bBQAasNEsXm3TX6haEJnwParmxnXmX/fBO01qw9pdbMCG4MidTobK+5O94WP3t+Yojyb3Pnlw5Me38oVO+Yg7Q==}
     engines: {node: ^22.18 || ^24.11}
     peerDependencies:
       svelte: ^5.46.4
@@ -6830,7 +6830,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
-      '@babel/types': 7.28.4
+      '@babel/types': 7.29.8
       esutils: 2.0.3
 
   '@babel/preset-typescript@7.29.7(@babel/core@7.29.7)':
@@ -7116,7 +7116,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.29.7
       '@jest/types': 29.6.3
-      '@jridgewell/trace-mapping': 0.3.25
+      '@jridgewell/trace-mapping': 0.3.31
       babel-plugin-istanbul: 6.1.1
       chalk: 4.1.2
       convert-source-map: 2.0.0
@@ -7229,7 +7229,7 @@ snapshots:
       '@rushstack/ts-command-line': 4.22.0(@types/node@22.10.5)
       lodash: 4.17.23
       minimatch: 3.0.8
-      resolve: 1.22.10
+      resolve: 1.22.12
       semver: 7.5.4
       source-map: 0.6.1
       typescript: 5.4.2
@@ -7483,7 +7483,7 @@ snapshots:
   '@react-native/codegen@0.83.0(@babel/core@7.29.7)':
     dependencies:
       '@babel/core': 7.29.7
-      '@babel/parser': 7.28.4
+      '@babel/parser': 7.29.9
       glob: 7.2.3
       hermes-parser: 0.32.0
       invariant: 2.2.4
@@ -7559,7 +7559,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.10
 
-  '@revenuecat/purchases-ui-js@4.12.1(svelte@5.46.4)':
+  '@revenuecat/purchases-ui-js@4.12.2(svelte@5.46.4)':
     dependencies:
       '@revenuecat/workflow-web-components-sdk': 0.1.7
       qrcode: 1.5.4
@@ -7658,14 +7658,14 @@ snapshots:
       fs-extra: 7.0.1
       import-lazy: 4.0.0
       jju: 1.4.0
-      resolve: 1.22.10
+      resolve: 1.22.12
       semver: 7.5.4
     optionalDependencies:
       '@types/node': 22.10.5
 
   '@rushstack/rig-package@0.5.2':
     dependencies:
-      resolve: 1.22.10
+      resolve: 1.22.12
       strip-json-comments: 3.1.1
 
   '@rushstack/rig-package@0.5.3':
@@ -8086,24 +8086,24 @@ snapshots:
 
   '@types/babel__core@7.20.5':
     dependencies:
-      '@babel/parser': 7.28.4
-      '@babel/types': 7.28.4
+      '@babel/parser': 7.29.9
+      '@babel/types': 7.29.8
       '@types/babel__generator': 7.27.0
       '@types/babel__template': 7.4.4
       '@types/babel__traverse': 7.28.0
 
   '@types/babel__generator@7.27.0':
     dependencies:
-      '@babel/types': 7.28.4
+      '@babel/types': 7.29.8
 
   '@types/babel__template@7.4.4':
     dependencies:
-      '@babel/parser': 7.28.4
-      '@babel/types': 7.28.4
+      '@babel/parser': 7.29.9
+      '@babel/types': 7.29.8
 
   '@types/babel__traverse@7.28.0':
     dependencies:
-      '@babel/types': 7.28.4
+      '@babel/types': 7.29.8
 
   '@types/chai@5.2.3':
     dependencies:
@@ -8675,7 +8675,7 @@ snapshots:
   babel-plugin-jest-hoist@29.6.3:
     dependencies:
       '@babel/template': 7.29.7
-      '@babel/types': 7.28.4
+      '@babel/types': 7.29.8
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.28.0
 
@@ -10243,7 +10243,7 @@ snapshots:
   istanbul-lib-instrument@5.2.1:
     dependencies:
       '@babel/core': 7.29.7
-      '@babel/parser': 7.28.4
+      '@babel/parser': 7.29.9
       '@istanbuljs/schema': 0.1.6
       istanbul-lib-coverage: 3.2.2
       semver: 6.3.1
