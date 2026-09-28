@@ -4,6 +4,7 @@
  * Support for the `@revenuecat/purchases-js-vega` package is currently in beta.
  *
  * @packageDocumentation
+ * @experimental
  */
 import { isAmazonApiKey } from "../../src/helpers/api-key-helper";
 import { ErrorCode, PurchasesError } from "../../src/entities/errors";

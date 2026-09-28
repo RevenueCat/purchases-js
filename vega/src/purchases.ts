@@ -11,6 +11,8 @@ import { defaultFlagsConfig } from "../../src/entities/flags-config";
  * Entry point for the RevenueCat Purchases SDK for Amazon Vega.
  *
  * Support for the `@revenuecat/purchases-js-vega` package is currently in beta.
+ *
+ * @experimental
  */
 export class Purchases extends CorePurchases {
   /** @internal */
