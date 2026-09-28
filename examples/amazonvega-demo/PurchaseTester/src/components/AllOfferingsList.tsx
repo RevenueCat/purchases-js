@@ -59,7 +59,7 @@ export const AllOfferingsList = () => {
     }
 
     setPurchasingPackageId(pkg.identifier);
-    console.log(`Purchasing ${pkg.webBillingProduct.identifier}...`);
+    console.log(`Purchasing ${pkg.product.identifier}...`);
 
     try {
       const result = await Purchases.getSharedInstance().purchase({
@@ -69,12 +69,10 @@ export const AllOfferingsList = () => {
         formattedData: formatJsonData(result),
         title: 'Purchase result',
       });
-      console.log(
-        `Successfully purchased ${pkg.webBillingProduct.identifier}.`,
-      );
+      console.log(`Successfully purchased ${pkg.product.identifier}.`);
     } catch (purchaseError) {
       console.error(
-        `Failed to purchase ${pkg.webBillingProduct.identifier}:`,
+        `Failed to purchase ${pkg.product.identifier}:`,
         purchaseError,
       );
       setModalData({
@@ -102,7 +100,7 @@ export const AllOfferingsList = () => {
             <Text style={styles.title}>{offering.serverDescription}</Text>
             <Text style={styles.identifier}>ID: {offering.identifier}</Text>
             {offering.availablePackages.map((pkg) => {
-              const product = pkg.webBillingProduct;
+              const product = pkg.product;
               const isPurchasing = purchasingPackageId === pkg.identifier;
 
               return (

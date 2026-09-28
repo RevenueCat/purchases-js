@@ -81,7 +81,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
     const { PurchasingService, PurchaseResponseCode, ProductType } =
       AmazonVegaSdk;
     const { rcPackage } = params;
-    const sku = rcPackage.webBillingProduct.identifier;
+    const sku = rcPackage.product.identifier;
 
     Logger.infoLog(`Starting Amazon purchase for SKU: ${sku}`);
 
@@ -138,7 +138,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
       productIdentifier,
       price?.currency ?? null,
       receipt.receiptId,
-      rcPackage.webBillingProduct.presentedOfferingContext,
+      rcPackage.product.presentedOfferingContext,
       PostReceiptInitiationSource.PURCHASE,
       undefined,
       storeUserId,
@@ -696,7 +696,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
 }
 
 function priceForPurchaseParams(params: PurchaseParams): Price | null {
-  const product = params.rcPackage.webBillingProduct;
+  const product = params.rcPackage.product;
   const purchaseOption = params.purchaseOption ?? product.defaultPurchaseOption;
 
   return product.productType === RevenueCatProductType.Subscription
