@@ -7,6 +7,7 @@ describe("Logger", () => {
     // Reset logger state before each test
     Logger.setLogLevel(LogLevel.Silent);
     Logger.setLogHandler(null);
+    Reflect.set(Logger, "useConsoleLogForDebugMessages", false);
   });
 
   afterEach(() => {
@@ -47,6 +48,22 @@ describe("Logger", () => {
       expect(consoleSpy).toHaveBeenCalledWith("[Purchases] test message 2");
 
       consoleSpy.mockRestore();
+    });
+
+    test("should keep using a custom handler when Amazon console logging is enabled", () => {
+      const mockHandler = vi.fn();
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      Logger.enableConsoleLogForDebugMessages();
+      Logger.setLogHandler(mockHandler);
+      Logger.setLogLevel(LogLevel.Debug);
+
+      Logger.debugLog("debug message");
+
+      expect(mockHandler).toHaveBeenCalledWith(
+        LogLevel.Debug,
+        "[Purchases] debug message",
+      );
+      expect(consoleSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -215,6 +232,20 @@ describe("Logger", () => {
         "[Purchases] verbose message",
       );
       consoleSpy.mockRestore();
+    });
+
+    test("should use console.log for debug and verbose logs when configured for Amazon", () => {
+      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+      const debugSpy = vi.spyOn(console, "debug").mockImplementation(() => {});
+      Logger.enableConsoleLogForDebugMessages();
+      Logger.setLogLevel(LogLevel.Verbose);
+
+      Logger.debugLog("debug message");
+      Logger.verboseLog("verbose message");
+
+      expect(logSpy).toHaveBeenNthCalledWith(1, "[Purchases] debug message");
+      expect(logSpy).toHaveBeenNthCalledWith(2, "[Purchases] verbose message");
+      expect(debugSpy).not.toHaveBeenCalled();
     });
   });
 

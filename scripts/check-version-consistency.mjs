@@ -10,6 +10,10 @@ const versionFile = readFileSync(resolve(repoRoot, ".version"), "utf8").trim();
 
 const pkg = JSON.parse(readFileSync(resolve(repoRoot, "package.json"), "utf8"));
 const packageJsonVersion = pkg.version;
+const vegaPkg = JSON.parse(
+  readFileSync(resolve(repoRoot, "vega/package.json"), "utf8"),
+);
+const vegaPackageJsonVersion = vegaPkg.version;
 
 const constantsSrc = readFileSync(
   resolve(repoRoot, "src/helpers/constants.ts"),
@@ -25,6 +29,7 @@ const constantsVersion = constantsMatch[1];
 const versions = {
   ".version": versionFile,
   "package.json": packageJsonVersion,
+  "vega/package.json": vegaPackageJsonVersion,
   "src/helpers/constants.ts": constantsVersion,
 };
 

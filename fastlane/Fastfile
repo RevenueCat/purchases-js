@@ -1,5 +1,6 @@
 files_with_version_number = {
   './package.json' => ['"version": "{x}"'],
+  './vega/package.json' => ['"version": "{x}"'],
   './.version' => ['{x}'],
   './src/helpers/constants.ts' => ['VERSION = "{x}"']
 }
@@ -62,7 +63,7 @@ lane :github_release do |options|
   )
 end
 
-desc "Creates GitHub release and publishes react-native-purchases and react-native-purchases-ui"
+desc "Publishes purchases-js and purchases-js-vega, then creates a GitHub release"
 lane :release do |options|
   version_number = current_version_number
   is_prerelease = Gem::Version.new(version_number).prerelease?
@@ -75,6 +76,7 @@ lane :release do |options|
 
   Dir.chdir(get_root_folder) do
     sh(args)
+    sh(args + ['./vega'])
   end
   github_release(version: version_number)
 end
