@@ -45,6 +45,7 @@ describe("simulated purchase", () => {
       }),
       expect.any(Object),
       "someAppUserId",
+      expect.objectContaining({ app_name: "Test Company name" }),
     );
 
     expect(InMemoryCache.prototype.invalidateAllCaches).toHaveBeenCalledOnce();
@@ -93,6 +94,7 @@ describe("simulated purchase", () => {
       }),
       expect.any(Object),
       "someAppUserId",
+      expect.objectContaining({ app_name: "Test Company name" }),
     );
     expect(result.customerEmail).toEqual("test@example.com");
   });
@@ -135,6 +137,7 @@ describe("simulated purchase", () => {
       }),
       expect.any(Object),
       "someAppUserId",
+      expect.objectContaining({ app_name: "Test Company name" }),
     );
   });
 });

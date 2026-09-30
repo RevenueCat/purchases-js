@@ -710,12 +710,7 @@ export class Purchases {
 
   /** @internal */
   private async fetchAndCacheBrandingInfo(): Promise<void> {
-    if (isSimulatedStoreApiKey(this._API_KEY)) {
-      Logger.verboseLog(
-        "Branding info is not available for RC Test Store API keys.",
-      );
-      return;
-    } else if (isAmazonApiKey(this._API_KEY)) {
+    if (isAmazonApiKey(this._API_KEY)) {
       Logger.verboseLog(
         "Branding info is not available for Amazon Store API keys.",
       );
@@ -2508,6 +2503,7 @@ export class Purchases {
         effectiveParams,
         this.backend,
         this._appUserId,
+        effectiveBrandingInfo,
       );
       this.invalidateRequestDataCaches();
       return purchaseResult;
