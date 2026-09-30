@@ -47,7 +47,7 @@ export function buildVariablesPerPackage(
   return parseOfferingIntoVariables(offering, translator);
 }
 
-function getPackageMonthlyPrice(pkg: Package): number {
+export function getPackageMonthlyPrice(pkg: Package): number {
   const price = pkg.product.price;
   const purchaseOption = getDefaultPurchaseOption(pkg);
   const period =
