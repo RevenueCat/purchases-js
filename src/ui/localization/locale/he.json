@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "אשר תשלום",
   "upgrade_product_info.tax_estimated": "מס (הערכה)",
   "upgrade_confirm_page.subtitle_deferred": "בדוק את פרטי התשלום שלך ושינוי מועד",
-  "upgrade_confirm_page.confirm_schedule": "אשר שינוי מועד",
+  "upgrade_confirm_page.confirm_schedule": "תזמן שינוי",
   "upgrade_confirm_page.on_file": "שמור",
   "credit_for_unused_time.title": "זיכוי על זמן שלא נוצל",
   "credit_for_unused_time.message": "כל זמן שלא נוצל מהמנוי הקיים שלך יקוזז מהרכישה שלך.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "כולל מס",
   "paddle_order_summary.due_on": "לתשלום ב-{{date}}",
   "payment_entry_page.payment_method_error": "לא הצלחנו להשתמש באמצעי תשלום זה. אנא בדוק את הפרטים שלך או נסה אמצעי תשלום אחר.",
-  "payment_entry_page.payment_method_error_card_not_supported": "סוג כרטיס זה אינו מקובל. נסה כרטיס אחר."
+  "payment_entry_page.payment_method_error_card_not_supported": "סוג כרטיס זה אינו מקובל. נסה כרטיס אחר.",
+  "deferred_subscription_change.message": "השינוי שלך ל-{{productName}} ייכנס לתוקף בסיום מחזור החיוב הנוכחי שלך. עד אז, תמשיך ליהנות מגישה לתכונות של {{previousProductName}}. לאחר מכן, כל תכונה שאינה כלולה ב-{{productName}} לא תהיה זמינה עוד.",
+  "deferred_subscription_change.title": "השינוי ייכנס לתוקף בחידוש הבא"
 }

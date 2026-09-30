@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Konfirmasi pembayaran",
   "upgrade_product_info.tax_estimated": "Pajak (perkiraan)",
   "upgrade_confirm_page.subtitle_deferred": "Tinjau detail pembayaran Anda dan jadwalkan perubahan",
-  "upgrade_confirm_page.confirm_schedule": "Konfirmasi jadwal",
+  "upgrade_confirm_page.confirm_schedule": "Jadwalkan perubahan",
   "upgrade_confirm_page.on_file": "Tersimpan",
   "credit_for_unused_time.title": "Kredit Waktu Tidak Terpakai",
   "credit_for_unused_time.message": "Waktu yang tidak terpakai dari langganan Anda saat ini akan didiskon dari pembelian Anda.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "termasuk pajak",
   "paddle_order_summary.due_on": "Jatuh tempo {{date}}",
   "payment_entry_page.payment_method_error": "Kami tidak dapat menggunakan metode pembayaran ini. Periksa detail Anda atau coba metode pembayaran lain.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Jenis kartu ini tidak diterima. Coba kartu lain."
+  "payment_entry_page.payment_method_error_card_not_supported": "Jenis kartu ini tidak diterima. Coba kartu lain.",
+  "deferred_subscription_change.message": "Perubahan Anda ke {{productName}} akan berlaku pada akhir siklus penagihan Anda saat ini. Sampai saat itu, Anda akan terus memiliki akses ke fitur {{previousProductName}}. Setelah itu, fitur apa pun yang tidak termasuk dalam {{productName}} tidak akan lagi tersedia.",
+  "deferred_subscription_change.title": "Perubahan berlaku pada perpanjangan berikutnya"
 }

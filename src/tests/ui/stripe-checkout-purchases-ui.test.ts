@@ -1,11 +1,12 @@
 import "@testing-library/jest-dom";
-import { render, screen, waitFor } from "@testing-library/svelte";
+import { fireEvent, render, screen, waitFor } from "@testing-library/svelte";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import type { ComponentProps } from "svelte";
 import StripeCheckoutPurchasesUi from "../../ui/stripe-checkout-purchases-ui.svelte";
 import {
   brandingInfo,
   rcPackage,
+  subscriptionChangeDeferredWithTax,
   subscriptionChangeImmediateWithTax,
   subscriptionOption,
 } from "../../stories/fixtures";
@@ -378,6 +379,58 @@ describe("StripeCheckoutPurchasesUi", () => {
     expect(
       await screen.findByText("Credit for unused time on Basic Monthly."),
     ).toBeInTheDocument();
+  });
+
+  test("renders and completes a deferred Stripe subscription change", async () => {
+    const deferredResult = {
+      operationSessionId: "rcbopsess_story_deferred_tax",
+      changeType: "deferred" as const,
+      newProductId: "basic_monthly",
+    };
+    const completeProductChange = vi.fn().mockResolvedValue(deferredResult);
+    const onProductChangeFinished = vi.fn();
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+      subscriptionChangeDeferredWithTax,
+    );
+
+    render(StripeCheckoutPurchasesUi, {
+      props: {
+        ...baseProps,
+        purchaseOperationHelper: {
+          ...purchaseOperationHelperMock,
+          completeProductChange,
+        } as unknown as PurchaseOperationHelper,
+        productChange: { subscriberToken: "subscriber.token" },
+        onProductChangeFinished,
+      },
+    });
+
+    expect(
+      await screen.findByText("Change your subscription"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Estimated at next renewal")).toBeInTheDocument();
+    expect(
+      screen.getByText("Change takes effect at next renewal"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Your change to Basic Monthly will take effect at the end of your current billing cycle. Until then, you’ll continue to have access to Premium Yearly features. After that, any features not included with Basic Monthly will no longer be available.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Credit for unused time"),
+    ).not.toBeInTheDocument();
+
+    await fireEvent.click(
+      screen.getByRole("button", { name: "Schedule change" }),
+    );
+
+    await waitFor(() => {
+      expect(completeProductChange).toHaveBeenCalledWith({
+        subscriberToken: "subscriber.token",
+      });
+      expect(onProductChangeFinished).toHaveBeenCalledWith(deferredResult);
+    });
   });
 
   test("renders the close button on the upgrade confirm page", async () => {

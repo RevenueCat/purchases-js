@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Bekräfta betalning",
   "upgrade_product_info.tax_estimated": "Moms (uppskattad)",
   "upgrade_confirm_page.subtitle_deferred": "Granska dina betalningsuppgifter och schemalägg ändring",
-  "upgrade_confirm_page.confirm_schedule": "Bekräfta schema",
+  "upgrade_confirm_page.confirm_schedule": "Schemalägg ändring",
   "upgrade_confirm_page.on_file": "Sparad",
   "credit_for_unused_time.title": "Kredit för oanvänd tid",
   "credit_for_unused_time.message": "Eventuell oanvänd tid på din befintliga prenumeration kommer att dras av från ditt köp.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "inkl. moms",
   "paddle_order_summary.due_on": "Förfaller {{date}}",
   "payment_entry_page.payment_method_error": "Vi kunde inte använda denna betalningsmetod. Kontrollera dina uppgifter eller prova en annan betalningsmetod.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Denna korttyp accepteras inte. Prova ett annat kort."
+  "payment_entry_page.payment_method_error_card_not_supported": "Denna korttyp accepteras inte. Prova ett annat kort.",
+  "deferred_subscription_change.message": "Din ändring till {{productName}} träder i kraft vid slutet av din nuvarande faktureringsperiod. Fram till dess kommer du att fortsätta ha tillgång till funktionerna i {{previousProductName}}. Därefter kommer alla funktioner som inte ingår i {{productName}} inte längre att vara tillgängliga.",
+  "deferred_subscription_change.title": "Ändringen träder i kraft vid nästa förnyelse"
 }

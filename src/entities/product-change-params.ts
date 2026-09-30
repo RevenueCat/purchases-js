@@ -1,5 +1,5 @@
 /**
- * Options for changing an existing Web Billing subscription via
+ * Options for changing an existing Web Billing or Stripe subscription via
  * {@link Purchases.purchase} with {@link PurchaseParams.productChangeInfo}.
  * @internal
  */
@@ -12,24 +12,24 @@ export interface ProductChangeInfo {
    * customer subscriptions list and passed to the client with the token.
    *
    * When omitted, the source will be inferred on the assumption that the app
-   * user has exactly one active Web Billing subscription.
+   * user has exactly one active subscription.
    * However if it is possible for an app user to have multiple
-   * active Web Billing subscriptions then either this field or
+   * active subscriptions then either this field or
    * {@link productIdentifier} is required.
    * If both are provided, they must refer to the same subscription.
    */
   subscriptionId?: string;
   /**
-   * Product identifier of the Web Billing subscription to change.
+   * Product identifier of the subscription to change.
    *
    * Obtainable from {@link CustomerInfo.activeSubscriptions} or
    * {@link CustomerInfo.subscriptionsByProductIdentifier} via
    * {@link Purchases.getCustomerInfo}.
    *
    * When omitted, the source will be inferred on the assumption that the app
-   * user has exactly one active Web Billing subscription.
+   * user has exactly one active subscription.
    * However if it is possible for an app user to multiple
-   * active Web Billing subscriptions then either this field or
+   * active subscriptions then either this field or
    * {@link subscriptionId} is required.
    * If both are provided, they must refer to the same subscription.
    */
@@ -45,7 +45,7 @@ export interface ProductChangeInfo {
 }
 
 /**
- * Outcome of confirming a RevenueCat Billing product change.
+ * Outcome of confirming a subscription product change.
  * @internal
  */
 export interface ProductChangeResult {

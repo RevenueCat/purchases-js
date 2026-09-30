@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Подтвердить оплату",
   "upgrade_product_info.tax_estimated": "Налог (предполагаемый)",
   "upgrade_confirm_page.subtitle_deferred": "Проверьте данные платежа и запланируйте изменение",
-  "upgrade_confirm_page.confirm_schedule": "Подтвердить расписание",
+  "upgrade_confirm_page.confirm_schedule": "Запланировать изменение",
   "upgrade_confirm_page.on_file": "Сохранено",
   "credit_for_unused_time.title": "Зачет за неиспользованное время",
   "credit_for_unused_time.message": "Любое неиспользованное время вашей текущей подписки будет вычтено из вашей покупки.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "вкл. налог",
   "paddle_order_summary.due_on": "К оплате {{date}}",
   "payment_entry_page.payment_method_error": "Мы не смогли использовать этот способ оплаты. Проверьте свои данные или попробуйте другой способ оплаты.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Этот тип карты не принимается. Попробуйте другую карту."
+  "payment_entry_page.payment_method_error_card_not_supported": "Этот тип карты не принимается. Попробуйте другую карту.",
+  "deferred_subscription_change.message": "Ваше изменение на {{productName}} вступит в силу в конце текущего платежного цикла. До этого момента вы продолжите иметь доступ к функциям {{previousProductName}}. После этого любые функции, не включенные в {{productName}}, станут недоступны.",
+  "deferred_subscription_change.title": "Изменение вступит в силу при следующем продлении"
 }

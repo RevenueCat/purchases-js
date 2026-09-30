@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Xác nhận thanh toán",
   "upgrade_product_info.tax_estimated": "Thuế (ước tính)",
   "upgrade_confirm_page.subtitle_deferred": "Xem lại chi tiết thanh toán của bạn và lên lịch thay đổi",
-  "upgrade_confirm_page.confirm_schedule": "Xác nhận lịch trình",
+  "upgrade_confirm_page.confirm_schedule": "Đặt lịch thay đổi",
   "upgrade_confirm_page.on_file": "Đã lưu",
   "credit_for_unused_time.title": "Hoàn tiền cho thời gian chưa sử dụng",
   "credit_for_unused_time.message": "Thời gian chưa sử dụng còn lại trên gói đăng ký hiện tại của bạn sẽ được khấu trừ vào lần mua hàng này.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "đã gồm thuế",
   "paddle_order_summary.due_on": "Đến hạn ngày {{date}}",
   "payment_entry_page.payment_method_error": "Chúng tôi không thể sử dụng phương thức thanh toán này. Vui lòng kiểm tra lại thông tin chi tiết hoặc thử một phương thức thanh toán khác.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Loại thẻ này không được chấp nhận. Vui lòng thử một thẻ khác."
+  "payment_entry_page.payment_method_error_card_not_supported": "Loại thẻ này không được chấp nhận. Vui lòng thử một thẻ khác.",
+  "deferred_subscription_change.message": "Thay đổi của bạn sang {{productName}} sẽ có hiệu lực vào cuối chu kỳ thanh toán hiện tại của bạn. Cho đến lúc đó, bạn sẽ tiếp tục có quyền truy cập vào các tính năng của {{previousProductName}}. Sau đó, mọi tính năng không đi kèm với {{productName}} sẽ không còn khả dụng.",
+  "deferred_subscription_change.title": "Thay đổi có hiệu lực vào lần gia hạn tiếp theo"
 }

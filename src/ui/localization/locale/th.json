@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "ยืนยันการชำระเงิน",
   "upgrade_product_info.tax_estimated": "ภาษี (โดยประมาณ)",
   "upgrade_confirm_page.subtitle_deferred": "ตรวจสอบรายละเอียดการชำระเงินของคุณและกำหนดเวลาการเปลี่ยนแปลง",
-  "upgrade_confirm_page.confirm_schedule": "ยืนยันกำหนดการ",
+  "upgrade_confirm_page.confirm_schedule": "กำหนดเวลาการเปลี่ยนแปลง",
   "upgrade_confirm_page.on_file": "ในระบบ",
   "credit_for_unused_time.title": "เครดิตสำหรับเวลาที่ไม่ได้ใช้",
   "credit_for_unused_time.message": "เวลาที่ยังไม่ได้ใช้จากการสมัครสมาชิกเดิมของคุณจะถูกนำมาหักลดจากการซื้อของคุณ",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "รวมภาษี",
   "paddle_order_summary.due_on": "ครบกำหนดวันที่ {{date}}",
   "payment_entry_page.payment_method_error": "เราไม่สามารถใช้วิธีการชำระเงินนี้ได้ โปรดตรวจสอบรายละเอียดของคุณหรือลองใช้วิธีการชำระเงินอื่น",
-  "payment_entry_page.payment_method_error_card_not_supported": "ไม่รองรับบัตรประเภทนี้ โปรดลองใช้บัตรอื่น"
+  "payment_entry_page.payment_method_error_card_not_supported": "ไม่รองรับบัตรประเภทนี้ โปรดลองใช้บัตรอื่น",
+  "deferred_subscription_change.message": "การเปลี่ยนแปลงของคุณเป็น {{productName}} จะมีผลเมื่อสิ้นสุดรอบบิลปัจจุบันของคุณ จนกว่าจะถึงตอนนั้น คุณจะยังคงเข้าถึงฟีเจอร์ของ {{previousProductName}} ได้ หลังจากนั้น ฟีเจอร์ใดๆ ที่ไม่รวมอยู่ใน {{productName}} จะไม่สามารถใช้งานได้อีกต่อไป",
+  "deferred_subscription_change.title": "การเปลี่ยนแปลงจะมีผลเมื่อถึงการต่ออายุครั้งถัดไป"
 }

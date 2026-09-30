@@ -43,7 +43,7 @@ export interface PurchaseResult {
   readonly attributionMetadata?: PurchaseResponseAttributionMetadata;
 
   /**
-   * Only present if the purchase was a RevenueCat Billing product change
+   * Only present if the purchase was a subscription product change
    * ({@link PurchaseParams.productChangeInfo}).
    * @internal
    */

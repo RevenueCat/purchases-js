@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Potvrdite plaćanje",
   "upgrade_product_info.tax_estimated": "Porez (procijenjeno)",
   "upgrade_confirm_page.subtitle_deferred": "Pregledajte detalje plaćanja i promjenu rasporeda",
-  "upgrade_confirm_page.confirm_schedule": "Potvrdite raspored",
+  "upgrade_confirm_page.confirm_schedule": "Zakaži promjenu",
   "upgrade_confirm_page.on_file": "U evidenciji",
   "credit_for_unused_time.title": "Kredit za neiskorišteno vrijeme",
   "credit_for_unused_time.message": "Svako neiskorišteno vrijeme na vašoj postojećoj pretplati bit će odbijeno od vaše kupnje.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "uklj. porez",
   "paddle_order_summary.due_on": "Dospijeva {{date}}",
   "payment_entry_page.payment_method_error": "Nismo mogli koristiti ovaj način plaćanja. Provjerite svoje podatke ili pokušajte s drugim načinom plaćanja.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Ova vrsta kartice nije prihvaćena. Pokušajte s drugom karticom."
+  "payment_entry_page.payment_method_error_card_not_supported": "Ova vrsta kartice nije prihvaćena. Pokušajte s drugom karticom.",
+  "deferred_subscription_change.message": "Vaša promjena na {{productName}} stupa na snagu na kraju vašeg trenutačnog obračunskog ciklusa. Do tada ćete i dalje imati pristup značajkama {{previousProductName}}. Nakon toga, sve značajke koje nisu uključene u {{productName}} više neće biti dostupne.",
+  "deferred_subscription_change.title": "Promjena stupa na snagu pri sljedećoj obnovi"
 }

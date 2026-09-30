@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Potvrdiť platbu",
   "upgrade_product_info.tax_estimated": "Daň (odhadovaná)",
   "upgrade_confirm_page.subtitle_deferred": "Skontrolujte svoje platobné údaje a naplánujte zmenu",
-  "upgrade_confirm_page.confirm_schedule": "Potvrdiť plán",
+  "upgrade_confirm_page.confirm_schedule": "Naplánovať zmenu",
   "upgrade_confirm_page.on_file": "Uložené",
   "credit_for_unused_time.title": "Kredit za nevyužitý čas",
   "credit_for_unused_time.message": "Akýkoľvek nevyužitý čas z vášho existujúceho predplatného bude odpočítaný z vášho nákupu.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "vr. dane",
   "paddle_order_summary.due_on": "Splatné {{date}}",
   "payment_entry_page.payment_method_error": "Túto platobnú metódu sa nám nepodarilo použiť. Skontrolujte svoje údaje alebo skúste inú platobnú metódu.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Tento typ karty nie je akceptovaný. Skúste inú kartu."
+  "payment_entry_page.payment_method_error_card_not_supported": "Tento typ karty nie je akceptovaný. Skúste inú kartu.",
+  "deferred_subscription_change.message": "Vaša zmena na {{productName}} nadobudne účinnosť na konci vášho aktuálneho fakturačného cyklu. Dovtedy budete mať naďalej prístup k funkciám {{previousProductName}}. Potom už nebudú dostupné žiadne funkcie, ktoré nie sú zahrnuté v {{productName}}.",
+  "deferred_subscription_change.title": "Zmena nadobudne účinnosť pri ďalšom obnovení"
 }
