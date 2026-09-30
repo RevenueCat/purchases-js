@@ -1,3 +1,8 @@
+## 1.67.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix(vega): update vega peer dependency ranges (#1207) via Will Taylor (@fire-at-will)
+
 ## 1.67.0
 ## RevenueCat SDK
 ### ✨ New Features
