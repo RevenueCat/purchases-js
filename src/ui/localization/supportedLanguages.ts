@@ -157,6 +157,8 @@ export enum LocalizationKeys {
   RefundForUnusedTimeMessage = "refund_for_unused_time.message",
   CreditForUnusedTimeTitle = "credit_for_unused_time.title",
   CreditForUnusedTimeMessage = "credit_for_unused_time.message",
+  DeferredSubscriptionChangeTitle = "deferred_subscription_change.title",
+  DeferredSubscriptionChangeMessage = "deferred_subscription_change.message",
   UpgradeConfirmPageTitle = "upgrade_confirm_page.title",
   UpgradeConfirmPageSubtitleImmediate = "upgrade_confirm_page.subtitle_immediate",
   UpgradeConfirmPageSubtitleDeferred = "upgrade_confirm_page.subtitle_deferred",

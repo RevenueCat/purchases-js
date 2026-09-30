@@ -121,6 +121,14 @@
 />
 
 <Story
+  name="Stripe App Deferred With Tax"
+  args={{
+    startData: subscriptionChangeDeferredWithTax,
+    useStripeCheckout: true,
+  }}
+/>
+
+<Story
   name="Immediate Minimal"
   args={{ startData: subscriptionChangeImmediateMinimal }}
 />

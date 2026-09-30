@@ -265,10 +265,9 @@ export class LocaleTranslations {
   ): string {
     return Object.entries(variables).reduce(
       (acc, [key, value]) =>
-        acc.replace(
-          `{{${key}}}`,
-          `${value === undefined || value === null ? "" : value}`,
-        ),
+        acc
+          .split(`{{${key}}}`)
+          .join(`${value === undefined || value === null ? "" : value}`),
       label,
     );
   }

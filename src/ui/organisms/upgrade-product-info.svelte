@@ -14,7 +14,7 @@
   import { formatPriceWithPeriod } from "../../helpers/price-labels";
   import PricingTable from "../molecules/pricing-table.svelte";
   import PlanCard from "../molecules/plan-card.svelte";
-  import UnusedTimeAdjustment from "../molecules/unused-time-adjustment.svelte";
+  import SubscriptionChangeNotice from "../molecules/subscription-change-notice.svelte";
   import Typography from "../atoms/typography.svelte";
 
   interface Props {
@@ -122,7 +122,11 @@
       : null,
   );
 
-  const showRefundBlock = $derived(startData.change_type === "immediate");
+  const noticeVariant = $derived(
+    startData.change_type === "deferred"
+      ? "deferred"
+      : unusedTimeAdjustmentVariant,
+  );
 </script>
 
 <div class="rcb-pricing-info">
@@ -158,14 +162,13 @@
     />
   </div>
 
-  {#if showRefundBlock}
-    <div class="rcb-upgrade-refund">
-      <UnusedTimeAdjustment
-        previousProductName={fromTitle}
-        variant={unusedTimeAdjustmentVariant}
-      />
-    </div>
-  {/if}
+  <div class="rcb-upgrade-notice">
+    <SubscriptionChangeNotice
+      previousProductName={fromTitle}
+      productName={toTitle}
+      variant={noticeVariant}
+    />
+  </div>
 </div>
 
 <style>
@@ -179,7 +182,7 @@
     margin-top: 48px;
   }
 
-  .rcb-upgrade-refund {
+  .rcb-upgrade-notice {
     margin-top: 32px;
   }
 
