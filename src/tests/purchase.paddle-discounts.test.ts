@@ -13,6 +13,8 @@ vi.mock("@paddle/paddle-js", () => ({
   CheckoutEventNames: {
     CHECKOUT_LOADED: "checkout.loaded",
     CHECKOUT_UPDATED: "checkout.updated",
+    CHECKOUT_DISCOUNT_APPLIED: "checkout.discount.applied",
+    CHECKOUT_DISCOUNT_REMOVED: "checkout.discount.removed",
     CHECKOUT_COMPLETED: "checkout.completed",
     CHECKOUT_CLOSED: "checkout.closed",
   },
@@ -144,7 +146,9 @@ describe("Purchases.applyPaddleDiscountsToOffering", () => {
       $rc_monthly: "dsc_01test",
     });
 
-    expect(result.packagesById["$rc_monthly"].product.discountPhase).toBeNull();
+    expect(
+      result.packagesById["$rc_monthly"].webBillingProduct.discountPhase,
+    ).toBeNull();
   });
 
   test("returns the offering untouched when Paddle cannot be initialized", async () => {
