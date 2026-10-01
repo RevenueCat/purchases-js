@@ -949,7 +949,7 @@ describe("getOfferings placements", () => {
       "test_store_api_key",
     );
     const offerings = await purchases.getOfferings();
-    const product = offerings.current?.availablePackages[0].webBillingProduct;
+    const product = offerings.current?.availablePackages[0].product;
 
     await purchases._postSimulatedStoreReceipt(product!);
     await purchases.getOfferings();

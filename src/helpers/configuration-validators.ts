@@ -1,6 +1,7 @@
 import { ErrorCode, PurchasesError } from "../entities/errors";
 import { SDK_HEADERS } from "../networking/http-client";
 import {
+  isAmazonApiKey,
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
@@ -12,12 +13,13 @@ export function validateApiKey(apiKey: string) {
     isWebBillingApiKey(apiKey) ||
     isSimulatedStoreApiKey(apiKey) ||
     isPaddleApiKey(apiKey) ||
-    isStripeApiKey(apiKey);
+    isStripeApiKey(apiKey) ||
+    isAmazonApiKey(apiKey);
 
   if (!isValidApiKey) {
     throw new PurchasesError(
       ErrorCode.InvalidCredentialsError,
-      "Invalid API key. Use your Web Billing API key.",
+      "Invalid API key. Use a valid API key obtained from the RevenueCat Dashboard.",
     );
   }
 }

@@ -47,6 +47,16 @@ pnpm install
 pnpm run build:dev
 ```
 
+For automatic rebuilds of the web entry point during development, run:
+
+```bash
+pnpm run build:dev-watch
+```
+
+`build:dev-watch` is web-only. It preserves the Vega artifacts produced by
+`build:dev`, but does not rebuild them; rerun `pnpm run build:dev` after
+changing code used by the Vega entry point.
+
 To avoid publishing the package you can use pnpm's link feature:
 
 1. In the purchases-js directory, register the package:
@@ -155,7 +165,7 @@ Please check the Demo app readme [here](./examples/webbilling-demo/README.md#e2e
 pnpm run extract-api
 ```
 
-This will update the files in `api-report` with the latest public API.
+This will update the files in `api-report` and `vega/api-report` with the latest public API for both packages.
 If it has uncommitted changes, CI tests will fail. Run this command and commit the changes if
 they are expected.
 
