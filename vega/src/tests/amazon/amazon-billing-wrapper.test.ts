@@ -715,7 +715,6 @@ describe("AmazonBillingWrapper", () => {
       "maps response code %s with null product data to a PurchasesError",
       async (responseCode, errorCode, message) => {
         const debugLog = vi.spyOn(Logger, "debugLog");
-        // Amazon's SDK returns null on failure despite its non-nullable typings.
         const response = {
           productData: null,
           responseCode,
