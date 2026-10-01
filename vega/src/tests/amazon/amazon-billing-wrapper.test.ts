@@ -701,6 +701,33 @@ describe("AmazonBillingWrapper", () => {
   });
 
   describe("product data response errors", () => {
+    test.each([
+      [ProductDataResponseCode.NOT_SUPPORTED, ErrorCode.UnsupportedError],
+      [ProductDataResponseCode.FAILED, ErrorCode.StoreProblemError],
+    ])(
+      "maps response code %s with null product data to a PurchasesError",
+      async (responseCode, errorCode) => {
+        const debugLog = vi.spyOn(Logger, "debugLog");
+        // Amazon's SDK returns null on failure despite its non-nullable typings.
+        const response = {
+          productData: null,
+          responseCode,
+          unavailableSkus: null,
+        } as unknown as ProductDataResponse;
+
+        await expect(getProducts(response)).rejects.toMatchObject({
+          errorCode,
+        });
+        expect(debugLog).toHaveBeenCalledWith(
+          `Amazon product data response: ${JSON.stringify({
+            responseCode,
+            returnedSkus: null,
+            unavailableSkus: null,
+          })}`,
+        );
+      },
+    );
+
     test("maps an unsupported response to an unsupported error", async () => {
       await expect(
         getProducts(responseForCode(ProductDataResponseCode.NOT_SUPPORTED)),
