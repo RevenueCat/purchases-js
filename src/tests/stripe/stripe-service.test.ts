@@ -666,6 +666,40 @@ describe("StripeService", () => {
         translator,
       });
 
+    const makeImmediatePaidIntroOption = (): SubscriptionOption => {
+      const basePrice = {
+        amount: 4_999,
+        amountMicros: 49_990_000,
+        currency: "USD",
+        formattedPrice: "$49.99",
+      };
+      const introPrice = {
+        amount: 499,
+        amountMicros: 4_990_000,
+        currency: "USD",
+        formattedPrice: "$4.99",
+      };
+      return {
+        ...subscriptionOption,
+        base: {
+          ...subscriptionOption.base,
+          price: basePrice,
+        },
+        introPrice: {
+          periodDuration: "P3D",
+          period: {
+            number: 3,
+            unit: PeriodUnit.Day,
+          },
+          cycleCount: 1,
+          price: introPrice,
+          pricePerWeek: introPrice,
+          pricePerMonth: null,
+          pricePerYear: null,
+        },
+      };
+    };
+
     test("subscription with trial: no line items, free trial in Apple Pay", () => {
       const subscriptionOptionForTrial =
         trialProduct.subscriptionOptions.option_id_1;
@@ -705,38 +739,8 @@ describe("StripeService", () => {
       });
     });
 
-    test("subscription with a paid-once weekly intro omits the recurring interval", () => {
-      const basePrice = {
-        amount: 4_999,
-        amountMicros: 49_990_000,
-        currency: "USD",
-        formattedPrice: "$49.99",
-      };
-      const introPrice = {
-        amount: 499,
-        amountMicros: 4_990_000,
-        currency: "USD",
-        formattedPrice: "$4.99",
-      };
-      const paidIntroOption: SubscriptionOption = {
-        ...subscriptionOption,
-        base: {
-          ...subscriptionOption.base,
-          price: basePrice,
-        },
-        introPrice: {
-          periodDuration: "P1W",
-          period: {
-            number: 1,
-            unit: PeriodUnit.Week,
-          },
-          cycleCount: 1,
-          price: introPrice,
-          pricePerWeek: introPrice,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
-      };
+    test("subscription with an immediate paid-once intro omits trial billing", () => {
+      const paidIntroOption = makeImmediatePaidIntroOption();
       const breakdown = makeBreakdown(4_990_000);
 
       const result =
@@ -751,23 +755,65 @@ describe("StripeService", () => {
 
       expect(result).toStrictEqual({
         layout: baseLayout,
+        lineItems: [{ name: "Introductory Offer", amount: 499 }],
         applePay: {
           recurringPaymentRequest: {
             paymentDescription: product.title,
             managementURL: managementUrl,
-            trialBilling: {
-              amount: 499,
-              label: product.title,
-            },
             regularBilling: {
               amount: 4_999,
               label: product.title,
-              recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentStartDate: new Date(2025, 0, 4),
               recurringPaymentIntervalUnit: "month",
               recurringPaymentIntervalCount: 1,
             },
           },
         },
+      });
+      expectLineItemsBalance(result.lineItems, 499);
+    });
+
+    test("subscription with an immediate paid-once intro and applied discount balances line items", () => {
+      const paidIntroOption = makeImmediatePaidIntroOption();
+      const breakdown: PriceBreakdown = {
+        ...makeBreakdown(4_000_000),
+        originalAmountInMicros: 4_990_000,
+        appliedDiscounts: [
+          {
+            identifier: "save20",
+            displayName: "SAVE20",
+            discountedAmountInMicros: 990_000,
+            percentage: 20,
+            discountCode: "SAVE20",
+          },
+        ],
+      };
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          paidIntroOption,
+          translator,
+          managementUrl,
+          resolveDiscount(breakdown, product, paidIntroOption),
+        );
+
+      expect(result.lineItems).toStrictEqual([
+        { name: "Introductory Offer", amount: 499 },
+        { name: "SAVE20 (20% off)", amount: -99 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 400);
+      expect(
+        result.applePay?.recurringPaymentRequest.trialBilling,
+      ).toBeUndefined();
+      expect(
+        result.applePay?.recurringPaymentRequest.regularBilling,
+      ).toMatchObject({
+        amount: 4_999,
+        recurringPaymentStartDate: new Date(2025, 0, 4),
+        recurringPaymentIntervalUnit: "month",
+        recurringPaymentIntervalCount: 1,
       });
     });
 
@@ -794,8 +840,9 @@ describe("StripeService", () => {
             managementURL: managementUrl,
             trialBilling: {
               amount: 149,
-              label: product.title,
+              label: "Introductory Offer",
               recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentEndDate: new Date(2025, 0, 15),
             },
             regularBilling: {
               amount: 990,
@@ -831,6 +878,7 @@ describe("StripeService", () => {
           recurringPaymentRequest: {
             trialBilling: {
               amount: 349,
+              label: "Introductory Offer",
               recurringPaymentEndDate: new Date(2025, 2, 1),
               recurringPaymentIntervalUnit: "month",
               recurringPaymentIntervalCount: 1,
@@ -842,6 +890,7 @@ describe("StripeService", () => {
           },
         },
       });
+      expect(result.lineItems).toBeUndefined();
     });
 
     test("subscription with a monthly intro uses the last day of the month for the regular billing start", () => {
@@ -900,7 +949,7 @@ describe("StripeService", () => {
 
       expect(recurringRequest.trialBilling).toStrictEqual({
         amount: 349,
-        label: product.title,
+        label: "Introductory Offer",
       });
       expect(recurringRequest.regularBilling).toMatchObject({
         amount: 990,
@@ -957,7 +1006,7 @@ describe("StripeService", () => {
           recurringPaymentRequest: {
             trialBilling: {
               amount: 349,
-              label: product.title,
+              label: "Introductory Offer",
               recurringPaymentStartDate: new Date(2025, 0, 8),
               recurringPaymentEndDate: new Date(2025, 2, 8),
               recurringPaymentIntervalUnit: "month",
