@@ -804,12 +804,12 @@ describe("StripeService", () => {
         { name: "SAVE20 (20% off)", amount: -99 },
       ]);
       expectLineItemsBalance(result.lineItems, 400);
-      expect(
-        result.applePay?.recurringPaymentRequest.trialBilling,
-      ).toBeUndefined();
-      expect(
-        result.applePay?.recurringPaymentRequest.regularBilling,
-      ).toMatchObject({
+      const recurringRequest = result.applePay?.recurringPaymentRequest;
+      if (!recurringRequest) {
+        throw new Error("Expected an Apple Pay recurring payment request");
+      }
+      expect(recurringRequest.trialBilling).toBeUndefined();
+      expect(recurringRequest.regularBilling).toMatchObject({
         amount: 4_999,
         recurringPaymentStartDate: new Date(2025, 0, 4),
         recurringPaymentIntervalUnit: "month",
