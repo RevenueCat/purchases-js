@@ -74,8 +74,7 @@ vi.mock("@amazon-devices/kepler-compatibility", () => ({
 }));
 import { AmazonBillingWrapper } from "../../amazon/amazon-billing-wrapper";
 import { VegaDeviceCache } from "../../amazon/vega-device-cache";
-import { ErrorCode } from "../../../../src/entities/errors";
-import type { PurchasesError } from "../../../../src/entities/errors";
+import { ErrorCode, PurchasesError } from "../../../../src/entities/errors";
 import { Logger } from "../../../../src/helpers/logger";
 import type { Backend } from "../../../../src/networking/backend";
 import { customerInfoResponse } from "../../../../src/tests/test-responses";
@@ -702,11 +701,19 @@ describe("AmazonBillingWrapper", () => {
 
   describe("product data response errors", () => {
     test.each([
-      [ProductDataResponseCode.NOT_SUPPORTED, ErrorCode.UnsupportedError],
-      [ProductDataResponseCode.FAILED, ErrorCode.StoreProblemError],
+      [
+        ProductDataResponseCode.NOT_SUPPORTED,
+        ErrorCode.UnsupportedError,
+        "Couldn't fetch product data, since it is unsupported.",
+      ],
+      [
+        ProductDataResponseCode.FAILED,
+        ErrorCode.StoreProblemError,
+        "An error occurred when fetching product data.",
+      ],
     ])(
       "maps response code %s with null product data to a PurchasesError",
-      async (responseCode, errorCode) => {
+      async (responseCode, errorCode, message) => {
         const debugLog = vi.spyOn(Logger, "debugLog");
         // Amazon's SDK returns null on failure despite its non-nullable typings.
         const response = {
@@ -715,9 +722,14 @@ describe("AmazonBillingWrapper", () => {
           unavailableSkus: null,
         } as unknown as ProductDataResponse;
 
-        await expect(getProducts(response)).rejects.toMatchObject({
+        const result = getProducts(response);
+        await expect(result).rejects.toBeInstanceOf(PurchasesError);
+        await expect(result).rejects.toMatchObject({
           errorCode,
-        });
+          message,
+          underlyingErrorMessage: undefined,
+          extra: undefined,
+        } satisfies Partial<PurchasesError>);
         expect(debugLog).toHaveBeenCalledWith(
           `Amazon product data response: ${JSON.stringify({
             responseCode,
@@ -1222,6 +1234,63 @@ describe("AmazonBillingWrapper", () => {
       },
     );
 
+    test.each([
+      [
+        "syncPurchases",
+        PurchaseUpdatesResponseCode.NOT_SUPPORTED,
+        ErrorCode.UnsupportedError,
+        "Syncing purchases is not supported.",
+      ],
+      [
+        "restorePurchases",
+        PurchaseUpdatesResponseCode.NOT_SUPPORTED,
+        ErrorCode.UnsupportedError,
+        "Restoring purchases is not supported.",
+      ],
+      [
+        "syncPurchases",
+        PurchaseUpdatesResponseCode.FAILED,
+        ErrorCode.StoreProblemError,
+        "Syncing purchases with the Amazon Store failed.",
+      ],
+      [
+        "restorePurchases",
+        PurchaseUpdatesResponseCode.FAILED,
+        ErrorCode.StoreProblemError,
+        "Restoring purchases with the Amazon Store failed.",
+      ],
+    ] as const)(
+      "%s maps response code %s with null purchase updates to a PurchasesError",
+      async (method, responseCode, errorCode, message) => {
+        const backend = createBackend();
+        // Match Amazon's runtime failure payload, including nullable fields.
+        getPurchaseUpdates.mockResolvedValue({
+          responseCode,
+          receiptList: null,
+          userData: null,
+          hasMore: null,
+        });
+
+        const result = new AmazonBillingWrapper(
+          backend,
+          amazonApiKey,
+          getNoAppUserId,
+          getIsNotAnonymous,
+        )[method]("app-user-id");
+        await expect(result).rejects.toBeInstanceOf(PurchasesError);
+        await expect(result).rejects.toMatchObject({
+          errorCode,
+          message,
+          underlyingErrorMessage: undefined,
+          extra: undefined,
+        } satisfies Partial<PurchasesError>);
+
+        expect(backend.postReceipt).not.toHaveBeenCalled();
+        expect(backend.getCustomerInfo).not.toHaveBeenCalled();
+        expect(notifyFulfillment).not.toHaveBeenCalled();
+      },
+    );
+
     test.each(["syncPurchases", "restorePurchases"] as const)(
       "%s wraps an error thrown by Amazon in a PurchasesError",
       async (method) => {
@@ -1482,6 +1551,57 @@ describe("AmazonBillingWrapper", () => {
           ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId),
         ).rejects.toMatchObject({ errorCode, message });
 
+        expect(backend.postReceipt).not.toHaveBeenCalled();
+        expect(notifyFulfillment).not.toHaveBeenCalled();
+      },
+    );
+
+    test.each([
+      [
+        PurchaseResponseCode.ALREADY_PURCHASED,
+        ErrorCode.ProductAlreadyPurchasedError,
+        "Product already purchased",
+      ],
+      [
+        PurchaseResponseCode.INVALID_SKU,
+        ErrorCode.ProductNotAvailableForPurchaseError,
+        "Invalid SKU: monthly",
+      ],
+      [
+        PurchaseResponseCode.NOT_SUPPORTED,
+        ErrorCode.PurchaseNotAllowedError,
+        "Purchase not supported",
+      ],
+      [
+        PurchaseResponseCode.FAILED,
+        ErrorCode.UserCancelledError,
+        "Amazon purchase failed",
+      ],
+    ] as const)(
+      "maps Amazon purchase response code %s with null receipt and user data to a PurchasesError",
+      async (responseCode, errorCode, message) => {
+        const backend = createBackend();
+        const response = { responseCode, receipt: null, userData: null };
+        const debugLog = vi.spyOn(Logger, "debugLog");
+        purchase.mockResolvedValue(response);
+
+        const result = new AmazonBillingWrapper(
+          backend,
+          amazonApiKey,
+          getNoAppUserId,
+          getIsNotAnonymous,
+        ).purchase({ rcPackage: createMonthlyPackageMock() }, appUserId);
+        await expect(result).rejects.toBeInstanceOf(PurchasesError);
+        await expect(result).rejects.toMatchObject({
+          errorCode,
+          message,
+          underlyingErrorMessage: undefined,
+          extra: undefined,
+        } satisfies Partial<PurchasesError>);
+
+        expect(debugLog).toHaveBeenCalledWith(
+          `Amazon purchase response: ${JSON.stringify(response)}`,
+        );
         expect(backend.postReceipt).not.toHaveBeenCalled();
         expect(notifyFulfillment).not.toHaveBeenCalled();
       },
