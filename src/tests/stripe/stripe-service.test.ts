@@ -705,7 +705,7 @@ describe("StripeService", () => {
       });
     });
 
-    test("subscription with a paid-once weekly intro omits its non-future end date", () => {
+    test("subscription with a paid-once weekly intro omits the recurring interval", () => {
       const basePrice = {
         amount: 4_999,
         amountMicros: 49_990_000,
@@ -758,8 +758,6 @@ describe("StripeService", () => {
             trialBilling: {
               amount: 499,
               label: product.title,
-              recurringPaymentIntervalUnit: "day",
-              recurringPaymentIntervalCount: 7,
             },
             regularBilling: {
               amount: 4_999,
@@ -773,7 +771,7 @@ describe("StripeService", () => {
       });
     });
 
-    test("subscription with a trial and single-cycle intro omits an end date equal to its start date", () => {
+    test("subscription with a trial and single-cycle intro keeps its start date but no interval", () => {
       const result =
         StripeService.buildStripeExpressCheckoutOptionsForSubscription(
           product,
@@ -798,8 +796,6 @@ describe("StripeService", () => {
               amount: 149,
               label: product.title,
               recurringPaymentStartDate: new Date(2025, 0, 8),
-              recurringPaymentIntervalUnit: "day",
-              recurringPaymentIntervalCount: 7,
             },
             regularBilling: {
               amount: 990,

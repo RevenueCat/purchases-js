@@ -544,15 +544,23 @@ export class StripeService {
         return baseBillingInfo;
       }
 
-      // Cycle length and number of cycles for the introductory period.
-      const recurringPaymentIntervalUnitAndCount = StripeService.applePayPeriod(
-        introPricePhase.period,
-      );
-
       // Start date of the introductory period. In case of an initial trial it will be at the end of that trial.
       const recurringPaymentStartDate = introBillingStartDate
         ? { recurringPaymentStartDate: introBillingStartDate }
         : {};
+
+      // An intro charged once has no repeating interval to describe. Sending one
+      // anyway makes Apple render an open-ended cadence ("$0.99 every 3 days"),
+      // since the bounding end date would equal the start date and Stripe only
+      // accepts an end date strictly in the future.
+      if (introCycleCount === 1) {
+        return { ...baseBillingInfo, ...recurringPaymentStartDate };
+      }
+
+      // Cycle length and number of cycles for the introductory period.
+      const recurringPaymentIntervalUnitAndCount = StripeService.applePayPeriod(
+        introPricePhase.period,
+      );
 
       // Date of the final introductory payment. Stripe only accepts this field
       // when it is strictly in the future and after the first payment date.
