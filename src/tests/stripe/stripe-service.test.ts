@@ -666,7 +666,7 @@ describe("StripeService", () => {
         translator,
       });
 
-    const makeImmediatePaidIntroOption = (): SubscriptionOption => {
+    const makeImmediateSingleCycleIntroOption = (): SubscriptionOption => {
       const basePrice = {
         amount: 4_999,
         amountMicros: 49_990_000,
@@ -739,8 +739,8 @@ describe("StripeService", () => {
       });
     });
 
-    test("subscription with an immediate paid-once intro omits trial billing", () => {
-      const paidIntroOption = makeImmediatePaidIntroOption();
+    test("subscription with an immediate single-cycle intro omits trial billing", () => {
+      const paidIntroOption = makeImmediateSingleCycleIntroOption();
       const breakdown = makeBreakdown(4_990_000);
 
       const result =
@@ -755,7 +755,6 @@ describe("StripeService", () => {
 
       expect(result).toStrictEqual({
         layout: baseLayout,
-        lineItems: [{ name: "Introductory Offer", amount: 499 }],
         applePay: {
           recurringPaymentRequest: {
             paymentDescription: product.title,
@@ -770,11 +769,10 @@ describe("StripeService", () => {
           },
         },
       });
-      expectLineItemsBalance(result.lineItems, 499);
     });
 
-    test("subscription with an immediate paid-once intro and applied discount balances line items", () => {
-      const paidIntroOption = makeImmediatePaidIntroOption();
+    test("subscription with an immediate single-cycle intro and applied discount balances line items", () => {
+      const paidIntroOption = makeImmediateSingleCycleIntroOption();
       const breakdown: PriceBreakdown = {
         ...makeBreakdown(4_000_000),
         originalAmountInMicros: 4_990_000,
@@ -800,7 +798,7 @@ describe("StripeService", () => {
         );
 
       expect(result.lineItems).toStrictEqual([
-        { name: "Introductory Offer", amount: 499 },
+        { name: product.title, amount: 499 },
         { name: "SAVE20 (20% off)", amount: -99 },
       ]);
       expectLineItemsBalance(result.lineItems, 400);
@@ -817,7 +815,7 @@ describe("StripeService", () => {
       });
     });
 
-    test("subscription with a trial and single-cycle intro keeps its start date but no interval", () => {
+    test("subscription with a trial and single-cycle intro omits an end date equal to its start date", () => {
       const result =
         StripeService.buildStripeExpressCheckoutOptionsForSubscription(
           product,
@@ -840,9 +838,10 @@ describe("StripeService", () => {
             managementURL: managementUrl,
             trialBilling: {
               amount: 149,
-              label: "Introductory Offer",
+              label: product.title,
               recurringPaymentStartDate: new Date(2025, 0, 8),
-              recurringPaymentEndDate: new Date(2025, 0, 15),
+              recurringPaymentIntervalUnit: "day",
+              recurringPaymentIntervalCount: 7,
             },
             regularBilling: {
               amount: 990,
@@ -878,7 +877,7 @@ describe("StripeService", () => {
           recurringPaymentRequest: {
             trialBilling: {
               amount: 349,
-              label: "Introductory Offer",
+              label: product.title,
               recurringPaymentEndDate: new Date(2025, 2, 1),
               recurringPaymentIntervalUnit: "month",
               recurringPaymentIntervalCount: 1,
@@ -949,7 +948,7 @@ describe("StripeService", () => {
 
       expect(recurringRequest.trialBilling).toStrictEqual({
         amount: 349,
-        label: "Introductory Offer",
+        label: product.title,
       });
       expect(recurringRequest.regularBilling).toMatchObject({
         amount: 990,
@@ -1006,7 +1005,7 @@ describe("StripeService", () => {
           recurringPaymentRequest: {
             trialBilling: {
               amount: 349,
-              label: "Introductory Offer",
+              label: product.title,
               recurringPaymentStartDate: new Date(2025, 0, 8),
               recurringPaymentEndDate: new Date(2025, 2, 8),
               recurringPaymentIntervalUnit: "month",

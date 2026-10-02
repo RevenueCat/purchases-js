@@ -35,8 +35,6 @@ import type { PriceBreakdown } from "../ui/ui-types";
 import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
 import type { ApplePayRegularBilling } from "@stripe/stripe-js/dist/stripe-js/elements/apple-pay";
 
-export const APPLE_PAY_INTRODUCTORY_PRICE_LABEL = "Introductory Offer";
-
 export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
   HandledFormError = 1,
@@ -518,6 +516,7 @@ export class StripeService {
   }
 
   private static buildApplePayTrialBilling(
+    productTitle: string,
     translator: Translator,
     trialPhase: PricingPhase | null,
     introPricePhase: PricingPhase | null,
@@ -541,7 +540,7 @@ export class StripeService {
       }
 
       const baseBillingInfo: ApplePayRegularBilling = {
-        label: APPLE_PAY_INTRODUCTORY_PRICE_LABEL,
+        label: productTitle,
         amount: StripeService.microsToMinimumAmountPrice(
           introPricePhase.price.amountMicros,
           introPricePhase.price.currency,
@@ -552,37 +551,15 @@ export class StripeService {
         return baseBillingInfo;
       }
 
-      // Start date of the introductory period. In case of an initial trial it will be at the end of that trial.
-      const recurringPaymentStartDate = introBillingStartDate
-        ? { recurringPaymentStartDate: introBillingStartDate }
-        : {};
-
-      // A single-charge intro has a bounded term but no repeating cadence.
-      // Supplying the term end prevents Apple from inheriting the regular
-      // billing cadence (for example, rendering "$0.99 per month").
-      if (introCycleCount === 1) {
-        const introTermStartDate = new Date(
-          introBillingStartDate ?? currentDate,
-        );
-        const introTermEndDate = StripeService.nextDateForPeriod(
-          introPricePhase.period,
-          introTermStartDate,
-        );
-        const recurringPaymentEndDate =
-          introTermEndDate.getTime() > introTermStartDate.getTime()
-            ? { recurringPaymentEndDate: introTermEndDate }
-            : {};
-        return {
-          ...baseBillingInfo,
-          ...recurringPaymentStartDate,
-          ...recurringPaymentEndDate,
-        };
-      }
-
       // Cycle length and number of cycles for the introductory period.
       const recurringPaymentIntervalUnitAndCount = StripeService.applePayPeriod(
         introPricePhase.period,
       );
+
+      // Start date of the introductory period. In case of an initial trial it will be at the end of that trial.
+      const recurringPaymentStartDate = introBillingStartDate
+        ? { recurringPaymentStartDate: introBillingStartDate }
+        : {};
 
       // Date of the final introductory payment. Stripe only accepts this field
       // when it is strictly in the future and after the first payment date.
@@ -667,7 +644,7 @@ export class StripeService {
   }
 
   static toExpressCheckoutLineItems(
-    purchaseLabel: string,
+    productTitle: string,
     priceBreakdown: PriceBreakdown,
     resolvedDiscount: ResolvedDiscountBreakdown,
   ): LineItem[] {
@@ -683,7 +660,7 @@ export class StripeService {
 
     return [
       {
-        name: purchaseLabel,
+        name: productTitle,
         amount: totalMinimumAmount + discountMinimumAmount,
       },
       { name: resolvedDiscount.label, amount: -discountMinimumAmount },
@@ -703,34 +680,19 @@ export class StripeService {
   ): StripeExpressCheckoutConfiguration {
     const layout = { maxRows, maxColumns, overflow };
 
+    const lineItems =
+      resolvedDiscount && resolvedDiscount.discountAmountInMicros > 0
+        ? StripeService.toExpressCheckoutLineItems(
+            productDetails.title,
+            priceBreakdown,
+            resolvedDiscount,
+          )
+        : undefined;
+
     const trialPhase = subscriptionOption.trial;
     const introPricePhase = subscriptionOption.introPrice;
     const basePeriod = subscriptionOption.base.period;
     const currentDate = new Date();
-    const isImmediateSingleCycleIntro =
-      !!introPricePhase &&
-      !trialPhase &&
-      Math.max(introPricePhase.cycleCount, 1) === 1;
-    const lineItems =
-      resolvedDiscount && resolvedDiscount.discountAmountInMicros > 0
-        ? StripeService.toExpressCheckoutLineItems(
-            isImmediateSingleCycleIntro
-              ? APPLE_PAY_INTRODUCTORY_PRICE_LABEL
-              : productDetails.title,
-            priceBreakdown,
-            resolvedDiscount,
-          )
-        : isImmediateSingleCycleIntro
-          ? [
-              {
-                name: APPLE_PAY_INTRODUCTORY_PRICE_LABEL,
-                amount: StripeService.microsToMinimumAmountPrice(
-                  priceBreakdown.totalAmountInMicros,
-                  priceBreakdown.currency,
-                ),
-              },
-            ]
-          : undefined;
     const initialPhases = [trialPhase, introPricePhase].filter(
       (phase): phase is PricingPhase => phase !== null,
     );
@@ -754,6 +716,7 @@ export class StripeService {
     );
 
     const trialBilling = StripeService.buildApplePayTrialBilling(
+      productDetails.title,
       translator,
       trialPhase,
       introPricePhase,
