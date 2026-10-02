@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "お支払いを確認",
   "upgrade_product_info.tax_estimated": "税金 (概算)",
   "upgrade_confirm_page.subtitle_deferred": "お支払い詳細を確認し、変更をスケジュールしてください",
-  "upgrade_confirm_page.confirm_schedule": "スケジュールを確定",
+  "upgrade_confirm_page.confirm_schedule": "変更を予約する",
   "upgrade_confirm_page.on_file": "登録済み",
   "credit_for_unused_time.title": "未使用期間分のクレジット",
   "credit_for_unused_time.message": "既存のサブスクリプションの未使用期間は、ご購入金額から割引されます。",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "税込",
   "paddle_order_summary.due_on": "{{date}}に請求",
   "payment_entry_page.payment_method_error": "このお支払い方法はご利用いただけませんでした。詳細をご確認いただくか、別のお支払い方法をお試しください。",
-  "payment_entry_page.payment_method_error_card_not_supported": "このカードタイプはご利用いただけません。別のカードをお試しください。"
+  "payment_entry_page.payment_method_error_card_not_supported": "このカードタイプはご利用いただけません。別のカードをお試しください。",
+  "deferred_subscription_change.message": "{{productName}}への変更は、現在の請求期間の終了時に適用されます。それまでは、{{previousProductName}}の機能を引き続きご利用いただけます。その後、{{productName}}に含まれない機能は利用できなくなります。",
+  "deferred_subscription_change.title": "変更は次回の更新時に適用されます"
 }

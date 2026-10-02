@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "确认付款",
   "upgrade_product_info.tax_estimated": "税费（预估）",
   "upgrade_confirm_page.subtitle_deferred": "查看您的付款详情并安排更改",
-  "upgrade_confirm_page.confirm_schedule": "确认安排",
+  "upgrade_confirm_page.confirm_schedule": "安排更改",
   "upgrade_confirm_page.on_file": "已存档",
   "credit_for_unused_time.title": "未用时长抵扣",
   "credit_for_unused_time.message": "您现有订阅中未使用的时长将从您的购买中抵扣。",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "含税",
   "paddle_order_summary.due_on": "{{date}}到期",
   "payment_entry_page.payment_method_error": "我们无法使用此付款方式。请检查您的信息或尝试其他付款方式。",
-  "payment_entry_page.payment_method_error_card_not_supported": "不支持此卡类型。请尝试其他卡。"
+  "payment_entry_page.payment_method_error_card_not_supported": "不支持此卡类型。请尝试其他卡。",
+  "deferred_subscription_change.message": "您对{{productName}}的更改将在当前账单周期结束时生效。在此之前，您将继续拥有{{previousProductName}}的功能。此后，{{productName}}不包含的任何功能将不再可用。",
+  "deferred_subscription_change.title": "更改将在下次续订时生效"
 }

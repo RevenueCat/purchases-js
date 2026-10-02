@@ -2349,8 +2349,8 @@ export class Purchases {
    *
    * When {@link PurchaseParams.productChangeInfo} is set with a subscriber token,
    * checkout starts in product-change mode: if the backend can change the
-   * existing subscription, an upgrade-confirm page is shown; otherwise the
-   * same checkout session continues as a normal purchase.
+   * existing subscription, a product-change confirmation page is shown;
+   * otherwise the same checkout session continues as a normal purchase.
    *
    * @param params - The parameters object to customise the purchase flow. Check {@link PurchaseParams}
    * @returns a Promise for the customer and redemption info after the purchase is completed successfully.

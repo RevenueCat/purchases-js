@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Confirmer le paiement",
   "upgrade_product_info.tax_estimated": "Taxe (estimée)",
   "upgrade_confirm_page.subtitle_deferred": "Vérifiez vos détails de paiement et planifiez le changement",
-  "upgrade_confirm_page.confirm_schedule": "Confirmer la planification",
+  "upgrade_confirm_page.confirm_schedule": "Programmer le changement",
   "upgrade_confirm_page.on_file": "Enregistré",
   "credit_for_unused_time.title": "Crédit pour temps non utilisé",
   "credit_for_unused_time.message": "Tout temps non utilisé de votre abonnement existant sera déduit de votre achat.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "TTC",
   "paddle_order_summary.due_on": "Dû le {{date}}",
   "payment_entry_page.payment_method_error": "Impossible d'utiliser ce mode de paiement. Veuillez vérifier vos informations ou en essayer un autre.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Ce type de carte n'est pas accepté. Veuillez essayer une autre carte."
+  "payment_entry_page.payment_method_error_card_not_supported": "Ce type de carte n'est pas accepté. Veuillez essayer une autre carte.",
+  "deferred_subscription_change.message": "Votre modification vers {{productName}} prendra effet à la fin de votre cycle de facturation actuel. Jusqu'à cette date, vous continuerez d'avoir accès aux fonctionnalités de {{previousProductName}}. Après cela, toutes les fonctionnalités non incluses dans {{productName}} ne seront plus disponibles.",
+  "deferred_subscription_change.title": "Le changement prend effet au prochain renouvellement"
 }

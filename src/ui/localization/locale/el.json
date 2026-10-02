@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Επιβεβαίωση πληρωμής",
   "upgrade_product_info.tax_estimated": "Φόρος (εκτιμώμενος)",
   "upgrade_confirm_page.subtitle_deferred": "Ελέγξτε τα στοιχεία πληρωμής σας και προγραμματίστε την αλλαγή",
-  "upgrade_confirm_page.confirm_schedule": "Επιβεβαίωση προγράμματος",
+  "upgrade_confirm_page.confirm_schedule": "Προγραμματισμός αλλαγής",
   "upgrade_confirm_page.on_file": "Καταχωρημένο",
   "credit_for_unused_time.title": "Πίστωση για αχρησιμοποίητο χρόνο",
   "credit_for_unused_time.message": "Οποιοσδήποτε αχρησιμοποίητος χρόνος από την υπάρχουσα συνδρομή σας θα εκπτωθεί από την αγορά σας.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "συμπ. φόρου",
   "paddle_order_summary.due_on": "Πληρωτέο στις {{date}}",
   "payment_entry_page.payment_method_error": "Δεν μπορέσαμε να χρησιμοποιήσουμε αυτήν τη μέθοδο πληρωμής. Ελέγξτε τα στοιχεία σας ή δοκιμάστε μια διαφορετική μέθοδο πληρωμής.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Αυτός ο τύπος κάρτας δεν είναι αποδεκτός. Δοκιμάστε μια διαφορετική κάρτα."
+  "payment_entry_page.payment_method_error_card_not_supported": "Αυτός ο τύπος κάρτας δεν είναι αποδεκτός. Δοκιμάστε μια διαφορετική κάρτα.",
+  "deferred_subscription_change.message": "Η αλλαγή σας σε {{productName}} θα τεθεί σε ισχύ στο τέλος του τρέχοντος κύκλου χρέωσής σας. Μέχρι τότε, θα συνεχίσετε να έχετε πρόσβαση στις λειτουργίες του {{previousProductName}}. Έπειτα, τυχόν λειτουργίες που δεν περιλαμβάνονται στο {{productName}} δεν θα είναι πλέον διαθέσιμες.",
+  "deferred_subscription_change.title": "Η αλλαγή τίθεται σε ισχύ στην επόμενη ανανέωση"
 }

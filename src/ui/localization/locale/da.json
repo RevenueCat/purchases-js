@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Bekræft betaling",
   "upgrade_product_info.tax_estimated": "Moms (estimeret)",
   "upgrade_confirm_page.subtitle_deferred": "Gennemgå dine betalingsoplysninger og planlæg ændring",
-  "upgrade_confirm_page.confirm_schedule": "Bekræft tidsplan",
+  "upgrade_confirm_page.confirm_schedule": "Planlæg ændring",
   "upgrade_confirm_page.on_file": "Registreret",
   "credit_for_unused_time.title": "Tilgodehavende for ubrugt tid",
   "credit_for_unused_time.message": "Eventuel ubrugt tid på dit eksisterende abonnement vil blive fratrukket dit køb.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "inkl. moms",
   "paddle_order_summary.due_on": "Forfalder den {{date}}",
   "payment_entry_page.payment_method_error": "Vi kunne ikke bruge denne betalingsmetode. Tjek dine oplysninger, eller prøv en anden betalingsmetode.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Denne korttype accepteres ikke. Prøv et andet kort."
+  "payment_entry_page.payment_method_error_card_not_supported": "Denne korttype accepteres ikke. Prøv et andet kort.",
+  "deferred_subscription_change.message": "Din ændring til {{productName}} træder i kraft ved udgangen af din nuværende faktureringsperiode. Indtil da vil du fortsat have adgang til funktionerne i {{previousProductName}}. Derefter vil funktioner, der ikke er inkluderet i {{productName}}, ikke længere være tilgængelige.",
+  "deferred_subscription_change.title": "Ændring træder i kraft ved næste fornyelse"
 }

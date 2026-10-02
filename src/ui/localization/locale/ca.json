@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Confirmar pagament",
   "upgrade_product_info.tax_estimated": "Impostos (estimats)",
   "upgrade_confirm_page.subtitle_deferred": "Reviseu les vostres dades de pagament i programeu el canvi",
-  "upgrade_confirm_page.confirm_schedule": "Confirmar programació",
+  "upgrade_confirm_page.confirm_schedule": "Programar canvi",
   "upgrade_confirm_page.on_file": "Registrat",
   "credit_for_unused_time.title": "Crèdit pel temps no utilitzat",
   "credit_for_unused_time.message": "Qualsevol temps no utilitzat de la vostra subscripció existent es descomptarà de la vostra compra.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "impostos inclosos",
   "paddle_order_summary.due_on": "Venciment el {{date}}",
   "payment_entry_page.payment_method_error": "No hem pogut utilitzar aquest mètode de pagament. Comprova les teves dades o prova un mètode de pagament diferent.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Aquest tipus de targeta no s'accepta. Prova una targeta diferent."
+  "payment_entry_page.payment_method_error_card_not_supported": "Aquest tipus de targeta no s'accepta. Prova una targeta diferent.",
+  "deferred_subscription_change.message": "El teu canvi a {{productName}} s'aplicarà al final del teu cicle de facturació actual. Fins aleshores, continuaràs tenint accés a les funcions de {{previousProductName}}. Després d'això, qualsevol funció no inclosa amb {{productName}} ja no estarà disponible.",
+  "deferred_subscription_change.title": "El canvi s'aplicarà a la propera renovació"
 }

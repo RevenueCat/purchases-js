@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Vahvista maksu",
   "upgrade_product_info.tax_estimated": "Vero (arvioitu)",
   "upgrade_confirm_page.subtitle_deferred": "Tarkista maksutietosi ja aikatauluta muutos",
-  "upgrade_confirm_page.confirm_schedule": "Vahvista aikataulu",
+  "upgrade_confirm_page.confirm_schedule": "Ajoita muutos",
   "upgrade_confirm_page.on_file": "Tallennettu",
   "credit_for_unused_time.title": "Hyvitys käyttämättömästä ajasta",
   "credit_for_unused_time.message": "Käyttämätön aika nykyisestä tilauksestasi hyvitetään ostoksestasi.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "sis. verot",
   "paddle_order_summary.due_on": "Eräpäivä {{date}}",
   "payment_entry_page.payment_method_error": "Emme voineet käyttää tätä maksutapaa. Tarkista tietosi tai kokeile toista maksutapaa.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Tätä korttityyppiä ei hyväksytä. Kokeile toista korttia."
+  "payment_entry_page.payment_method_error_card_not_supported": "Tätä korttityyppiä ei hyväksytä. Kokeile toista korttia.",
+  "deferred_subscription_change.message": "Muutoksesi tuotteeseen {{productName}} astuu voimaan nykyisen laskutusjaksosi päätyttyä. Siihen asti sinulla on edelleen pääsy tuotteen {{previousProductName}} ominaisuuksiin. Sen jälkeen kaikki ominaisuudet, jotka eivät sisälly tuotteeseen {{productName}}, eivät ole enää käytettävissä.",
+  "deferred_subscription_change.title": "Muutos astuu voimaan seuraavan uusimisen yhteydessä"
 }

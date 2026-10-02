@@ -8,42 +8,52 @@
 
   interface Props {
     previousProductName: string;
-    variant?: "refund" | "credit";
+    productName: string;
+    variant?: "refund" | "credit" | "deferred";
   }
 
-  const { previousProductName, variant = "refund" }: Props = $props();
+  const {
+    previousProductName,
+    productName,
+    variant = "refund",
+  }: Props = $props();
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
 
   const titleKey = $derived(
-    variant === "credit"
-      ? LocalizationKeys.CreditForUnusedTimeTitle
-      : LocalizationKeys.RefundForUnusedTimeTitle,
+    variant === "deferred"
+      ? LocalizationKeys.DeferredSubscriptionChangeTitle
+      : variant === "credit"
+        ? LocalizationKeys.CreditForUnusedTimeTitle
+        : LocalizationKeys.RefundForUnusedTimeTitle,
   );
   const messageKey = $derived(
-    variant === "credit"
-      ? LocalizationKeys.CreditForUnusedTimeMessage
-      : LocalizationKeys.RefundForUnusedTimeMessage,
+    variant === "deferred"
+      ? LocalizationKeys.DeferredSubscriptionChangeMessage
+      : variant === "credit"
+        ? LocalizationKeys.CreditForUnusedTimeMessage
+        : LocalizationKeys.RefundForUnusedTimeMessage,
   );
 </script>
 
-<div class="rcb-unused-time-adjustment">
-  <div class="rcb-unused-time-adjustment-title">
+<div class="rcb-subscription-change-notice">
+  <div class="rcb-subscription-change-notice-title">
     <Typography size="body-small">
       {$translator.translate(titleKey)}
     </Typography>
   </div>
-  <div class="rcb-unused-time-adjustment-message">
+  <div class="rcb-subscription-change-notice-message">
     <Typography size="caption-default">
       {$translator.translate(messageKey, {
         previousProductName,
+        productName,
       })}
     </Typography>
   </div>
 </div>
 
 <style>
-  .rcb-unused-time-adjustment {
+  .rcb-subscription-change-notice {
     display: flex;
     flex-direction: column;
     gap: var(--rc-spacing-gapSmall-mobile);
@@ -53,16 +63,16 @@
     background-color: transparent;
   }
 
-  .rcb-unused-time-adjustment-title {
+  .rcb-subscription-change-notice-title {
     color: var(--rc-color-grey-text-dark);
   }
 
-  .rcb-unused-time-adjustment-message {
+  .rcb-subscription-change-notice-message {
     color: var(--rc-color-grey-text-light);
   }
 
   @container layout-query-container (width >= 768px) {
-    .rcb-unused-time-adjustment {
+    .rcb-subscription-change-notice {
       gap: var(--rc-spacing-gapSmall-desktop);
       padding: var(--rc-spacing-gapLarge-desktop);
     }

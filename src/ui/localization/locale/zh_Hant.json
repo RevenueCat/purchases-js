@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "確認付款",
   "upgrade_product_info.tax_estimated": "稅金 (預估)",
   "upgrade_confirm_page.subtitle_deferred": "檢閱您的付款詳情並排定變更",
-  "upgrade_confirm_page.confirm_schedule": "確認排程",
+  "upgrade_confirm_page.confirm_schedule": "排定變更",
   "upgrade_confirm_page.on_file": "已存檔",
   "credit_for_unused_time.title": "未使用時間的抵用金",
   "credit_for_unused_time.message": "您現有訂閱的剩餘時間將會折抵到本次購買中。",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "含稅",
   "paddle_order_summary.due_on": "{{date}}到期",
   "payment_entry_page.payment_method_error": "我們無法使用此付款方式。請檢查您的資料，或嘗試其他付款方式。",
-  "payment_entry_page.payment_method_error_card_not_supported": "此卡片類型不被接受。請嘗試其他卡片。"
+  "payment_entry_page.payment_method_error_card_not_supported": "此卡片類型不被接受。請嘗試其他卡片。",
+  "deferred_subscription_change.message": "您對 {{productName}} 的變更將於目前帳單週期結束時生效。在此之前，您將繼續享有 {{previousProductName}} 的功能。之後，{{productName}} 不包含的任何功能將不再可用。",
+  "deferred_subscription_change.title": "變更將於下次續訂時生效"
 }

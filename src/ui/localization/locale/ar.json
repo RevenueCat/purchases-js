@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "تأكيد الدفع",
   "upgrade_product_info.tax_estimated": "الضريبة (تقديرية)",
   "upgrade_confirm_page.subtitle_deferred": "راجع تفاصيل الدفع الخاصة بك وجدولة التغيير",
-  "upgrade_confirm_page.confirm_schedule": "تأكيد الجدولة",
+  "upgrade_confirm_page.confirm_schedule": "جدولة التغيير",
   "upgrade_confirm_page.on_file": "المحفوظة",
   "credit_for_unused_time.title": "رصيد للوقت غير المستخدم",
   "credit_for_unused_time.message": "سيتم خصم أي وقت غير مستخدم من اشتراكك الحالي من عملية الشراء الخاصة بك.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "شامل الضريبة",
   "paddle_order_summary.due_on": "مستحق في {{date}}",
   "payment_entry_page.payment_method_error": "لم نتمكن من استخدام طريقة الدفع هذه. يرجى التحقق من التفاصيل الخاصة بك أو تجربة طريقة دفع مختلفة.",
-  "payment_entry_page.payment_method_error_card_not_supported": "نوع البطاقة هذا غير مقبول. يرجى تجربة بطاقة مختلفة."
+  "payment_entry_page.payment_method_error_card_not_supported": "نوع البطاقة هذا غير مقبول. يرجى تجربة بطاقة مختلفة.",
+  "deferred_subscription_change.message": "سيسري تغييرك إلى {{productName}} في نهاية دورة الفوترة الحالية. حتى ذلك الحين، ستستمر في الوصول إلى ميزات {{previousProductName}}. بعد ذلك، لن تكون أي ميزات غير متضمنة في {{productName}} متاحة.",
+  "deferred_subscription_change.title": "يسري التغيير عند التجديد التالي"
 }
