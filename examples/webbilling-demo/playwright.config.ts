@@ -10,6 +10,12 @@ import dotenv from "dotenv";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Real Stripe Checkout / Paddle sandbox flows are flaky when run concurrently.
+const SERIAL_PAYMENT_TESTS = [
+  "**/paddle/*.test.ts",
+  "**/stripe-checkout/*.test.ts",
+];
+
 dotenv.config({
   path: resolve(__dirname, ".env"),
 });
@@ -31,8 +37,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : 1,
+  workers: process.env.CI ? 4 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
     ? [["junit", { outputFile: "results.xml" }]]
@@ -59,6 +64,14 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testIgnore: SERIAL_PAYMENT_TESTS,
+      use: { ...devices["Desktop Chrome"] },
+    },
+
+    {
+      name: "chromium-payments",
+      testMatch: SERIAL_PAYMENT_TESTS,
+      workers: 1,
       use: { ...devices["Desktop Chrome"] },
     },
 
