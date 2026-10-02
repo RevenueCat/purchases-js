@@ -648,10 +648,12 @@ export class AmazonBillingWrapper implements BillingWrapper {
       const response = await PurchasingService.getProductData({
         skus,
       });
-      Logger.infoLog(
+      Logger.debugLog(
         `Amazon product data response: ${JSON.stringify({
           responseCode: response.responseCode,
-          returnedSkus: Array.from(response.productData.keys()),
+          returnedSkus: response.productData
+            ? Array.from(response.productData.keys())
+            : null,
           unavailableSkus: response.unavailableSkus,
         })}`,
       );
