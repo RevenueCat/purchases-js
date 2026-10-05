@@ -7,6 +7,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import type { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
 import type { StripeBillingApplePayCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
+import type { Product, PurchaseOption } from "../../entities/offerings";
 import {
   prepareStripeBillingApplePayPurchase,
   presentStripeBillingApplePayPurchase,
@@ -16,6 +17,7 @@ import {
   checkoutPricingResponse,
   rcPackage,
   subscriptionOption,
+  subscriptionOptionWithSingleMonthIntroPriceRecurring,
 } from "../../stories/fixtures";
 import { Translator } from "../../ui/localization/translator";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
@@ -143,11 +145,13 @@ const prepare = async (
   purchaseOperationHelper: PurchaseOperationHelper,
   accountCountry: string | null = "US",
   expiresAt?: string,
+  purchaseOption: PurchaseOption = subscriptionOption,
+  product: Product = rcPackage.webBillingProduct,
 ) =>
   await prepareStripeBillingApplePayPurchase({
     startResponse: startResponse(accountCountry, expiresAt),
-    product: rcPackage.webBillingProduct,
-    purchaseOption: subscriptionOption,
+    product,
+    purchaseOption,
     brandingInfo: null,
     translator: new Translator(),
     purchaseOperationHelper,
@@ -183,6 +187,46 @@ describe("Stripe Billing Apple Pay purchase", () => {
         applePay: expect.objectContaining({
           recurringPaymentRequest: expect.objectContaining({
             managementURL: "https://pay.revenuecat.com/manage/session",
+          }),
+        }),
+      }),
+    );
+  });
+
+  test("uses the product title for an immediate single-cycle intro total", async () => {
+    const { stripe } = createStripeMocks();
+    vi.spyOn(StripeService, "getStripeClient").mockResolvedValue({ stripe });
+    const introOption = subscriptionOptionWithSingleMonthIntroPriceRecurring;
+    const introProduct: Product = {
+      ...rcPackage.webBillingProduct,
+      defaultPurchaseOption: introOption,
+      defaultSubscriptionOption: introOption,
+      subscriptionOptions: {
+        [introOption.id]: introOption,
+      },
+      introPricePhase: introOption.introPrice,
+    };
+
+    await prepare(
+      createPurchaseOperationHelper(),
+      "US",
+      undefined,
+      introOption,
+      introProduct,
+    );
+
+    expect(stripe.paymentRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        total: {
+          amount: 999,
+          label: introProduct.title,
+        },
+        displayItems: undefined,
+        applePay: expect.objectContaining({
+          recurringPaymentRequest: expect.objectContaining({
+            regularBilling: expect.objectContaining({
+              label: introProduct.title,
+            }),
           }),
         }),
       }),
