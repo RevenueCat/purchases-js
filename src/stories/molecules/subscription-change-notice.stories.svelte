@@ -3,11 +3,11 @@
   import type { ComponentProps } from "svelte";
   import { brandingModes } from "../../../.storybook/modes";
   import { renderInsideNavbarBody } from "../decorators/layout-decorators";
-  import UnusedTimeAdjustment from "../../ui/molecules/unused-time-adjustment.svelte";
+  import SubscriptionChangeNotice from "../../ui/molecules/subscription-change-notice.svelte";
 
   let { Story } = defineMeta({
-    component: UnusedTimeAdjustment,
-    title: "Molecules/UnusedTimeAdjustment",
+    component: SubscriptionChangeNotice,
+    title: "Molecules/SubscriptionChangeNotice",
     // @ts-expect-error ignore typing of decorator
     decorators: [renderInsideNavbarBody],
     parameters: {
@@ -19,18 +19,19 @@
     render: template,
   });
 
-  type Args = ComponentProps<typeof UnusedTimeAdjustment>;
-  type Context = StoryContext<typeof UnusedTimeAdjustment>;
+  type Args = ComponentProps<typeof SubscriptionChangeNotice>;
+  type Context = StoryContext<typeof SubscriptionChangeNotice>;
 </script>
 
 {#snippet template(args: Args, _context: Context)}
-  <UnusedTimeAdjustment {...args} />
+  <SubscriptionChangeNotice {...args} />
 {/snippet}
 
 <Story
   name="Refund"
   args={{
     previousProductName: "Pro Monthly",
+    productName: "Pro Yearly",
     variant: "refund",
   }}
 />
@@ -39,6 +40,16 @@
   name="Credit"
   args={{
     previousProductName: "Pro Monthly",
+    productName: "Pro Yearly",
     variant: "credit",
+  }}
+/>
+
+<Story
+  name="Deferred"
+  args={{
+    previousProductName: "Pro Monthly",
+    productName: "Pro Yearly",
+    variant: "deferred",
   }}
 />

@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "भुगतान की पुष्टि करें",
   "upgrade_product_info.tax_estimated": "कर (अनुमानित)",
   "upgrade_confirm_page.subtitle_deferred": "अपने भुगतान विवरण की समीक्षा करें और शेड्यूल परिवर्तन करें",
-  "upgrade_confirm_page.confirm_schedule": "शेड्यूल की पुष्टि करें",
+  "upgrade_confirm_page.confirm_schedule": "बदलाव शेड्यूल करें",
   "upgrade_confirm_page.on_file": "फाइल पर",
   "credit_for_unused_time.title": "अप्रयुक्त समय का क्रेडिट",
   "credit_for_unused_time.message": "आपकी मौजूदा सदस्यता का कोई भी अप्रयुक्त समय आपकी खरीद में छूट के रूप में समायोजित किया जाएगा।",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "कर सहित",
   "paddle_order_summary.due_on": "{{date}} को देय",
   "payment_entry_page.payment_method_error": "हम इस भुगतान विधि का उपयोग नहीं कर सके। कृपया अपने विवरण जांचें या कोई भिन्न भुगतान विधि आज़माएँ।",
-  "payment_entry_page.payment_method_error_card_not_supported": "यह कार्ड प्रकार स्वीकार्य नहीं है। कोई भिन्न कार्ड आज़माएँ।"
+  "payment_entry_page.payment_method_error_card_not_supported": "यह कार्ड प्रकार स्वीकार्य नहीं है। कोई भिन्न कार्ड आज़माएँ।",
+  "deferred_subscription_change.message": "{{productName}} में आपका बदलाव आपके मौजूदा बिलिंग चक्र के अंत में लागू होगा। तब तक, आपको {{previousProductName}} की सुविधाओं तक एक्सेस मिलती रहेगी। उसके बाद, {{productName}} के साथ शामिल न की गई कोई भी सुविधा अब उपलब्ध नहीं रहेगी।",
+  "deferred_subscription_change.title": "बदलाव अगले नवीनीकरण पर लागू होगा"
 }

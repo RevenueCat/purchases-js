@@ -202,8 +202,8 @@ export interface PurchaseParams {
   termsAndConditionsUrl?: string;
 
   /**
-   * When set, {@link Purchases.purchase} presents upgrade-mode checkout to
-   * change the customer's existing Web Billing subscription to
+   * When set, {@link Purchases.purchase} presents product-change checkout to
+   * upgrade or downgrade the customer's existing Web Billing or Stripe subscription to
    * {@link PurchaseParams.rcPackage}'s product, instead of a new purchase.
    * Requires a configured product change path in RevenueCat.
    * @internal

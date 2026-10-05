@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Betaling bevestigen",
   "upgrade_product_info.tax_estimated": "Btw (geschat)",
   "upgrade_confirm_page.subtitle_deferred": "Controleer je betaalgegevens en planwijziging",
-  "upgrade_confirm_page.confirm_schedule": "Planning bevestigen",
+  "upgrade_confirm_page.confirm_schedule": "Wijziging plannen",
   "upgrade_confirm_page.on_file": "Geregistreerd",
   "credit_for_unused_time.title": "Tegoed voor ongebruikte tijd",
   "credit_for_unused_time.message": "De resterende tijd van je huidige abonnement wordt verrekend met je aankoop.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "incl. btw",
   "paddle_order_summary.due_on": "Verschuldigd op {{date}}",
   "payment_entry_page.payment_method_error": "We konden deze betaalmethode niet gebruiken. Controleer uw gegevens of probeer een andere betaalmethode.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Dit kaarttype wordt niet geaccepteerd. Probeer een andere kaart."
+  "payment_entry_page.payment_method_error_card_not_supported": "Dit kaarttype wordt niet geaccepteerd. Probeer een andere kaart.",
+  "deferred_subscription_change.message": "Uw wijziging naar {{productName}} gaat in aan het einde van uw huidige factureringscyclus. Tot die tijd blijft u toegang houden tot de functies van {{previousProductName}}. Daarna zijn functies die niet zijn inbegrepen bij {{productName}} niet langer beschikbaar.",
+  "deferred_subscription_change.title": "Wijziging gaat in bij de volgende verlenging"
 }

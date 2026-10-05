@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Potrdite plačilo",
   "upgrade_product_info.tax_estimated": "Davek (ocenjeno)",
   "upgrade_confirm_page.subtitle_deferred": "Preglejte podrobnosti plačila in spremembo urnika",
-  "upgrade_confirm_page.confirm_schedule": "Potrdi urnik",
+  "upgrade_confirm_page.confirm_schedule": "Načrtuj spremembo",
   "upgrade_confirm_page.on_file": "V evidenci",
   "credit_for_unused_time.title": "Dobroimetje za neizkoriščen čas",
   "credit_for_unused_time.message": "Vsak neizkoriščen čas na vaši obstoječi naročnini bo odštet od vašega nakupa.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "z davkom",
   "paddle_order_summary.due_on": "Zapade {{date}}",
   "payment_entry_page.payment_method_error": "Te plačilne metode nismo mogli uporabiti. Preverite svoje podatke ali poskusite z drugo plačilno metodo.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Ta vrsta kartice ni sprejeta. Poskusite z drugo kartico."
+  "payment_entry_page.payment_method_error_card_not_supported": "Ta vrsta kartice ni sprejeta. Poskusite z drugo kartico.",
+  "deferred_subscription_change.message": "Vaša sprememba na {{productName}} bo začela veljati ob koncu vašega trenutnega obračunskega cikla. Do takrat boste še naprej imeli dostop do funkcij {{previousProductName}}. Po tem vse funkcije, ki niso vključene v {{productName}}, ne bodo več na voljo.",
+  "deferred_subscription_change.title": "Sprememba začne veljati ob naslednji podaljšavi"
 }

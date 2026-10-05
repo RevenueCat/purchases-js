@@ -165,9 +165,9 @@ export interface PresentPaywallParams {
   readonly customVariables?: CustomVariables;
 
   /**
-   * Optional hint to enable suppot for upgrade/downgrades of an
-   * existing Web Billing subscription. Requires a subscriber access token
-   * (via {@link PurchasesConfig.subscriberToken} or
+   * Optional hint to enable support for upgrades or downgrades of an
+   * existing Web Billing or Stripe subscription. Requires a subscriber
+   * access token (via {@link PurchasesConfig.subscriberToken} or
    * {@link ProductChangeInfo.subscriberToken}).
    * @internal
    */
