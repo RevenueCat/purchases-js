@@ -37,6 +37,8 @@ vi.mock("@paddle/paddle-js", () => ({
   CheckoutEventNames: {
     CHECKOUT_LOADED: "checkout.loaded",
     CHECKOUT_UPDATED: "checkout.updated",
+    CHECKOUT_DISCOUNT_APPLIED: "checkout.discount.applied",
+    CHECKOUT_DISCOUNT_REMOVED: "checkout.discount.removed",
     CHECKOUT_COMPLETED: "checkout.completed",
     CHECKOUT_CLOSED: "checkout.closed",
   },
@@ -964,7 +966,7 @@ describe("PaddleService", () => {
       purchasePromise.catch(() => {});
     });
 
-    test("forwards order totals on checkout.loaded and checkout.updated", async () => {
+    test("forwards order totals on checkout.loaded, checkout.updated, and discount events", async () => {
       const onCheckoutTotals = vi.fn();
       const purchasePromise = paddleService.purchase({
         operationSessionId,
@@ -1009,6 +1011,55 @@ describe("PaddleService", () => {
         taxAmount: 1.9,
         totalAmount: 10.9,
         recurringTotalAmount: null,
+        productName: null,
+        priceName: null,
+      });
+
+      await paddleEventCallback({
+        name: CheckoutEventNames.CHECKOUT_DISCOUNT_APPLIED,
+        data: {
+          currency_code: "USD",
+          totals: { subtotal: 3.99, discount: 2, tax: 0.15, total: 2.14 },
+          recurring_totals: {
+            subtotal: 3.99,
+            discount: 2,
+            tax: 0.15,
+            total: 2.14,
+          },
+          items: [{ price_name: "monthly", product: { name: "Premium" } }],
+        },
+      } as unknown as PaddleEventData);
+
+      expect(onCheckoutTotals).toHaveBeenLastCalledWith({
+        currencyCode: "USD",
+        subtotalAmount: 3.99,
+        taxAmount: 0.15,
+        totalAmount: 2.14,
+        recurringTotalAmount: 2.14,
+        productName: "Premium",
+        priceName: "monthly",
+      });
+
+      await paddleEventCallback({
+        name: CheckoutEventNames.CHECKOUT_DISCOUNT_REMOVED,
+        data: {
+          currency_code: "USD",
+          totals: { subtotal: 3.99, discount: 0, tax: 0.3, total: 4.29 },
+          recurring_totals: {
+            subtotal: 3.99,
+            discount: 0,
+            tax: 0.3,
+            total: 4.29,
+          },
+        },
+      } as unknown as PaddleEventData);
+
+      expect(onCheckoutTotals).toHaveBeenLastCalledWith({
+        currencyCode: "USD",
+        subtotalAmount: 3.99,
+        taxAmount: 0.3,
+        totalAmount: 4.29,
+        recurringTotalAmount: 4.29,
         productName: null,
         priceName: null,
       });
