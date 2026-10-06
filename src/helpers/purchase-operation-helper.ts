@@ -598,6 +598,110 @@ export class PurchaseOperationHelper {
     });
   }
 
+  /**
+   * Polls checkout status until the operation succeeds or fails.
+   * Unlike pollCurrentPurchaseForCompletion, this does not give up while the
+   * customer is still on the payment form, and it leaves the in-progress
+   * purchase in place so that poll can still finish the purchase.
+   * Aborts without changing purchase state when signal is aborted.
+   */
+  watchCurrentPurchaseUntilComplete(signal: AbortSignal): Promise<void> {
+    const operationSessionId = this.operationSessionId;
+    if (!operationSessionId) {
+      return Promise.reject(
+        new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "No purchase in progress",
+        ),
+      );
+    }
+
+    return new Promise<void>((resolve, reject) => {
+      let settled = false;
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+      const stopTimer = () => {
+        if (timeoutId !== undefined) {
+          clearTimeout(timeoutId);
+          timeoutId = undefined;
+        }
+      };
+
+      const onAbort = () => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        stopTimer();
+        reject(new DOMException("The operation was aborted.", "AbortError"));
+      };
+
+      if (signal.aborted) {
+        onAbort();
+        return;
+      }
+      signal.addEventListener("abort", onAbort, { once: true });
+
+      const scheduleNextCheck = () => {
+        if (settled) {
+          return;
+        }
+        timeoutId = setTimeout(
+          checkForOperationStatus,
+          this.waitMSBetweenAttempts,
+        );
+      };
+
+      const checkForOperationStatus = () => {
+        if (settled) {
+          return;
+        }
+        this.backend
+          .getCheckoutStatus(operationSessionId)
+          .then((operationResponse: CheckoutStatusResponse) => {
+            if (settled) {
+              return;
+            }
+            switch (operationResponse.operation.status) {
+              case CheckoutSessionStatus.Started:
+              case CheckoutSessionStatus.InProgress:
+                scheduleNextCheck();
+                break;
+              case CheckoutSessionStatus.Succeeded:
+                settled = true;
+                signal.removeEventListener("abort", onAbort);
+                stopTimer();
+                resolve();
+                break;
+              case CheckoutSessionStatus.Failed:
+                settled = true;
+                signal.removeEventListener("abort", onAbort);
+                stopTimer();
+                this.clearPurchaseInProgress();
+                handleCheckoutSessionFailed(
+                  operationResponse.operation.error,
+                  reject,
+                );
+                break;
+            }
+          })
+          .catch((error: PurchasesError) => {
+            if (settled) {
+              return;
+            }
+            scheduleNextCheck();
+            Logger.debugLog(
+              `Checkout completion watch retrying after status error: ${
+                error instanceof Error ? error.message : String(error)
+              }`,
+            );
+          });
+      };
+
+      checkForOperationStatus();
+    });
+  }
+
   private clearPurchaseInProgress() {
     this.operationSessionId = null;
     this.completedCustomerEmail = undefined;
