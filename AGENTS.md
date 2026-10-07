@@ -7,6 +7,7 @@ This file provides guidance to AI coding agents when working with code in this r
 RevenueCat's official JavaScript/TypeScript SDK for web-based in-app billing. Supports RevenueCat Billing (powered by Stripe), Stripe billing and Paddle payment gateways with native paywall UI components built with Svelte.
 
 **Related repositories:**
+
 - **UI Components**: https://github.com/RevenueCat/purchases-ui-js — Shared UI components
 - **Hybrid Common**: https://github.com/RevenueCat/purchases-hybrid-common — Shared types and mappings for hybrid SDKs. Part of the `purchases-js-hybrid-mappings` in that repo. Currently react-native-purchases and purchases-flutter are the hybrids using this SDK.
 
@@ -17,12 +18,14 @@ When implementing features or debugging, check these repos for reference and pat
 **Do NOT introduce breaking changes to the public API.** The SDK is used by many production web apps.
 
 **Safe changes:**
+
 - Adding new optional parameters to existing methods
 - Adding new classes, methods, or properties
 - Bug fixes that don't change method signatures
 - Internal implementation changes
 
 **Requires explicit approval:**
+
 - Removing or renaming public classes/methods/properties
 - Changing method signatures (parameter types, required params)
 - Changing return types
@@ -86,6 +89,7 @@ pnpm run pack-build       # Build + npm pack
 ## Project Architecture
 
 ### Main Class: `Purchases` (src/main.ts)
+
 - **Singleton Pattern**: `Purchases.sharedInstance` accessible via `getSharedInstance()`
 - **Initialization**: `Purchases.configure(config)` — must be called first
 - **Key Methods**:
@@ -97,27 +101,30 @@ pnpm run pack-build       # Build + npm pack
   - `presentPaywall()` — Display native paywall UI
 
 ### Payment Gateways
+
 - **Stripe** (`stripe/`) — Primary payment provider
 - **Paddle** (`paddle/`) — Secondary payment provider
 - **Simulated Store** — For testing
 
 ### UI Components
+
 - Built with **Svelte 5** using runes syntax
 - Components in `src/ui/` follow atomic design (atoms → molecules → organisms)
 - **Storybook** documentation at port 6006
 
 ### Testing
+
 - **Framework**: Vitest with jsdom environment
 - **Component Testing**: @testing-library/svelte
 - **API Mocking**: Mock Service Worker (MSW)
 
 ## Constraints / Support Policy
 
-| Requirement | Version |
-|-------------|---------|
-| Node.js | ^22.18 or ^24.11 |
-| pnpm | 10.23.0 |
-| TypeScript | 5.7.2 |
+| Requirement | Version          |
+| ----------- | ---------------- |
+| Node.js     | ^22.18 or ^24.11 |
+| pnpm        | 10.23.0          |
+| TypeScript  | 5.7.2            |
 
 ## Testing
 
@@ -149,10 +156,10 @@ pnpm run extract-api
 
 When creating a pull request, **always add one of these labels** to categorize the change:
 
-| Label | When to Use |
-|-------|-------------|
-| `pr:feat` | New user-facing features or enhancements |
-| `pr:fix` | Bug fixes |
+| Label      | When to Use                                                                         |
+| ---------- | ----------------------------------------------------------------------------------- |
+| `pr:feat`  | New user-facing features or enhancements                                            |
+| `pr:fix`   | Bug fixes                                                                           |
 | `pr:other` | Internal changes, refactors, CI, docs, or anything that shouldn't trigger a release |
 
 ## When the Task is Ambiguous
