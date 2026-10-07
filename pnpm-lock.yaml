@@ -18,8 +18,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       '@revenuecat/purchases-ui-js':
-        specifier: 4.13.0
-        version: 4.13.0(svelte@5.46.4)
+        specifier: 4.14.0
+        version: 4.14.0(svelte@5.46.4)
       '@storybook/addon-essentials':
         specifier: ^8.6.15
         version: 8.6.15(@types/react@19.0.10)(storybook@8.6.15(prettier@3.4.2))
@@ -1438,8 +1438,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@revenuecat/purchases-ui-js@4.13.0':
-    resolution: {integrity: sha512-V5kL37h/5Y0PjPX9qV3b5E0VDkN4t8uIFgO/AE42T//kRPTwPxgGuT5QccxdcOJCjc3Y3Apaf2E5dD9YivioSQ==}
+  '@revenuecat/purchases-ui-js@4.14.0':
+    resolution: {integrity: sha512-bhHkr7yc/XgU6+/xJuisC0tw1neLe8m/vXiwc9XRSoBYsmCjRgYKGFXxN/GpfoeHTEraHdjosLhkdVhN75lcwg==}
     engines: {node: ^22.18 || ^24.11}
     peerDependencies:
       svelte: ^5.46.4
@@ -7559,7 +7559,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.10
 
-  '@revenuecat/purchases-ui-js@4.13.0(svelte@5.46.4)':
+  '@revenuecat/purchases-ui-js@4.14.0(svelte@5.46.4)':
     dependencies:
       '@revenuecat/workflow-web-components-sdk': 0.1.7
       qrcode: 1.5.4

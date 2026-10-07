@@ -1,8 +1,9 @@
 ## RevenueCat SDK
-### 🐞 Bugfixes
-* fix(stripe): drop the recurring interval from a single-charge intro (#1210) via Deema AlShamaa (@dalshamaa)
-* Haley/paddle discount UI fix (#1212) via HaleyRevcat (@HaleyRevcat)
-* fix(vega): properly handle null productData response (#1211) via Will Taylor (@fire-at-will)
+### ✨ New Features
+* feat(test-store): send funnel step and purchase metadata on Test Store receipts (#1191) via Franco Correa (@francocorreasosa)
 ### 📦 Dependency Updates
-* [AUTOMATIC] purchases-ui-js 4.12.4 => 4.12.5 (#1214) via RevenueCat Git Bot (@RCGitBot)
-* [AUTOMATIC] purchases-ui-js 4.12.2 => 4.12.4 (#1213) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC] purchases-ui-js 4.13.0 => 4.14.0 (#1222) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC] purchases-ui-js 4.12.5 => 4.13.0 (#1220) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `9f7a03e` to `4c49d48` (#1215) via dependabot[bot] (@dependabot[bot])
