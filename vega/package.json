@@ -1,6 +1,6 @@
 {
   "name": "@revenuecat/purchases-js-vega",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "private": false,
   "publishConfig": {
     "access": "public"

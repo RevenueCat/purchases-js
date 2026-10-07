@@ -1,3 +1,8 @@
+## 1.70.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(test-store): apply app branding to the Test Store purchase modal (#1192) via Franco Correa (@francocorreasosa)
+
 ## 1.69.0
 ## RevenueCat SDK
 ### ✨ New Features
