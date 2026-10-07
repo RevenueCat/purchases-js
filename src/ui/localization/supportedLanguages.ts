@@ -22,7 +22,6 @@ import ko from "./locale/ko.json";
 import ms from "./locale/ms.json";
 import nb from "./locale/nb.json";
 import nn from "./locale/nn.json";
-import no from "./locale/no.json";
 import pl from "./locale/pl.json";
 import pt from "./locale/pt.json";
 import ro from "./locale/ro.json";
@@ -205,7 +204,8 @@ export const supportedLanguages: Record<
   ms,
   nb,
   nn,
-  no,
+  // "no" is the generic Norwegian tag. CLDR 39+ resolves it to Bokmål (nb).
+  no: nb,
   pl,
   pt,
   ro,

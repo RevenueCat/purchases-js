@@ -198,8 +198,9 @@ describe("The Translator class", () => {
     ["nn", "nn"],
     ["nn-NO", "nn"],
     ["nn_NO", "nn"],
-    ["no", "no"],
-    ["no-NO", "no"],
+    ["no", "nb"],
+    ["no-NO", "nb"],
+    ["no_NO", "nb"],
   ])(
     "should pick the Norwegian translations for %s (%s)",
     (selectedLocale, expectedLanguage) => {
@@ -239,10 +240,20 @@ describe("The supportedLanguages", () => {
       }
     });
 
+    // Locale tags that intentionally reuse another locale's file.
+    const aliases = ["no"];
+
     expect(
-      eqSet(new Set(Object.keys(supportedLanguages)), new Set(files)),
+      eqSet(
+        new Set(Object.keys(supportedLanguages)),
+        new Set([...files, ...aliases]),
+      ),
       "Not all files in /locales are imported as supportedLanguages",
     ).toBe(true);
+  });
+
+  test("should alias the generic Norwegian tag (no) to Bokmål (nb)", () => {
+    expect(supportedLanguages.no).toBe(supportedLanguages.nb);
   });
 
   test("should have the same variables in all translations as in English", () => {
