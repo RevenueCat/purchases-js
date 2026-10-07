@@ -1,7 +1,10 @@
 <script lang="ts">
   import AppLogo from "../atoms/app-logo.svelte";
   import AppWordmark from "../atoms/app-wordmark.svelte";
-  import { buildBrandingSources } from "../../helpers/build-branding-sources";
+  import {
+    buildBrandingSources,
+    valueOrNull,
+  } from "../../helpers/build-branding-sources";
   import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { toSimulatedStoreModalStyleVars } from "../theme/simulated-store-modal";
 
@@ -18,13 +21,13 @@
   export let onCancel: () => void;
 
   $: brandingSources = buildBrandingSources(brandingInfo);
-  $: appName = brandingInfo?.app_name?.trim() || null;
+  $: appName = valueOrNull(brandingInfo?.app_name);
   $: hasBrandingHeader =
     brandingSources.wordmarkSrc !== null ||
     brandingSources.src !== null ||
     appName !== null;
   $: styleVars = toSimulatedStoreModalStyleVars(brandingInfo?.appearance);
-  $: isBranded = hasBrandingHeader || styleVars !== "";
+  $: isBranded = hasBrandingHeader || !!brandingInfo?.appearance;
   $: showProductIdentifier =
     !!productTitle && productTitle !== productIdentifier;
 

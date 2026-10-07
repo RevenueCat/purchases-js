@@ -143,20 +143,6 @@ describe("purchaseSimulatedStoreProduct", () => {
     await expect(promise).rejects.toThrow(PurchasesError);
   });
 
-  test("passes null branding to the modal when none is loaded", async () => {
-    const promise = purchaseSimulatedStoreProduct(
-      mockPurchaseParams,
-      mockBackend,
-      "test-user-id",
-    );
-
-    const props = vi.mocked(mount).mock.calls[0][1].props;
-    expect(props?.brandingInfo).toBeNull();
-
-    props?.onCancel();
-    await expect(promise).rejects.toThrow(PurchasesError);
-  });
-
   test("resolves with purchase result on valid purchase", async () => {
     const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,

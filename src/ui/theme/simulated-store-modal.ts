@@ -1,16 +1,14 @@
 import type { BrandingAppearance } from "../../entities/branding";
 import {
   applyAlpha,
+  colorsForButtonStates,
   isHexColorLight,
   toFormColors,
   toProductInfoColors,
   toShape,
+  toStyleVar,
 } from "./utils";
 
-/**
- * CSS variables for the Test Store purchase modal. Returns an empty string
- * without an appearance so the modal keeps its neutral default styling.
- */
 export const toSimulatedStoreModalStyleVars = (
   appearance: BrandingAppearance | null | undefined,
 ): string => {
@@ -21,6 +19,8 @@ export const toSimulatedStoreModalStyleVars = (
   const formColors = toFormColors(appearance);
   const infoColors = toProductInfoColors(appearance);
   const shape = toShape(appearance);
+  const primaryStates = colorsForButtonStates(formColors.primary);
+  const errorStates = colorsForButtonStates(formColors.error);
 
   const variables: Record<string, string> = {
     "card-bg": formColors.background,
@@ -30,10 +30,10 @@ export const toSimulatedStoreModalStyleVars = (
     "details-text": infoColors["grey-text-dark"],
     "details-text-secondary": infoColors["grey-text-light"],
     primary: formColors.primary,
-    "primary-hover": formColors["primary-hover"],
+    "primary-hover": primaryStates["primary-hover"],
     "primary-text": formColors["primary-text"],
     error: formColors.error,
-    "error-hover": applyAlpha(formColors.error, 0.1),
+    "error-hover": errorStates["primary-hover"],
     "error-text": isHexColorLight(formColors.error) ? "black" : "white",
     "cancel-bg": applyAlpha(formColors.background, 0.05),
     "cancel-hover": applyAlpha(formColors.background, 0.1),
@@ -41,7 +41,5 @@ export const toSimulatedStoreModalStyleVars = (
     "button-radius": shape["input-button-border-radius"],
   };
 
-  return Object.entries(variables)
-    .map(([key, value]) => `--rc-simulated-store-${key}: ${value}`)
-    .join("; ");
+  return toStyleVar("simulated-store", Object.entries(variables));
 };

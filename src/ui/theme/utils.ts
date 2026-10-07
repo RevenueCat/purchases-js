@@ -186,7 +186,7 @@ const textColorsForBackground = (
   return textColors;
 };
 
-const colorsForButtonStates = (primaryColor: string) => {
+export const colorsForButtonStates = (primaryColor: string) => {
   return {
     "primary-hover": applyAlpha(primaryColor, 0.1),
     "primary-pressed": applyAlpha(primaryColor, 0.15),
