@@ -20,6 +20,8 @@ import id from "./locale/id.json";
 import ja from "./locale/ja.json";
 import ko from "./locale/ko.json";
 import ms from "./locale/ms.json";
+import nb from "./locale/nb.json";
+import nn from "./locale/nn.json";
 import no from "./locale/no.json";
 import pl from "./locale/pl.json";
 import pt from "./locale/pt.json";
@@ -201,6 +203,8 @@ export const supportedLanguages: Record<
   ja,
   ko,
   ms,
+  nb,
+  nn,
   no,
   pl,
   pt,

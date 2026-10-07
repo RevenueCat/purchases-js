@@ -191,6 +191,32 @@ describe("The Translator class", () => {
     );
   });
 
+  test.each([
+    ["nb", "nb"],
+    ["nb-NO", "nb"],
+    ["nb_NO", "nb"],
+    ["nn", "nn"],
+    ["nn-NO", "nn"],
+    ["nn_NO", "nn"],
+    ["no", "no"],
+    ["no-NO", "no"],
+  ])(
+    "should pick the Norwegian translations for %s (%s)",
+    (selectedLocale, expectedLanguage) => {
+      const translator = new Translator({}, selectedLocale);
+      expect(
+        translator.translate(LocalizationKeys.PaymentEntryPagePaymentStepTitle),
+      ).toBe(
+        supportedLanguages[expectedLanguage][
+          LocalizationKeys.PaymentEntryPagePaymentStepTitle
+        ],
+      );
+      expect(translator.translate(LocalizationKeys.ErrorButtonClose)).not.toBe(
+        supportedLanguages.en[LocalizationKeys.ErrorButtonClose],
+      );
+    },
+  );
+
   test("should not fail translating periods when zh_Hant and zh_Hans are taken as locale", () => {
     const traditionalTranslator = new Translator({}, "zh-Hant");
     expect(() =>
