@@ -41,6 +41,11 @@
     },
   } satisfies SubscriptionOption;
 
+  const brandingInfoWithoutAppName = {
+    ...brandingInfo,
+    app_name: null,
+  };
+
   const { Story } = defineMeta({
     component: SecureCheckoutRC,
     title: "Molecules/SecureCheckoutRC",
@@ -65,6 +70,14 @@
 />
 
 <Story
+  name="Non Subscription without App Name"
+  args={{
+    brandingInfo: brandingInfoWithoutAppName,
+    purchaseOption: nonSubscriptionOption,
+  }}
+/>
+
+<Story
   name="Non Subscription + discount with branding info"
   args={{
     brandingInfo,
@@ -75,6 +88,14 @@
 <Story
   name="Subscription with branding info"
   args={{ brandingInfo, purchaseOption: subscriptionOption }}
+/>
+
+<Story
+  name="Subscription without App Name"
+  args={{
+    brandingInfo: brandingInfoWithoutAppName,
+    purchaseOption: subscriptionOption,
+  }}
 />
 
 <Story

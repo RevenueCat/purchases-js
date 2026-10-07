@@ -1,4 +1,4 @@
-import { assert, describe, expect, test } from "vitest";
+import { assert, describe, expect, test, vi } from "vitest";
 import {
   createConsumablePackageMock,
   createMonthlyPackageMock,
@@ -18,11 +18,14 @@ import { OfferingKeyword } from "../entities/get-offerings-params";
 import { trialPhaseP1W } from "./fixtures/price-phases";
 import {
   APIGetRequest,
+  customerInfoResponse,
   offeringsArray,
   productsResponse,
 } from "./test-responses";
 import type { PaywallData } from "@revenuecat/purchases-ui-js";
 import { http, HttpResponse } from "msw";
+import type { OfferingsResponse } from "../networking/responses/offerings-response";
+import { Purchases } from "../main";
 
 describe("getOfferings", () => {
   const expectedMonthlyPackage = createMonthlyPackageMock();
@@ -135,6 +138,7 @@ describe("getOfferings", () => {
       packageType: PackageType.Custom,
       rcBillingProduct: webBillingProduct,
       webBillingProduct: webBillingProduct,
+      product: webBillingProduct,
     };
 
     const expectedOfferings: Offerings = {
@@ -213,6 +217,7 @@ describe("getOfferings", () => {
       packageType: PackageType.Custom,
       rcBillingProduct: webBillingProduct,
       webBillingProduct: webBillingProduct,
+      product: webBillingProduct,
     };
     const packageWithoutTargeting = createMonthlyPackageMock(null);
     const expectedOfferings: Offerings = {
@@ -323,8 +328,7 @@ describe("getOfferings", () => {
       current: expectedOffering,
     });
 
-    const offeringProduct =
-      offerings.current?.availablePackages[0].webBillingProduct;
+    const offeringProduct = offerings.current?.availablePackages[0].product;
     const nonSubscriptionOption = offeringProduct?.defaultNonSubscriptionOption;
 
     expect(nonSubscriptionOption?.basePrice).toBeDefined();
@@ -448,6 +452,7 @@ describe("getOfferings", () => {
       packageType: PackageType.Custom,
       rcBillingProduct: webBillingProduct,
       webBillingProduct: webBillingProduct,
+      product: webBillingProduct,
     };
 
     const expectedOfferings: Offerings = {
@@ -511,8 +516,7 @@ describe("getOfferings", () => {
 
     expect(offerings).toEqual(expectedOfferings);
 
-    const offeringProduct =
-      offerings.current?.availablePackages[0].webBillingProduct;
+    const offeringProduct = offerings.current?.availablePackages[0].product;
     const subscriptionOption = offeringProduct?.defaultSubscriptionOption;
 
     expect(subscriptionOption?.base).toBeDefined();
@@ -544,7 +548,7 @@ describe("getOfferings", () => {
 
       // Find the product with intro pricing
       const offeringProduct =
-        offerings.all["offering_intro"]?.availablePackages[0].webBillingProduct;
+        offerings.all["offering_intro"]?.availablePackages[0].product;
       const subscriptionOption = offeringProduct?.defaultSubscriptionOption;
 
       const expectedIntroPrice = {
@@ -580,8 +584,7 @@ describe("getOfferings", () => {
       const offerings = await purchases.getOfferings();
 
       const offeringProduct =
-        offerings.all["offering_trial_intro"]?.availablePackages[0]
-          .webBillingProduct;
+        offerings.all["offering_trial_intro"]?.availablePackages[0].product;
       const subscriptionOption = offeringProduct?.defaultSubscriptionOption;
 
       const expectedIntroPrice = {
@@ -624,7 +627,7 @@ describe("getOfferings", () => {
       expect(monthlyPackage).toBeDefined();
 
       const subscriptionOption =
-        monthlyPackage!.webBillingProduct.defaultSubscriptionOption;
+        monthlyPackage!.product.defaultSubscriptionOption;
       expect(subscriptionOption).toBeDefined();
       expect(subscriptionOption!.introPrice).toBeNull();
     });
@@ -635,7 +638,7 @@ describe("getOfferings", () => {
 
       const subscriptionOption =
         offerings.all["offering_intro_null_price"]?.availablePackages[0]
-          ?.webBillingProduct.defaultSubscriptionOption;
+          ?.product.defaultSubscriptionOption;
 
       expect(subscriptionOption?.introPrice).toStrictEqual({
         cycleCount: 3,
@@ -653,8 +656,8 @@ describe("getOfferings", () => {
       const offerings = await purchases.getOfferings();
 
       const subscriptionOption =
-        offerings.all["offering_intro_upfront"]?.availablePackages[0]
-          ?.webBillingProduct.defaultSubscriptionOption;
+        offerings.all["offering_intro_upfront"]?.availablePackages[0]?.product
+          .defaultSubscriptionOption;
 
       expect(subscriptionOption?.introPrice).toStrictEqual({
         cycleCount: 1,
@@ -692,7 +695,7 @@ describe("getOfferings", () => {
         introPricePhase,
       } =
         offerings.all["offering_one_time_discount"].availablePackages[0]
-          .webBillingProduct;
+          .product;
 
       const expectedDiscount = {
         durationMode: "one_time",
@@ -736,7 +739,7 @@ describe("getOfferings", () => {
         defaultSubscriptionOption,
       } =
         offerings.all["offering_consumable_discount"].availablePackages[0]
-          .webBillingProduct;
+          .product;
 
       const expectedDiscount = {
         durationMode: "one_time",
@@ -773,7 +776,7 @@ describe("getOfferings", () => {
 
       const { defaultSubscriptionOption, discountPhase } =
         offerings.all["offering_fixed_amount_discount"].availablePackages[0]
-          .webBillingProduct;
+          .product;
 
       const expectedDiscount = {
         durationMode: "one_time",
@@ -810,7 +813,7 @@ describe("getOfferings", () => {
 
       const { defaultSubscriptionOption, discountPhase } =
         offerings.all["offering_time_window_discount"].availablePackages[0]
-          .webBillingProduct;
+          .product;
 
       const expectedDiscount = {
         durationMode: "time_window",
@@ -841,8 +844,7 @@ describe("getOfferings", () => {
       const offerings = await purchases.getOfferings();
 
       const { defaultSubscriptionOption, discountPhase } =
-        offerings.all["offering_forever_discount"].availablePackages[0]
-          .webBillingProduct;
+        offerings.all["offering_forever_discount"].availablePackages[0].product;
 
       const expectedDiscount = {
         durationMode: "forever",
@@ -870,6 +872,186 @@ describe("getOfferings", () => {
 });
 
 describe("getOfferings placements", () => {
+  const offeringsUrl =
+    "http://localhost:8000/v1/subscribers/someAppUserId/offerings";
+  const rawOfferingsResponse: OfferingsResponse = {
+    current_offering_id: "offering_1",
+    offerings: offeringsArray,
+    placements: {
+      fallback_offering_id: "offering_1",
+      offering_ids_by_placement: {
+        test_placement_id: "offering_2",
+      },
+    },
+  };
+  const getOfferingsRequestCount = () =>
+    APIGetRequest.mock.calls.filter(([request]) => request.url === offeringsUrl)
+      .length;
+
+  test("shares one offerings request across concurrent placement lookups", async () => {
+    const purchases = configurePurchases();
+
+    const offerings = await Promise.all([
+      purchases.getCurrentOfferingForPlacement("test_placement_id"),
+      purchases.getCurrentOfferingForPlacement("missing_placement_id"),
+      purchases.getCurrentOfferingForPlacement("another_missing_placement_id"),
+    ]);
+
+    expect(offerings.map((offering) => offering?.identifier)).toEqual([
+      "offering_2",
+      "offering_1",
+      "offering_1",
+    ]);
+    expect(getOfferingsRequestCount()).toBe(1);
+  });
+
+  test("reuses a recent offerings response across sequential placement lookups", async () => {
+    const purchases = configurePurchases();
+
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+    await purchases.getCurrentOfferingForPlacement("missing_placement_id");
+    await purchases.getCurrentOfferingForPlacement(
+      "another_missing_placement_id",
+    );
+
+    expect(getOfferingsRequestCount()).toBe(1);
+  });
+
+  test("refetches offerings after the public cache invalidation", async () => {
+    const purchases = configurePurchases();
+
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+    purchases.invalidateOfferingsCache();
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(getOfferingsRequestCount()).toBe(2);
+  });
+
+  test("refetches offerings when platform info changes after configuration", async () => {
+    const purchases = configurePurchases();
+
+    await purchases.getOfferings();
+    Purchases.setPlatformInfo({ flavor: "react-native", version: "1.0.0" });
+    await purchases.getOfferings();
+
+    expect(getOfferingsRequestCount()).toBe(2);
+  });
+
+  test("refetches offerings after posting a simulated store receipt", async () => {
+    server.use(
+      http.post("http://localhost:8000/v1/receipts", () =>
+        HttpResponse.json(customerInfoResponse, { status: 200 }),
+      ),
+    );
+    const purchases = configurePurchases(
+      "someAppUserId",
+      "rcSource",
+      "test_store_api_key",
+    );
+    const offerings = await purchases.getOfferings();
+    const product = offerings.current?.availablePackages[0].product;
+
+    await purchases._postSimulatedStoreReceipt(product!);
+    await purchases.getOfferings();
+
+    expect(getOfferingsRequestCount()).toBe(2);
+  });
+
+  test("refetches offerings after the cache expires", async () => {
+    const now = Date.now();
+    const dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(now);
+    const purchases = configurePurchases();
+
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+    dateNowSpy.mockReturnValue(now + 10_000);
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(getOfferingsRequestCount()).toBe(2);
+    dateNowSpy.mockRestore();
+  });
+
+  test("shares the raw response without allowing getOfferings filtering to mutate it", async () => {
+    const purchases = configurePurchases();
+
+    const [filteredOfferings, placementOffering] = await Promise.all([
+      purchases.getOfferings({ offeringIdentifier: "offering_1" }),
+      purchases.getCurrentOfferingForPlacement("test_placement_id"),
+    ]);
+
+    expect(Object.keys(filteredOfferings.all)).toEqual(["offering_1"]);
+    expect(placementOffering?.identifier).toBe("offering_2");
+    expect(getOfferingsRequestCount()).toBe(1);
+  });
+
+  test("does not cache failed offerings requests", async () => {
+    let requestCount = 0;
+    server.use(
+      http.get(offeringsUrl, ({ request }) => {
+        APIGetRequest({ url: request.url });
+        requestCount += 1;
+        return requestCount === 1
+          ? HttpResponse.json(null, { status: 500 })
+          : HttpResponse.json(rawOfferingsResponse, { status: 200 });
+      }),
+    );
+    const purchases = configurePurchases();
+
+    await expect(
+      purchases.getCurrentOfferingForPlacement("test_placement_id"),
+    ).rejects.toBeInstanceOf(PurchasesError);
+    const offering =
+      await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(offering?.identifier).toBe("offering_2");
+    expect(requestCount).toBe(2);
+  });
+
+  test("reuses a recent offerings response across sequential getOfferings calls", async () => {
+    const purchases = configurePurchases();
+
+    await purchases.getOfferings();
+    await purchases.getOfferings();
+
+    expect(getOfferingsRequestCount()).toBe(1);
+  });
+
+  test("does not let an invalidated in-flight request repopulate the cache", async () => {
+    let resolveFirstRequest:
+      | ((response: OfferingsResponse) => void)
+      | undefined;
+    const purchases = configurePurchases();
+    const getOfferingsSpy = vi
+      .spyOn(purchases["backend"], "getOfferings")
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFirstRequest = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(rawOfferingsResponse);
+    server.use(
+      http.post(
+        "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
+        () => HttpResponse.json({}, { status: 200 }),
+      ),
+    );
+
+    const firstLookup =
+      purchases.getCurrentOfferingForPlacement("test_placement_id");
+    await vi.waitFor(() => expect(getOfferingsSpy).toHaveBeenCalledTimes(1));
+
+    await purchases.setAttributes({ segment: "updated" });
+    const secondLookup =
+      purchases.getCurrentOfferingForPlacement("test_placement_id");
+    await vi.waitFor(() => expect(getOfferingsSpy).toHaveBeenCalledTimes(2));
+
+    resolveFirstRequest?.(rawOfferingsResponse);
+    await Promise.all([firstLookup, secondLookup]);
+    await purchases.getCurrentOfferingForPlacement("test_placement_id");
+
+    expect(getOfferingsSpy).toHaveBeenCalledTimes(2);
+  });
+
   test("gets fallback offering if placement id is missing", async () => {
     const purchases = configurePurchases();
     const offeringWithPlacement =
@@ -877,7 +1059,7 @@ describe("getOfferings placements", () => {
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_1");
     expect(
-      offeringWithPlacement!.availablePackages[0].webBillingProduct
+      offeringWithPlacement!.availablePackages[0].product
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("missing_placement_id");
   });
@@ -909,7 +1091,7 @@ describe("getOfferings placements", () => {
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_1");
     expect(
-      offeringWithPlacement!.availablePackages[0].webBillingProduct
+      offeringWithPlacement!.availablePackages[0].product
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("test_unknown_offering_placement_id");
   });
@@ -921,7 +1103,7 @@ describe("getOfferings placements", () => {
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_2");
     expect(
-      offeringWithPlacement!.availablePackages[0].webBillingProduct
+      offeringWithPlacement!.availablePackages[0].product
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("test_placement_id");
   });
@@ -1028,7 +1210,7 @@ describe("getOfferings placements", () => {
     expect(offeringWithPlacement).not.toBeNull();
     expect(offeringWithPlacement?.identifier).toEqual("offering_1");
     expect(
-      offeringWithPlacement!.availablePackages[0].webBillingProduct
+      offeringWithPlacement!.availablePackages[0].product
         .presentedOfferingContext.placementIdentifier,
     ).toEqual("any_placement_id");
   });

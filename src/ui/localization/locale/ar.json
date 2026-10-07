@@ -53,6 +53,7 @@
   "error_page.button_try_again": "حاول مرة أخرى",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}%",
+  "paywall_variables.free_price": "مجاني",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "إجمالي المبلغ المستحق اليوم",
   "product_info.subscribe_to": "اشترك في",
@@ -79,6 +80,7 @@
   "error_page.error_title_stripe_missing_required_permission": "إذن Stripe مفقود",
   "error_page.button_close": "إغلاق",
   "error_page.error_message_stripe_invalid_tax_origin_address": "فشلت عملية الشراء لأن عنوان المنشأ الضريبي غير صالح. في مرحلة الإنتاج، ستعمل عمليات الشراء بدون تطبيق الضرائب.",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "فشلت عملية الشراء لأن عنوان المنشأ الضريبي غير صالح.",
   "error_page.error_message_stripe_tax_not_active": "فشلت عملية الشراء لأن ضريبة Stripe غير مفعلة. في مرحلة الإنتاج، ستعمل عمليات الشراء بدون تطبيق الضرائب.",
   "error_page.error_only_in_sandbox": "تظهر هذه الرسالة فقط في البيئة التجريبية.",
   "error_page.error_message_stripe_missing_required_permission": "فشلت عملية الشراء لأن تطبيق Stripe يفتقر إلى إذن مطلوب. في مرحلة الإنتاج، ستعمل عمليات الشراء بدون تطبيق الضرائب.",
@@ -94,8 +96,10 @@
   "payment_entry_page.trial_subscription_terms_info": "بعد انتهاء الفترة التجريبية، سيتم محاسبتك بمبلغ {{price}} {{perFrequency}} بدءًا من {{renewalDate}}. يمكنك الإلغاء في أي وقت قبل هذا التاريخ.",
   "payment_entry_page.subscription_info": "يتم تجديد الاشتراك تلقائيًا. يمكنك الإلغاء في أي وقت.",
   "payment_entry_page.otp_terms_info": "بالشراء، أنت توافق على السماح لتطبيق {{appName}} بتحصيل الرسوم منك وفقًا لشروطه.",
+  "payment_entry_page.otp_terms_info_without_app_name": "بالشراء، أنت توافق على فرض رسوم عليك وفقًا للشروط المطبقة.",
   "payment_entry_page.terms_link_label": "الشروط",
   "payment_entry_page.subscription_terms_info": "بالاشتراك، فإنك توافق على السماح لـ {{appName}} بتحصيل رسوم منك وفقًا لشروطها حتى تقوم بالإلغاء.",
+  "payment_entry_page.subscription_terms_info_without_app_name": "بالاشتراك، أنت توافق على فرض رسوم متكررة وفقًا للشروط المطبقة حتى تقوم بالإلغاء.",
   "loading_page.keep_page_open": "العملية شارفت على الانتهاء. أبقِ هذه الصفحة مفتوحة.",
   "loading_page.processing_payment": "جاري معالجة الدفع",
   "pricing_table.discount": "خصم",
@@ -104,6 +108,7 @@
   "discount_input.label": "رمز ترويجي",
   "payment_entry_page.checkout_consent_terms_of_service": "شروط الخدمة",
   "payment_entry_page.checkout_consent_agreement": "أوافق على {{termsOfService}} لـ {{appName}}.",
+  "payment_entry_page.checkout_consent_agreement_without_app_name": "أوافق على {{termsOfService}}.",
   "upgrade_confirm_page.subtitle_immediate": "راجع تفاصيل الدفع الخاصة بك وقم بتأكيد الترقية",
   "upgrade_confirm_page.confirm_upgrade_with_price": "تأكيد الترقية ∙ {{formattedPrice}}",
   "upgrade_product_info.estimated_at_next_renewal": "تقديرية عند التجديد التالي",
@@ -130,5 +135,7 @@
   "paddle_order_summary.billed_frequency": "تُحصّل {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "أول {{firstPeriod}}، ثم {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "شامل الضريبة",
-  "paddle_order_summary.due_on": "مستحق في {{date}}"
+  "paddle_order_summary.due_on": "مستحق في {{date}}",
+  "payment_entry_page.payment_method_error": "لم نتمكن من استخدام طريقة الدفع هذه. يرجى التحقق من التفاصيل الخاصة بك أو تجربة طريقة دفع مختلفة.",
+  "payment_entry_page.payment_method_error_card_not_supported": "نوع البطاقة هذا غير مقبول. يرجى تجربة بطاقة مختلفة."
 }

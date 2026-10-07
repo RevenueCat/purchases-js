@@ -260,8 +260,10 @@ export type OwnershipType = "PURCHASED" | "FAMILY_SHARED" | "UNKNOWN";
 export interface Package {
     readonly identifier: string;
     readonly packageType: PackageType;
+    readonly product: Product;
     // @deprecated
     readonly rcBillingProduct: Product;
+    // @deprecated
     readonly webBillingProduct: Product;
     readonly webCheckoutURL?: string | null;
 }
@@ -289,6 +291,7 @@ export const PAYWALL_COMPONENT_TYPES: {
     readonly PACKAGE: "package";
     readonly PACKAGE_SELECTION_SHEET: "package_selection_sheet";
     readonly PURCHASE_BUTTON: "purchase_button";
+    readonly WALLET_BUTTON: "wallet_button";
 };
 
 // @public
@@ -548,7 +551,10 @@ export class Purchases {
     /* Excluded from this release type: eventsTracker */
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
+    /* Excluded from this release type: billingWrapper */
+    /* Excluded from this release type: offeringsRequests */
     /* Excluded from this release type: cachedCurrentOffering */
+    /* Excluded from this release type: customWebCheckoutEnabled */
     /* Excluded from this release type: stripeBillingQuickPurchaseState */
     /* Excluded from this release type: stripeBillingQuickPurchasePreparation */
     /* Excluded from this release type: instance */
@@ -566,6 +572,7 @@ export class Purchases {
     static getSharedInstance(): Purchases;
     getVirtualCurrencies(): Promise<VirtualCurrencies>;
     identifyUser(appUserId: string): Promise<IdentifyResult>;
+    invalidateOfferingsCache(): void;
     invalidateVirtualCurrenciesCache(): void;
     // (undocumented)
     isAnonymous(): boolean;
@@ -588,6 +595,7 @@ export class Purchases {
     trackCustomPaywallImpression(params?: CustomPaywallImpressionParams): void;
     /* Excluded from this release type: _trackEvent */
     /* Excluded from this release type: _flushAllEvents */
+    /* Excluded from this release type: unwrappedBillingWrapper */
 }
 
 // @public

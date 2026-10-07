@@ -1,9 +1,15 @@
 <script lang="ts">
+  import type { HTMLAttributes } from "svelte/elements";
   import Typography from "./typography.svelte";
-  export let text;
+
+  interface Props extends HTMLAttributes<HTMLDivElement> {
+    text: string;
+  }
+
+  let { text, ...restProps }: Props = $props();
 </script>
 
-<div class="text-separator">
+<div {...restProps} class="text-separator">
   <hr class="line" />
   <span class="text"
     ><Typography size="caption-default">{text}</Typography></span

@@ -20,6 +20,7 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendPaymentGatewayGenericError:
       case BackendErrorCode.BackendGatewaySetupErrorStripeTaxNotActive:
       case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddress:
+      case BackendErrorCode.BackendGatewaySetupErrorInvalidTaxOriginAddressDuringCheckout:
       case BackendErrorCode.BackendGatewaySetupErrorMissingRequiredPermission:
       case BackendErrorCode.BackendGatewaySetupErrorSandboxModeOnly:
       case BackendErrorCode.BackendQuickPurchaseUnavailable:
@@ -61,6 +62,7 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendInvalidAppleSubscriptionKey:
       case BackendErrorCode.BackendBadRequest:
       case BackendErrorCode.BackendInternalServerError:
+      case BackendErrorCode.BackendTooManyRequests:
         return ErrorCode.UnexpectedBackendResponseError;
       case BackendErrorCode.BackendProductIDsMalformed:
         return ErrorCode.UnsupportedError;
@@ -112,6 +114,7 @@ export enum BackendErrorCode {
   BackendProductIdForGoogleReceiptNotProvided = 7106,
   BackendInvalidPlayStoreCredentials = 7107,
   BackendInternalServerError = 7110,
+  BackendTooManyRequests = 7114,
   BackendEmptyAppUserId = 7220,
   BackendInvalidAuthToken = 7224,
   BackendInvalidAPIKey = 7225,
@@ -138,6 +141,7 @@ export enum BackendErrorCode {
   BackendGatewaySetupErrorSandboxModeOnly = 7901,
   BackendInvalidPaddleAPIKey = 7967,
   BackendQuickPurchaseUnavailable = 8172,
+  BackendGatewaySetupErrorInvalidTaxOriginAddressDuringCheckout = 8174,
 }
 
 /**

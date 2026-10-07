@@ -53,6 +53,7 @@
   "error_page.button_try_again": "Försök igen",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}%",
+  "paywall_variables.free_price": "gratis",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}} ({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Totalt att betala idag",
   "product_info.subscribe_to": "Prenumerera på",
@@ -79,6 +80,7 @@
   "error_page.error_title_stripe_missing_required_permission": "Saknar Stripe-behörighet",
   "error_page.button_close": "Stäng",
   "error_page.error_message_stripe_invalid_tax_origin_address": "Köpet misslyckades eftersom skatteursprungsadressen är ogiltig. I produktion kommer köp att fungera utan att skatter tillämpas.",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "Köpet misslyckades eftersom skatteursprungsadressen är ogiltig.",
   "error_page.error_message_stripe_tax_not_active": "Köpet misslyckades eftersom Stripe Tax inte är aktiverat. I produktion kommer köp att fungera utan att skatter tillämpas.",
   "error_page.error_only_in_sandbox": "Det här meddelandet visas bara i sandlådan.",
   "error_page.error_message_stripe_missing_required_permission": "Köpet misslyckades eftersom Stripe-appen saknar en nödvändig behörighet. I produktion kommer köp att fungera utan att skatter tillämpas.",
@@ -94,8 +96,10 @@
   "payment_entry_page.trial_subscription_terms_info": "Efter att din provperiod slutar debiteras du {{price}} {{perFrequency}} från och med {{renewalDate}}. Du kan avbryta när som helst före detta datum.",
   "payment_entry_page.subscription_info": "Prenumerationen förnyas automatiskt. Avbryt när som helst.",
   "payment_entry_page.otp_terms_info": "Genom att köpa godkänner du att {{appName}} debiterar dig i enlighet med deras villkor.",
+  "payment_entry_page.otp_terms_info_without_app_name": "Genom att köpa godkänner du att debiteras enligt tillämpliga villkor.",
   "payment_entry_page.terms_link_label": "Villkor",
   "payment_entry_page.subscription_terms_info": "Genom att prenumerera godkänner du att {{appName}} debiterar dig i enlighet med deras villkor tills du avbryter.",
+  "payment_entry_page.subscription_terms_info_without_app_name": "Genom att prenumerera godkänner du återkommande debiteringar enligt tillämpliga villkor tills du säger upp.",
   "loading_page.keep_page_open": "Processen är nästan klar. Håll den här sidan öppen.",
   "loading_page.processing_payment": "Behandlar betalning",
   "pricing_table.discount": "Rabatt",
@@ -104,6 +108,7 @@
   "discount_input.label": "Kampanjkod",
   "payment_entry_page.checkout_consent_terms_of_service": "användarvillkor",
   "payment_entry_page.checkout_consent_agreement": "Jag godkänner {{appName}} {{termsOfService}}.",
+  "payment_entry_page.checkout_consent_agreement_without_app_name": "Jag godkänner {{termsOfService}}.",
   "upgrade_confirm_page.subtitle_immediate": "Granska dina betalningsuppgifter och bekräfta uppgradering",
   "upgrade_confirm_page.confirm_upgrade_with_price": "Bekräfta uppgradering ∙ {{formattedPrice}}",
   "upgrade_product_info.estimated_at_next_renewal": "Uppskattas vid nästa förnyelse",
@@ -130,5 +135,7 @@
   "paddle_order_summary.billed_frequency": "faktureras {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "första {{firstPeriod}}, därefter {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "inkl. moms",
-  "paddle_order_summary.due_on": "Förfaller {{date}}"
+  "paddle_order_summary.due_on": "Förfaller {{date}}",
+  "payment_entry_page.payment_method_error": "Vi kunde inte använda denna betalningsmetod. Kontrollera dina uppgifter eller prova en annan betalningsmetod.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Denna korttyp accepteras inte. Prova ett annat kort."
 }

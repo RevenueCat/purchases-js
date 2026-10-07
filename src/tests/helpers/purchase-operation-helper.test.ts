@@ -152,6 +152,35 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
+  test("checkoutStart identifies an invalid tax origin address response", async () => {
+    setCheckoutStartResponse(
+      HttpResponse.json(
+        {
+          code: 8174,
+          message: "Invalid tax origin address",
+        },
+        { status: StatusCodes.UNPROCESSABLE_ENTITY },
+      ),
+    );
+
+    await expect(
+      purchaseOperationHelper.checkoutStart({
+        appUserId: "test-app-user-id",
+        productId: "test-product-id",
+        purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+        presentedOfferingContext: {
+          offeringIdentifier: "test-offering-id",
+          targetingContext: null,
+          placementIdentifier: null,
+        },
+      }),
+    ).rejects.toMatchObject({
+      errorCode:
+        PurchaseFlowErrorCode.StripeInvalidTaxOriginAddressDuringCheckout,
+      extra: { backendErrorCode: 8174 },
+    });
+  });
+
   test("checkoutStart fails if user already subscribed to product", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(

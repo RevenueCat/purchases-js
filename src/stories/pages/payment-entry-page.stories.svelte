@@ -1,5 +1,6 @@
 <script module lang="ts">
   import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
+  import { expect, waitFor, within } from "@storybook/test";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
@@ -488,9 +489,13 @@
     currentPage: "payment-entry",
     forceEnableWalletMethods: true,
   }}
-  parameters={{
-    chromatic: {
-      delay: 1000,
-    },
+  play={async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(
+      () => {
+        expect(canvas.getByTestId("express-checkout-ready")).toBeVisible();
+      },
+      { timeout: 10_000 },
+    );
   }}
 />

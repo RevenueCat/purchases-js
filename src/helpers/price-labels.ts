@@ -11,7 +11,7 @@ const microsToDollars = (micros: number): number => {
 
 const fractionDigitsCache = new Map<string, number>();
 
-function getCurrencyFractionDigits(currency: string): number {
+export function getCurrencyFractionDigits(currency: string): number {
   const cached = fractionDigitsCache.get(currency);
   if (cached !== undefined) return cached;
   let digits: number;

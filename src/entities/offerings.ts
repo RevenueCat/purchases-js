@@ -412,13 +412,18 @@ export interface Package {
   readonly identifier: string;
   /**
    * The {@link Product} assigned to this package.
-   * @deprecated - Use {@link Package.webBillingProduct} instead.
+   * @deprecated - Use {@link Package.product} instead.
    */
   readonly rcBillingProduct: Product;
   /**
    * The {@link Product} assigned to this package.
+   * @deprecated - Use {@link Package.product} instead.
    */
   readonly webBillingProduct: Product;
+  /**
+   * The {@link Product} assigned to this package.
+   */
+  readonly product: Product;
   /**
    * The web checkout URL for this package, if available.
    */
@@ -531,7 +536,7 @@ export interface Offerings {
  */
 export type PurchaseMetadata = Record<string, string | null>;
 
-const getPriceForCurrency = (
+export const getPriceForCurrency = (
   amountMicros: number,
   currency: string,
 ): Price => ({
@@ -864,6 +869,7 @@ const toPackage = (
     identifier: packageData.identifier,
     rcBillingProduct: product,
     webBillingProduct: product,
+    product: product,
     ...(packageData.web_checkout_url
       ? { webCheckoutURL: packageData.web_checkout_url }
       : {}),

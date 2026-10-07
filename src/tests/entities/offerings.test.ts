@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, assert, describe, expect, test, vi } from "vitest";
 import {
   ProductType,
+  toOffering,
   toPurchaseOptionForProductType,
 } from "../../entities/offerings";
 import type {
@@ -33,6 +34,44 @@ const nonSubscriptionOptionResponse: NonSubscriptionOptionResponse = {
   },
   discount: null,
 };
+
+describe("toOffering", () => {
+  test("populates package product and both deprecated aliases with the same product", () => {
+    const offering = toOffering(
+      true,
+      {
+        identifier: "offering",
+        description: "Test offering",
+        metadata: null,
+        paywall_components: null,
+        packages: [
+          {
+            identifier: "$rc_monthly",
+            platform_product_identifier: "monthly",
+          },
+        ],
+      },
+      {
+        monthly: {
+          identifier: "monthly",
+          product_type: "subscription",
+          title: "Monthly subscription",
+          description: null,
+          default_purchase_option_id: subscriptionOptionResponse.id,
+          purchase_options: {
+            [subscriptionOptionResponse.id]: subscriptionOptionResponse,
+          },
+        },
+      },
+    );
+
+    const pkg = offering?.availablePackages[0];
+    assert(pkg);
+    expect(pkg.product).toMatchObject({ identifier: "monthly" });
+    expect(pkg.rcBillingProduct).toBe(pkg.product);
+    expect(pkg.webBillingProduct).toBe(pkg.product);
+  });
+});
 
 describe("toPurchaseOptionForProductType", () => {
   afterEach(() => {

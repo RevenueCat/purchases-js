@@ -53,6 +53,7 @@
   "error_page.button_try_again": "Cuba lagi",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}%",
+  "paywall_variables.free_price": "percuma",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Jumlah yang perlu dibayar hari ini",
   "product_info.subscribe_to": "Langgan",
@@ -79,6 +80,7 @@
   "error_page.error_title_stripe_missing_required_permission": "Kebenaran Stripe hilang",
   "error_page.button_close": "Tutup",
   "error_page.error_message_stripe_invalid_tax_origin_address": "Pembelian gagal kerana alamat asal cukai tidak sah. Dalam pengeluaran, pembelian akan berfungsi tanpa cukai dikenakan.",
+  "error_page.error_message_stripe_invalid_tax_origin_address_during_checkout": "Pembelian gagal kerana alamat asal cukai tidak sah.",
   "error_page.error_message_stripe_tax_not_active": "Pembelian gagal kerana Cukai Stripe tidak didayakan. Dalam pengeluaran, pembelian akan berfungsi tanpa cukai dikenakan.",
   "error_page.error_only_in_sandbox": "Mesej ini hanya muncul dalam kotak pasir.",
   "error_page.error_message_stripe_missing_required_permission": "Pembelian gagal kerana aplikasi Stripe kekurangan kebenaran yang diperlukan. Dalam pengeluaran, pembelian akan berfungsi tanpa cukai dikenakan.",
@@ -94,8 +96,10 @@
   "payment_entry_page.trial_subscription_terms_info": "Selepas tempoh percubaan anda tamat, anda akan dikenakan bayaran sebanyak {{price}} {{perFrequency}} bermula {{renewalDate}}. Anda boleh membatalkan pada bila-bila masa sebelum tarikh ini.",
   "payment_entry_page.subscription_info": "Langganan diperbaharui secara automatik. Batalkan bila-bila masa.",
   "payment_entry_page.otp_terms_info": "Dengan membuat pembelian, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda mengikut terma mereka.",
+  "payment_entry_page.otp_terms_info_without_app_name": "Dengan membuat pembelian, anda bersetuju untuk dicaj mengikut terma yang berkenaan.",
   "payment_entry_page.terms_link_label": "Terma",
   "payment_entry_page.subscription_terms_info": "Dengan melanggan, anda bersetuju untuk membenarkan {{appName}} mengenakan bayaran kepada anda mengikut terma mereka sehingga anda membatalkan.",
+  "payment_entry_page.subscription_terms_info_without_app_name": "Dengan melanggan, anda bersetuju dengan caj berulang mengikut terma yang berkenaan sehingga anda membatalkan.",
   "loading_page.keep_page_open": "Proses hampir selesai. Pastikan halaman ini dibuka.",
   "loading_page.processing_payment": "Memproses pembayaran",
   "pricing_table.discount": "Diskaun",
@@ -104,6 +108,7 @@
   "discount_input.label": "Kod promo",
   "payment_entry_page.checkout_consent_terms_of_service": "syarat perkhidmatan",
   "payment_entry_page.checkout_consent_agreement": "Saya bersetuju dengan {{appName}} {{termsOfService}}.",
+  "payment_entry_page.checkout_consent_agreement_without_app_name": "Saya bersetuju dengan {{termsOfService}}.",
   "upgrade_confirm_page.subtitle_immediate": "Semak butiran pembayaran anda dan sahkan naik taraf",
   "upgrade_confirm_page.confirm_upgrade_with_price": "Sahkan naik taraf ∙ {{formattedPrice}}",
   "upgrade_product_info.estimated_at_next_renewal": "Anggaran pada pembaharuan seterusnya",
@@ -130,5 +135,7 @@
   "paddle_order_summary.billed_frequency": "dibilkan {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "{{firstPeriod}} pertama, kemudian {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "termasuk cukai",
-  "paddle_order_summary.due_on": "Perlu dibayar pada {{date}}"
+  "paddle_order_summary.due_on": "Perlu dibayar pada {{date}}",
+  "payment_entry_page.payment_method_error": "Kami tidak dapat menggunakan kaedah pembayaran ini. Semak butiran anda atau cuba kaedah pembayaran lain.",
+  "payment_entry_page.payment_method_error_card_not_supported": "Jenis kad ini tidak diterima. Cuba kad lain."
 }

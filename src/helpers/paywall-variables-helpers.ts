@@ -47,12 +47,11 @@ export function buildVariablesPerPackage(
   return parseOfferingIntoVariables(offering, translator);
 }
 
-function getPackageMonthlyPrice(pkg: Package): number {
-  const price = pkg.webBillingProduct.price;
+export function getPackageMonthlyPrice(pkg: Package): number {
+  const price = pkg.product.price;
   const purchaseOption = getDefaultPurchaseOption(pkg);
   const period =
-    pkg.webBillingProduct.period ||
-    (purchaseOption as SubscriptionOption)?.base?.period;
+    pkg.product.period || (purchaseOption as SubscriptionOption)?.base?.period;
 
   if (!period || !period.number || period.number <= 0) {
     return price.amountMicros;
@@ -64,16 +63,16 @@ function getPackageMonthlyPrice(pkg: Package): number {
 function getDefaultPurchaseOption(
   pkg: Package,
 ): PurchaseOption | undefined | null {
-  if (pkg.webBillingProduct.productType === ProductType.Subscription) {
-    return pkg.webBillingProduct.defaultSubscriptionOption;
+  if (pkg.product.productType === ProductType.Subscription) {
+    return pkg.product.defaultSubscriptionOption;
   }
   if (
-    pkg.webBillingProduct.productType === ProductType.NonConsumable ||
-    pkg.webBillingProduct.productType === ProductType.Consumable
+    pkg.product.productType === ProductType.NonConsumable ||
+    pkg.product.productType === ProductType.Consumable
   ) {
-    return pkg.webBillingProduct.defaultNonSubscriptionOption;
+    return pkg.product.defaultNonSubscriptionOption;
   }
-  return pkg.webBillingProduct.defaultPurchaseOption;
+  return pkg.product.defaultPurchaseOption;
 }
 
 function productIsSubscription(
@@ -123,7 +122,7 @@ export function parseOfferingIntoVariables(
   const packages = offering.availablePackages;
 
   const subscriptionPackages = packages.filter(
-    (pkg) => pkg.webBillingProduct.productType === ProductType.Subscription,
+    (pkg) => pkg.product.productType === ProductType.Subscription,
   );
 
   const highestPricePackage =
@@ -153,17 +152,17 @@ function parsePackageIntoVariables(
   highestPricePackage: Package | null,
   translator: Translator,
 ) {
-  const webBillingProduct = pkg.webBillingProduct;
-  const productPrice = webBillingProduct.price;
+  const product = pkg.product;
+  const productPrice = product.price;
   const formattedPrice = translator.formatPrice(
     productPrice.amountMicros,
     productPrice.currency,
   );
   const purchaseOption = getDefaultPurchaseOption(pkg);
-  const productType = webBillingProduct.productType;
+  const productType = product.productType;
 
   const baseObject: VariableDictionary = {
-    "product.store_product_name": webBillingProduct.title,
+    "product.store_product_name": product.title,
     "product.price": formattedPrice,
     "product.price_per_period": "",
     "product.price_per_period_abbreviated": "",
@@ -188,6 +187,11 @@ function parsePackageIntoVariables(
     "product.offer_price_per_week": "",
     "product.offer_price_per_month": "",
     "product.offer_price_per_year": "",
+    "product.offer_price_with_zero": "",
+    "product.offer_price_with_zero_per_day": "",
+    "product.offer_price_with_zero_per_week": "",
+    "product.offer_price_with_zero_per_month": "",
+    "product.offer_price_with_zero_per_year": "",
     "product.offer_period": "",
     "product.offer_period_abbreviated": "",
     "product.offer_period_in_days": "",
@@ -216,7 +220,7 @@ function parsePackageIntoVariables(
       true,
     );
 
-    const basePeriod = webBillingProduct.period || purchaseOption.base.period;
+    const basePeriod = product.period || purchaseOption.base.period;
 
     const priceVariables = getPriceVariables(
       productPrice,

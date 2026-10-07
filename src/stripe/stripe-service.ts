@@ -39,6 +39,7 @@ export enum StripeServiceErrorCode {
   ErrorLoadingStripe = 0,
   HandledFormError = 1,
   UnhandledFormError = 2,
+  ConfirmationTokenError = 3,
 }
 
 export class StripeServiceError {
@@ -46,6 +47,7 @@ export class StripeServiceError {
     public code: StripeServiceErrorCode,
     public gatewayErrorCode: string | undefined,
     public message: string | undefined,
+    public gatewayDeclineCode?: string,
   ) {}
 }
 
@@ -396,6 +398,15 @@ export class StripeService {
     );
   }
 
+  static mapConfirmationTokenError(error: StripeError) {
+    return new StripeServiceError(
+      StripeServiceErrorCode.ConfirmationTokenError,
+      error.code,
+      error.message,
+      error.decline_code,
+    );
+  }
+
   static async confirmElements(
     stripe: Stripe,
     elements: StripeElements,
@@ -443,7 +454,7 @@ export class StripeService {
       });
 
     if (confirmationError) {
-      throw this.mapError(confirmationError);
+      throw this.mapConfirmationTokenError(confirmationError);
     }
 
     const billingAddress =
@@ -520,6 +531,13 @@ export class StripeService {
         : undefined;
       const canCalculateIntroDates = !trialPhase || introBillingStartDate;
       const introCycleCount = Math.max(introPricePhase.cycleCount, 1);
+
+      // The payment request total already represents an introductory charge
+      // taken immediately. Describing that same charge as trial billing makes
+      // Apple invent a cadence for it ("per month" or "0 months").
+      if (introCycleCount === 1 && !trialPhase) {
+        return undefined;
+      }
 
       const baseBillingInfo: ApplePayRegularBilling = {
         label: productTitle,

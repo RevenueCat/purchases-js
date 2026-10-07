@@ -438,6 +438,64 @@ describe("StripeService", () => {
   });
 
   describe("extractTaxCustomerDetails", () => {
+    test("maps recoverable errors for display by the surrounding form", async () => {
+      const mockElements = {} as StripeElements;
+      const mockStripe = {
+        createConfirmationToken: vi.fn().mockResolvedValue({
+          error: {
+            type: "card_error",
+            code: "card_declined",
+            decline_code: "card_not_supported",
+            message: "Your card is not supported.",
+          },
+        }),
+      } as unknown as Stripe;
+
+      await expect(
+        StripeService.extractTaxCustomerDetails(mockElements, mockStripe),
+      ).rejects.toEqual({
+        code: StripeServiceErrorCode.ConfirmationTokenError,
+        gatewayDeclineCode: "card_not_supported",
+        gatewayErrorCode: "card_declined",
+        message: "Your card is not supported.",
+      });
+    });
+
+    test("maps non-card errors to the customer-safe surrounding-form fallback", async () => {
+      const mockElements = {} as StripeElements;
+      const mockStripe = {
+        createConfirmationToken: vi.fn().mockResolvedValue({
+          error: {
+            type: "api_error",
+            code: "api_error",
+            message: "Something went wrong.",
+          },
+        }),
+      } as unknown as Stripe;
+
+      await expect(
+        StripeService.extractTaxCustomerDetails(mockElements, mockStripe),
+      ).rejects.toEqual({
+        code: StripeServiceErrorCode.ConfirmationTokenError,
+        gatewayErrorCode: "api_error",
+        message: "Something went wrong.",
+      });
+    });
+
+    test("maps confirmation-token processing errors for display by the surrounding form", () => {
+      const result = StripeService.mapConfirmationTokenError({
+        type: "card_error",
+        code: "processing_error",
+        message: "An error occurred while processing your card.",
+      } as StripeError);
+
+      expect(result).toEqual({
+        code: StripeServiceErrorCode.ConfirmationTokenError,
+        gatewayErrorCode: "processing_error",
+        message: "An error occurred while processing your card.",
+      });
+    });
+
     test("returns the full billing address from the confirmation token", async () => {
       const mockElements = {} as StripeElements;
       const mockStripe = {
@@ -608,6 +666,40 @@ describe("StripeService", () => {
         translator,
       });
 
+    const makeImmediateSingleCycleIntroOption = (): SubscriptionOption => {
+      const basePrice = {
+        amount: 4_999,
+        amountMicros: 49_990_000,
+        currency: "USD",
+        formattedPrice: "$49.99",
+      };
+      const introPrice = {
+        amount: 499,
+        amountMicros: 4_990_000,
+        currency: "USD",
+        formattedPrice: "$4.99",
+      };
+      return {
+        ...subscriptionOption,
+        base: {
+          ...subscriptionOption.base,
+          price: basePrice,
+        },
+        introPrice: {
+          periodDuration: "P3D",
+          period: {
+            number: 3,
+            unit: PeriodUnit.Day,
+          },
+          cycleCount: 1,
+          price: introPrice,
+          pricePerWeek: introPrice,
+          pricePerMonth: null,
+          pricePerYear: null,
+        },
+      };
+    };
+
     test("subscription with trial: no line items, free trial in Apple Pay", () => {
       const subscriptionOptionForTrial =
         trialProduct.subscriptionOptions.option_id_1;
@@ -647,38 +739,8 @@ describe("StripeService", () => {
       });
     });
 
-    test("subscription with a paid-once weekly intro omits its non-future end date", () => {
-      const basePrice = {
-        amount: 4_999,
-        amountMicros: 49_990_000,
-        currency: "USD",
-        formattedPrice: "$49.99",
-      };
-      const introPrice = {
-        amount: 499,
-        amountMicros: 4_990_000,
-        currency: "USD",
-        formattedPrice: "$4.99",
-      };
-      const paidIntroOption: SubscriptionOption = {
-        ...subscriptionOption,
-        base: {
-          ...subscriptionOption.base,
-          price: basePrice,
-        },
-        introPrice: {
-          periodDuration: "P1W",
-          period: {
-            number: 1,
-            unit: PeriodUnit.Week,
-          },
-          cycleCount: 1,
-          price: introPrice,
-          pricePerWeek: introPrice,
-          pricePerMonth: null,
-          pricePerYear: null,
-        },
-      };
+    test("subscription with an immediate single-cycle intro omits trial billing", () => {
+      const paidIntroOption = makeImmediateSingleCycleIntroOption();
       const breakdown = makeBreakdown(4_990_000);
 
       const result =
@@ -697,21 +759,59 @@ describe("StripeService", () => {
           recurringPaymentRequest: {
             paymentDescription: product.title,
             managementURL: managementUrl,
-            trialBilling: {
-              amount: 499,
-              label: product.title,
-              recurringPaymentIntervalUnit: "day",
-              recurringPaymentIntervalCount: 7,
-            },
             regularBilling: {
               amount: 4_999,
               label: product.title,
-              recurringPaymentStartDate: new Date(2025, 0, 8),
+              recurringPaymentStartDate: new Date(2025, 0, 4),
               recurringPaymentIntervalUnit: "month",
               recurringPaymentIntervalCount: 1,
             },
           },
         },
+      });
+    });
+
+    test("subscription with an immediate single-cycle intro and applied discount balances line items", () => {
+      const paidIntroOption = makeImmediateSingleCycleIntroOption();
+      const breakdown: PriceBreakdown = {
+        ...makeBreakdown(4_000_000),
+        originalAmountInMicros: 4_990_000,
+        appliedDiscounts: [
+          {
+            identifier: "save20",
+            displayName: "SAVE20",
+            discountedAmountInMicros: 990_000,
+            percentage: 20,
+            discountCode: "SAVE20",
+          },
+        ],
+      };
+
+      const result =
+        StripeService.buildStripeExpressCheckoutOptionsForSubscription(
+          product,
+          breakdown,
+          paidIntroOption,
+          translator,
+          managementUrl,
+          resolveDiscount(breakdown, product, paidIntroOption),
+        );
+
+      expect(result.lineItems).toStrictEqual([
+        { name: product.title, amount: 499 },
+        { name: "SAVE20 (20% off)", amount: -99 },
+      ]);
+      expectLineItemsBalance(result.lineItems, 400);
+      const recurringRequest = result.applePay?.recurringPaymentRequest;
+      if (!recurringRequest) {
+        throw new Error("Expected an Apple Pay recurring payment request");
+      }
+      expect(recurringRequest.trialBilling).toBeUndefined();
+      expect(recurringRequest.regularBilling).toMatchObject({
+        amount: 4_999,
+        recurringPaymentStartDate: new Date(2025, 0, 4),
+        recurringPaymentIntervalUnit: "month",
+        recurringPaymentIntervalCount: 1,
       });
     });
 
@@ -777,6 +877,7 @@ describe("StripeService", () => {
           recurringPaymentRequest: {
             trialBilling: {
               amount: 349,
+              label: product.title,
               recurringPaymentEndDate: new Date(2025, 2, 1),
               recurringPaymentIntervalUnit: "month",
               recurringPaymentIntervalCount: 1,
@@ -788,6 +889,7 @@ describe("StripeService", () => {
           },
         },
       });
+      expect(result.lineItems).toBeUndefined();
     });
 
     test("subscription with a monthly intro uses the last day of the month for the regular billing start", () => {

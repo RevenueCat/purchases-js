@@ -99,6 +99,7 @@
         supportEmail={brandingInfo?.support_email ?? null}
         onDismiss={closeWithError}
         appName={brandingInfo?.app_name ?? null}
+        {isSandbox}
       />
     {:else if checkoutCompleted}
       <!-- Paddle reported completion; show a processing state while we poll the

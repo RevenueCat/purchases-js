@@ -1,4 +1,5 @@
 import type {
+  DiscountPhase,
   Offering,
   Offerings,
   Package,
@@ -28,6 +29,7 @@ import {
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import {
+  isAmazonApiKey,
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
@@ -41,6 +43,7 @@ import {
   PurchaseOperationHelper,
 } from "./helpers/purchase-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
+import { withPaddleDiscountsOnOffering } from "./paddle/paddle-discount-preview";
 import { type LogHandler, type LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {
@@ -72,6 +75,7 @@ import {
 import {
   enrichPackagesWithPlacementContext,
   getOfferingIdForPlacement,
+  replaceOfferingProducts,
   toOffering,
   toOfferings,
 } from "./helpers/offerings-parser";
@@ -79,7 +83,7 @@ import {
   type PaywallPurchaseResult,
   type PurchaseResult,
 } from "./entities/purchase-result";
-import { mount, unmount } from "svelte";
+import { type ComponentProps, mount, unmount } from "svelte";
 import { type PaywallListener } from "./entities/paywall-listener";
 import {
   type CompleteWorkflowNavigateArgs,
@@ -168,6 +172,8 @@ import {
   applyBrandingAppearanceOverride,
   mergeBrandingAppearanceOverrides,
 } from "./helpers/branding-appearance-helper";
+import type { BillingWrapper } from "./helpers/billing-wrapper";
+import { getPurchasesFactory } from "./helpers/purchases-factory";
 import {
   type PreparedStripeBillingApplePayPurchase,
   prepareStripeBillingApplePayPurchase,
@@ -319,7 +325,7 @@ export class Purchases {
   readonly _API_KEY: string;
 
   /** @internal */
-  private _appUserId: string;
+  protected _appUserId: string;
 
   /** @internal */
   private _brandingInfo: BrandingInfoResponse | null = null;
@@ -355,7 +361,31 @@ export class Purchases {
   private readonly inMemoryCache: InMemoryCache;
 
   /** @internal */
+  private readonly billingWrapper: BillingWrapper | null = null;
+
+  /**
+   * Unfinished offerings requests keyed by app user ID. This lets concurrent
+   * callers share one network request before its response can be cached.
+   * @internal
+   */
+  private readonly offeringsRequests = new Map<
+    string,
+    Promise<OfferingsResponse>
+  >();
+
+  /**
+   * Last current offering returned by getOfferings, retained for fallback
+   * impression attribution. Request data cache invalidation intentionally preserves it.
+   * @internal
+   */
   private cachedCurrentOffering: Offering | null = null;
+
+  /**
+   * Project-level switch from the last offerings response; off keeps custom
+   * checkout buttons on the purchase flow.
+   * @internal
+   */
+  private customWebCheckoutEnabled = false;
 
   /** @internal */
   private stripeBillingQuickPurchaseState: StripeBillingQuickPurchaseState | null =
@@ -395,6 +425,8 @@ export class Purchases {
    * */
   static setPlatformInfo(platformInfo: PlatformInfo) {
     Purchases._platformInfo = platformInfo;
+    // Platform flavor and version participate in backend offering targeting.
+    Purchases.instance?.clearOfferingsCache();
   }
 
   /**
@@ -431,6 +463,74 @@ export class Purchases {
   /** @internal */
   static getPlatformInfo(): PlatformInfo | undefined {
     return Purchases._platformInfo;
+  }
+
+  /**
+   * Resolve Paddle discounts configured on paywall package components and
+   * return a copy of `offering` where those packages carry the discounted
+   * price as their `discount` phase, so {@link Purchases.buildVariablesPerPackage}
+   * and {@link Purchases.buildInfoPerPackage} surface it (`product.offer_price`,
+   * `promo_offer` condition). Uses `Paddle.PricePreview` under the hood.
+   *
+   * Returns the offering untouched for non-Paddle apps or when the map is
+   * empty. Packages whose preview fails or applies no discount are left as-is.
+   * Used to support Paywalls in Workflows.
+   * @internal
+   */
+  async applyPaddleDiscountsToOffering(
+    offering: Offering,
+    discountIdsByPackage: Record<string, string>,
+  ): Promise<Offering> {
+    const entries = Object.entries(discountIdsByPackage).filter(
+      ([packageId, discountId]) =>
+        Boolean(discountId) && offering.packagesById[packageId] !== undefined,
+    );
+    if (entries.length === 0 || !isPaddleApiKey(this._API_KEY)) {
+      return offering;
+    }
+
+    const paddleService = new PaddleService(this.backend, this.eventsTracker);
+    const [firstPackageId] = entries[0];
+    const firstProduct = offering.packagesById[firstPackageId].product;
+    try {
+      await paddleService.initializeForPreview(
+        firstProduct.identifier,
+        firstProduct.defaultPurchaseOption,
+      );
+    } catch (error) {
+      Logger.errorLog(
+        `Could not initialize Paddle for price preview: ${error}`,
+      );
+      return offering;
+    }
+
+    const discountsByPackage: Record<string, DiscountPhase> = {};
+    await Promise.all(
+      entries.map(async ([packageId, discountId]) => {
+        const product = offering.packagesById[packageId].product;
+        try {
+          const discount = await paddleService.previewDiscount({
+            priceId: product.identifier,
+            discountId,
+            basePrice: product.price,
+            fallbackPeriodDuration: product.normalPeriodDuration,
+          });
+          if (discount) {
+            discountsByPackage[packageId] = discount;
+          } else {
+            Logger.debugLog(
+              `Paddle discount ${discountId} did not apply to package ${packageId}`,
+            );
+          }
+        } catch (error) {
+          Logger.errorLog(
+            `Paddle price preview failed for package ${packageId}: ${error}`,
+          );
+        }
+      }),
+    );
+
+    return withPaddleDiscountsOnOffering(offering, discountsByPackage);
   }
 
   /**
@@ -537,16 +637,38 @@ export class Purchases {
     const finalFlags = flags ?? defaultFlagsConfig;
 
     Purchases.validateConfig(config);
-    Purchases.instance = new Purchases(
-      apiKey,
-      appUserId,
-      finalHttpConfig,
-      finalFlags,
-      subscriberToken,
-      brandingAppearanceOverride,
-      context,
-      trace_id,
-    );
+    const purchasesFactory = getPurchasesFactory();
+    if (purchasesFactory) {
+      purchasesFactory.validateApiKey(apiKey);
+    } else if (isAmazonApiKey(apiKey)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
+      );
+    }
+
+    // Vega does not surface console.debug() at its default logging threshold,
+    // so use console.log() for SDK debug messages when using the Amazon store.
+    if (isAmazonApiKey(apiKey)) {
+      Logger.enableConsoleLogForDebugMessages();
+    }
+
+    // Reconfiguring replaces the singleton instance. Close the old Amazon
+    // wrapper first so its AppState listener does not keep syncing in the
+    // background after it is no longer reachable.
+    Purchases.instance?.billingWrapper?.close();
+    Purchases.instance = purchasesFactory
+      ? purchasesFactory.createPurchases(config)
+      : new Purchases(
+          apiKey,
+          appUserId,
+          finalHttpConfig,
+          finalFlags,
+          subscriberToken,
+          brandingAppearanceOverride,
+          context,
+          trace_id,
+        );
   }
 
   private static validateConfig(config: PurchasesConfig) {
@@ -589,8 +711,13 @@ export class Purchases {
   /** @internal */
   private async fetchAndCacheBrandingInfo(): Promise<void> {
     if (isSimulatedStoreApiKey(this._API_KEY)) {
-      Logger.warnLog(
+      Logger.verboseLog(
         "Branding info is not available for RC Test Store API keys.",
+      );
+      return;
+    } else if (isAmazonApiKey(this._API_KEY)) {
+      Logger.verboseLog(
+        "Branding info is not available for Amazon Store API keys.",
       );
       return;
     }
@@ -624,7 +751,7 @@ export class Purchases {
   }
 
   /** @internal */
-  private constructor(
+  protected constructor(
     apiKey: string,
     appUserId: string,
     httpConfig: HttpConfig = defaultHttpConfig,
@@ -672,16 +799,41 @@ export class Purchases {
     this.eventsTracker.trackSDKEvent({
       eventName: SDKEventName.SDKInitialized,
     });
+    if (isAmazonApiKey(this._API_KEY)) {
+      const purchasesFactory = getPurchasesFactory();
+      if (!purchasesFactory) {
+        throw new PurchasesError(
+          ErrorCode.ConfigurationError,
+          "Using the Amazon Appstore requires usage of the @revenuecat/purchases-js-vega package.",
+        );
+      }
+      this.billingWrapper = purchasesFactory.createBillingWrapper({
+        backend: this.backend,
+        apiKey: this._API_KEY,
+        getAppUserId: () => this._appUserId,
+        getIsAnonymous: () => this.isAnonymous(),
+      });
+    }
   }
 
   /**
    * Renders an RC Paywall and allows the user to purchase from it using Web Billing.
+   *
+   * Unsupported for Amazon apps.
+   *
    * @param paywallParams - The parameters object to customise the paywall render. Check {@link PresentPaywallParams}
    * @returns Promise<PurchaseResult>
    */
   public async presentPaywall(
     paywallParams: PresentPaywallParams,
   ): Promise<PaywallPurchaseResult> {
+    if (isAmazonApiKey(this._API_KEY)) {
+      Logger.verboseLog(
+        "Paywalls are not currently available for Amazon apps.",
+      );
+      throw new Error("Paywalls are not currently available for Amazon apps.");
+    }
+
     const htmlTarget = paywallParams.htmlTarget;
     let wasRootAutoCreated = false;
 
@@ -722,8 +874,21 @@ export class Purchases {
     const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
 
     const offering = paywallParams.offering
-      ? paywallParams.offering
-      : (await this.getOfferings()).current;
+      ? // Fetch discounted products before building paywall prices and promo state.
+        await this.updatePaywallOfferingWithDiscountedProducts(
+          paywallParams.offering,
+          paywallParams.discountCode,
+        )
+      : (
+          await this.getOfferings(
+            paywallParams.discountCode
+              ? {
+                  offeringIdentifier: OfferingKeyword.Current,
+                  discountCode: paywallParams.discountCode,
+                }
+              : undefined,
+          )
+        ).current;
     if (!offering) {
       throw new Error("No offering found.");
     }
@@ -810,8 +975,7 @@ export class Purchases {
       paywallRevision: 0,
       paywallRcPublicId: offering.paywallComponents?.id ?? null,
       presentedOfferingContext:
-        offering.availablePackages[0]?.webBillingProduct
-          ?.presentedOfferingContext,
+        offering.availablePackages[0]?.product?.presentedOfferingContext,
     };
     const paywallDisplayData = {
       displayMode: "full_screen",
@@ -823,7 +987,7 @@ export class Purchases {
     const productIdsByPackage = new Map(
       offering.availablePackages.map((pkg) => [
         pkg.identifier,
-        pkg.webBillingProduct.identifier,
+        pkg.product.identifier,
       ]),
     );
 
@@ -1225,6 +1389,28 @@ export class Purchases {
         notifyPurchaseError(error);
       };
 
+      // Custom checkout hands off to a developer-owned URL instead of
+      // purchasing. Same tab, so that destination can send the user back.
+      const navigateToCustomCheckout = (url: string) => {
+        if (!isAllowedCompleteWorkflowNavigateUrl(url, "deep_link")) {
+          Logger.warnLog(
+            "Blocked custom checkout navigation to a disallowed URL.",
+          );
+          return;
+        }
+        // Keepalive requests outlive the navigation, so this needn't be awaited.
+        void this.eventsTracker.flushAllEvents().catch((error) => {
+          Logger.debugLog(
+            `Failed to flush paywall events before custom checkout: ${error}`,
+          );
+        });
+        getWindow().location.assign(url);
+      };
+
+      const onCustomWebCheckout = this.customWebCheckoutEnabled
+        ? navigateToCustomCheckout
+        : undefined;
+
       const createPurchaseClickHandler = (checkoutLocale: string) => {
         return (selectedPackageId: string) => {
           if (purchaseInFlight) {
@@ -1311,6 +1497,10 @@ export class Purchases {
               hideBackButtons: paywallParams.hideBackButtons,
               variablesPerPackage,
               infoPerPackage,
+              appUserId: this._appUserId,
+              isSandbox: this.isSandbox(),
+              rcSource: this.getSupportedRCSource(),
+              onCustomWebCheckout,
               walletButtonRender,
               onPurchaseClicked:
                 createPurchaseClickHandler(finalWorkflowLocale),
@@ -1341,7 +1531,7 @@ export class Purchases {
               maxContentWidth: workflowDataResponse.content_max_width
                 ? String(workflowDataResponse.content_max_width)
                 : undefined,
-            },
+            } satisfies ComponentProps<typeof Workflow>,
           });
         } catch (err) {
           unmountPaywall();
@@ -1356,6 +1546,9 @@ export class Purchases {
             selectedLocale: finalLocale,
             onNavigateToUrlClicked: navigateToUrl,
             appUserId: this._appUserId,
+            isSandbox: this.isSandbox(),
+            rcSource: this.getSupportedRCSource(),
+            onCustomWebCheckout,
             onCompleteWorkflowNavigate,
             onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
             uiConfig: offering.uiConfig!,
@@ -1384,7 +1577,7 @@ export class Purchases {
             packages: paywallContextPackages,
             isPreview: false,
             onComponentInteraction,
-          },
+          } satisfies ComponentProps<typeof Paywall>,
         });
       }
 
@@ -1410,22 +1603,25 @@ export class Purchases {
   public async getOfferings(params?: GetOfferingsParams): Promise<Offerings> {
     validateCurrency(params?.currency);
     const appUserId = this._appUserId;
-    const offeringsResponse = await this.backend.getOfferings(appUserId);
+    const offeringsResponse = await this.getOfferingsResponse(appUserId);
 
     const offeringIdFilter =
       params?.offeringIdentifier === OfferingKeyword.Current
         ? offeringsResponse.current_offering_id
         : params?.offeringIdentifier;
 
-    if (offeringIdFilter) {
-      offeringsResponse.offerings = offeringsResponse.offerings.filter(
-        (offering: OfferingResponse) =>
-          offering.identifier === offeringIdFilter,
-      );
-    }
+    const responseToParse = offeringIdFilter
+      ? {
+          ...offeringsResponse,
+          offerings: offeringsResponse.offerings.filter(
+            (offering: OfferingResponse) =>
+              offering.identifier === offeringIdFilter,
+          ),
+        }
+      : offeringsResponse;
 
     const offerings = await this.getAllOfferings(
-      offeringsResponse,
+      responseToParse,
       appUserId,
       params,
     );
@@ -1439,6 +1635,16 @@ export class Purchases {
       this.cachedCurrentOffering = offerings.current;
     }
     return offerings;
+  }
+
+  /**
+   * Invalidates the cached offerings response for the current user.
+   * The next call to {@link Purchases.getOfferings} or
+   * {@link Purchases.getCurrentOfferingForPlacement} will fetch the latest
+   * offerings from the network.
+   */
+  public invalidateOfferingsCache(): void {
+    this.clearOfferingsCache(this._appUserId);
   }
 
   /**
@@ -1459,8 +1665,7 @@ export class Purchases {
   ): void {
     const offering = params.offering ?? this.cachedCurrentOffering;
     const presentedOfferingContext =
-      offering?.availablePackages[0]?.webBillingProduct
-        .presentedOfferingContext;
+      offering?.availablePackages[0]?.product.presentedOfferingContext;
 
     this.eventsTracker.trackCustomPaywallImpression({
       paywallId: params.paywallId,
@@ -1485,7 +1690,7 @@ export class Purchases {
     params?: GetOfferingsParams,
   ): Promise<Offering | null> {
     const appUserId = this._appUserId;
-    const offeringsResponse = await this.backend.getOfferings(appUserId);
+    const offeringsResponse = await this.getOfferingsResponse(appUserId);
     const placementData = offeringsResponse.placements ?? null;
     if (placementData == null) {
       return null;
@@ -1537,6 +1742,60 @@ export class Purchases {
     return null;
   }
 
+  private async getOfferingsResponse(
+    appUserId: string,
+  ): Promise<OfferingsResponse> {
+    const cachedOfferings =
+      this.inMemoryCache.getCachedOfferingsResponse(appUserId);
+    if (cachedOfferings != null) {
+      return cachedOfferings;
+    }
+
+    const existingRequest = this.offeringsRequests.get(appUserId);
+    if (existingRequest !== undefined) {
+      return await existingRequest;
+    }
+
+    const request = this.backend
+      .getOfferings(appUserId)
+      .then((offeringsResponse) => {
+        this.customWebCheckoutEnabled =
+          offeringsResponse.custom_web_checkout_enabled === true;
+        // Invalidation may remove this request or allow a newer one to start.
+        // Only the currently tracked request may update the response cache.
+        if (this.offeringsRequests.get(appUserId) === request) {
+          this.inMemoryCache.cacheOfferingsResponse(
+            appUserId,
+            offeringsResponse,
+          );
+        }
+        return offeringsResponse;
+      })
+      .finally(() => {
+        // Do not remove a newer request that may have replaced this one.
+        if (this.offeringsRequests.get(appUserId) === request) {
+          this.offeringsRequests.delete(appUserId);
+        }
+      });
+
+    this.offeringsRequests.set(appUserId, request);
+    return await request;
+  }
+
+  private clearOfferingsCache(appUserId?: string): void {
+    this.inMemoryCache.invalidateOfferingsCache(appUserId);
+    if (appUserId === undefined) {
+      this.offeringsRequests.clear();
+    } else {
+      this.offeringsRequests.delete(appUserId);
+    }
+  }
+
+  private invalidateRequestDataCaches(): void {
+    this.offeringsRequests.clear();
+    this.inMemoryCache.invalidateAllCaches();
+  }
+
   private async findOfferingById(
     offeringIdentifier: string,
     offeringsResponse: OfferingsResponse,
@@ -1558,6 +1817,44 @@ export class Purchases {
     );
 
     return toOffering(offeringIdentifier, offeringsResponse, productsResponse);
+  }
+
+  private async updatePaywallOfferingWithDiscountedProducts(
+    offering: Offering,
+    discountCode?: string,
+  ): Promise<Offering> {
+    if (!discountCode) {
+      return offering;
+    }
+
+    // Only fetch the discounted products (instead of the entire offering) because the
+    // supplied offering already has the necessary data which isn't changed by the discount.
+    const productIds = offering.availablePackages.map(
+      (rcPackage) => rcPackage.product.identifier,
+    );
+    const currencies = new Set(
+      offering.availablePackages.map(
+        (rcPackage) => rcPackage.product.price.currency,
+      ),
+    );
+    const currency = currencies.size === 1 ? [...currencies][0] : undefined;
+    let productsResponse: ProductsResponse;
+    try {
+      productsResponse = await this.backend.getProducts(
+        this._appUserId,
+        productIds,
+        currency,
+        discountCode,
+      );
+    } catch (error) {
+      Logger.warnLog(
+        `Failed to refresh paywall products with discount pricing: ${String(error)}`,
+      );
+      return offering;
+    }
+
+    this.logMissingProductIds(productIds, productsResponse.product_details);
+    return replaceOfferingProducts(offering, productsResponse);
   }
 
   private async getAllOfferings(
@@ -1583,12 +1880,22 @@ export class Purchases {
       .flatMap((o: OfferingResponse) => o.packages)
       .map((p: PackageResponse) => p.platform_product_identifier);
 
-    const productsResponse = await this.backend.getProducts(
-      appUserId,
-      productIds,
-      params?.currency,
-      params?.discountCode,
-    );
+    let productsResponse: ProductsResponse;
+    if (isAmazonApiKey(this._API_KEY)) {
+      productsResponse = await this.unwrappedBillingWrapper().getProducts(
+        appUserId,
+        productIds,
+        params?.currency,
+        params?.discountCode,
+      );
+    } else {
+      productsResponse = await this.backend.getProducts(
+        appUserId,
+        productIds,
+        params?.currency,
+        params?.discountCode,
+      );
+    }
 
     this.logMissingProductIds(productIds, productsResponse.product_details);
     return productsResponse;
@@ -1687,7 +1994,7 @@ export class Purchases {
     context: StripeBillingQuickPurchaseContext,
   ): Promise<PreparedStripeBillingApplePayPurchase | null> {
     const { params, brandingInfo, purchaseOption, translator } = context;
-    const product = params.rcPackage.webBillingProduct;
+    const product = params.rcPackage.product;
     const operationHelper = new PurchaseOperationHelper(
       this.backend,
       this.eventsTracker,
@@ -1759,7 +2066,7 @@ export class Purchases {
       this._brandingInfo,
       appearanceOverride,
     );
-    const product = effectiveParams.rcPackage.webBillingProduct;
+    const product = effectiveParams.rcPackage.product;
     const purchaseOption =
       effectiveParams.purchaseOption ?? product.defaultPurchaseOption;
     const termsAndConditionsUrl = resolveTermsAndConditionsUrl({
@@ -1859,6 +2166,9 @@ export class Purchases {
    * Renders an Express Purchase button for the supported wallets (Apple Pay/Google Pay).
    * When clicked it uses the wallet UI to execute the purchase instead of
    * the checkout flow that would be shown with `.purchase`.
+   *
+   * Unsupported for Amazon apps.
+   *
    * @param params - The parameters object to customise the purchase flow. Check {@link PresentExpressPurchaseButtonParams}
    * @returns Promise<PurchaseResult>
    */
@@ -1887,7 +2197,7 @@ export class Purchases {
     }
 
     const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+      purchaseOption ?? rcPackage.product.defaultPurchaseOption;
 
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
@@ -1905,6 +2215,7 @@ export class Purchases {
           mode: "express_purchase_button",
         });
         this.eventsTracker.trackSDKEvent(sessionEndFinishedEvent);
+        this.invalidateRequestDataCaches();
 
         Logger.debugLog("Purchase finished");
 
@@ -2021,8 +2332,7 @@ export class Purchases {
             if (!pkg) {
               return;
             }
-            const purchaseOptionToUse =
-              pkg.webBillingProduct.defaultPurchaseOption;
+            const purchaseOptionToUse = pkg.product.defaultPurchaseOption;
             currentPkg = pkg;
             buttonUpdater.updatePurchase(pkg, purchaseOptionToUse);
           }
@@ -2098,7 +2408,7 @@ export class Purchases {
       "Stripe Billing Apple Pay is prepared; presenting it from the purchase click",
     );
     const appUserId = this._appUserId;
-    const product = context.params.rcPackage.webBillingProduct;
+    const product = context.params.rcPackage.product;
     this.eventsTracker.trackSDKEvent(
       createCheckoutSessionStartEvent({
         appearance: context.brandingInfo?.appearance,
@@ -2146,7 +2456,7 @@ export class Purchases {
             redemptionInfo: result.operationResult.redemptionInfo,
           }),
         );
-        this.inMemoryCache.invalidateAllCaches();
+        this.invalidateRequestDataCaches();
         return {
           customerInfo: await this._getCustomerInfoForUserId(appUserId),
           redemptionInfo: result.operationResult.redemptionInfo,
@@ -2199,7 +2509,7 @@ export class Purchases {
         this.backend,
         this._appUserId,
       );
-      this.inMemoryCache.invalidateAllCaches();
+      this.invalidateRequestDataCaches();
       return purchaseResult;
     }
 
@@ -2217,6 +2527,16 @@ export class Purchases {
         effectiveParams,
         effectiveBrandingInfo,
       );
+    }
+
+    const isAmazon = isAmazonApiKey(this._API_KEY);
+    if (isAmazon) {
+      const purchaseResult = await this.unwrappedBillingWrapper().purchase(
+        params,
+        this._appUserId,
+      );
+      this.invalidateRequestDataCaches();
+      return purchaseResult;
     }
 
     return await this.performWebBillingPurchase(
@@ -2256,7 +2576,7 @@ export class Purchases {
     const localeToBeUsed = selectedLocale || defaultLocale;
 
     const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+      purchaseOption ?? rcPackage.product.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
       appearance: brandingInfo?.appearance,
@@ -2305,7 +2625,7 @@ export class Purchases {
       );
 
       const onProductChangeFinished = async (result: ProductChangeResult) => {
-        this.inMemoryCache.invalidateAllCaches();
+        this.invalidateRequestDataCaches();
         unmountPurchaseUi();
         try {
           const customerInfo = await this.getCustomerInfo();
@@ -2398,7 +2718,7 @@ export class Purchases {
     const localeToBeUsed = selectedLocale || defaultLocale;
 
     const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+      purchaseOption ?? rcPackage.product.defaultPurchaseOption;
 
     const event = createCheckoutSessionStartEvent({
       appearance: brandingInfo?.appearance,
@@ -2452,7 +2772,7 @@ export class Purchases {
       );
 
       const onProductChangeFinished = async (result: ProductChangeResult) => {
-        this.inMemoryCache.invalidateAllCaches();
+        this.invalidateRequestDataCaches();
         unmountPurchaseUi();
         try {
           const customerInfo = await this.getCustomerInfo();
@@ -2526,6 +2846,7 @@ export class Purchases {
       purchaseOption,
       customerEmail,
       discountCode,
+      discountId,
       attributionMetadata,
       workflowPurchaseContext,
       externalPurchaseTokenId,
@@ -2543,7 +2864,7 @@ export class Purchases {
     );
 
     const purchaseOptionToUse =
-      purchaseOption ?? rcPackage.webBillingProduct.defaultPurchaseOption;
+      purchaseOption ?? rcPackage.product.defaultPurchaseOption;
 
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
@@ -2619,12 +2940,13 @@ export class Purchases {
             onFinished,
             onError,
             skipSuccessPage,
-            productDetails: rcPackage.webBillingProduct,
+            productDetails: rcPackage.product,
             rcPackage,
             appUserId,
             purchaseOption: purchaseOptionToUse,
             customerEmail,
             discountCode,
+            discountId,
             attributionMetadata,
             workflowPurchaseContext,
             externalPurchaseTokenId,
@@ -2666,10 +2988,7 @@ export class Purchases {
     reject: (error: PurchasesError) => void,
     callback?: () => void,
   ): (() => void) | undefined {
-    const shouldPassOnCloseBehaviour =
-      this._flags.rcSource && supportedRCSources.includes(this._flags.rcSource);
-
-    if (shouldPassOnCloseBehaviour) {
+    if (this.getSupportedRCSource()) {
       return undefined;
     }
 
@@ -2688,12 +3007,15 @@ export class Purchases {
     return onClose;
   }
 
+  private getSupportedRCSource(): string | undefined {
+    const rcSource = this._flags.rcSource;
+    return rcSource && supportedRCSources.includes(rcSource)
+      ? rcSource
+      : undefined;
+  }
+
   private shouldHideCheckoutBackButton(): boolean {
-    return (
-      this._flags.hideBackButton === true ||
-      (!!this._flags.rcSource &&
-        supportedRCSources.includes(this._flags.rcSource))
-    );
+    return this._flags.hideBackButton === true || !!this.getSupportedRCSource();
   }
 
   private createCheckoutOnFinishedHandler(
@@ -2709,7 +3031,7 @@ export class Purchases {
         redemptionInfo: operationResult.redemptionInfo,
       });
       this.eventsTracker.trackSDKEvent(event);
-      this.inMemoryCache.invalidateAllCaches();
+      this.invalidateRequestDataCaches();
       Logger.debugLog("Purchase finished");
 
       callback?.();
@@ -2722,7 +3044,7 @@ export class Purchases {
         customerEmail: operationResult.customerEmail,
         storeTransaction: {
           storeTransactionId: operationResult.storeTransactionIdentifier,
-          productIdentifier: rcPackage.webBillingProduct.identifier,
+          productIdentifier: rcPackage.product.identifier,
           purchaseDate: operationResult.purchaseDate,
         },
       };
@@ -2779,12 +3101,14 @@ export class Purchases {
         "Posting a test store receipt is only available for RC Test Store API keys.",
       );
     }
-    return await postSimulatedStoreReceipt(
+    const purchaseResult = await postSimulatedStoreReceipt(
       product,
       this.backend,
       this._appUserId,
       undefined,
     );
+    this.invalidateRequestDataCaches();
+    return purchaseResult;
   }
 
   /**
@@ -2823,7 +3147,9 @@ export class Purchases {
      */
     await this.getCustomerInfo();
 
-    return await this.backend.setAttributes(this._appUserId, attributes);
+    const appUserId = this._appUserId;
+    await this.backend.setAttributes(appUserId, attributes);
+    this.clearOfferingsCache(appUserId);
   }
 
   /**
@@ -2933,7 +3259,7 @@ export class Purchases {
     this.stripeBillingQuickPurchasePreparation = null;
     this._appUserId = newAppUserId;
     await this.eventsTracker.updateUser(newAppUserId);
-    this.inMemoryCache.invalidateAllCaches();
+    this.invalidateRequestDataCaches();
     this.cachedCurrentOffering = null;
   }
 
@@ -3019,6 +3345,7 @@ export class Purchases {
       if (this.eventsTracker) {
         this.eventsTracker.dispose();
       }
+      this.billingWrapper?.close();
       if (this._flags.applePayBrandingLogoEnabled) {
         const doc = getNullableDocument();
         if (doc) {
@@ -3105,5 +3432,17 @@ export class Purchases {
    */
   public _flushAllEvents(): Promise<void> {
     return this.eventsTracker.flushAllEvents();
+  }
+
+  /** @internal */
+  protected unwrappedBillingWrapper(): BillingWrapper {
+    if (this.billingWrapper === null) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Ensure that you have configured the SDK using an Amazon API key.",
+      );
+    }
+
+    return this.billingWrapper;
   }
 }

@@ -146,6 +146,7 @@
 ></div>
 {#if !hideCheckoutSeparator && allowExpressCheckout && expressCheckoutElementReady && !hideExpressCheckoutElement}
   <TextSeparator
+    data-testid="express-checkout-ready"
     text={$translator.translate(
       LocalizationKeys.PaymentEntryPageExpressCheckoutDivider,
     )}
