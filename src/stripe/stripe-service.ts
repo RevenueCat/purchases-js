@@ -88,6 +88,7 @@ export class StripeService {
       "zh-Hans": "zh",
       zh_Hant: "zh-TW",
       "zh-Hant": "zh-TW",
+      nn: "nb",
     };
 
     if (Object.keys(mappedLocale).includes(locale)) {
