@@ -2,6 +2,7 @@
   import SimulatedStoreModal from "../../ui/molecules/simulated-store-modal.svelte";
   import { renderInsideMain } from "../decorators/layout-decorators";
   import { brandingModes } from "../../../.storybook/modes";
+  import { brandingInfos } from "../fixtures";
   import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
   import type { ComponentProps } from "svelte";
 
@@ -27,18 +28,34 @@
   const mockCancel = () => console.log("Cancel clicked");
 </script>
 
-{#snippet template(args: Args, _context: Context)}
+{#snippet template(args: Args, context: Context)}
+  {@const isBrandedStory = context.story.startsWith("Branded")}
   <SimulatedStoreModal
     productIdentifier={args.productIdentifier ?? "test_product_123"}
+    productTitle={args.productTitle}
     productType={args.productType ?? "subscription"}
     basePrice={args.basePrice ?? "$9.99"}
     freeTrialPeriod={args.freeTrialPeriod}
     introPriceFormatted={args.introPriceFormatted}
+    brandingInfo={isBrandedStory
+      ? brandingInfos[context.globals.brandingName]
+      : args.brandingInfo}
     onValidPurchase={args.onValidPurchase ?? mockValidPurchase}
     onFailedPurchase={args.onFailedPurchase ?? mockFailedPurchase}
     onCancel={args.onCancel ?? mockCancel}
   />
 {/snippet}
+
+<Story
+  name="Branded Subscription with Free Trial"
+  args={{
+    productIdentifier: "premium_monthly",
+    productTitle: "Premium Monthly",
+    productType: "subscription",
+    basePrice: "$9.99/month",
+    freeTrialPeriod: "7 days",
+  }}
+/>
 
 <Story
   name="Subscription Product"
