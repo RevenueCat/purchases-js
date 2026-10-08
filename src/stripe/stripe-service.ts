@@ -42,13 +42,15 @@ export enum StripeServiceErrorCode {
   ConfirmationTokenError = 3,
 }
 
-export class StripeServiceError {
+export class StripeServiceError extends Error {
   constructor(
     public code: StripeServiceErrorCode,
     public gatewayErrorCode: string | undefined,
-    public message: string | undefined,
+    message: string | undefined,
     public gatewayDeclineCode?: string,
-  ) {}
+  ) {
+    super(message);
+  }
 }
 
 export type TaxCustomerDetails = {
@@ -109,11 +111,11 @@ export class StripeService {
     });
 
     if (!stripe) {
-      throw {
-        code: StripeServiceErrorCode.ErrorLoadingStripe,
-        gatewayErrorCode: undefined,
-        message: "Stripe client not found",
-      };
+      throw new StripeServiceError(
+        StripeServiceErrorCode.ErrorLoadingStripe,
+        undefined,
+        "Stripe client not found",
+      );
     }
 
     return { stripe };
@@ -129,11 +131,11 @@ export class StripeService {
     viewport: "mobile" | "desktop",
   ): Promise<{ stripe: Stripe; elements: StripeElements }> {
     if (!publishableApiKey || !stripeAccountId || !elementsConfiguration) {
-      throw {
-        code: StripeServiceErrorCode.ErrorLoadingStripe,
-        gatewayErrorCode: undefined,
-        message: "Stripe configuration is missing",
-      };
+      throw new StripeServiceError(
+        StripeServiceErrorCode.ErrorLoadingStripe,
+        undefined,
+        "Stripe configuration is missing",
+      );
     }
 
     const { stripe } = await this.getStripeClient(
@@ -217,11 +219,11 @@ export class StripeService {
     onComplete?: () => void,
   ): Promise<{ stripe: Stripe; embeddedCheckout: StripeEmbeddedCheckout }> {
     if (!stripeAccountId || !publishableApiKey || !StripeBillingParams) {
-      throw {
-        code: StripeServiceErrorCode.ErrorLoadingStripe,
-        gatewayErrorCode: undefined,
-        message: "Stripe configuration is missing",
-      };
+      throw new StripeServiceError(
+        StripeServiceErrorCode.ErrorLoadingStripe,
+        undefined,
+        "Stripe configuration is missing",
+      );
     }
 
     const { stripe } = await this.getStripeClient(
