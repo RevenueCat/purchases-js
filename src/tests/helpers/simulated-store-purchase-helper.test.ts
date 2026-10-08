@@ -3,6 +3,7 @@ import { purchaseSimulatedStoreProduct } from "../../helpers/simulated-store-pur
 import { ErrorCode, PurchasesError } from "../../entities/errors";
 import type { PurchaseParams } from "../../entities/purchase-params";
 import type { Backend } from "../../networking/backend";
+import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
 import { mount, unmount } from "svelte";
 import { createMonthlyPackageWithTrialAndIntroPriceMock } from "../mocks/offering-mock-provider";
 import { expectPromiseToError } from "../test-helpers";
@@ -110,6 +111,38 @@ describe("purchaseSimulatedStoreProduct", () => {
     await expect(promise).rejects.toThrow(PurchasesError);
   });
 
+  test("passes the product title and branding to the modal", async () => {
+    const brandingInfo: BrandingInfoResponse = {
+      id: "app_config_id",
+      app_name: "Acme Fit",
+      app_icon: "icon.png",
+      app_icon_webp: "icon.webp",
+      app_wordmark: null,
+      app_wordmark_webp: null,
+      appearance: null,
+      gateway_tax_collection_enabled: false,
+      brand_font_config: null,
+    };
+
+    const promise = purchaseSimulatedStoreProduct(
+      mockPurchaseParams,
+      mockBackend,
+      "test-user-id",
+      brandingInfo,
+    );
+
+    const props = vi.mocked(mount).mock.calls[0][1].props;
+    expect(props).toEqual(
+      expect.objectContaining({
+        productTitle: mockPackage.product.title,
+        brandingInfo,
+      }),
+    );
+
+    props?.onCancel();
+    await expect(promise).rejects.toThrow(PurchasesError);
+  });
+
   test("resolves with purchase result on valid purchase", async () => {
     const promise = purchaseSimulatedStoreProduct(
       mockPurchaseParams,
@@ -131,6 +164,14 @@ describe("purchaseSimulatedStoreProduct", () => {
       mockPurchaseParams.rcPackage.product.presentedOfferingContext,
       "purchase",
       undefined,
+      undefined,
+      undefined,
+      undefined,
+      {
+        presentedStepId: undefined,
+        metadata: undefined,
+        externalPurchaseTokenId: undefined,
+      },
     );
 
     expect(result).toEqual({
@@ -144,6 +185,48 @@ describe("purchaseSimulatedStoreProduct", () => {
         purchaseDate: expect.any(Date),
       },
     });
+  });
+
+  test("forwards workflow step, metadata and external purchase token from PurchaseParams", async () => {
+    const promise = purchaseSimulatedStoreProduct(
+      {
+        ...mockPurchaseParams,
+        paywallId: "paywall_123",
+        workflowPurchaseContext: {
+          stepId: "step_123",
+          urlParameters: { utm_source: "newsletter" },
+        },
+        metadata: { utm_campaign: "spring_sale" },
+        externalPurchaseTokenId: "ext_token_123",
+        attributionMetadata: { fbp: "fb.1.123.456" },
+      },
+      mockBackend,
+      "test-user-id",
+    );
+
+    const mountCall = vi.mocked(mount).mock.calls[0];
+    const props = mountCall[1].props;
+
+    await props?.onValidPurchase();
+    await promise;
+
+    expect(mockBackend.postReceipt).toHaveBeenCalledWith(
+      "test-user-id",
+      "monthly_trial_intro",
+      "USD",
+      expect.stringMatching(/^test_.*test-uuid-123$/),
+      mockPurchaseParams.rcPackage.product.presentedOfferingContext,
+      "purchase",
+      "paywall_123",
+      undefined,
+      undefined,
+      undefined,
+      {
+        presentedStepId: "step_123",
+        metadata: { utm_campaign: "spring_sale" },
+        externalPurchaseTokenId: "ext_token_123",
+      },
+    );
   });
 
   test("includes customerEmail from PurchaseParams when present", async () => {

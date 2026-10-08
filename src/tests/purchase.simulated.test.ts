@@ -45,6 +45,7 @@ describe("simulated purchase", () => {
       }),
       expect.any(Object),
       "someAppUserId",
+      expect.objectContaining({ app_name: "Test Company name" }),
     );
 
     expect(InMemoryCache.prototype.invalidateAllCaches).toHaveBeenCalledOnce();
@@ -93,7 +94,50 @@ describe("simulated purchase", () => {
       }),
       expect.any(Object),
       "someAppUserId",
+      expect.objectContaining({ app_name: "Test Company name" }),
     );
     expect(result.customerEmail).toEqual("test@example.com");
+  });
+
+  test("forwards funnel context from PurchaseParams to the simulated store purchase", async () => {
+    const purchases = configurePurchases(
+      "someAppUserId",
+      "embedded",
+      "test_store_api_key",
+    );
+
+    vi.mocked(purchaseSimulatedStoreProduct).mockResolvedValue({
+      customerInfo: { originalAppUserId: "test-user" } as CustomerInfo,
+      redemptionInfo: null,
+      operationSessionId: "test-session-id",
+      storeTransaction: {
+        storeTransactionId: "test-transaction-id",
+        productIdentifier: "test-product",
+        purchaseDate: new Date(),
+      },
+    });
+
+    const offerings = await purchases.getOfferings();
+    const packageToBuy = offerings.current?.availablePackages[0];
+    expect(packageToBuy).not.toBeNull();
+
+    await purchases.purchase({
+      rcPackage: packageToBuy!,
+      workflowPurchaseContext: { stepId: "step_123" },
+      metadata: { utm_campaign: "spring_sale" },
+      externalPurchaseTokenId: "ext_token_123",
+    });
+
+    expect(purchaseSimulatedStoreProduct).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rcPackage: packageToBuy,
+        workflowPurchaseContext: { stepId: "step_123" },
+        metadata: { utm_campaign: "spring_sale" },
+        externalPurchaseTokenId: "ext_token_123",
+      }),
+      expect.any(Object),
+      "someAppUserId",
+      expect.objectContaining({ app_name: "Test Company name" }),
+    );
   });
 });

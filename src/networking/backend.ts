@@ -86,6 +86,12 @@ interface CheckoutStartRequestParams {
   purchaseFlow?: "apple_pay";
 }
 
+export interface PostReceiptOptions {
+  presentedStepId?: string;
+  metadata?: PurchaseMetadata;
+  externalPurchaseTokenId?: string;
+}
+
 interface CheckoutRefreshPricingParams {
   countryCode?: string;
   postalCode?: string;
@@ -602,6 +608,11 @@ export class Backend {
     storeUserId?: string,
     is_restore?: boolean,
     price?: number,
+    {
+      presentedStepId,
+      metadata,
+      externalPurchaseTokenId,
+    }: PostReceiptOptions = {},
   ): Promise<SubscriberResponse> {
     type PostReceiptTargetingRule = {
       rule_id: string;
@@ -615,6 +626,7 @@ export class Backend {
       presented_offering_identifier: string | null;
       presented_placement_identifier: string | null;
       presented_workflow_id?: string | null;
+      presented_step_id?: string;
       applied_targeting_rule?: PostReceiptTargetingRule | null;
       initiation_source: string;
       paywall?: {
@@ -623,6 +635,8 @@ export class Backend {
       store_user_id?: string;
       is_restore?: boolean;
       price: number | null;
+      metadata?: PurchaseMetadata;
+      rc_external_purchase_token_id?: string;
     };
 
     let targetingInfo: PostReceiptTargetingRule | null = null;
@@ -651,10 +665,22 @@ export class Backend {
       price: price ?? null,
     };
 
+    if (presentedStepId) {
+      requestBody.presented_step_id = presentedStepId;
+    }
+
     if (paywallId) {
       requestBody.paywall = {
         paywall_id: paywallId,
       };
+    }
+
+    if (metadata) {
+      requestBody.metadata = metadata;
+    }
+
+    if (externalPurchaseTokenId) {
+      requestBody.rc_external_purchase_token_id = externalPurchaseTokenId;
     }
 
     return await performRequest<PostReceiptRequestBody, SubscriberResponse>(
