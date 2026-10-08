@@ -425,8 +425,15 @@ export class PaddleService {
             if (eventName === CheckoutEventNames.CHECKOUT_LOADED) {
               onCheckoutLoaded();
               forwardTotals(data);
-            } else if (eventName === CheckoutEventNames.CHECKOUT_UPDATED) {
-              // Totals change as the customer enters their address (tax) etc.
+            } else if (
+              eventName === CheckoutEventNames.CHECKOUT_UPDATED ||
+              // A code entered in Paddle's form emits these instead of
+              // checkout.updated. Both payloads include the new totals.
+              eventName === CheckoutEventNames.CHECKOUT_DISCOUNT_APPLIED ||
+              eventName === CheckoutEventNames.CHECKOUT_DISCOUNT_REMOVED
+            ) {
+              // Totals change as the customer enters their address (tax),
+              // applies a discount, or removes one.
               forwardTotals(data);
             } else if (eventName === CheckoutEventNames.CHECKOUT_COMPLETED) {
               // Let the UI move to a processing state before we tear down the

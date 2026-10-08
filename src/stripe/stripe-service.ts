@@ -88,6 +88,7 @@ export class StripeService {
       "zh-Hans": "zh",
       zh_Hant: "zh-TW",
       "zh-Hant": "zh-TW",
+      nn: "nb",
     };
 
     if (Object.keys(mappedLocale).includes(locale)) {
@@ -531,6 +532,13 @@ export class StripeService {
         : undefined;
       const canCalculateIntroDates = !trialPhase || introBillingStartDate;
       const introCycleCount = Math.max(introPricePhase.cycleCount, 1);
+
+      // The payment request total already represents an introductory charge
+      // taken immediately. Describing that same charge as trial billing makes
+      // Apple invent a cadence for it ("per month" or "0 months").
+      if (introCycleCount === 1 && !trialPhase) {
+        return undefined;
+      }
 
       const baseBillingInfo: ApplePayRegularBilling = {
         label: productTitle,

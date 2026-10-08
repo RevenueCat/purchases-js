@@ -191,6 +191,33 @@ describe("The Translator class", () => {
     );
   });
 
+  test.each([
+    ["nb", "nb"],
+    ["nb-NO", "nb"],
+    ["nb_NO", "nb"],
+    ["nn", "nn"],
+    ["nn-NO", "nn"],
+    ["nn_NO", "nn"],
+    ["no", "nb"],
+    ["no-NO", "nb"],
+    ["no_NO", "nb"],
+  ])(
+    "should pick the Norwegian translations for %s (%s)",
+    (selectedLocale, expectedLanguage) => {
+      const translator = new Translator({}, selectedLocale);
+      expect(
+        translator.translate(LocalizationKeys.PaymentEntryPagePaymentStepTitle),
+      ).toBe(
+        supportedLanguages[expectedLanguage][
+          LocalizationKeys.PaymentEntryPagePaymentStepTitle
+        ],
+      );
+      expect(translator.translate(LocalizationKeys.ErrorButtonClose)).not.toBe(
+        supportedLanguages.en[LocalizationKeys.ErrorButtonClose],
+      );
+    },
+  );
+
   test("should not fail translating periods when zh_Hant and zh_Hans are taken as locale", () => {
     const traditionalTranslator = new Translator({}, "zh-Hant");
     expect(() =>
@@ -213,10 +240,20 @@ describe("The supportedLanguages", () => {
       }
     });
 
+    // Locale tags that intentionally reuse another locale's file.
+    const aliases = ["no"];
+
     expect(
-      eqSet(new Set(Object.keys(supportedLanguages)), new Set(files)),
+      eqSet(
+        new Set(Object.keys(supportedLanguages)),
+        new Set([...files, ...aliases]),
+      ),
       "Not all files in /locales are imported as supportedLanguages",
     ).toBe(true);
+  });
+
+  test("should alias the generic Norwegian tag (no) to Bokmål (nb)", () => {
+    expect(supportedLanguages.no).toBe(supportedLanguages.nb);
   });
 
   test("should have the same variables in all translations as in English", () => {

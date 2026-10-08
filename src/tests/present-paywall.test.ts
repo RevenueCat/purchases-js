@@ -57,7 +57,7 @@ const createOfferingWithTwoPackages = (): Offering => {
   const offering = createOfferingWithPaywall();
   const monthlyPackage = offering.monthly!;
   const additionalProduct = {
-    ...monthlyPackage.webBillingProduct,
+    ...monthlyPackage.product,
     identifier: "additional_product",
   };
   const additionalPackage = {
@@ -65,6 +65,7 @@ const createOfferingWithTwoPackages = (): Offering => {
     identifier: "additional_package",
     rcBillingProduct: additionalProduct,
     webBillingProduct: additionalProduct,
+    product: additionalProduct,
   };
 
   return {
@@ -285,6 +286,7 @@ describe("Purchases.presentPaywall() paywall context", () => {
         hasTrial: false,
         hasIntroOffer: false,
         hasPromoOffer: true,
+        pricePerMonthMicros: 3_000_000,
       },
     });
     expect(mountedProps?.variablesPerPackage).toMatchObject({
@@ -294,9 +296,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
       },
     });
     const walletOffering = getWalletButtonRenderSpy.mock.calls[0]?.[0];
-    expect(
-      walletOffering?.monthly?.webBillingProduct.defaultPurchaseOption.id,
-    ).toBe(discountedPurchaseOptionId);
+    expect(walletOffering?.monthly?.product.defaultPurchaseOption.id).toBe(
+      discountedPurchaseOptionId,
+    );
     (mountedProps?.onPurchaseClicked as (selectedPackageId: string) => void)(
       "$rc_monthly",
     );
@@ -305,13 +307,13 @@ describe("Purchases.presentPaywall() paywall context", () => {
         expect.objectContaining({
           discountCode: "SAVE50",
           rcPackage: expect.objectContaining({
-            webBillingProduct: expect.objectContaining({
+            product: expect.objectContaining({
               discountPhase: expect.objectContaining({ percentage: 50 }),
               defaultPurchaseOption: expect.objectContaining({
                 id: discountedPurchaseOptionId,
               }),
               presentedOfferingContext:
-                offering.monthly?.webBillingProduct.presentedOfferingContext,
+                offering.monthly?.product.presentedOfferingContext,
             }),
           }),
         }),
@@ -381,12 +383,12 @@ describe("Purchases.presentPaywall() paywall context", () => {
     await vi.waitFor(() => expect(mountedProps).toBeDefined());
     const walletOffering = getWalletButtonRenderSpy.mock.calls[0]?.[0];
     expect(walletOffering?.availablePackages).toHaveLength(2);
-    expect(
-      walletOffering?.monthly?.webBillingProduct.defaultPurchaseOption.id,
-    ).toBe(discountedPurchaseOptionId);
-    expect(
-      walletOffering?.packagesById.additional_package?.webBillingProduct,
-    ).toBe(offering.packagesById.additional_package?.webBillingProduct);
+    expect(walletOffering?.monthly?.product.defaultPurchaseOption.id).toBe(
+      discountedPurchaseOptionId,
+    );
+    expect(walletOffering?.packagesById.additional_package?.product).toBe(
+      offering.packagesById.additional_package?.product,
+    );
   });
 
   test("includes the discount code in initial offering resolution", async () => {
@@ -407,4 +409,28 @@ describe("Purchases.presentPaywall() paywall context", () => {
       discountCode: "SAVE50",
     });
   });
+
+  test.each([
+    { name: "forwards app", rcSource: "app", expected: "app" },
+    { name: "forwards embedded", rcSource: "embedded", expected: "embedded" },
+    { name: "drops unsupported", rcSource: "unsupported", expected: undefined },
+    { name: "omits when unset", rcSource: undefined, expected: undefined },
+  ])(
+    "passes custom checkout context on the Paywall mount: $name",
+    async ({ rcSource, expected }) => {
+      const purchases = configurePurchases(undefined, undefined, undefined, {
+        rcSource,
+      });
+      const offering = createOfferingWithPaywall();
+
+      void purchases.presentPaywall({ offering });
+
+      await vi.waitFor(() => expect(mountedProps).toBeDefined());
+      expect(mountedProps).toMatchObject({
+        appUserId: purchases.getAppUserId(),
+        isSandbox: purchases.isSandbox(),
+      });
+      expect(mountedProps?.rcSource).toBe(expected);
+    },
+  );
 });

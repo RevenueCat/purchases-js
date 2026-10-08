@@ -1,3 +1,71 @@
+## 1.70.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(test-store): apply app branding to the Test Store purchase modal (#1192) via Franco Correa (@francocorreasosa)
+
+## 1.69.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(test-store): send funnel step and purchase metadata on Test Store receipts (#1191) via Franco Correa (@francocorreasosa)
+### 📦 Dependency Updates
+* [AUTOMATIC] purchases-ui-js 4.13.0 => 4.14.0 (#1222) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC] purchases-ui-js 4.12.5 => 4.13.0 (#1220) via RevenueCat Git Bot (@RCGitBot)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `9f7a03e` to `4c49d48` (#1215) via dependabot[bot] (@dependabot[bot])
+
+## 1.68.0
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix(stripe): drop the recurring interval from a single-charge intro (#1210) via Deema AlShamaa (@dalshamaa)
+* Haley/paddle discount UI fix (#1212) via HaleyRevcat (@HaleyRevcat)
+* fix(vega): properly handle null productData response (#1211) via Will Taylor (@fire-at-will)
+### 📦 Dependency Updates
+* [AUTOMATIC] purchases-ui-js 4.12.4 => 4.12.5 (#1214) via RevenueCat Git Bot (@RCGitBot)
+* [AUTOMATIC] purchases-ui-js 4.12.2 => 4.12.4 (#1213) via RevenueCat Git Bot (@RCGitBot)
+
+## 1.67.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix(vega): update vega peer dependency ranges (#1207) via Will Taylor (@fire-at-will)
+
+## 1.67.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(vega): support for Amazon App Store on Vega OS (#1081) via Will Taylor (@fire-at-will)
+
+### 🔄 Other Changes
+* other: migrate newer Package.webBillingProduct usages to Package.product (#1197) via Will Taylor (@fire-at-will)
+
+## 1.66.0
+## RevenueCat SDK
+### ✨ New Features
+* feat: introduce Package.product (#1130) via Will Taylor (@fire-at-will)
+### 🐞 Bugfixes
+* fix(paywalls): pass monthly price so relative_discount can scope to tabs (#1199) via Jamie Holwill (@jholwill)
+### 📦 Dependency Updates
+* [RENOVATE] Update dependency revenuecat to v4.6.2 (#1200) via RevenueCat Git Bot (@RCGitBot)
+
+## 1.65.0
+## RevenueCat SDK
+### 🐞 Bugfixes
+* feat: add support for custom checkout purchase buttons on web (#1185) via Jamie Holwill (@jholwill)
+
+## 1.64.0
+## RevenueCat SDK
+### ✨ New Features
+* feat(paywalls): add `offer_price_with_zero` variables (#1136) via Facundo Menzella (@facumenzella)
+### 🐞 Bugfixes
+* fix(paywalls): show localized free price for web paywall trials (#1182) via Burdock (@lburdock)
+* Show discount code prices in Web SDK paywalls (#1163) via Burdock (@lburdock)
+* Wait for the express checkout buttons to load when forcing wallet methods in stories (#1166) via Burdock (@lburdock)
+
+### 🔄 Other Changes
+* chore(deps): bump fastlane from 2.240.0 to 2.240.1 (#1186) via dependabot[bot] (@dependabot[bot])
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `fc64a1a` to `9f7a03e` (#1183) via dependabot[bot] (@dependabot[bot])
+* chore(deps): bump fastlane-plugin-revenuecat_internal from `6db1da0` to `fc64a1a` (#1180) via dependabot[bot] (@dependabot[bot])
+* chore(deps): bump fastlane from 2.239.0 to 2.240.0 (#1176) via dependabot[bot] (@dependabot[bot])
+
 ## 1.63.1
 ## RevenueCatUI SDK
 ### 🐞 Bugfixes

@@ -13,6 +13,8 @@ vi.mock("@paddle/paddle-js", () => ({
   CheckoutEventNames: {
     CHECKOUT_LOADED: "checkout.loaded",
     CHECKOUT_UPDATED: "checkout.updated",
+    CHECKOUT_DISCOUNT_APPLIED: "checkout.discount.applied",
+    CHECKOUT_DISCOUNT_REMOVED: "checkout.discount.removed",
     CHECKOUT_COMPLETED: "checkout.completed",
     CHECKOUT_CLOSED: "checkout.closed",
   },
@@ -127,7 +129,7 @@ describe("Purchases.applyPaddleDiscountsToOffering", () => {
       currencyCode: "USD",
     });
 
-    const product = result.packagesById["$rc_monthly"].webBillingProduct;
+    const product = result.packagesById["$rc_monthly"].product;
     expect(product.discountPhase?.price.formattedPrice).toBe("$2.40");
     expect(product.defaultSubscriptionOption?.discount?.percentage).toBe(20);
 

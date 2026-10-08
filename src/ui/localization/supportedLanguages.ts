@@ -20,7 +20,8 @@ import id from "./locale/id.json";
 import ja from "./locale/ja.json";
 import ko from "./locale/ko.json";
 import ms from "./locale/ms.json";
-import no from "./locale/no.json";
+import nb from "./locale/nb.json";
+import nn from "./locale/nn.json";
 import pl from "./locale/pl.json";
 import pt from "./locale/pt.json";
 import ro from "./locale/ro.json";
@@ -126,6 +127,7 @@ export enum LocalizationKeys {
   PaywallVariablesPricePerPeriod = "paywall_variables.price_per_period",
   PaywallVariablesSubRelativeDiscount = "paywall_variables.sub_relative_discount",
   PaywallVariablesTotalPriceAndPerMonth = "paywall_variables.total_price_and_per_month",
+  PaywallVariablesFreePrice = "paywall_variables.free_price",
   PricingDropdownShowDetails = "pricing_dropdown.show_details",
   PricingDropdownHideDetails = "pricing_dropdown.hide_details",
   PricingDropdownAddPromoCode = "pricing_dropdown.add_promo_code",
@@ -200,7 +202,10 @@ export const supportedLanguages: Record<
   ja,
   ko,
   ms,
-  no,
+  nb,
+  nn,
+  // "no" is the generic Norwegian tag. CLDR 39+ resolves it to Bokmål (nb).
+  no: nb,
   pl,
   pt,
   ro,

@@ -1,6 +1,3 @@
-## RevenueCatUI SDK
-### 🐞 Bugfixes
-* Bump @revenuecat/purchases-ui-js to 4.11.1 (#1173) via Rosie Watson (@RosieWatson)
-
-### 🔄 Other Changes
-* ci: approve the release hold automatically when the release PR is approved (#1171) via Álvaro Brey (@AlvaroBrey)
+## RevenueCat SDK
+### ✨ New Features
+* feat(test-store): apply app branding to the Test Store purchase modal (#1192) via Franco Correa (@francocorreasosa)

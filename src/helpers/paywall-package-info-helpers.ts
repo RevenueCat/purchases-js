@@ -4,6 +4,7 @@ import {
   ProductType,
 } from "../entities/offerings";
 import { type PackageInfo } from "@revenuecat/purchases-ui-js";
+import { getPackageMonthlyPrice } from "./paywall-variables-helpers";
 
 function resolveWebCheckoutURL(
   pkg: Package,
@@ -29,7 +30,7 @@ function getPackageInfo(
   offeringWebCheckoutURL?: string | null,
 ): PackageInfo {
   // This would not work with Paddle.
-  const product = pkg.webBillingProduct;
+  const product = pkg.product;
 
   const webCheckoutURL = resolveWebCheckoutURL(pkg, offeringWebCheckoutURL);
   const checkoutFields = webCheckoutURL !== undefined ? { webCheckoutURL } : {};
@@ -42,6 +43,7 @@ function getPackageInfo(
       hasTrial: subscriptionOption.trial !== null,
       hasIntroOffer: subscriptionOption.introPrice !== null,
       hasPromoOffer: subscriptionOption.discount !== null,
+      pricePerMonthMicros: getPackageMonthlyPrice(pkg),
       ...checkoutFields,
     };
   }

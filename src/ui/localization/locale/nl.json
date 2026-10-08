@@ -53,6 +53,7 @@
   "error_page.button_try_again": "Opnieuw proberen",
   "paywall_variables.price_per_period": "{{formattedPrice}}/{{period}}",
   "paywall_variables.sub_relative_discount": "{{discount}}%",
+  "paywall_variables.free_price": "gratis",
   "paywall_variables.total_price_and_per_month": "{{formattedPrice}}/{{period}}({{formattedPricePerMonth}}/{{monthPeriod}})",
   "product_info.total_due_today": "Totaal te betalen vandaag",
   "product_info.subscribe_to": "Abonneren op",
