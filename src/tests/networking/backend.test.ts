@@ -115,6 +115,7 @@ describe("httpConfig is setup correctly", () => {
     ["rcb_api_key", "false"],
     ["pdl_valid_key", "false"],
     ["strp_valid_key", "false"],
+    ["strp_sb_valid_key", "true"],
   ])("X-Is-Sandbox header for %s is %s", async (apiKey, expected) => {
     setCustomerInfoResponse(
       HttpResponse.json(customerInfoResponse, { status: 200 }),
@@ -128,6 +129,30 @@ describe("httpConfig is setup correctly", () => {
     await backend.getCustomerInfo("someAppUserId");
     expect(requestPerformed?.headers.get("X-Is-Sandbox")).toEqual(expected);
   });
+
+  test.each([
+    ["strp_sb_valid_key", "false", "true"],
+    ["strp_valid_key", "true", "false"],
+  ])(
+    "X-Is-Sandbox header for %s cannot be overridden with additionalHeaders",
+    async (apiKey, overrideValue, expected) => {
+      setCustomerInfoResponse(
+        HttpResponse.json(customerInfoResponse, { status: 200 }),
+      );
+
+      let requestPerformed: Request | undefined;
+      server.events.on("request:start", (req) => {
+        requestPerformed = req.request;
+      });
+      backend = new Backend(apiKey, {
+        additionalHeaders: {
+          "X-Is-Sandbox": overrideValue,
+        },
+      });
+      await backend.getCustomerInfo("someAppUserId");
+      expect(requestPerformed?.headers.get("X-Is-Sandbox")).toEqual(expected);
+    },
+  );
 
   test("expected platformInfo headers are sent", async () => {
     setCustomerInfoResponse(
