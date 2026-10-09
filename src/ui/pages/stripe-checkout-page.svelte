@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
+  import { getContext, onMount, onDestroy } from "svelte";
   import type { StripeBillingParams } from "../../networking/responses/checkout-start-response";
   import {
     PurchaseFlowError,
@@ -7,6 +7,7 @@
   } from "../../helpers/purchase-operation-helper";
   import { StripeService } from "../../stripe/stripe-service";
   import type { StripeEmbeddedCheckout } from "@stripe/stripe-js";
+  import { checkoutCompletionWatchContextKey } from "../constants";
 
   interface Props {
     stripeBillingParams: StripeBillingParams;
@@ -18,6 +19,42 @@
 
   let checkoutContainer: HTMLDivElement;
   let embeddedCheckout: StripeEmbeddedCheckout | null = null;
+  let completionWatch: AbortController | null = null;
+  const watchCheckoutCompletion = getContext<
+    ((signal: AbortSignal) => Promise<void>) | undefined
+  >(checkoutCompletionWatchContextKey);
+
+  function startCompletionWatch() {
+    if (!watchCheckoutCompletion) {
+      return;
+    }
+    completionWatch = new AbortController();
+    watchCheckoutCompletion(completionWatch.signal)
+      .then(() => {
+        if (completionWatch?.signal.aborted) {
+          return;
+        }
+        handleCheckoutComplete();
+      })
+      .catch((error: unknown) => {
+        if (
+          completionWatch?.signal.aborted ||
+          (error instanceof DOMException && error.name === "AbortError")
+        ) {
+          return;
+        }
+        onError(
+          error instanceof PurchaseFlowError
+            ? error
+            : new PurchaseFlowError(
+                PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+                error instanceof Error
+                  ? error.message
+                  : "Failed to complete checkout",
+              ),
+        );
+      });
+  }
 
   async function handleCheckoutComplete() {
     try {
@@ -54,6 +91,9 @@
       if (checkoutContainer) {
         checkout.mount(checkoutContainer);
       }
+      // onComplete does not run after 3D Secure when Checkout was created with
+      // redirect_on_completion=never. The status watch uses the same continue path.
+      startCompletionWatch();
     } catch (error) {
       onError(
         error instanceof Error
@@ -70,6 +110,8 @@
   });
 
   onDestroy(() => {
+    completionWatch?.abort();
+    completionWatch = null;
     if (embeddedCheckout) {
       embeddedCheckout.destroy();
       embeddedCheckout = null;

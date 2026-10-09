@@ -4,7 +4,11 @@
   import { translatorContextKey } from "./localization/constants";
   import { Translator } from "./localization/translator";
   import { writable } from "svelte/store";
-  import { eventsTrackerContextKey, brandingContextKey } from "./constants";
+  import {
+    eventsTrackerContextKey,
+    brandingContextKey,
+    checkoutCompletionWatchContextKey,
+  } from "./constants";
   import type { IEventsTracker } from "../behavioural-events/events-tracker";
   import type { OperationSessionSuccessfulResult } from "../helpers/purchase-operation-helper";
   import {
@@ -103,6 +107,9 @@
   let translatorStore = writable(translator);
   setContext(translatorContextKey, translatorStore);
   setContext(eventsTrackerContextKey, eventsTracker);
+  setContext(checkoutCompletionWatchContextKey, (signal: AbortSignal) =>
+    purchaseOperationHelper.watchCurrentPurchaseUntilComplete(signal),
+  );
 
   const brandingAppearanceStore = writable<BrandingAppearance | null>(
     brandingInfo?.appearance ?? null,
