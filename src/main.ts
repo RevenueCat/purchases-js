@@ -2559,6 +2559,7 @@ export class Purchases {
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
       skipSuccessPage = false,
+      discountCode,
     } = params;
 
     const certainHTMLTarget = this.resolveHTMLTarget(htmlTarget);
@@ -2571,8 +2572,15 @@ export class Purchases {
 
     const localeToBeUsed = selectedLocale || defaultLocale;
 
-    const purchaseOptionToUse =
+    const fallbackPurchaseOption =
       purchaseOption ?? rcPackage.product.defaultPurchaseOption;
+    const purchaseOptionToUse =
+      await this.purchaseOperationHelper.getPurchaseOptionForDiscountCode(
+        appUserId,
+        rcPackage.product,
+        fallbackPurchaseOption,
+        discountCode,
+      );
 
     const event = createCheckoutSessionStartEvent({
       appearance: brandingInfo?.appearance,
