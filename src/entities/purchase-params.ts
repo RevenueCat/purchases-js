@@ -143,13 +143,11 @@ export interface PurchaseParams {
   skipSuccessPage?: boolean;
 
   /**
-   * @experimental
    * If set to true, the Web Billing checkout will show a discount input code field.
    */
   showDiscountCodeField?: boolean;
 
   /**
-   * @experimental
    * Initial discount code to apply at checkout.
    * For Web Billing this is displayed as applied in the checkout UI.
    * For Paddle this is passed to Paddle Checkout as `discountCode`.
@@ -170,7 +168,6 @@ export interface PurchaseParams {
   discountId?: string;
 
   /**
-   * @experimental
    * Called when the applied discount code changes in the Web Billing checkout.
    * This can be used by host applications to keep external state, such as the URL,
    * in sync with the checkout.
