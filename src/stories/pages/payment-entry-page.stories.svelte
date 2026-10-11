@@ -19,6 +19,7 @@
   } from "../fixtures";
   import {
     getPriceBreakdownTaxInclusive,
+    getPriceBreakdownTaxExclusive,
     getPriceBreakdownTaxDisabled,
   } from "../helpers/get-price-breakdown";
   import { PurchaseOperationHelper } from "../../helpers/purchase-operation-helper";
@@ -328,6 +329,32 @@
   args={{
     ...defaultArgs,
     currentPage: "payment-entry",
+    productDetails: {
+      ...product,
+      subscriptionOptions: {
+        ...product.subscriptionOptions,
+        [subscriptionOptionWithTrial.id]: subscriptionOptionWithTrial,
+      },
+    },
+    purchaseOptionToUse: subscriptionOptionWithTrial,
+    defaultPurchaseOption: subscriptionOptionWithTrial,
+    withTaxes: true,
+  }}
+  parameters={{
+    chromatic: {
+      delay: 1000,
+    },
+  }}
+/>
+
+<Story
+  name="With Tax Exclusive and Trial Product"
+  args={{
+    ...defaultArgs,
+    currentPage: "payment-entry",
+    defaultPriceBreakdown: getPriceBreakdownTaxExclusive(
+      subscriptionOptionWithTrial,
+    ),
     productDetails: {
       ...product,
       subscriptionOptions: {
