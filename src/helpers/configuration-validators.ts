@@ -2,6 +2,7 @@ import { ErrorCode, PurchasesError } from "../entities/errors";
 import { SDK_HEADERS } from "../networking/http-client";
 import {
   isAmazonApiKey,
+  isExternalApiKey,
   isPaddleApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
@@ -10,6 +11,7 @@ import {
 
 export function validateApiKey(apiKey: string) {
   const isValidApiKey =
+    isExternalApiKey(apiKey) ||
     isWebBillingApiKey(apiKey) ||
     isSimulatedStoreApiKey(apiKey) ||
     isPaddleApiKey(apiKey) ||
