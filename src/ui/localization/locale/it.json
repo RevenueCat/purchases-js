@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Conferma pagamento",
   "upgrade_product_info.tax_estimated": "Imposta (stimata)",
   "upgrade_confirm_page.subtitle_deferred": "Rivedi i dettagli del pagamento e la modifica della pianificazione",
-  "upgrade_confirm_page.confirm_schedule": "Conferma pianificazione",
+  "upgrade_confirm_page.confirm_schedule": "Pianifica la modifica",
   "upgrade_confirm_page.on_file": "In archivio",
   "credit_for_unused_time.title": "Credito per il tempo inutilizzato",
   "credit_for_unused_time.message": "Qualsiasi tempo non utilizzato sul tuo abbonamento esistente verrà scontato dal tuo acquisto.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "tasse incl.",
   "paddle_order_summary.due_on": "In scadenza il {{date}}",
   "payment_entry_page.payment_method_error": "Non è stato possibile utilizzare questo metodo di pagamento. Controlla i tuoi dati o prova un metodo di pagamento diverso.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Questo tipo di carta non è accettato. Prova una carta diversa."
+  "payment_entry_page.payment_method_error_card_not_supported": "Questo tipo di carta non è accettato. Prova una carta diversa.",
+  "deferred_subscription_change.message": "La tua modifica a {{productName}} avrà effetto alla fine del tuo attuale ciclo di fatturazione. Fino ad allora, continuerai ad avere accesso alle funzionalità di {{previousProductName}}. Dopodiché, tutte le funzionalità non incluse con {{productName}} non saranno più disponibili.",
+  "deferred_subscription_change.title": "La modifica avrà effetto al prossimo rinnovo"
 }

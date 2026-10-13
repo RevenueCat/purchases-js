@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Confirmă plata",
   "upgrade_product_info.tax_estimated": "Taxă (estimată)",
   "upgrade_confirm_page.subtitle_deferred": "Revizuiește detaliile de plată și programează modificarea",
-  "upgrade_confirm_page.confirm_schedule": "Confirmă programarea",
+  "upgrade_confirm_page.confirm_schedule": "Programează modificarea",
   "upgrade_confirm_page.on_file": "Înregistrat",
   "credit_for_unused_time.title": "Credit pentru timp neutilizat",
   "credit_for_unused_time.message": "Orice timp neutilizat din abonamentul tău existent va fi dedus din achiziția ta.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "incl. taxe",
   "paddle_order_summary.due_on": "Scadent la {{date}}",
   "payment_entry_page.payment_method_error": "Nu am putut utiliza această metodă de plată. Verificați detaliile sau încercați o altă metodă de plată.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Acest tip de card nu este acceptat. Încercați un alt card."
+  "payment_entry_page.payment_method_error_card_not_supported": "Acest tip de card nu este acceptat. Încercați un alt card.",
+  "deferred_subscription_change.message": "Modificarea dvs. la {{productName}} va intra în vigoare la sfârșitul ciclului dvs. de facturare curent. Până atunci, veți continua să aveți acces la funcționalitățile {{previousProductName}}. După aceea, orice funcționalități care nu sunt incluse în {{productName}} nu vor mai fi disponibile.",
+  "deferred_subscription_change.title": "Modificarea intră în vigoare la următoarea reînnoire"
 }

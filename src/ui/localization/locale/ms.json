@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Sahkan pembayaran",
   "upgrade_product_info.tax_estimated": "Cukai (anggaran)",
   "upgrade_confirm_page.subtitle_deferred": "Semak butiran pembayaran anda dan jadualkan perubahan",
-  "upgrade_confirm_page.confirm_schedule": "Sahkan jadual",
+  "upgrade_confirm_page.confirm_schedule": "Jadualkan perubahan",
   "upgrade_confirm_page.on_file": "Dalam rekod",
   "credit_for_unused_time.title": "Kredit untuk masa tidak digunakan",
   "credit_for_unused_time.message": "Sebarang masa yang tidak digunakan pada langganan sedia ada anda akan didiskaunkan daripada pembelian anda.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "termasuk cukai",
   "paddle_order_summary.due_on": "Perlu dibayar pada {{date}}",
   "payment_entry_page.payment_method_error": "Kami tidak dapat menggunakan kaedah pembayaran ini. Semak butiran anda atau cuba kaedah pembayaran lain.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Jenis kad ini tidak diterima. Cuba kad lain."
+  "payment_entry_page.payment_method_error_card_not_supported": "Jenis kad ini tidak diterima. Cuba kad lain.",
+  "deferred_subscription_change.message": "Perubahan anda kepada {{productName}} akan berkuat kuasa pada akhir kitaran pengebilan semasa anda. Sehingga itu, anda akan terus mempunyai akses kepada ciri-ciri {{previousProductName}}. Selepas itu, sebarang ciri yang tidak termasuk dengan {{productName}} tidak lagi akan tersedia.",
+  "deferred_subscription_change.title": "Perubahan berkuat kuasa pada pembaharuan seterusnya"
 }

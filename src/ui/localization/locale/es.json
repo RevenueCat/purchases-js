@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Confirmar pago",
   "upgrade_product_info.tax_estimated": "Impuestos (estimados)",
   "upgrade_confirm_page.subtitle_deferred": "Revisa tus detalles de pago y programa el cambio",
-  "upgrade_confirm_page.confirm_schedule": "Confirmar programación",
+  "upgrade_confirm_page.confirm_schedule": "Programar cambio",
   "upgrade_confirm_page.on_file": "Registrado",
   "credit_for_unused_time.title": "Crédito por tiempo no utilizado",
   "credit_for_unused_time.message": "Cualquier tiempo no utilizado de tu suscripción actual se descontará de tu compra.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "impuestos incl.",
   "paddle_order_summary.due_on": "Vence el {{date}}",
   "payment_entry_page.payment_method_error": "No pudimos usar este método de pago. Verifica tus datos o prueba un método de pago diferente.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Este tipo de tarjeta no es aceptado. Prueba con una tarjeta diferente."
+  "payment_entry_page.payment_method_error_card_not_supported": "Este tipo de tarjeta no es aceptado. Prueba con una tarjeta diferente.",
+  "deferred_subscription_change.message": "Tu cambio a {{productName}} se hará efectivo al final de tu ciclo de facturación actual. Hasta entonces, seguirás teniendo acceso a las funciones de {{previousProductName}}. Después de eso, cualquier función no incluida en {{productName}} dejará de estar disponible.",
+  "deferred_subscription_change.title": "El cambio se hará efectivo en la próxima renovación"
 }

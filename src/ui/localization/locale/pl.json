@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Potwierdź płatność",
   "upgrade_product_info.tax_estimated": "Podatek (szacowany)",
   "upgrade_confirm_page.subtitle_deferred": "Sprawdź szczegóły płatności i zaplanuj zmianę",
-  "upgrade_confirm_page.confirm_schedule": "Potwierdź harmonogram",
+  "upgrade_confirm_page.confirm_schedule": "Zaplanuj zmianę",
   "upgrade_confirm_page.on_file": "Zapisane",
   "credit_for_unused_time.title": "Uznanie za niewykorzystany czas",
   "credit_for_unused_time.message": "Niewykorzystany czas z Twojej obecnej subskrypcji zostanie odliczony od zakupu.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "z podatkiem",
   "paddle_order_summary.due_on": "Płatne {{date}}",
   "payment_entry_page.payment_method_error": "Nie mogliśmy użyć tej metody płatności. Sprawdź swoje dane lub spróbuj innej metody płatności.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Ten typ karty nie jest akceptowany. Spróbuj innej karty."
+  "payment_entry_page.payment_method_error_card_not_supported": "Ten typ karty nie jest akceptowany. Spróbuj innej karty.",
+  "deferred_subscription_change.message": "Twoja zmiana na {{productName}} wejdzie w życie z końcem bieżącego cyklu rozliczeniowego. Do tego czasu będziesz mieć dostęp do funkcji {{previousProductName}}. Następnie, wszelkie funkcje nieobjęte {{productName}} nie będą już dostępne.",
+  "deferred_subscription_change.title": "Zmiana wejdzie w życie przy następnym odnowieniu"
 }

@@ -126,7 +126,7 @@
   "upgrade_confirm_page.subtitle_immediate": "Gå gjennom betalingsdetaljane dine og stadfest oppgradering",
   "upgrade_confirm_page.subtitle_deferred": "Gå gjennom betalingsdetaljane dine og planlagd endring",
   "upgrade_confirm_page.confirming": "Stadfestar…",
-  "upgrade_confirm_page.confirm_schedule": "Stadfest plan",
+  "upgrade_confirm_page.confirm_schedule": "Planlegg endring",
   "upgrade_confirm_page.confirm_upgrade": "Stadfest oppgradering",
   "upgrade_confirm_page.confirm_upgrade_with_price": "Stadfest oppgradering ∙ {{formattedPrice}}",
   "upgrade_confirm_page.on_file": "Registrert",
@@ -137,5 +137,7 @@
   "paddle_order_summary.billed_frequency": "fakturert {{frequency}}",
   "paddle_order_summary.intro_then_recurring": "første {{firstPeriod}}, deretter {{price}} {{frequency}}",
   "paddle_order_summary.inc_tax": "inkl. mva.",
-  "paddle_order_summary.due_on": "Forfell den {{date}}"
+  "paddle_order_summary.due_on": "Forfell den {{date}}",
+  "deferred_subscription_change.message": "Endringa di til {{productName}} trer i kraft ved slutten av den noverande faktureringsperioden din. Fram til då vil du framleis ha tilgang til funksjonane i {{previousProductName}}. Etter det vil funksjonar som ikkje er inkluderte i {{productName}} ikkje lenger vere tilgjengelege.",
+  "deferred_subscription_change.title": "Endringa trer i kraft ved neste fornying"
 }
