@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}}日間無料トライアル",
+  "product_info.free_trial_duration": "{{trialDuration}}無料トライアル",
   "product_info.price_after_free_trial": "トライアル終了後、{{renewalDate}}に",
   "product_info.renewal_frequency": "{{frequency}}で更新",
   "product_info.continues_until_cancelled": "キャンセルされるまで継続されます",

@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} dni próbnych",
+  "product_info.free_trial_duration": "Bezpłatny okres próbny: {{trialDuration}}",
   "product_info.price_after_free_trial": "Po zakończeniu okresu próbnego, dnia {{renewalDate}}",
   "product_info.renewal_frequency": "Odnawialny co {{frequency}}",
   "product_info.continues_until_cancelled": "Kontynuowane do momentu anulowania",
