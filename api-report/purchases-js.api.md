@@ -511,6 +511,8 @@ export interface PurchaseParams {
     customerEmail?: string;
     defaultLocale?: string;
     discountCode?: string;
+    externalCheckoutReturnUrl?: string;
+    externalCheckoutUrl?: string;
     externalPurchaseTokenId?: string;
     htmlTarget?: HTMLElement;
     metadata?: PurchaseMetadata;
@@ -546,6 +548,9 @@ export class Purchases {
     /* Excluded from this release type: _subscriberToken */
     /* Excluded from this release type: _brandingAppearanceOverride */
     /* Excluded from this release type: _context */
+    /* Excluded from this release type: _externalCheckoutUrl */
+    /* Excluded from this release type: _externalCheckoutReturnUrl */
+    /* Excluded from this release type: _externalCheckoutReturnToken */
     /* Excluded from this release type: backend */
     /* Excluded from this release type: purchaseOperationHelper */
     /* Excluded from this release type: eventsTracker */
@@ -568,6 +573,7 @@ export class Purchases {
     getCachedVirtualCurrencies(): VirtualCurrencies | null;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
+    getExternalCheckoutReturnToken(): string | null;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases;
     getVirtualCurrencies(): Promise<VirtualCurrencies>;
@@ -603,6 +609,9 @@ export interface PurchasesConfig {
     apiKey: string;
     appUserId: string;
     brandingAppearanceOverride?: Partial<BrandingAppearance>;
+    externalCheckoutReturnToken?: string;
+    externalCheckoutReturnUrl?: string;
+    externalCheckoutUrl?: string;
     flags?: FlagsConfig;
     httpConfig?: HttpConfig;
     /* Excluded from this release type: subscriberToken */

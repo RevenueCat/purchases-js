@@ -3,11 +3,54 @@ import AppStoreButton from "../../components/AppStoreButton";
 import PlayStoreButton from "../../components/PlayStoreButton";
 import AppLogo from "../../components/AppLogo";
 import LogoutButton from "../../components/LogoutButton";
+import { usePurchasesLoaderData } from "../../util/PurchasesLoader";
+import { checkoutReturnContext } from "../../util/external-checkout-return";
 
 const SuccessPage: React.FC = () => {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const redeemUrlParam = urlParams.get("redeem_url");
+  const { purchases, customerInfo } = usePurchasesLoaderData();
+  const returnToken = purchases.getExternalCheckoutReturnToken();
+
+  if (window.location.pathname.startsWith("/checkout-return/") && returnToken) {
+    const { continueTo } = checkoutReturnContext(window.location.href);
+    const entitlements = Object.keys(customerInfo.entitlements.active);
+    const subscriptions = Array.from(customerInfo.activeSubscriptions);
+    return (
+      <>
+        <LogoutButton />
+        <div className="success">
+          <AppLogo />
+          <h1>Returned from checkout</h1>
+          <p>Current RevenueCat access for {purchases.getAppUserId()}</p>
+          <h2>Active entitlements</h2>
+          {entitlements.length ? (
+            <ul>
+              {entitlements.map((id) => (
+                <li key={id}>{id}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No active entitlements yet.</p>
+          )}
+          <h2>Active subscriptions</h2>
+          {subscriptions.length ? (
+            <ul>
+              {subscriptions.map((id) => (
+                <li key={id}>{id}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>No active subscriptions yet.</p>
+          )}
+          <a className="button" href={continueTo}>
+            Continue
+          </a>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

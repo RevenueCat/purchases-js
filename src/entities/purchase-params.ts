@@ -72,6 +72,17 @@ export interface WorkflowPurchaseContext {
  */
 export interface PurchaseParams {
   /**
+   * Overrides the configured merchant checkout endpoint for this external purchase.
+   * The SDK adds app_user_id and product_id query parameters automatically.
+   * Navigation leaves the purchase promise pending until the page unloads.
+   */
+  externalCheckoutUrl?: string;
+  /**
+   * Overrides the configured return page for this external purchase.
+   * Passed to the merchant checkout endpoint as return_url.
+   */
+  externalCheckoutReturnUrl?: string;
+  /**
    * The package you want to purchase. Obtained from {@link Purchases.getOfferings}.
    */
   rcPackage: Package;

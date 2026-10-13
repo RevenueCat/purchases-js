@@ -50,6 +50,23 @@ export interface PurchasesContext {
  */
 export interface PurchasesConfig {
   /**
+   * Merchant checkout endpoint for external products. The SDK adds app_user_id
+   * and product_id query parameters automatically when purchasing.
+   * Navigation leaves the purchase promise pending until the page unloads.
+   */
+  externalCheckoutUrl?: string;
+  /**
+   * Page to return to after external checkout. Passed to the merchant endpoint
+   * as return_url. Returning does not resolve the original purchase promise.
+   */
+  externalCheckoutReturnUrl?: string;
+  /**
+   * Opaque checkout_token read by the hosting app from its return URL.
+   * Retained as return context only; it is not verified or proof of payment.
+   * @experimental
+   */
+  externalCheckoutReturnToken?: string;
+  /**
    * RevenueCat API Key. Can be obtained from the RevenueCat dashboard.
    */
   apiKey: string;

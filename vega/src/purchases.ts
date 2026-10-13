@@ -26,6 +26,9 @@ export class Purchases extends CorePurchases {
       config.brandingAppearanceOverride,
       config.context,
       config.trace_id,
+      config.externalCheckoutUrl,
+      config.externalCheckoutReturnUrl,
+      config.externalCheckoutReturnToken,
     );
   }
 
