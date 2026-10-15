@@ -31,6 +31,7 @@ import { Backend } from "./networking/backend";
 import {
   isAmazonApiKey,
   isPaddleApiKey,
+  isExternalApiKey,
   isSimulatedStoreApiKey,
   isStripeApiKey,
   isStripeSandboxApiKey,
@@ -710,6 +711,9 @@ export class Purchases {
 
   /** @internal */
   private async fetchAndCacheBrandingInfo(): Promise<void> {
+    if (isExternalApiKey(this._API_KEY)) {
+      return;
+    }
     if (isAmazonApiKey(this._API_KEY)) {
       Logger.verboseLog(
         "Branding info is not available for Amazon Store API keys.",
@@ -2352,6 +2356,12 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
+    if (isExternalApiKey(this._API_KEY)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "External checkout is not supported yet. External products can be displayed, but purchases must use your own checkout.",
+      );
+    }
     if (params.tryWithApplePay) {
       try {
         const quickPurchase =

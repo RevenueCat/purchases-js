@@ -1,4 +1,9 @@
 const rc_api_key_regex = /^rcb_[a-zA-Z0-9_.-]+$/;
+const external_api_key_regex = /^ext_[a-zA-Z0-9_.-]+$/;
+
+export function isExternalApiKey(apiKey: string): boolean {
+  return external_api_key_regex.test(apiKey);
+}
 const paddle_api_key_regex = /^pdl_[a-zA-Z0-9_.-]+$/;
 const rc_simulated_store_api_key_regex = /^test_[a-zA-Z0-9_.-]+$/;
 const stripe_api_key_regex = /^strp_[a-zA-Z0-9_.-]+$/;
