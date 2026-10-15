@@ -34,6 +34,8 @@
   import type { BrandingAppearance } from "../entities/branding";
   import type { TaxCustomerDetails } from "../stripe/stripe-service";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import { isPayrailsCheckoutStartResponse } from "../networking/responses/checkout-start-response";
+  import type { PayrailsGatewayParams } from "../networking/responses/payrails-gateway-params";
   import {
     CheckoutPricingFailedReason,
     type CheckoutPricingResponse,
@@ -145,6 +147,7 @@
   let currentPage: CurrentPage = $state("payment-entry-loading");
   let operationResult: OperationSessionSuccessfulResult | null = $state(null);
   let initialGatewayParams: GatewayParams = $state({});
+  let payrailsGatewayParams = $state<PayrailsGatewayParams | null>(null);
   let managementUrl: string | null = $state(null);
   let currentPriceBreakdown = $state<PriceBreakdown | undefined>(undefined);
   let appliedDiscountCode: string | null = $derived(
@@ -388,7 +391,12 @@
         return;
       }
 
-      initialGatewayParams = result.gateway_params;
+      if (isPayrailsCheckoutStartResponse(result)) {
+        payrailsGatewayParams = result.payrails_gateway_params;
+      } else {
+        payrailsGatewayParams = null;
+        initialGatewayParams = result.gateway_params;
+      }
       managementUrl = result.management_url;
 
       if (discountCode) {
@@ -541,6 +549,7 @@
   {purchaseOptionToUse}
   {lastError}
   {gatewayParams}
+  {payrailsGatewayParams}
   {managementUrl}
   {purchaseOperationHelper}
   {isInElement}

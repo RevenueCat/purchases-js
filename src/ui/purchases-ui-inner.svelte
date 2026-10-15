@@ -1,5 +1,6 @@
 <script lang="ts">
   import StripePaymentEntryPage from "./pages/stripe-payment-entry-page.svelte";
+  import PayrailsPaymentEntryPage from "./pages/payrails-payment-entry-page.svelte";
   import ErrorPage from "./pages/error-page.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import LoadingPage from "./pages/payment-entry-loading-page.svelte";
@@ -17,6 +18,7 @@
   } from "../helpers/purchase-operation-helper";
   import Template from "./layout/template.svelte";
   import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import type { PayrailsGatewayParams } from "../networking/responses/payrails-gateway-params";
   import BrandingHeader from "./molecules/branding-header.svelte";
   import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";
   import { writable, type Writable } from "svelte/store";
@@ -32,6 +34,7 @@
     purchaseOperationHelper: PurchaseOperationHelper;
     isInElement: boolean;
     gatewayParams: GatewayParams;
+    payrailsGatewayParams?: PayrailsGatewayParams | null;
     managementUrl: string | null;
     customerEmail: string | null;
     forceEnableWalletMethods: boolean;
@@ -73,6 +76,7 @@
     purchaseOperationHelper,
     isInElement,
     gatewayParams,
+    payrailsGatewayParams = null,
     managementUrl,
     customerEmail,
     forceEnableWalletMethods,
@@ -172,7 +176,17 @@
     {#if currentPage === "payment-entry-loading"}
       <LoadingPage />
     {/if}
-    {#if currentPage === "payment-entry"}
+    {#if currentPage === "payment-entry" && payrailsGatewayParams}
+      <PayrailsPaymentEntryPage
+        {payrailsGatewayParams}
+        {brandingInfo}
+        {productDetails}
+        {termsAndConditionsUrl}
+        {onContinue}
+        {onError}
+        onProcessingStateChange={onPaymentProcessingChange}
+      />
+    {:else if currentPage === "payment-entry"}
       <StripePaymentEntryPage
         {productDetails}
         purchaseOption={purchaseOptionToUse}
