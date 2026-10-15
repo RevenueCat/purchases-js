@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Fizetés megerősítése",
   "upgrade_product_info.tax_estimated": "Adó (becsült)",
   "upgrade_confirm_page.subtitle_deferred": "Tekintse át fizetési adatait és ütemezze a módosítást",
-  "upgrade_confirm_page.confirm_schedule": "Ütemezés megerősítése",
+  "upgrade_confirm_page.confirm_schedule": "Változás ütemezése",
   "upgrade_confirm_page.on_file": "Rögzítve",
   "credit_for_unused_time.title": "Jóváírás fel nem használt időre",
   "credit_for_unused_time.message": "A meglévő előfizetésed fel nem használt ideje kedvezményként jóváíródik a vásárlásodból.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "adóval",
   "paddle_order_summary.due_on": "Esedékes: {{date}}",
   "payment_entry_page.payment_method_error": "Nem tudtuk használni ezt a fizetési módot. Ellenőrizze adatait, vagy próbáljon meg egy másik fizetési módot.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Ezt a kártyatípust nem fogadjuk el. Próbáljon meg egy másik kártyát."
+  "payment_entry_page.payment_method_error_card_not_supported": "Ezt a kártyatípust nem fogadjuk el. Próbáljon meg egy másik kártyát.",
+  "deferred_subscription_change.message": "A(z) {{productName}}-re vonatkozó változás az aktuális számlázási ciklus végén lép életbe. Addig is továbbra is hozzáférhet a(z) {{previousProductName}} funkcióihoz. Ezt követően a(z) {{productName}} által nem tartalmazott funkciók már nem lesznek elérhetők.",
+  "deferred_subscription_change.title": "A változás a következő megújításkor lép életbe"
 }

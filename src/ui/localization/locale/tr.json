@@ -127,7 +127,7 @@
   "upgrade_confirm_page.title": "Ödemeyi onayla",
   "upgrade_product_info.tax_estimated": "Vergi (tahmini)",
   "upgrade_confirm_page.subtitle_deferred": "Ödeme detaylarınızı inceleyin ve plan değişikliğini onaylayın",
-  "upgrade_confirm_page.confirm_schedule": "Planı onayla",
+  "upgrade_confirm_page.confirm_schedule": "Değişikliği planla",
   "upgrade_confirm_page.on_file": "Kayıtlı",
   "credit_for_unused_time.title": "Kullanılmayan süre için kredi",
   "credit_for_unused_time.message": "Mevcut aboneliğinizdeki kullanılmayan süre, satın alımınızdan düşülecektir.",
@@ -137,5 +137,7 @@
   "paddle_order_summary.inc_tax": "vergi dahil",
   "paddle_order_summary.due_on": "Son ödeme: {{date}}",
   "payment_entry_page.payment_method_error": "Bu ödeme yöntemini kullanamadık. Bilgilerinizi kontrol edin veya farklı bir ödeme yöntemi deneyin.",
-  "payment_entry_page.payment_method_error_card_not_supported": "Bu kart türü kabul edilmiyor. Farklı bir kart deneyin."
+  "payment_entry_page.payment_method_error_card_not_supported": "Bu kart türü kabul edilmiyor. Farklı bir kart deneyin.",
+  "deferred_subscription_change.message": "{{productName}} aboneliğinizdeki değişiklik, mevcut faturalandırma döneminizin sonunda yürürlüğe girecektir. O zamana kadar {{previousProductName}} özelliklerine erişmeye devam edeceksiniz. Ondan sonra, {{productName}} ile birlikte sunulmayan hiçbir özellik artık kullanılamayacaktır.",
+  "deferred_subscription_change.title": "Değişiklik bir sonraki yenilemede yürürlüğe girer"
 }

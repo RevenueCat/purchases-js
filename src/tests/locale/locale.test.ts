@@ -86,6 +86,24 @@ describe("The Translator class", () => {
     ).not.toThrow();
   });
 
+  test("should replace every occurrence of a translation variable", () => {
+    const translator = new Translator(
+      {
+        en: {
+          [LocalizationKeys.PaymentEntryPagePaymentStepTitle]:
+            "Change to {{productName}}, then keep using {{productName}}.",
+        },
+      },
+      "en",
+    );
+
+    expect(
+      translator.translate(LocalizationKeys.PaymentEntryPagePaymentStepTitle, {
+        productName: "Pro",
+      }),
+    ).toBe("Change to Pro, then keep using Pro.");
+  });
+
   test("should not fail for any language/fallbackLanguage when translating periods", () => {
     const period: Period = {
       number: 10,
