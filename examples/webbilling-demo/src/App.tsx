@@ -152,6 +152,11 @@ const router = createBrowserRouter([
       </WithEntitlement>
     ),
   },
+  {
+    path: "/checkout-return/:app_user_id",
+    loader: loadPurchases,
+    element: <SuccessPage />,
+  },
 ]);
 
 const App = () => <RouterProvider router={router} />;

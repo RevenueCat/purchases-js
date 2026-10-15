@@ -28,6 +28,7 @@ import {
 } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
+import { externalCheckoutUrl } from "./helpers/external-checkout";
 import {
   isAmazonApiKey,
   isPaddleApiKey,
@@ -347,6 +348,12 @@ export class Purchases {
   private readonly _context?: PurchasesContext;
 
   /** @internal */
+  private readonly _externalCheckoutUrl?: string;
+
+  /** @internal */
+  private readonly _externalCheckoutReturnUrl?: string;
+
+  /** @internal */
   private readonly backend: Backend;
 
   /** @internal */
@@ -633,6 +640,8 @@ export class Purchases {
       brandingAppearanceOverride,
       context,
       trace_id,
+      externalCheckoutUrl,
+      externalCheckoutReturnUrl,
     } = config;
     const finalHttpConfig = httpConfig ?? defaultHttpConfig;
     const finalFlags = flags ?? defaultFlagsConfig;
@@ -669,6 +678,8 @@ export class Purchases {
           brandingAppearanceOverride,
           context,
           trace_id,
+          externalCheckoutUrl,
+          externalCheckoutReturnUrl,
         );
   }
 
@@ -759,6 +770,8 @@ export class Purchases {
     brandingAppearanceOverride?: Partial<BrandingAppearance>,
     context?: PurchasesContext,
     trace_id?: string,
+    externalCheckoutUrl?: string,
+    externalCheckoutReturnUrl?: string,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
@@ -768,6 +781,8 @@ export class Purchases {
       ? { ...brandingAppearanceOverride }
       : undefined;
     this._context = context;
+    this._externalCheckoutUrl = externalCheckoutUrl;
+    this._externalCheckoutReturnUrl = externalCheckoutReturnUrl;
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
         "Project was build without some of the environment variables set",
@@ -1067,6 +1082,8 @@ export class Purchases {
 
       const purchaseResult = await this.purchase({
         rcPackage: pkg,
+        externalCheckoutUrl: paywallParams.externalCheckoutUrl,
+        externalCheckoutReturnUrl: paywallParams.externalCheckoutReturnUrl,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
         externalPurchaseTokenId: paywallParams.externalPurchaseTokenId,
@@ -2357,10 +2374,20 @@ export class Purchases {
    */
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
     if (isExternalApiKey(this._API_KEY)) {
-      throw new PurchasesError(
-        ErrorCode.ConfigurationError,
-        "External checkout is not supported yet. External products can be displayed, but purchases must use your own checkout.",
+      const url = externalCheckoutUrl(
+        params.externalCheckoutUrl ?? this._externalCheckoutUrl,
+        this._appUserId,
+        params.rcPackage.product.identifier,
+        params.externalCheckoutReturnUrl ?? this._externalCheckoutReturnUrl,
       );
+      void this.eventsTracker.flushAllEvents().catch((error) => {
+        Logger.debugLog(
+          `Failed to flush events before external checkout: ${error}`,
+        );
+      });
+      getWindow().location.assign(url);
+      // A redirect starts checkout; it does not provide a completed purchase result.
+      return new Promise<PurchaseResult>(() => {});
     }
     if (params.tryWithApplePay) {
       try {

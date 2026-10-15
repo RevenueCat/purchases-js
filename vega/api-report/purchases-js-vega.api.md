@@ -413,6 +413,8 @@ export interface PresentExpressPurchaseButtonParams {
 
 // @public
 export interface PresentPaywallParams {
+    /* Excluded from this release type: externalCheckoutUrl */
+    /* Excluded from this release type: externalCheckoutReturnUrl */
     readonly brandingAppearanceOverride?: Partial<BrandingAppearance>;
     readonly customerEmail?: string;
     readonly customVariables?: CustomVariables;
@@ -507,6 +509,8 @@ export interface PurchaseOption {
 
 // @public
 export interface PurchaseParams {
+    /* Excluded from this release type: externalCheckoutUrl */
+    /* Excluded from this release type: externalCheckoutReturnUrl */
     brandingAppearanceOverride?: Partial<BrandingAppearance>;
     customerEmail?: string;
     defaultLocale?: string;
@@ -561,6 +565,8 @@ class Purchases_2 {
     /* Excluded from this release type: _subscriberToken */
     /* Excluded from this release type: _brandingAppearanceOverride */
     /* Excluded from this release type: _context */
+    /* Excluded from this release type: _externalCheckoutUrl */
+    /* Excluded from this release type: _externalCheckoutReturnUrl */
     /* Excluded from this release type: backend */
     /* Excluded from this release type: purchaseOperationHelper */
     /* Excluded from this release type: eventsTracker */
@@ -615,6 +621,9 @@ class Purchases_2 {
 
 // @public
 export interface PurchasesConfig {
+    /* Excluded from this release type: externalCheckoutUrl */
+    /* Excluded from this release type: externalCheckoutReturnUrl */
+    /* Excluded from this release type: externalCheckoutReturnToken */
     apiKey: string;
     appUserId: string;
     brandingAppearanceOverride?: Partial<BrandingAppearance>;
