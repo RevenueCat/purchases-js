@@ -5,6 +5,8 @@ import {
   CheckoutPrepareEndpoint,
   CheckoutRefreshPricingEndpoint,
   CheckoutStartEndpoint,
+  CustomerCheckoutCompleteEndpoint,
+  CustomerCheckoutStartEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
   GetCustomerInfoEndpoint,
@@ -48,6 +50,12 @@ import type { AttributionMetadata } from "../entities/purchase-params";
 import type { BrandingAppearance } from "../entities/branding";
 
 const MAX_GET_PRODUCTS_URL_PATH_LENGTH = 2000;
+
+function subscriberTokenAuthorizationHeader(subscriberToken: string): {
+  [key: string]: string;
+} {
+  return { Authorization: `Bearer ${subscriberToken}` };
+}
 
 interface CheckoutStartRequestParams {
   // Purchase identity
@@ -423,13 +431,18 @@ export class Backend {
       requestBody.purchase_flow = purchaseFlow;
     }
 
+    // With a subscriber token the IAM route is used: the token replaces the
+    // public API key in Authorization. getHeaders still derives X-Is-Sandbox
+    // from the configured key, which is how the backend picks the environment.
     return (await performRequest<CheckoutStartRequestBody, T>(
-      new CheckoutStartEndpoint(),
+      subscriberToken
+        ? new CustomerCheckoutStartEndpoint()
+        : new CheckoutStartEndpoint(),
       {
         apiKey: this.API_KEY,
         body: requestBody,
         headers: subscriberToken
-          ? { "X-RC-Subscriber-Token": subscriberToken }
+          ? subscriberTokenAuthorizationHeader(subscriberToken)
           : undefined,
         httpConfig: this.httpConfig,
       },
@@ -538,14 +551,19 @@ export class Backend {
     return await performRequest<
       CheckoutCompleteRequestBody,
       CheckoutCompleteResponse | SubscriptionChangeCompleteResponse
-    >(new CheckoutCompleteEndpoint(operationSessionId), {
-      apiKey: this.API_KEY,
-      body: requestBody,
-      headers: options.subscriberToken
-        ? { "X-RC-Subscriber-Token": options.subscriberToken }
-        : undefined,
-      httpConfig: this.httpConfig,
-    });
+    >(
+      options.subscriberToken
+        ? new CustomerCheckoutCompleteEndpoint(operationSessionId)
+        : new CheckoutCompleteEndpoint(operationSessionId),
+      {
+        apiKey: this.API_KEY,
+        body: requestBody,
+        headers: options.subscriberToken
+          ? subscriberTokenAuthorizationHeader(options.subscriberToken)
+          : undefined,
+        httpConfig: this.httpConfig,
+      },
+    );
   }
 
   async getCheckoutStatus(

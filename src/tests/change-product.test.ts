@@ -335,7 +335,7 @@ describe("Purchases.purchase productChangeInfo", () => {
 
     server.use(
       http.post(
-        "http://localhost:8000/rcbilling/v1/checkout/start",
+        "http://localhost:8000/rcbilling/v1/customer/checkout/start",
         async ({ request }) => {
           startCallCount += 1;
           requestBody = (await request.json()) as typeof requestBody;
@@ -429,7 +429,7 @@ describe("Purchases.purchase productChangeInfo", () => {
 
     server.use(
       http.post(
-        "http://localhost:8000/rcbilling/v1/checkout/start",
+        "http://localhost:8000/rcbilling/v1/customer/checkout/start",
         async ({ request }) => {
           startCallCount += 1;
           requestBody = (await request.json()) as typeof requestBody;
@@ -560,7 +560,7 @@ describe("product change checkout networking", () => {
     flushAllEvents: () => Promise.resolve(),
   } as unknown as IEventsTracker;
 
-  test("unified start sends product_change with subscription_id only", async () => {
+  test("start with subscriber token uses the customer route with the token in Authorization", async () => {
     let requestBody: {
       product_id?: string;
       product_change?: {
@@ -570,13 +570,15 @@ describe("product change checkout networking", () => {
     } = {};
     let authHeader: string | null = null;
     let subscriberTokenHeader: string | null = null;
+    let isSandboxHeader: string | null = null;
 
     server.use(
       http.post(
-        "http://localhost:8000/rcbilling/v1/checkout/start",
+        "http://localhost:8000/rcbilling/v1/customer/checkout/start",
         async ({ request }) => {
           authHeader = request.headers.get("Authorization");
           subscriberTokenHeader = request.headers.get("X-RC-Subscriber-Token");
+          isSandboxHeader = request.headers.get("X-Is-Sandbox");
           requestBody = (await request.json()) as typeof requestBody;
           return HttpResponse.json(startSuccessResponse, { status: 201 });
         },
@@ -593,13 +595,70 @@ describe("product change checkout networking", () => {
       subscriberToken: SUBSCRIBER_TOKEN_1,
     });
 
-    expect(authHeader).toBe("Bearer rcb_test_api_key");
-    expect(subscriberTokenHeader).toBe(SUBSCRIBER_TOKEN_1);
+    // The token is the only credential; the public key is not sent, and the
+    // legacy stacked header is gone. X-Is-Sandbox still comes from the key.
+    expect(authHeader).toBe(`Bearer ${SUBSCRIBER_TOKEN_1}`);
+    expect(subscriberTokenHeader).toBeNull();
+    expect(isSandboxHeader).toBe("false");
     expect(requestBody.product_id).toBe("annual");
     expect(requestBody.product_change).toEqual({
       subscription_id: "subabc123",
     });
     expect(response.operation_session_id).toBe("rcbopsess_start");
+  });
+
+  test("start without subscriber token keeps the legacy route with the public key", async () => {
+    let authHeader: string | null = null;
+    let subscriberTokenHeader: string | null = null;
+
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/start",
+        async ({ request }) => {
+          authHeader = request.headers.get("Authorization");
+          subscriberTokenHeader = request.headers.get("X-RC-Subscriber-Token");
+          return HttpResponse.json(purchaseModeStartResponse, { status: 201 });
+        },
+      ),
+    );
+
+    await backend.postCheckoutStart({
+      appUserId: testUserId,
+      productId: "annual",
+      purchaseOption,
+      presentedOfferingContext,
+      traceId: "trace",
+    });
+
+    expect(authHeader).toBe("Bearer rcb_test_api_key");
+    expect(subscriberTokenHeader).toBeNull();
+  });
+
+  test("start with a sandbox key sends X-Is-Sandbox true on the customer route", async () => {
+    let isSandboxHeader: string | null = null;
+    const sandboxBackend = new Backend("rcb_sb_test_api_key");
+
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/customer/checkout/start",
+        async ({ request }) => {
+          isSandboxHeader = request.headers.get("X-Is-Sandbox");
+          return HttpResponse.json(startSuccessResponse, { status: 201 });
+        },
+      ),
+    );
+
+    await sandboxBackend.postCheckoutStart({
+      appUserId: testUserId,
+      productId: "annual",
+      purchaseOption,
+      presentedOfferingContext,
+      traceId: "trace",
+      productChange: {},
+      subscriberToken: SUBSCRIBER_TOKEN_1,
+    });
+
+    expect(isSandboxHeader).toBe("true");
   });
 
   test("unified start sends from_product_id only", async () => {
@@ -612,7 +671,7 @@ describe("product change checkout networking", () => {
 
     server.use(
       http.post(
-        "http://localhost:8000/rcbilling/v1/checkout/start",
+        "http://localhost:8000/rcbilling/v1/customer/checkout/start",
         async ({ request }) => {
           requestBody = (await request.json()) as typeof requestBody;
           return HttpResponse.json(startSuccessResponse, { status: 201 });
@@ -645,7 +704,7 @@ describe("product change checkout networking", () => {
 
     server.use(
       http.post(
-        "http://localhost:8000/rcbilling/v1/checkout/start",
+        "http://localhost:8000/rcbilling/v1/customer/checkout/start",
         async ({ request }) => {
           requestBody = (await request.json()) as typeof requestBody;
           return HttpResponse.json(startSuccessResponse, { status: 201 });
@@ -680,7 +739,7 @@ describe("product change checkout networking", () => {
 
     server.use(
       http.post(
-        "http://localhost:8000/rcbilling/v1/checkout/start",
+        "http://localhost:8000/rcbilling/v1/customer/checkout/start",
         async ({ request }) => {
           requestBody = (await request.json()) as typeof requestBody;
           return HttpResponse.json(startSuccessResponse, { status: 201 });
@@ -720,12 +779,12 @@ describe("product change checkout networking", () => {
     });
   });
 
-  test("complete with subscriber token posts to unified checkout complete endpoint", async () => {
+  test("complete with subscriber token posts to the customer complete endpoint", async () => {
     let authHeader: string | null = null;
     let subscriberTokenHeader: string | null = null;
     server.use(
       http.post(
-        "http://localhost:8000/rcbilling/v1/checkout/rcbopsess_start/complete",
+        "http://localhost:8000/rcbilling/v1/customer/checkout/rcbopsess_start/complete",
         async ({ request }) => {
           authHeader = request.headers.get("Authorization");
           subscriberTokenHeader = request.headers.get("X-RC-Subscriber-Token");
@@ -746,8 +805,8 @@ describe("product change checkout networking", () => {
       subscriberToken: SUBSCRIBER_TOKEN_1,
     });
 
-    expect(authHeader).toBe("Bearer rcb_test_api_key");
-    expect(subscriberTokenHeader).toBe(SUBSCRIBER_TOKEN_1);
+    expect(authHeader).toBe(`Bearer ${SUBSCRIBER_TOKEN_1}`);
+    expect(subscriberTokenHeader).toBeNull();
     expect(response).toMatchObject({
       new_product_id: "annual",
       checkout_mode: "subscription_change",
@@ -756,11 +815,12 @@ describe("product change checkout networking", () => {
 
   test("helper completeProductChange maps the subscription-change response after a start", async () => {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/checkout/start", async () =>
-        HttpResponse.json(startSuccessResponse, { status: 201 }),
+      http.post(
+        "http://localhost:8000/rcbilling/v1/customer/checkout/start",
+        async () => HttpResponse.json(startSuccessResponse, { status: 201 }),
       ),
       http.post(
-        "http://localhost:8000/rcbilling/v1/checkout/rcbopsess_start/complete",
+        "http://localhost:8000/rcbilling/v1/customer/checkout/rcbopsess_start/complete",
         async () =>
           HttpResponse.json(
             {
