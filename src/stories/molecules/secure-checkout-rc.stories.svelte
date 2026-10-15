@@ -6,6 +6,7 @@
   import { PeriodUnit } from "../../helpers/duration-helper";
   import SecureCheckoutRC from "../../ui/molecules/secure-checkout-rc.svelte";
   import { brandingInfo } from "../fixtures";
+  import { getPriceBreakdownTaxExclusive } from "../helpers/get-price-breakdown";
   import {
     subscriptionOptionWithTrial,
     subscriptionOption,
@@ -113,6 +114,15 @@
 <Story
   name="Trial Subscription with branding info"
   args={{ brandingInfo, purchaseOption: subscriptionOptionWithTrial }}
+/>
+
+<Story
+  name="Trial Subscription with tax-exclusive price breakdown"
+  args={{
+    brandingInfo,
+    purchaseOption: subscriptionOptionWithTrial,
+    priceBreakdown: getPriceBreakdownTaxExclusive(subscriptionOptionWithTrial),
+  }}
 />
 
 <Story

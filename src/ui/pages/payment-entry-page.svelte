@@ -916,6 +916,9 @@
             {brandingInfo}
             {purchaseOption}
             {termsAndConditionsUrl}
+            priceBreakdown={brandingInfo?.gateway_tax_collection_enabled
+              ? priceBreakdown
+              : undefined}
           />
         </div>
       </div>

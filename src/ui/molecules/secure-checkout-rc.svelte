@@ -30,10 +30,12 @@
   } from "../../entities/offerings";
   import { type Writable } from "svelte/store";
   import Typography from "../atoms/typography.svelte";
+  import type { PriceBreakdown } from "../ui-types";
 
   export let brandingInfo: BrandingInfoResponse | null = null;
   export let purchaseOption: PurchaseOption | null = null;
   export let termsAndConditionsUrl: string | null = null;
+  export let priceBreakdown: PriceBreakdown | undefined = undefined;
 
   const translator = getContext<Writable<Translator>>(translatorContextKey);
 
@@ -148,13 +150,26 @@
     nonSubscriptionOption?.basePrice ||
     firstSubscriptionPricingPhase?.price;
 
-  $: firstPriceFormatted = firstPaymentPrice
-    ? formatPrice(
-        firstPaymentPrice.amountMicros,
-        firstPaymentPrice.currency,
-        $translator.bcp47Locale || $translator.fallbackBcp47Locale,
-      )
-    : null;
+  $: useBreakdownTotal = priceBreakdown?.taxCalculationStatus === "calculated";
+
+  $: firstPaymentAmountMicros = useBreakdownTotal
+    ? priceBreakdown!.totalAmountInMicros
+    : firstPaymentPrice?.amountMicros;
+
+  $: firstPaymentCurrency = useBreakdownTotal
+    ? priceBreakdown!.currency
+    : firstPaymentPrice?.currency;
+
+  $: firstPriceFormatted =
+    firstPaymentPrice &&
+    firstPaymentAmountMicros !== undefined &&
+    firstPaymentCurrency
+      ? formatPrice(
+          firstPaymentAmountMicros,
+          firstPaymentCurrency,
+          $translator.bcp47Locale || $translator.fallbackBcp47Locale,
+        )
+      : null;
 
   $: perFrequency = firstSubscriptionPricingPhase?.period
     ? $translator.translatePeriodFrequency(
