@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PaymentEntryPage from "./pages/payment-entry-page.svelte";
+  import StripePaymentEntryPage from "./pages/stripe-payment-entry-page.svelte";
   import ErrorPage from "./pages/error-page.svelte";
   import SuccessPage from "./pages/success-page.svelte";
   import LoadingPage from "./pages/payment-entry-loading-page.svelte";
@@ -173,7 +173,7 @@
       <LoadingPage />
     {/if}
     {#if currentPage === "payment-entry"}
-      <PaymentEntryPage
+      <StripePaymentEntryPage
         {productDetails}
         purchaseOption={purchaseOptionToUse}
         {brandingInfo}

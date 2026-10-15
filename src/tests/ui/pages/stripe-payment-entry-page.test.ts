@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import PaymentEntryPage from "../../../ui/pages/payment-entry-page.svelte";
+import StripePaymentEntryPage from "../../../ui/pages/stripe-payment-entry-page.svelte";
 import {
   brandingInfo,
   checkoutPricingResponse,
@@ -108,7 +108,7 @@ const gatewayParams: GatewayParams = {
   elements_configuration: stripeElementsConfiguration,
 };
 
-const basicProps: ComponentProps<PaymentEntryPage> = {
+const basicProps: ComponentProps<StripePaymentEntryPage> = {
   gatewayParams: gatewayParams,
   processing: false,
   productDetails: rcPackage.product,
@@ -215,7 +215,7 @@ describe("PurchasesUI", () => {
       expressCheckoutElement,
     );
 
-    const { container } = render(PaymentEntryPage, {
+    const { container } = render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -255,7 +255,7 @@ describe("PurchasesUI", () => {
       }),
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -275,7 +275,7 @@ describe("PurchasesUI", () => {
       createElementReadyAfter(0, { availablePaymentMethods: undefined }),
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -332,7 +332,7 @@ describe("PurchasesUI", () => {
     const debugLogSpy = vi
       .spyOn(Logger, "debugLog")
       .mockImplementation(() => undefined);
-    const { container } = render(PaymentEntryPage, {
+    const { container } = render(StripePaymentEntryPage, {
       props: { ...basicProps, onError },
       context: defaultContext,
     });
@@ -407,7 +407,7 @@ describe("PurchasesUI", () => {
       linkAuthenticationElement,
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -432,7 +432,7 @@ describe("PurchasesUI", () => {
       new Error("Failed to initialize payment form"),
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -494,7 +494,7 @@ describe("PurchasesUI", () => {
 
     trackSDKEventMock.mockClear();
     const onError = vi.fn();
-    const { container } = render(PaymentEntryPage, {
+    const { container } = render(StripePaymentEntryPage, {
       props: { ...basicProps, onError },
       context: defaultContext,
     });
@@ -562,7 +562,7 @@ describe("PurchasesUI", () => {
       paymentElement,
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -628,7 +628,7 @@ describe("PurchasesUI", () => {
       paymentElement,
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
@@ -652,7 +652,7 @@ describe("PurchasesUI", () => {
   });
 
   test("tracks the CheckoutPaymentTaxCalculation event when the tax calculation on page load when enabled", async () => {
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
@@ -691,7 +691,7 @@ describe("PurchasesUI", () => {
       },
     };
 
-    const component = render(PaymentEntryPage, {
+    const component = render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
@@ -725,7 +725,7 @@ describe("PurchasesUI", () => {
 
   test("does not render the address element when full_address_collection_mode is if_required", async () => {
     vi.mocked(StripeService.createAddressElement).mockClear();
-    const { container } = render(PaymentEntryPage, {
+    const { container } = render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
@@ -743,7 +743,7 @@ describe("PurchasesUI", () => {
   });
 
   test("renders the address element when full_address_collection_mode is always", async () => {
-    const { container } = render(PaymentEntryPage, {
+    const { container } = render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
@@ -762,7 +762,7 @@ describe("PurchasesUI", () => {
 
   test("treats unknown full_address_collection_mode values as if_required", async () => {
     vi.mocked(StripeService.createAddressElement).mockClear();
-    const { container } = render(PaymentEntryPage, {
+    const { container } = render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
@@ -825,7 +825,7 @@ describe("PurchasesUI", () => {
     vi.mocked(StripeService.createAddressElement).mockClear();
     mockPaymentElementReportingCountries(["CA"]);
 
-    const { container } = render(PaymentEntryPage, {
+    const { container } = render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
@@ -852,7 +852,7 @@ describe("PurchasesUI", () => {
     vi.mocked(StripeService.createAddressElement).mockClear();
     mockPaymentElementReportingCountries(["US"]);
 
-    const { container } = render(PaymentEntryPage, {
+    const { container } = render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
@@ -877,7 +877,7 @@ describe("PurchasesUI", () => {
     // Select Canada (tax-relevant) and then Bulgaria (not tax-relevant).
     mockPaymentElementReportingCountries(["CA", "BG"]);
 
-    const { container } = render(PaymentEntryPage, {
+    const { container } = render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
@@ -900,7 +900,7 @@ describe("PurchasesUI", () => {
     vi.mocked(StripeService.createAddressElement).mockClear();
     mockPaymentElementReportingCountries(["CA"]);
 
-    const { container } = render(PaymentEntryPage, {
+    const { container } = render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         brandingInfo: {
@@ -980,7 +980,7 @@ describe("PurchasesUI", () => {
       null,
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         customerEmail: "test@test.com",
@@ -1073,7 +1073,7 @@ describe("PurchasesUI", () => {
     );
 
     const onError = vi.fn();
-    const component = render(PaymentEntryPage, {
+    const component = render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         customerEmail: "test@test.com",
@@ -1313,7 +1313,7 @@ describe("PurchasesUI", () => {
       incompleteAddressElement,
     );
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         customerEmail: "test@test.com",
@@ -1400,7 +1400,7 @@ describe("PurchasesUI", () => {
     // status can become "calculated" is the page applying it itself.
     const onSessionPricingUpdated = vi.fn();
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: {
         ...basicProps,
         customerEmail: "test@test.com",
@@ -1440,7 +1440,7 @@ describe("PurchasesUI", () => {
     const termsUrl = "https://example.com/terms";
 
     test("hides the consent checkbox when branding does not require it", async () => {
-      render(PaymentEntryPage, {
+      render(StripePaymentEntryPage, {
         props: {
           ...basicProps,
           brandingInfo: { ...brandingInfo, require_checkout_consent: false },
@@ -1454,7 +1454,7 @@ describe("PurchasesUI", () => {
     });
 
     test("hides the entire consent row when terms URL is missing", async () => {
-      render(PaymentEntryPage, {
+      render(StripePaymentEntryPage, {
         props: {
           ...basicProps,
           brandingInfo: consentBranding,
@@ -1470,7 +1470,7 @@ describe("PurchasesUI", () => {
     });
 
     test("hides the consent checkbox for one-time purchases", async () => {
-      render(PaymentEntryPage, {
+      render(StripePaymentEntryPage, {
         props: {
           ...basicProps,
           productDetails: consumableProduct,
@@ -1486,7 +1486,7 @@ describe("PurchasesUI", () => {
     });
 
     test("shows the consent checkbox for subscriptions when branding requires it and terms URL exists", async () => {
-      render(PaymentEntryPage, {
+      render(StripePaymentEntryPage, {
         props: {
           ...basicProps,
           brandingInfo: consentBranding,
@@ -1503,7 +1503,7 @@ describe("PurchasesUI", () => {
     });
 
     test("toggles consent when the checkbox tap target is clicked", async () => {
-      render(PaymentEntryPage, {
+      render(StripePaymentEntryPage, {
         props: {
           ...basicProps,
           brandingInfo: consentBranding,
@@ -1586,7 +1586,7 @@ describe("PurchasesUI", () => {
         linkAuthenticationElement,
       );
 
-      render(PaymentEntryPage, {
+      render(StripePaymentEntryPage, {
         props: {
           ...basicProps,
           customerEmail: "test@test.com",
@@ -1627,7 +1627,7 @@ describe("PurchasesUI", () => {
       .spyOn(Logger, "debugLog")
       .mockImplementation(() => undefined);
 
-    render(PaymentEntryPage, {
+    render(StripePaymentEntryPage, {
       props: { ...basicProps },
       context: defaultContext,
     });
