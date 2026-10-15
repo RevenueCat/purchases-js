@@ -9,7 +9,7 @@ export default defineConfig({
     include: ["src/**/*.unit.test.ts"],
   },
   server: {
-    port: 3010,
+    port: 3001,
     proxy: {
       // Forwards token requests to the standalone demo token server
       // (server/index.js), which holds the secret API key.

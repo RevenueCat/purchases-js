@@ -525,27 +525,7 @@ describe("getOfferings request", () => {
 });
 
 describe("getProducts request", () => {
-  test("external product requests respect the 100 product limit", async () => {
-    const externalBackend = new Backend("ext_public_test");
-    const batches: string[][] = [];
-    server.use(
-      http.get(
-        "http://localhost:8000/rcbilling/v1/subscribers/someAppUserId/products",
-        ({ request }) => {
-          batches.push(new URL(request.url).searchParams.getAll("id"));
-          return HttpResponse.json({ product_details: [] });
-        },
-      ),
-    );
-    const identifiers = Array.from({ length: 101 }, (_, index) => `p${index}`);
-    await externalBackend.getProducts("someAppUserId", identifiers);
-    expect(batches.map((batch) => batch.length).sort((a, b) => a - b)).toEqual([
-      1, 100,
-    ]);
-    expect(new Set(batches.flat())).toEqual(new Set(identifiers));
-  });
-
-  test("external keys use the external product endpoint", async () => {
+  test("external keys use the shared RC Billing product endpoint", async () => {
     const externalBackend = new Backend("ext_public_test");
     server.use(
       http.get(

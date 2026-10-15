@@ -20,7 +20,6 @@ import {
 import { type SubscriberResponse } from "./responses/subscriber-response";
 import type { CheckoutStartResponse } from "./responses/checkout-start-response";
 import { type ProductsResponse } from "./responses/products-response";
-import { isExternalApiKey } from "../helpers/api-key-helper";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
 import type {
@@ -233,8 +232,7 @@ export class Backend {
 
       if (
         currentBatch.length > 0 &&
-        (candidateUrlLength > MAX_GET_PRODUCTS_URL_PATH_LENGTH ||
-          (isExternalApiKey(this.API_KEY) && candidateBatch.length > 100))
+        candidateUrlLength > MAX_GET_PRODUCTS_URL_PATH_LENGTH
       ) {
         batches.push(currentBatch);
         currentBatch = [productId];
