@@ -1,6 +1,13 @@
 import "@testing-library/jest-dom";
 import { render, fireEvent, screen, waitFor } from "@testing-library/svelte";
 import { afterEach, describe, expect, test, vi } from "vitest";
+import { Payrails } from "@payrails/web-sdk";
+
+vi.mock("@payrails/web-sdk", () => ({
+  Payrails: {
+    init: vi.fn(),
+  },
+}));
 import PurchasesUI from "../../ui/purchases-ui.svelte";
 import {
   brandingInfo,
@@ -643,6 +650,48 @@ describe("PurchasesUI", () => {
       expect(screen.getByText("Code can't be applied.")).toBeInTheDocument();
       expect(screen.getByText("Try free for 1 week")).toBeInTheDocument();
       expect(screen.getByDisplayValue("BADCODE")).toBeInTheDocument();
+    });
+  });
+
+  test("initializes Payrails from payrails_gateway_params and skips the Stripe form", async () => {
+    const dropin = { mount: vi.fn(), unmount: vi.fn() };
+    const eventHandlers = new Map<string, () => void>();
+    vi.mocked(Payrails.init).mockResolvedValue({
+      on: (name: string, handler: () => void) => {
+        eventHandlers.set(name, handler);
+        return vi.fn();
+      },
+      dropin: () => dropin,
+    } as unknown as Awaited<ReturnType<typeof Payrails.init>>);
+
+    const payrailsGatewayParams = {
+      version: "1.0.0",
+      data: "encoded-client-init",
+    };
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue({
+      operation_session_id: "rcbopsess_payrails",
+      management_url: "https://example.com/portal",
+      checkout_mode: "purchase",
+      payrails_gateway_params: payrailsGatewayParams,
+    });
+    const pollSpy = vi.spyOn(
+      purchaseOperationHelperMock,
+      "pollCurrentPurchaseForCompletion",
+    );
+
+    render(PurchasesUI, { props: basicProps });
+
+    await waitFor(() => {
+      expect(Payrails.init).toHaveBeenCalledWith(payrailsGatewayParams);
+    });
+    expect(dropin.mount).toHaveBeenCalledWith("#rc-payrails-dropin");
+    expect(screen.getByTestId("payrails-dropin")).toBeInTheDocument();
+    expect(screen.queryByTestId("payment-form")).not.toBeInTheDocument();
+
+    eventHandlers.get("success")?.();
+
+    await waitFor(() => {
+      expect(pollSpy).toHaveBeenCalled();
     });
   });
 });

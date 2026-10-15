@@ -6,6 +6,7 @@ import {
 } from "../entities/errors";
 import { type Backend } from "../networking/backend";
 import type {
+  PayrailsCheckoutStartResponse,
   StripeBillingApplePayCheckoutStartResponse,
   WebBillingCheckoutStartResponse,
 } from "../networking/responses/checkout-start-response";
@@ -281,7 +282,9 @@ export class PurchaseOperationHelper {
   async checkoutStart(
     params: CheckoutStartParams,
   ): Promise<
-    WebBillingCheckoutStartResponse | SubscriptionChangeCheckoutStartResponse
+    | WebBillingCheckoutStartResponse
+    | PayrailsCheckoutStartResponse
+    | SubscriptionChangeCheckoutStartResponse
   >;
   async checkoutStart({
     appUserId,
@@ -302,6 +305,7 @@ export class PurchaseOperationHelper {
     purchaseFlow,
   }: CheckoutStartParams): Promise<
     | WebBillingCheckoutStartResponse
+    | PayrailsCheckoutStartResponse
     | StripeBillingApplePayCheckoutStartResponse
     | SubscriptionChangeCheckoutStartResponse
   > {
@@ -312,6 +316,7 @@ export class PurchaseOperationHelper {
 
       const checkoutStartResponse = await this.backend.postCheckoutStart<
         | WebBillingCheckoutStartResponse
+        | PayrailsCheckoutStartResponse
         | StripeBillingApplePayCheckoutStartResponse
         | SubscriptionChangeCheckoutStartResponse
       >({
