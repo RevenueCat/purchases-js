@@ -413,6 +413,8 @@ export interface PresentExpressPurchaseButtonParams {
 
 // @public
 export interface PresentPaywallParams {
+    /* Excluded from this release type: externalCheckoutUrl */
+    /* Excluded from this release type: externalCheckoutReturnUrl */
     readonly brandingAppearanceOverride?: Partial<BrandingAppearance>;
     readonly customerEmail?: string;
     readonly customVariables?: CustomVariables;
@@ -507,12 +509,12 @@ export interface PurchaseOption {
 
 // @public
 export interface PurchaseParams {
+    /* Excluded from this release type: externalCheckoutUrl */
+    /* Excluded from this release type: externalCheckoutReturnUrl */
     brandingAppearanceOverride?: Partial<BrandingAppearance>;
     customerEmail?: string;
     defaultLocale?: string;
     discountCode?: string;
-    externalCheckoutReturnUrl?: string;
-    externalCheckoutUrl?: string;
     externalPurchaseTokenId?: string;
     htmlTarget?: HTMLElement;
     metadata?: PurchaseMetadata;
@@ -565,7 +567,6 @@ class Purchases_2 {
     /* Excluded from this release type: _context */
     /* Excluded from this release type: _externalCheckoutUrl */
     /* Excluded from this release type: _externalCheckoutReturnUrl */
-    /* Excluded from this release type: _externalCheckoutReturnToken */
     /* Excluded from this release type: backend */
     /* Excluded from this release type: purchaseOperationHelper */
     /* Excluded from this release type: eventsTracker */
@@ -588,7 +589,6 @@ class Purchases_2 {
     getCachedVirtualCurrencies(): VirtualCurrencies | null;
     getCurrentOfferingForPlacement(placementIdentifier: string, params?: GetOfferingsParams): Promise<Offering | null>;
     getCustomerInfo(): Promise<CustomerInfo>;
-    getExternalCheckoutReturnToken(): string | null;
     getOfferings(params?: GetOfferingsParams): Promise<Offerings>;
     static getSharedInstance(): Purchases_2;
     getVirtualCurrencies(): Promise<VirtualCurrencies>;
@@ -621,12 +621,12 @@ class Purchases_2 {
 
 // @public
 export interface PurchasesConfig {
+    /* Excluded from this release type: externalCheckoutUrl */
+    /* Excluded from this release type: externalCheckoutReturnUrl */
+    /* Excluded from this release type: externalCheckoutReturnToken */
     apiKey: string;
     appUserId: string;
     brandingAppearanceOverride?: Partial<BrandingAppearance>;
-    externalCheckoutReturnToken?: string;
-    externalCheckoutReturnUrl?: string;
-    externalCheckoutUrl?: string;
     flags?: FlagsConfig;
     httpConfig?: HttpConfig;
     /* Excluded from this release type: subscriberToken */

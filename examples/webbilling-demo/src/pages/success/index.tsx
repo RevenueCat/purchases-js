@@ -11,9 +11,7 @@ const SuccessPage: React.FC = () => {
   const urlParams = new URLSearchParams(queryString);
   const redeemUrlParam = urlParams.get("redeem_url");
   const { purchases, customerInfo } = usePurchasesLoaderData();
-  const returnToken = purchases.getExternalCheckoutReturnToken();
-
-  if (window.location.pathname.startsWith("/checkout-return/") && returnToken) {
+  if (window.location.pathname.startsWith("/checkout-return/")) {
     const { continueTo } = checkoutReturnContext(window.location.href);
     const entitlements = Object.keys(customerInfo.entitlements.active);
     const subscriptions = Array.from(customerInfo.activeSubscriptions);

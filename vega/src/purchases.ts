@@ -28,7 +28,6 @@ export class Purchases extends CorePurchases {
       config.trace_id,
       config.externalCheckoutUrl,
       config.externalCheckoutReturnUrl,
-      config.externalCheckoutReturnToken,
     );
   }
 

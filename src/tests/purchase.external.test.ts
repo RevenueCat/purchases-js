@@ -39,7 +39,7 @@ test("each checkout creates a fresh token and replaces stale tokens in both URLs
   expect(returned.hash).toBe("#done");
 });
 
-test("accepts the returned token as configuration context while customer info remains the access source", async () => {
+test("accepts a returned token without treating it as proof of access", async () => {
   server.use(
     http.get("http://localhost:8000/v1/subscribers/:id", () =>
       HttpResponse.json(customerInfoResponse),
@@ -50,9 +50,6 @@ test("accepts the returned token as configuration context while customer info re
     appUserId: "return-user",
     externalCheckoutReturnToken: "opaque-return-token",
   });
-  expect(purchases.getExternalCheckoutReturnToken()).toBe(
-    "opaque-return-token",
-  );
   const info = await purchases.getCustomerInfo();
   expect(info.originalAppUserId).toBe(
     customerInfoResponse.subscriber.original_app_user_id,
@@ -62,14 +59,6 @@ test("accepts the returned token as configuration context while customer info re
       ([request]) => !request.url.endsWith("/v1/events"),
     ),
   ).toEqual([]);
-});
-
-test("configurations without a returned token retain no return context", () => {
-  const purchases = Purchases.configure({
-    apiKey: "ext_public_test",
-    appUserId: "user",
-  });
-  expect(purchases.getExternalCheckoutReturnToken()).toBeNull();
 });
 
 test("constructs the contract parameters without losing unrelated query values or fragment", () => {

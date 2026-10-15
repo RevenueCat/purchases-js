@@ -354,9 +354,6 @@ export class Purchases {
   private readonly _externalCheckoutReturnUrl?: string;
 
   /** @internal */
-  private readonly _externalCheckoutReturnToken?: string;
-
-  /** @internal */
   private readonly backend: Backend;
 
   /** @internal */
@@ -645,7 +642,6 @@ export class Purchases {
       trace_id,
       externalCheckoutUrl,
       externalCheckoutReturnUrl,
-      externalCheckoutReturnToken,
     } = config;
     const finalHttpConfig = httpConfig ?? defaultHttpConfig;
     const finalFlags = flags ?? defaultFlagsConfig;
@@ -684,7 +680,6 @@ export class Purchases {
           trace_id,
           externalCheckoutUrl,
           externalCheckoutReturnUrl,
-          externalCheckoutReturnToken,
         );
   }
 
@@ -777,7 +772,6 @@ export class Purchases {
     trace_id?: string,
     externalCheckoutUrl?: string,
     externalCheckoutReturnUrl?: string,
-    externalCheckoutReturnToken?: string,
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
@@ -789,7 +783,6 @@ export class Purchases {
     this._context = context;
     this._externalCheckoutUrl = externalCheckoutUrl;
     this._externalCheckoutReturnUrl = externalCheckoutReturnUrl;
-    this._externalCheckoutReturnToken = externalCheckoutReturnToken;
     if (RC_ENDPOINT === undefined) {
       Logger.errorLog(
         "Project was build without some of the environment variables set",
@@ -1089,6 +1082,8 @@ export class Purchases {
 
       const purchaseResult = await this.purchase({
         rcPackage: pkg,
+        externalCheckoutUrl: paywallParams.externalCheckoutUrl,
+        externalCheckoutReturnUrl: paywallParams.externalCheckoutReturnUrl,
         htmlTarget: paywallParams.purchaseHtmlTarget,
         customerEmail: paywallParams.customerEmail,
         externalPurchaseTokenId: paywallParams.externalPurchaseTokenId,
@@ -2414,15 +2409,6 @@ export class Purchases {
       ...params,
       tryWithApplePay: false,
     });
-  }
-
-  /**
-   * Returns the opaque external checkout token supplied during configuration.
-   * The token is return context, not a verified purchase or entitlement.
-   * @experimental
-   */
-  public getExternalCheckoutReturnToken(): string | null {
-    return this._externalCheckoutReturnToken ?? null;
   }
 
   /** @internal */
