@@ -1,9 +1,25 @@
 import {
   Payrails,
+  type DropinOptions,
   type PaymentFailedEvent,
   type Payrails as PayrailsClient,
 } from "@payrails/web-sdk";
 import type { PayrailsGatewayParams } from "../networking/responses/payrails-gateway-params";
+
+const payrailsDropinOptions: DropinOptions = {
+  paymentMethodsConfiguration: {
+    cards: {
+      showSingleExpiryDateField: true,
+      showStoreInstrumentCheckbox: true,
+    },
+    googlePay: {
+      showStoreInstrumentCheckbox: true,
+    },
+    applePay: {
+      showStoreInstrumentCheckbox: true,
+    },
+  },
+};
 
 export const PAYRAILS_DROPIN_CONTAINER_ID = "rc-payrails-dropin";
 
@@ -50,7 +66,7 @@ export class PayrailsService {
       }),
     ];
 
-    const dropin = client.dropin({});
+    const dropin = client.dropin(payrailsDropinOptions);
     dropin.mount(`#${PAYRAILS_DROPIN_CONTAINER_ID}`);
     this.dropin = dropin;
   }
