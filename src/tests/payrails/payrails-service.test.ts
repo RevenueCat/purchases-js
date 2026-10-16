@@ -44,6 +44,7 @@ describe("PayrailsService", () => {
     mount: vi.fn(),
     unmount: vi.fn(),
   };
+  const createDropin = vi.fn(() => dropin);
   const unsubscribe = vi.fn();
   const handlers = new Map<string, (event?: unknown) => void>();
 
@@ -51,6 +52,7 @@ describe("PayrailsService", () => {
     handlers.clear();
     dropin.mount.mockReset();
     dropin.unmount.mockReset();
+    createDropin.mockClear();
     unsubscribe.mockReset();
     vi.mocked(Payrails.init).mockReset();
     vi.mocked(Payrails.init).mockResolvedValue({
@@ -58,7 +60,7 @@ describe("PayrailsService", () => {
         handlers.set(name, handler);
         return unsubscribe;
       },
-      dropin: () => dropin,
+      dropin: createDropin,
     } as unknown as Awaited<ReturnType<typeof Payrails.init>>);
   });
 
@@ -77,6 +79,20 @@ describe("PayrailsService", () => {
     });
 
     expect(Payrails.init).toHaveBeenCalledWith(gatewayParams);
+    expect(createDropin).toHaveBeenCalledWith({
+      paymentMethodsConfiguration: {
+        cards: {
+          showSingleExpiryDateField: true,
+          showStoreInstrumentCheckbox: true,
+        },
+        googlePay: {
+          showStoreInstrumentCheckbox: true,
+        },
+        applePay: {
+          showStoreInstrumentCheckbox: true,
+        },
+      },
+    });
     expect(dropin.mount).toHaveBeenCalledWith("#rc-payrails-dropin");
 
     handlers.get("success")?.();
