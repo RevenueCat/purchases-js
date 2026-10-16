@@ -134,6 +134,7 @@ const VERSION_HEADER = "X-Version";
 const FLAVOR_HEADER = "X-Platform-Flavor";
 const FLAVOR_VERSION_HEADER = "X-Platform-Flavor-Version";
 const IS_SANDBOX_HEADER = "X-Is-Sandbox";
+// Kept for backwards compatibility
 const SUBSCRIBER_TOKEN_HEADER = "X-RC-Subscriber-Token";
 
 export const SDK_HEADERS = new Set([

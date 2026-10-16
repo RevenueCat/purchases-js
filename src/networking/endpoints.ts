@@ -119,6 +119,15 @@ export class CheckoutStartEndpoint implements Endpoint {
   }
 }
 
+export class CustomerCheckoutStartEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "postCustomerCheckoutStart";
+
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/customer/checkout/start`;
+  }
+}
+
 export class CheckoutRefreshPricingEndpoint implements Endpoint {
   method: HttpMethodType = "PATCH";
   name: string = "patchCheckoutRefreshPricing";
@@ -144,6 +153,20 @@ export class CheckoutCompleteEndpoint implements Endpoint {
 
   urlPath(): string {
     return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}/complete`;
+  }
+}
+
+export class CustomerCheckoutCompleteEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "postCustomerCheckoutComplete";
+  private readonly operationSessionId: string;
+
+  constructor(operationSessionId: string) {
+    this.operationSessionId = operationSessionId;
+  }
+
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/customer/checkout/${this.operationSessionId}/complete`;
   }
 }
 
