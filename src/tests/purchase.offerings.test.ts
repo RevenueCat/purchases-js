@@ -3,7 +3,7 @@ import {
   createConsumablePackageMock,
   createMonthlyPackageMock,
 } from "./mocks/offering-mock-provider";
-import { configurePurchases, server } from "./base.purchases_test";
+import { configurePurchases, server, testUserId } from "./base.purchases_test";
 import {
   type Offering,
   type Offerings,
@@ -28,6 +28,21 @@ import type { OfferingsResponse } from "../networking/responses/offerings-respon
 import { Purchases } from "../main";
 
 describe("getOfferings", () => {
+  test("external products are presentable while checkout is unavailable", async () => {
+    const purchases = configurePurchases(testUserId, "test", "ext_public_test");
+    server.use(
+      http.get(
+        `http://localhost:8000/rcbilling/v1/subscribers/${testUserId}/products`,
+        () => HttpResponse.json(productsResponse),
+      ),
+    );
+    const offerings = await purchases.getOfferings();
+    const offering = Object.values(offerings.all)[0];
+    expect(offering.availablePackages.length).toBeGreaterThan(0);
+    await expect(
+      purchases.purchase({ rcPackage: offering.availablePackages[0] }),
+    ).rejects.toMatchObject({ errorCode: ErrorCode.ConfigurationError });
+  });
   const expectedMonthlyPackage = createMonthlyPackageMock();
 
   const subscriptionOption = {

@@ -15,6 +15,18 @@ export type { CompleteWorkflowNavigateArgs };
  */
 export interface PresentPaywallParams {
   /**
+   * Overrides the configured merchant checkout endpoint for purchases from this paywall.
+   * @internal
+   */
+  readonly externalCheckoutUrl?: string;
+
+  /**
+   * Overrides the configured return page for purchases from this paywall.
+   * @internal
+   */
+  readonly externalCheckoutReturnUrl?: string;
+
+  /**
    * The identifier of the offering to fetch the paywall for.
    * Can be a string identifier or one of the predefined keywords.
    */

@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}} 天免费试用",
+  "product_info.free_trial_duration": "{{trialDuration}}免费试用",
   "product_info.price_after_free_trial": "试用期结束后，于 {{renewalDate}}",
   "product_info.renewal_frequency": "续订 {{frequency}}",
   "product_info.continues_until_cancelled": "持续到取消",

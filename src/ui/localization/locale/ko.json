@@ -28,7 +28,7 @@
   "product_info.product_title": "{{productTitle}}",
   "product_info.product_description": "{{productDescription}}",
   "product_info.product_price": "{{productPrice}}",
-  "product_info.free_trial_duration": "{{trialDuration}}일 무료 체험",
+  "product_info.free_trial_duration": "{{trialDuration}} 무료 체험",
   "product_info.price_after_free_trial": "체험 종료 후, {{renewalDate}}에",
   "product_info.renewal_frequency": "{{frequency}}마다 갱신",
   "product_info.continues_until_cancelled": "취소될 때까지 계속됩니다.",
