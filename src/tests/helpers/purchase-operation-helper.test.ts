@@ -128,6 +128,40 @@ describe("PurchaseOperationHelper", () => {
     );
   }
 
+  async function startCheckout() {
+    setCheckoutStartResponse(
+      HttpResponse.json(checkoutStartResponse, {
+        status: StatusCodes.OK,
+      }),
+    );
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+  }
+
+  function checkoutStatusResponse(
+    status: CheckoutSessionStatus,
+    error: CheckoutStatusResponse["operation"]["error"] = null,
+  ): CheckoutStatusResponse {
+    return {
+      operation: {
+        status,
+        is_expired: false,
+        error,
+        store_transaction_identifier: "test-store-transaction-id",
+        product_identifier: "test-product_identifier",
+        purchase_date: "2025-07-15T04:21:11Z",
+      },
+    };
+  }
+
   test("checkoutStart fails if /checkout/start fails", async () => {
     setCheckoutStartResponse(
       HttpResponse.json(null, { status: StatusCodes.INTERNAL_SERVER_ERROR }),
@@ -1299,6 +1333,137 @@ describe("PurchaseOperationHelper", () => {
     await pollPromise;
 
     vi.useRealTimers();
+  });
+
+  test("watchCurrentPurchaseUntilComplete resolves after the form stays open, without ending the purchase", async () => {
+    vi.useFakeTimers();
+    try {
+      let callCount = 0;
+      setGetCheckoutStatusResponseResolver(() => {
+        callCount++;
+        const status =
+          callCount < 3
+            ? CheckoutSessionStatus.Started
+            : CheckoutSessionStatus.Succeeded;
+        return HttpResponse.json(checkoutStatusResponse(status), {
+          status: StatusCodes.OK,
+        });
+      });
+      await startCheckout();
+
+      const watchPromise =
+        purchaseOperationHelper.watchCurrentPurchaseUntilComplete(
+          new AbortController().signal,
+        );
+      await vi.runAllTimersAsync();
+      await watchPromise;
+
+      expect(callCount).toBe(3);
+      const pollResult =
+        await purchaseOperationHelper.pollCurrentPurchaseForCompletion();
+      expect(pollResult.storeTransactionIdentifier).toBe(
+        "test-store-transaction-id",
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("watchCurrentPurchaseUntilComplete keeps waiting past the completion poll limit", async () => {
+    vi.useFakeTimers();
+    try {
+      let callCount = 0;
+      setGetCheckoutStatusResponseResolver(() => {
+        callCount++;
+        const status =
+          callCount <= 31
+            ? CheckoutSessionStatus.InProgress
+            : CheckoutSessionStatus.Succeeded;
+        return HttpResponse.json(checkoutStatusResponse(status), {
+          status: StatusCodes.OK,
+        });
+      });
+      await startCheckout();
+
+      const watchPromise =
+        purchaseOperationHelper.watchCurrentPurchaseUntilComplete(
+          new AbortController().signal,
+        );
+      await vi.runAllTimersAsync();
+      await watchPromise;
+
+      expect(callCount).toBe(32);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("watchCurrentPurchaseUntilComplete stops polling when aborted", async () => {
+    vi.useFakeTimers();
+    try {
+      let callCount = 0;
+      setGetCheckoutStatusResponseResolver(() => {
+        callCount++;
+        return HttpResponse.json(
+          checkoutStatusResponse(CheckoutSessionStatus.Started),
+          { status: StatusCodes.OK },
+        );
+      });
+      await startCheckout();
+
+      const controller = new AbortController();
+      const watchPromise =
+        purchaseOperationHelper.watchCurrentPurchaseUntilComplete(
+          controller.signal,
+        );
+      const aborted = expect(watchPromise).rejects.toMatchObject({
+        name: "AbortError",
+      });
+      await vi.advanceTimersByTimeAsync(1500);
+      const pollsBeforeAbort = callCount;
+      expect(pollsBeforeAbort).toBeGreaterThan(0);
+      controller.abort();
+      await vi.advanceTimersByTimeAsync(5000);
+
+      expect(callCount).toBe(pollsBeforeAbort);
+      await aborted;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("watchCurrentPurchaseUntilComplete fails if checkoutStart not called before", async () => {
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.watchCurrentPurchaseUntilComplete(
+        new AbortController().signal,
+      ),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No purchase in progress",
+      ),
+    );
+  });
+
+  test("watchCurrentPurchaseUntilComplete error if poll returns error", async () => {
+    setGetCheckoutStatusResponse(
+      HttpResponse.json(
+        checkoutStatusResponse(CheckoutSessionStatus.Failed, {
+          code: CheckoutStatusErrorCodes.PaymentChargeFailed,
+          message: "test-error-message",
+        }),
+        { status: StatusCodes.OK },
+      ),
+    );
+    await startCheckout();
+    await expectPromiseToPurchaseFlowError(
+      purchaseOperationHelper.watchCurrentPurchaseUntilComplete(
+        new AbortController().signal,
+      ),
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorChargingPayment,
+        "Payment charge failed",
+      ),
+    );
   });
 
   test("pollCurrentPurchaseForCompletion error if poll returns error", async () => {
