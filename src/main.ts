@@ -2652,6 +2652,7 @@ export class Purchases {
 
       const onFinished = this.createCheckoutOnFinishedHandler(
         resolve,
+        reject,
         appUserId,
         rcPackage,
         unmountPurchaseUi,
@@ -2799,6 +2800,7 @@ export class Purchases {
 
       const onFinished = this.createCheckoutOnFinishedHandler(
         resolve,
+        reject,
         appUserId,
         rcPackage,
         unmountPurchaseUi,
@@ -2950,6 +2952,7 @@ export class Purchases {
 
       const onFinished = this.createCheckoutOnFinishedHandler(
         resolve,
+        reject,
         appUserId,
         rcPackage,
         unmountPaddlePurchaseUi,
@@ -3053,6 +3056,7 @@ export class Purchases {
 
   private createCheckoutOnFinishedHandler(
     resolve: (value: PurchaseResult) => void,
+    reject: (error: unknown) => void,
     appUserId: string,
     rcPackage: Package,
     callback?: () => void,
@@ -3060,28 +3064,33 @@ export class Purchases {
     const onFinished = async (
       operationResult: OperationSessionSuccessfulResult,
     ) => {
-      const event = createCheckoutSessionEndFinishedEvent({
-        redemptionInfo: operationResult.redemptionInfo,
-      });
-      this.eventsTracker.trackSDKEvent(event);
-      this.invalidateRequestDataCaches();
-      Logger.debugLog("Purchase finished");
+      try {
+        const event = createCheckoutSessionEndFinishedEvent({
+          redemptionInfo: operationResult.redemptionInfo,
+        });
+        this.eventsTracker.trackSDKEvent(event);
+        this.invalidateRequestDataCaches();
+        Logger.debugLog("Purchase finished");
 
-      callback?.();
+        callback?.();
 
-      const purchaseResult: PurchaseResult = {
-        customerInfo: await this._getCustomerInfoForUserId(appUserId),
-        redemptionInfo: operationResult.redemptionInfo,
-        operationSessionId: operationResult.operationSessionId,
-        attributionMetadata: operationResult.attributionMetadata,
-        customerEmail: operationResult.customerEmail,
-        storeTransaction: {
-          storeTransactionId: operationResult.storeTransactionIdentifier,
-          productIdentifier: rcPackage.product.identifier,
-          purchaseDate: operationResult.purchaseDate,
-        },
-      };
-      resolve(purchaseResult);
+        const purchaseResult: PurchaseResult = {
+          customerInfo: await this._getCustomerInfoForUserId(appUserId),
+          redemptionInfo: operationResult.redemptionInfo,
+          operationSessionId: operationResult.operationSessionId,
+          attributionMetadata: operationResult.attributionMetadata,
+          customerEmail: operationResult.customerEmail,
+          storeTransaction: {
+            storeTransactionId: operationResult.storeTransactionIdentifier,
+            productIdentifier: rcPackage.product.identifier,
+            purchaseDate: operationResult.purchaseDate,
+          },
+        };
+        resolve(purchaseResult);
+      } catch (error) {
+        // Checkout has completed, but constructing its result can still fail.
+        reject(error);
+      }
     };
     return onFinished;
   }
