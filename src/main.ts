@@ -67,7 +67,10 @@ import {
 } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
-import type { StripeBillingApplePayCheckoutStartResponse } from "./networking/responses/checkout-start-response";
+import type {
+  StripeBillingApplePayCheckoutStartResponse,
+  ExternalCheckoutStartResponse,
+} from "./networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "./entities/branding";
 import { requiresLoadedResources } from "./helpers/decorators";
 import {
@@ -2374,11 +2377,56 @@ export class Purchases {
    */
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
     if (isExternalApiKey(this._API_KEY)) {
+      const checkoutUrl =
+        params.externalCheckoutUrl ?? this._externalCheckoutUrl;
+      const returnUrl =
+        params.externalCheckoutReturnUrl ?? this._externalCheckoutReturnUrl;
+      const appUserId = this._appUserId;
+      const product = params.rcPackage.product;
+      // Validate redirect configuration before creating a checkout attempt.
+      externalCheckoutUrl(
+        checkoutUrl,
+        appUserId,
+        product.identifier,
+        returnUrl,
+        "pending",
+      );
+      const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+        ? autoParseUTMParams()
+        : {};
+      const operation =
+        await this.backend.postCheckoutStart<ExternalCheckoutStartResponse>({
+          appUserId,
+          productId: product.identifier,
+          purchaseOption:
+            params.purchaseOption ?? product.defaultPurchaseOption,
+          presentedOfferingContext: product.presentedOfferingContext,
+          traceId: this.eventsTracker.getTraceId(),
+          presentedStepId: params.workflowPurchaseContext?.stepId,
+          urlParameters: params.workflowPurchaseContext?.urlParameters,
+          paywallId: params.paywallId,
+          paywallSessionId: params.paywallSessionId,
+          customerEmail: params.customerEmail,
+          metadata: { ...utmParamsMetadata, ...(params.metadata || {}) },
+          locale: params.selectedLocale ?? params.defaultLocale,
+          attributionMetadata: params.attributionMetadata,
+          externalPurchaseTokenId: params.externalPurchaseTokenId,
+        });
+      if (
+        typeof operation.operation_session_id !== "string" ||
+        !operation.operation_session_id
+      ) {
+        throw new PurchasesError(
+          ErrorCode.UnexpectedBackendResponseError,
+          "Checkout start did not return an operation session ID.",
+        );
+      }
       const url = externalCheckoutUrl(
-        params.externalCheckoutUrl ?? this._externalCheckoutUrl,
-        this._appUserId,
-        params.rcPackage.product.identifier,
-        params.externalCheckoutReturnUrl ?? this._externalCheckoutReturnUrl,
+        checkoutUrl,
+        appUserId,
+        product.identifier,
+        returnUrl,
+        operation.operation_session_id,
       );
       void this.eventsTracker.flushAllEvents().catch((error) => {
         Logger.debugLog(

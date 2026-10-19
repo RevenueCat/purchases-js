@@ -15,22 +15,41 @@ vi.mock("../helpers/browser-globals", async (importOriginal) => ({
   getWindow: () => ({ location: { assign: navigate } }),
 }));
 
-beforeEach(() => navigate.mockReset());
+beforeEach(() => {
+  navigate.mockReset();
+  server.use(
+    http.post("http://localhost:8000/rcbilling/v1/checkout/start", () =>
+      HttpResponse.json({
+        operation_session_id: "rcbopsess_external_checkout",
+      }),
+    ),
+  );
+});
 
-test("each checkout creates a fresh token and replaces stale tokens in both URLs", () => {
+test("uses the backend token and replaces stale tokens in both URLs", () => {
   const base = "https://checkout.example/start?checkout_token=old";
   const destination =
     "https://merchant.example/return?checkout_token=old&source=demo#done";
   const first = new URL(
-    externalCheckoutUrl(base, "user", "product", destination),
+    externalCheckoutUrl(
+      base,
+      "user",
+      "product",
+      destination,
+      "rcbopsess_first",
+    ),
   );
   const second = new URL(
-    externalCheckoutUrl(base, "user", "product", destination),
+    externalCheckoutUrl(
+      base,
+      "user",
+      "product",
+      destination,
+      "rcbopsess_second",
+    ),
   );
-  expect(first.searchParams.get("checkout_token")).toMatch(/^[0-9a-f-]{36}$/);
-  expect(second.searchParams.get("checkout_token")).not.toBe(
-    first.searchParams.get("checkout_token"),
-  );
+  expect(first.searchParams.get("checkout_token")).toBe("rcbopsess_first");
+  expect(second.searchParams.get("checkout_token")).toBe("rcbopsess_second");
   const returned = new URL(first.searchParams.get("return_url")!);
   expect(returned.searchParams.getAll("checkout_token")).toEqual(
     first.searchParams.getAll("checkout_token"),
@@ -67,6 +86,8 @@ test("constructs the contract parameters without losing unrelated query values o
       "http://localhost:3001/api/checkout?source=demo&app_user_id=old&product_id=old#checkout",
       "user+/#&",
       "product+/#&",
+      undefined,
+      "rcbopsess_checkout",
     ),
   );
   expect(url.searchParams.get("source")).toBe("demo");
@@ -84,6 +105,7 @@ test("encodes a return URL with its own query and fragment and removes stale ret
       "user",
       "product",
       returnUrl,
+      "rcbopsess_checkout",
     ),
   );
   const returned = new URL(url.searchParams.get("return_url")!);
@@ -98,6 +120,8 @@ test("encodes a return URL with its own query and fragment and removes stale ret
         "https://checkout.example/start?return_url=old",
         "user",
         "product",
+        undefined,
+        "rcbopsess_checkout",
       ),
     ).searchParams.has("return_url"),
   ).toBe(false);
@@ -105,7 +129,7 @@ test("encodes a return URL with its own query and fragment and removes stale ret
 
 test.each([undefined, "https://merchant.example/override?foo=bar#paywall"])(
   "uses the effective return URL %s",
-  (override) => {
+  async (override) => {
     const configured = "http://localhost:3010/user?offering=monthly";
     const purchases = Purchases.configure({
       apiKey: "ext_public_test",
@@ -117,6 +141,7 @@ test.each([undefined, "https://merchant.example/override?foo=bar#paywall"])(
       rcPackage: createMonthlyPackageMock(),
       externalCheckoutReturnUrl: override,
     });
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
     const checkout = new URL(navigate.mock.calls[0][0]);
     const returned = new URL(checkout.searchParams.get("return_url")!);
     expect(returned.searchParams.get("checkout_token")).toBe(
@@ -154,8 +179,38 @@ test.each([
   "javascript:alert(1)",
   "https://user:password@example.com/checkout",
 ])("rejects checkout URL %s", (url) => {
-  expect(() => externalCheckoutUrl(url, "user", "product")).toThrow();
+  expect(() =>
+    externalCheckoutUrl(
+      url,
+      "user",
+      "product",
+      undefined,
+      "rcbopsess_checkout",
+    ),
+  ).toThrow();
 });
+
+test.each([undefined, ""])(
+  "does not redirect when checkout start returns token %s",
+  async (token) => {
+    server.use(
+      http.post("http://localhost:8000/rcbilling/v1/checkout/start", () =>
+        HttpResponse.json({ operation_session_id: token }),
+      ),
+    );
+    const purchases = Purchases.configure({
+      apiKey: "ext_public_test",
+      appUserId: "user",
+      externalCheckoutUrl: "https://checkout.example/start",
+    });
+    await expect(
+      purchases.purchase({ rcPackage: createMonthlyPackageMock() }),
+    ).rejects.toMatchObject({
+      errorCode: ErrorCode.UnexpectedBackendResponseError,
+    });
+    expect(navigate).not.toHaveBeenCalled();
+  },
+);
 
 test.each([undefined, "https://merchant.example/checkout?source=override"])(
   "redirects using the effective URL %s without producing a successful purchase",
@@ -178,7 +233,7 @@ test.each([undefined, "https://merchant.example/checkout?source=override"])(
       externalCheckoutUrl: override,
     });
     void promise.then(settled, settled);
-    await Promise.resolve();
+    await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
     expect(navigate).toHaveBeenCalledTimes(1);
     const url = new URL(navigate.mock.calls[0][0]);
     expect(url.origin).toBe(
@@ -186,11 +241,9 @@ test.each([undefined, "https://merchant.example/checkout?source=override"])(
     );
     expect(url.searchParams.get("app_user_id")).toBe("current+#&");
     expect(url.searchParams.get("product_id")).toBe(pkg.product.identifier);
-    expect(
-      APIPostRequest.mock.calls.filter(
-        ([request]) => !request.url.endsWith("/v1/events"),
-      ),
-    ).toEqual([]);
+    expect(url.searchParams.get("checkout_token")).toBe(
+      "rcbopsess_external_checkout",
+    );
     expect(settled).not.toHaveBeenCalled();
   },
 );
@@ -210,7 +263,7 @@ test("an empty purchase override fails before navigation", async () => {
   expect(navigate).not.toHaveBeenCalled();
 });
 
-test("purchasePackage uses the configured checkout URL", () => {
+test("purchasePackage uses the configured checkout URL", async () => {
   const purchases = Purchases.configure({
     apiKey: "ext_public_test",
     appUserId: "user",
@@ -218,10 +271,75 @@ test("purchasePackage uses the configured checkout URL", () => {
   });
   const pkg = createMonthlyPackageMock();
   void purchases.purchasePackage(pkg);
+  await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
   expect(navigate).toHaveBeenCalledTimes(1);
   expect(
     new URL(navigate.mock.calls[0][0]).searchParams.get("product_id"),
   ).toBe(pkg.product.identifier);
+});
+
+test("does not redirect if creating the backend operation fails", async () => {
+  server.use(
+    http.post("http://localhost:8000/rcbilling/v1/checkout/start", () =>
+      HttpResponse.json(
+        { code: 7225, message: "Checkout unavailable" },
+        { status: 400 },
+      ),
+    ),
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "user",
+    externalCheckoutUrl: "https://merchant.example/checkout",
+  });
+  await expect(
+    purchases.purchase({ rcPackage: createMonthlyPackageMock() }),
+  ).rejects.toThrow();
+  expect(navigate).not.toHaveBeenCalled();
+});
+
+test("stores presentation context before navigating to the merchant", async () => {
+  const received = vi.fn();
+  server.use(
+    http.post(
+      "http://localhost:8000/rcbilling/v1/checkout/start",
+      async ({ request }) => {
+        received(await request.json());
+        return HttpResponse.json({ operation_session_id: "rcbopsess_context" });
+      },
+    ),
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "user",
+    externalCheckoutUrl: "https://merchant.example/checkout",
+  });
+  const pkg = createMonthlyPackageMock();
+  void purchases.purchase({
+    rcPackage: pkg,
+    paywallId: "pw_test",
+    paywallSessionId: "presentation",
+    workflowPurchaseContext: {
+      stepId: "step",
+      urlParameters: { utm_source: "demo" },
+    },
+    metadata: { campaign: "autumn" },
+  });
+  await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
+  expect(received).toHaveBeenCalledWith(
+    expect.objectContaining({
+      app_user_id: "user",
+      product_id: pkg.product.identifier,
+      price_id: pkg.product.defaultPurchaseOption.priceId,
+      presented_offering_identifier:
+        pkg.product.presentedOfferingContext.offeringIdentifier,
+      paywall: { paywall_id: "pw_test", paywall_session_id: "presentation" },
+      presented_step_id: "step",
+      url_parameters: { utm_source: "demo" },
+      metadata: { campaign: "autumn" },
+      trace_id: expect.any(String),
+    }),
+  );
 });
 
 test("navigation failures reject instead of reporting a successful purchase", async () => {

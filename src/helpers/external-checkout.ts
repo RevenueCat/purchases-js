@@ -1,12 +1,11 @@
 import { ErrorCode, PurchasesError } from "../entities/errors";
-import { generateUUID } from "./uuid-helper";
 
 export function externalCheckoutUrl(
   checkoutUrl: string | undefined,
   appUserId: string,
   productId: string,
-  returnUrl?: string,
-  checkoutToken = generateUUID(),
+  returnUrl: string | undefined,
+  checkoutToken: string,
 ): string {
   let url: URL;
   try {

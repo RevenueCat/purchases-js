@@ -62,3 +62,7 @@ export type CheckoutStartResponse =
   | WebBillingCheckoutStartResponse
   | StripeBillingApplePayCheckoutStartResponse
   | PaddleCheckoutStartResponse;
+
+export interface ExternalCheckoutStartResponse {
+  operation_session_id: string;
+}
