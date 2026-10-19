@@ -49,6 +49,7 @@
   import { validateEmail } from "../helpers/validators";
   import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
   import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
+  import { PAYRAILS_CHECKOUT_ENABLED } from "../helpers/constants";
 
   interface Props {
     customerEmail: string | undefined;
@@ -392,6 +393,12 @@
       }
 
       if (isPayrailsCheckoutStartResponse(result)) {
+        if (!PAYRAILS_CHECKOUT_ENABLED) {
+          throw new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "This payment gateway requires a newer version of the SDK.",
+          );
+        }
         payrailsGatewayParams = result.payrails_gateway_params;
       } else {
         payrailsGatewayParams = null;
