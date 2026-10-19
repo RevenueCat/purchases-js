@@ -415,6 +415,7 @@ workflows:
             - build-vega-purchase-tester
           <<: *release-branches
       - make-release:
+          context: npm-publishing
           <<: *release-tags
       - docs-deploy:
           <<: *release-tags
