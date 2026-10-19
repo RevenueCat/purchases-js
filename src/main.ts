@@ -28,7 +28,10 @@ import {
 } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
-import { externalCheckoutUrl } from "./helpers/external-checkout";
+import {
+  externalCheckoutUrl,
+  validateExternalCheckoutUrls,
+} from "./helpers/external-checkout";
 import {
   isAmazonApiKey,
   isPaddleApiKey,
@@ -2383,14 +2386,7 @@ export class Purchases {
         params.externalCheckoutReturnUrl ?? this._externalCheckoutReturnUrl;
       const appUserId = this._appUserId;
       const product = params.rcPackage.product;
-      // Validate redirect configuration before creating a checkout attempt.
-      externalCheckoutUrl(
-        checkoutUrl,
-        appUserId,
-        product.identifier,
-        returnUrl,
-        "pending",
-      );
+      const checkoutUrls = validateExternalCheckoutUrls(checkoutUrl, returnUrl);
       const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
         ? autoParseUTMParams()
         : {};
@@ -2422,10 +2418,9 @@ export class Purchases {
         );
       }
       const url = externalCheckoutUrl(
-        checkoutUrl,
+        checkoutUrls,
         appUserId,
         product.identifier,
-        returnUrl,
         operation.operation_session_id,
       );
       void this.eventsTracker.flushAllEvents().catch((error) => {

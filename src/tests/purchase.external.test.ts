@@ -1,7 +1,10 @@
 import { beforeEach, expect, test, vi } from "vitest";
 import { Purchases } from "../main";
 import { ErrorCode } from "../entities/errors";
-import { externalCheckoutUrl } from "../helpers/external-checkout";
+import {
+  externalCheckoutUrl,
+  validateExternalCheckoutUrls,
+} from "../helpers/external-checkout";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { APIPostRequest } from "./test-responses";
 import { customerInfoResponse } from "./test-responses";
@@ -32,19 +35,17 @@ test("uses the backend token and replaces stale tokens in both URLs", () => {
     "https://merchant.example/return?checkout_token=old&source=demo#done";
   const first = new URL(
     externalCheckoutUrl(
-      base,
+      validateExternalCheckoutUrls(base, destination),
       "user",
       "product",
-      destination,
       "rcbopsess_first",
     ),
   );
   const second = new URL(
     externalCheckoutUrl(
-      base,
+      validateExternalCheckoutUrls(base, destination),
       "user",
       "product",
-      destination,
       "rcbopsess_second",
     ),
   );
@@ -83,10 +84,12 @@ test("accepts a returned token without treating it as proof of access", async ()
 test("constructs the contract parameters without losing unrelated query values or fragment", () => {
   const url = new URL(
     externalCheckoutUrl(
-      "http://localhost:3001/api/checkout?source=demo&app_user_id=old&product_id=old#checkout",
+      validateExternalCheckoutUrls(
+        "http://localhost:3001/api/checkout?source=demo&app_user_id=old&product_id=old#checkout",
+        undefined,
+      ),
       "user+/#&",
       "product+/#&",
-      undefined,
       "rcbopsess_checkout",
     ),
   );
@@ -101,10 +104,12 @@ test("encodes a return URL with its own query and fragment and removes stale ret
     "https://merchant.example/paywall?source=a%2Bb&offering=monthly#purchase";
   const url = new URL(
     externalCheckoutUrl(
-      "https://checkout.example/start?return_url=old",
+      validateExternalCheckoutUrls(
+        "https://checkout.example/start?return_url=old",
+        returnUrl,
+      ),
       "user",
       "product",
-      returnUrl,
       "rcbopsess_checkout",
     ),
   );
@@ -117,10 +122,12 @@ test("encodes a return URL with its own query and fragment and removes stale ret
   expect(
     new URL(
       externalCheckoutUrl(
-        "https://checkout.example/start?return_url=old",
+        validateExternalCheckoutUrls(
+          "https://checkout.example/start?return_url=old",
+          undefined,
+        ),
         "user",
         "product",
-        undefined,
         "rcbopsess_checkout",
       ),
     ).searchParams.has("return_url"),
@@ -157,20 +164,33 @@ test.each([
   "/relative",
   "javascript:alert(1)",
   "https://user:password@example.com",
-])("rejects invalid return URL %s before navigation", async (returnUrl) => {
-  const purchases = Purchases.configure({
-    apiKey: "ext_public_test",
-    appUserId: "user",
-    externalCheckoutUrl: "https://checkout.example/start",
-  });
-  await expect(
-    purchases.purchase({
-      rcPackage: createMonthlyPackageMock(),
-      externalCheckoutReturnUrl: returnUrl,
-    }),
-  ).rejects.toMatchObject({ errorCode: ErrorCode.ConfigurationError });
-  expect(navigate).not.toHaveBeenCalled();
-});
+])(
+  "rejects invalid return URL %s before starting checkout",
+  async (returnUrl) => {
+    const startCheckout = vi.fn(() =>
+      HttpResponse.json({ operation_session_id: "rcbopsess_unused" }),
+    );
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/start",
+        startCheckout,
+      ),
+    );
+    const purchases = Purchases.configure({
+      apiKey: "ext_public_test",
+      appUserId: "user",
+      externalCheckoutUrl: "https://checkout.example/start",
+    });
+    await expect(
+      purchases.purchase({
+        rcPackage: createMonthlyPackageMock(),
+        externalCheckoutReturnUrl: returnUrl,
+      }),
+    ).rejects.toMatchObject({ errorCode: ErrorCode.ConfigurationError });
+    expect(startCheckout).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  },
+);
 
 test.each([
   undefined,
@@ -178,16 +198,26 @@ test.each([
   "/checkout",
   "javascript:alert(1)",
   "https://user:password@example.com/checkout",
-])("rejects checkout URL %s", (url) => {
-  expect(() =>
-    externalCheckoutUrl(
-      url,
-      "user",
-      "product",
-      undefined,
-      "rcbopsess_checkout",
+])("rejects checkout URL %s before starting checkout", async (url) => {
+  const startCheckout = vi.fn(() =>
+    HttpResponse.json({ operation_session_id: "rcbopsess_unused" }),
+  );
+  server.use(
+    http.post(
+      "http://localhost:8000/rcbilling/v1/checkout/start",
+      startCheckout,
     ),
-  ).toThrow();
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "user",
+    externalCheckoutUrl: url,
+  });
+  await expect(
+    purchases.purchase({ rcPackage: createMonthlyPackageMock() }),
+  ).rejects.toMatchObject({ errorCode: ErrorCode.ConfigurationError });
+  expect(startCheckout).not.toHaveBeenCalled();
+  expect(navigate).not.toHaveBeenCalled();
 });
 
 test.each([undefined, ""])(
