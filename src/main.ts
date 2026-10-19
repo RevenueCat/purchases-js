@@ -28,10 +28,7 @@ import {
 } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
-import {
-  externalCheckoutUrl,
-  validateExternalCheckoutUrls,
-} from "./helpers/external-checkout";
+import { ExternalPurchasesService } from "./external/external-purchases-service";
 import {
   isAmazonApiKey,
   isPaddleApiKey,
@@ -70,10 +67,7 @@ import {
 } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
 import { type BrandingInfoResponse } from "./networking/responses/branding-response";
-import type {
-  StripeBillingApplePayCheckoutStartResponse,
-  ExternalCheckoutStartResponse,
-} from "./networking/responses/checkout-start-response";
+import type { StripeBillingApplePayCheckoutStartResponse } from "./networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "./entities/branding";
 import { requiresLoadedResources } from "./helpers/decorators";
 import {
@@ -2380,57 +2374,22 @@ export class Purchases {
    */
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
     if (isExternalApiKey(this._API_KEY)) {
-      const checkoutUrl =
-        params.externalCheckoutUrl ?? this._externalCheckoutUrl;
-      const returnUrl =
-        params.externalCheckoutReturnUrl ?? this._externalCheckoutReturnUrl;
-      const appUserId = this._appUserId;
-      const product = params.rcPackage.product;
-      const checkoutUrls = validateExternalCheckoutUrls(checkoutUrl, returnUrl);
       const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
         ? autoParseUTMParams()
         : {};
-      const operation =
-        await this.backend.postCheckoutStart<ExternalCheckoutStartResponse>({
-          appUserId,
-          productId: product.identifier,
-          purchaseOption:
-            params.purchaseOption ?? product.defaultPurchaseOption,
-          presentedOfferingContext: product.presentedOfferingContext,
-          traceId: this.eventsTracker.getTraceId(),
-          presentedStepId: params.workflowPurchaseContext?.stepId,
-          urlParameters: params.workflowPurchaseContext?.urlParameters,
-          paywallId: params.paywallId,
-          paywallSessionId: params.paywallSessionId,
-          customerEmail: params.customerEmail,
-          metadata: { ...utmParamsMetadata, ...(params.metadata || {}) },
-          locale: params.selectedLocale ?? params.defaultLocale,
-          attributionMetadata: params.attributionMetadata,
-          externalPurchaseTokenId: params.externalPurchaseTokenId,
-        });
-      if (
-        typeof operation.operation_session_id !== "string" ||
-        !operation.operation_session_id
-      ) {
-        throw new PurchasesError(
-          ErrorCode.UnexpectedBackendResponseError,
-          "Checkout start did not return an operation session ID.",
-        );
-      }
-      const url = externalCheckoutUrl(
-        checkoutUrls,
-        appUserId,
-        product.identifier,
-        operation.operation_session_id,
+      const service = new ExternalPurchasesService(
+        this.backend,
+        this.eventsTracker,
       );
-      void this.eventsTracker.flushAllEvents().catch((error) => {
-        Logger.debugLog(
-          `Failed to flush events before external checkout: ${error}`,
-        );
+      return service.purchase({
+        ...params,
+        appUserId: this._appUserId,
+        externalCheckoutUrl:
+          params.externalCheckoutUrl ?? this._externalCheckoutUrl,
+        externalCheckoutReturnUrl:
+          params.externalCheckoutReturnUrl ?? this._externalCheckoutReturnUrl,
+        metadata: { ...utmParamsMetadata, ...(params.metadata || {}) },
       });
-      getWindow().location.assign(url);
-      // A redirect starts checkout; it does not provide a completed purchase result.
-      return new Promise<PurchaseResult>(() => {});
     }
     if (params.tryWithApplePay) {
       try {
