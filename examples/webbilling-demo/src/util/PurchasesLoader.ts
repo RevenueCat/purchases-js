@@ -10,6 +10,10 @@ import {
 import type { LoaderFunction } from "react-router-dom";
 import { redirect, useLoaderData } from "react-router-dom";
 import { configuredAppearanceOverride } from "./runtime-appearance-overrides";
+import {
+  checkoutReturnContext,
+  checkoutReturnUrl,
+} from "./external-checkout-return";
 
 declare global {
   interface Window {
@@ -37,6 +41,11 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
 }) => {
   const appUserId = params["app_user_id"];
   const searchParams = new URL(request.url).searchParams;
+  const returnContext = new URL(request.url).pathname.startsWith(
+    "/checkout-return/",
+  )
+    ? checkoutReturnContext(request.url)
+    : undefined;
   const currency = searchParams.get("currency");
   const offeringId = searchParams.get("offeringId");
   const discountCode = searchParams.get("discountCode") || undefined;
@@ -118,6 +127,10 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
       appUserId,
       httpConfig,
       flags: flagsConfig,
+      externalCheckoutUrl:
+        import.meta.env.VITE_EXTERNAL_CHECKOUT_URL || undefined,
+      externalCheckoutReturnUrl: checkoutReturnUrl(request.url, appUserId),
+      externalCheckoutReturnToken: returnContext?.token,
     };
     let purchases: Purchases;
     let defaultPurchases: Purchases;
@@ -128,12 +141,9 @@ const loadPurchases: LoaderFunction<IPurchasesLoaderData> = async ({
         ...purchasesConfig,
         brandingAppearanceOverride: configuredAppearanceOverride,
       });
-    } else if (!Purchases.isConfigured()) {
+    } else if (!Purchases.isConfigured() || returnContext) {
       purchases = Purchases.configure({
-        apiKey,
-        appUserId,
-        httpConfig,
-        flags: flagsConfig,
+        ...purchasesConfig,
       });
       defaultPurchases = purchases;
     } else {

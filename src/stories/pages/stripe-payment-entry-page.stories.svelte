@@ -34,7 +34,7 @@
 
   let { Story } = defineMeta({
     component: PurchasesInner,
-    title: "Pages/PaymentEntryPage",
+    title: "Pages/StripePaymentEntryPage",
     args: defaultArgs,
     argTypes: {
       withTaxes: {

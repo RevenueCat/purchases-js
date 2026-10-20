@@ -132,7 +132,16 @@ describe("Purchases.presentPaywall()", () => {
     document.body.innerHTML = "";
   });
 
-  test("forwards an external purchase token ID to purchases started from the paywall", async () => {
+  test.each([
+    {
+      externalCheckoutUrl: undefined,
+      externalCheckoutReturnUrl: undefined,
+    },
+    {
+      externalCheckoutUrl: "https://merchant.example/checkout",
+      externalCheckoutReturnUrl: "https://merchant.example/return",
+    },
+  ])("forwards purchase context (%j)", async (externalCheckout) => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();
     const packageId = offering.availablePackages[0]!.identifier;
@@ -143,6 +152,7 @@ describe("Purchases.presentPaywall()", () => {
     void purchases.presentPaywall({
       offering,
       externalPurchaseTokenId: "rcat_external_purchase_token_123",
+      ...externalCheckout,
     });
 
     await vi.waitFor(() => expect(paywallProps).toBeDefined());
@@ -152,6 +162,8 @@ describe("Purchases.presentPaywall()", () => {
       expect(purchaseSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           externalPurchaseTokenId: "rcat_external_purchase_token_123",
+          externalCheckoutUrl: externalCheckout.externalCheckoutUrl,
+          externalCheckoutReturnUrl: externalCheckout.externalCheckoutReturnUrl,
         }),
       );
     });
