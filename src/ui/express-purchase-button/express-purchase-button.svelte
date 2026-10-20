@@ -39,6 +39,7 @@
   import type { SDKEventPurchaseMode } from "../../behavioural-events/event";
   import type { CheckoutPrepareResponse } from "../../networking/responses/checkout-prepare-response";
   import { isSubscriptionChangeCheckoutStartResponse } from "../../networking/responses/subscription-change-response";
+  import { isPayrailsCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 
   const {
     customerEmail,
@@ -307,6 +308,13 @@
         throw new PurchaseFlowError(
           PurchaseFlowErrorCode.ErrorSettingUpPurchase,
           "Unexpected subscription-change response for express purchase.",
+        );
+      }
+
+      if (isPayrailsCheckoutStartResponse(checkoutStartResult)) {
+        throw new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+          "Express purchase is not available for this payment gateway.",
         );
       }
 
