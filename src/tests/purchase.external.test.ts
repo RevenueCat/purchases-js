@@ -4,7 +4,7 @@ import { ErrorCode } from "../entities/errors";
 import {
   externalCheckoutUrl,
   validateExternalCheckoutUrls,
-} from "../helpers/external-checkout";
+} from "../external/external-checkout";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import { APIPostRequest } from "./test-responses";
 import { customerInfoResponse } from "./test-responses";
