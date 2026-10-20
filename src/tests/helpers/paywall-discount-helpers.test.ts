@@ -158,6 +158,30 @@ describe("discount variables", () => {
     });
   });
 
+  test("relative discounts use the unrounded amount", () => {
+    const variables = parseOfferingIntoVariables(
+      toOffering([
+        {
+          packageIdentifier: "$rc_weekly",
+          identifier: "weekly",
+          title: "Weekly",
+          period: { unit: PeriodUnit.Week, number: 1 },
+          basePriceMicros: 50_000_000,
+          currency: "JPY",
+          trial: {
+            ...trialPhaseP1W,
+            periodDuration: "P3D",
+            period: { number: 3, unit: PeriodUnit.Day },
+          },
+        },
+      ]),
+      enTranslator,
+    );
+
+    // 50 * 3 / 7 = 21.43 saved, shown as ¥21, but 43% rather than 21 / 50
+    expect(discountVariables(variables.$rc_weekly).offerRelative).toBe("43%");
+  });
+
   test("a trial followed by an intro uses the intro for the offer term", () => {
     const { annual } = annualVsMonthly(
       {

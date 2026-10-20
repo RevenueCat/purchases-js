@@ -132,14 +132,14 @@ function createSavings(
   currency: string,
 ): DiscountSavings | null {
   const microsPerUnit = 10 ** (6 - getCurrencyFractionDigits(currency));
+  const savedMicros = baselineMicros - costMicros;
   const amountMicros =
-    Math.round(stripFloatNoise((baselineMicros - costMicros) / microsPerUnit)) *
-    microsPerUnit;
+    Math.round(stripFloatNoise(savedMicros / microsPerUnit)) * microsPerUnit;
   if (!(baselineMicros > 0) || !(amountMicros > 0)) {
     return null;
   }
 
-  return { amountMicros, relative: amountMicros / baselineMicros };
+  return { amountMicros, relative: savedMicros / baselineMicros };
 }
 
 /**
