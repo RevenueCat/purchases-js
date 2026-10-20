@@ -59,6 +59,7 @@ describe("StripeService", () => {
       expect(StripeService.getStripeLocale("zh_Hant")).toBe("zh-TW");
       expect(StripeService.getStripeLocale("zh-Hant")).toBe("zh-TW");
       expect(StripeService.getStripeLocale("nn")).toBe("nb");
+      expect(StripeService.getStripeLocale("tl")).toBe("fil");
     });
 
     test("returns the same locale for supported locales", () => {

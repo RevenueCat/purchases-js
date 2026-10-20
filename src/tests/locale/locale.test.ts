@@ -236,6 +236,23 @@ describe("The Translator class", () => {
     },
   );
 
+  test.each([["fil"], ["fil-PH"], ["fil_PH"], ["tl"], ["tl-PH"], ["tl_PH"]])(
+    "should pick the Filipino translations for %s",
+    (selectedLocale) => {
+      const translator = new Translator({}, selectedLocale);
+      expect(
+        translator.translate(LocalizationKeys.PaymentEntryPagePaymentStepTitle),
+      ).toBe(
+        supportedLanguages.fil[
+          LocalizationKeys.PaymentEntryPagePaymentStepTitle
+        ],
+      );
+      expect(translator.translate(LocalizationKeys.ErrorButtonClose)).not.toBe(
+        supportedLanguages.en[LocalizationKeys.ErrorButtonClose],
+      );
+    },
+  );
+
   test("should not fail translating periods when zh_Hant and zh_Hans are taken as locale", () => {
     const traditionalTranslator = new Translator({}, "zh-Hant");
     expect(() =>
@@ -259,7 +276,7 @@ describe("The supportedLanguages", () => {
     });
 
     // Locale tags that intentionally reuse another locale's file.
-    const aliases = ["no"];
+    const aliases = ["no", "tl"];
 
     expect(
       eqSet(
@@ -272,6 +289,10 @@ describe("The supportedLanguages", () => {
 
   test("should alias the generic Norwegian tag (no) to Bokmål (nb)", () => {
     expect(supportedLanguages.no).toBe(supportedLanguages.nb);
+  });
+
+  test("should alias Tagalog (tl) to Filipino (fil)", () => {
+    expect(supportedLanguages.tl).toBe(supportedLanguages.fil);
   });
 
   test("should have the same variables in all translations as in English", () => {

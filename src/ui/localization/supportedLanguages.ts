@@ -9,6 +9,7 @@ import hr from "./locale/hr.json";
 import cs from "./locale/cs.json";
 import da from "./locale/da.json";
 import nl from "./locale/nl.json";
+import fil from "./locale/fil.json";
 import fi from "./locale/fi.json";
 import fr from "./locale/fr.json";
 import de from "./locale/de.json";
@@ -193,6 +194,9 @@ export const supportedLanguages: Record<
   cs,
   da,
   nl,
+  fil,
+  // "tl" (Tagalog) is treated as an alias of Filipino (fil).
+  tl: fil,
   fi,
   fr,
   de,
