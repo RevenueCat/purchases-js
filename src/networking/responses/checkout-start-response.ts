@@ -1,5 +1,6 @@
 import type { GatewayParams } from "./stripe-elements";
 import type { PaddleCheckoutSettings } from "./paddle-checkout-settings";
+import type { PayrailsGatewayParams } from "./payrails-gateway-params";
 
 export interface StripeBillingParams {
   client_secret: string;
@@ -25,7 +26,19 @@ export interface WebBillingCheckoutStartResponse {
   stripe_billing_params: StripeBillingParams | null;
   management_url: string;
   paddle_billing_params: null;
+  payrails_gateway_params?: null;
   checkout_mode: "purchase";
+}
+
+/**
+ * Web Billing checkout backed by Payrails. Uses the same `rcb_` API key as
+ * Stripe Web Billing. `payrails_gateway_params` is the client init body.
+ */
+export interface PayrailsCheckoutStartResponse {
+  operation_session_id: string;
+  management_url: string;
+  checkout_mode: "purchase";
+  payrails_gateway_params: PayrailsGatewayParams;
 }
 
 export interface StripeBillingApplePayCheckoutStartResponse {
@@ -60,9 +73,32 @@ export interface PaddleCheckoutStartResponse {
 
 export type CheckoutStartResponse =
   | WebBillingCheckoutStartResponse
+  | PayrailsCheckoutStartResponse
   | StripeBillingApplePayCheckoutStartResponse
   | PaddleCheckoutStartResponse;
 
 export interface ExternalCheckoutStartResponse {
   operation_session_id: string;
+}
+
+export function isPayrailsCheckoutStartResponse(
+  response: object,
+): response is PayrailsCheckoutStartResponse {
+  if (!("payrails_gateway_params" in response)) {
+    return false;
+  }
+
+  const params = response.payrails_gateway_params;
+  if (typeof params !== "object" || params === null) {
+    return false;
+  }
+
+  return (
+    "version" in params &&
+    typeof params.version === "string" &&
+    params.version.length > 0 &&
+    "data" in params &&
+    typeof params.data === "string" &&
+    params.data.length > 0
+  );
 }
