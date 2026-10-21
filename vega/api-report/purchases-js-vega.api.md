@@ -254,7 +254,7 @@ export interface Offerings {
 }
 
 // @public
-export type OwnershipType = "PURCHASED" | "FAMILY_SHARED" | "UNKNOWN";
+export type OwnershipType = "PURCHASED" | "FAMILY_SHARED" | "ASSIGNED" | "UNKNOWN";
 
 // @public
 export interface Package {

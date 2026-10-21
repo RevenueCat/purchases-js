@@ -38,10 +38,15 @@ export type PeriodType = "normal" | "intro" | "trial" | "prepaid";
 
 /**
  * The types used to describe whether a transaction was purchased by the user,
- * or is available to them through Family Sharing.
+ * is available to them through Family Sharing, or was assigned to them
+ * by an organization.
  * @public
  */
-export type OwnershipType = "PURCHASED" | "FAMILY_SHARED" | "UNKNOWN";
+export type OwnershipType =
+  | "PURCHASED"
+  | "FAMILY_SHARED"
+  | "ASSIGNED"
+  | "UNKNOWN";
 
 /**
  * This object gives you access to all the information about the status
@@ -217,6 +222,7 @@ export interface SubscriptionInfo {
    * How the Customer received access to this subscription:
    * - "PURCHASED": The customer bought the subscription.
    * - "FAMILY_SHARED": The customer has access to the product via their family.
+   * - "ASSIGNED": The customer was assigned access to the product.
    */
   readonly ownershipType: OwnershipType;
   /**
