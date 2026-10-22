@@ -16,6 +16,7 @@ import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import { getPeriodVariables } from "./paywall-period-helpers";
 import { getPricePerPeriodFactors } from "./price-conversion-helper";
 import { getPriceVariables } from "./paywall-price-helpers";
+import { setDiscountVariables } from "./paywall-discount-helpers";
 import {
   setNonSubscriptionOfferVariables,
   setOfferVariables,
@@ -205,6 +206,13 @@ function parsePackageIntoVariables(
     "product.secondary_offer_period": "",
     "product.secondary_offer_period_abbreviated": "",
     "product.relative_discount": "",
+    "product.absolute_discount": "",
+    "product.offer_relative_discount": "",
+    "product.offer_absolute_discount": "",
+    "product.relative_discount_with_offer": "",
+    "product.absolute_discount_with_offer": "",
+    "product.relative_discount_with_offer_full_period": "",
+    "product.absolute_discount_with_offer_full_period": "",
   };
 
   if (productIsSubscription(productType, purchaseOption)) {
@@ -268,6 +276,15 @@ function parsePackageIntoVariables(
                 discount: discount.toFixed(0),
               },
             );
+
+      setDiscountVariables(
+        purchaseOption,
+        productPrice,
+        basePeriod,
+        highestMonthlyPrice,
+        translator,
+        baseObject,
+      );
     }
 
     setOfferVariables(purchaseOption, translator, baseObject);
