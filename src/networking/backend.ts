@@ -20,7 +20,10 @@ import {
   SetAttributesEndpoint,
 } from "./endpoints";
 import { type SubscriberResponse } from "./responses/subscriber-response";
-import type { CheckoutStartResponse } from "./responses/checkout-start-response";
+import type {
+  CheckoutStartResponse,
+  ExternalCheckoutStartResponse,
+} from "./responses/checkout-start-response";
 import { type ProductsResponse } from "./responses/products-response";
 import { type BrandingInfoResponse } from "./responses/branding-response";
 import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
@@ -297,6 +300,7 @@ export class Backend {
   async postCheckoutStart<
     T extends
       | CheckoutStartResponse
+      | ExternalCheckoutStartResponse
       | SubscriptionChangeCheckoutStartResponse = CheckoutStartResponse,
   >({
     appUserId,

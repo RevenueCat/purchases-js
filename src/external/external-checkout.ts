@@ -1,13 +1,14 @@
 import { ErrorCode, PurchasesError } from "../entities/errors";
-import { generateUUID } from "./uuid-helper";
 
-export function externalCheckoutUrl(
+interface ExternalCheckoutUrls {
+  checkoutUrl: URL;
+  returnUrl?: URL;
+}
+
+export function validateExternalCheckoutUrls(
   checkoutUrl: string | undefined,
-  appUserId: string,
-  productId: string,
-  returnUrl?: string,
-  checkoutToken = generateUUID(),
-): string {
+  returnUrl: string | undefined,
+): ExternalCheckoutUrls {
   let url: URL;
   try {
     url = new URL(checkoutUrl ?? "");
@@ -27,12 +28,8 @@ export function externalCheckoutUrl(
       "externalCheckoutUrl must use HTTP or HTTPS without embedded credentials.",
     );
   }
-  url.searchParams.set("app_user_id", appUserId);
-  url.searchParams.set("product_id", productId);
-  url.searchParams.set("checkout_token", checkoutToken);
-  url.searchParams.delete("return_url");
+  let destination: URL | undefined;
   if (returnUrl !== undefined) {
-    let destination: URL;
     try {
       destination = new URL(returnUrl);
     } catch {
@@ -51,6 +48,21 @@ export function externalCheckoutUrl(
         "externalCheckoutReturnUrl must use HTTP or HTTPS without embedded credentials.",
       );
     }
+  }
+  return { checkoutUrl: url, returnUrl: destination };
+}
+
+export function externalCheckoutUrl(
+  { checkoutUrl: url, returnUrl: destination }: ExternalCheckoutUrls,
+  appUserId: string,
+  productId: string,
+  checkoutToken: string,
+): string {
+  url.searchParams.set("app_user_id", appUserId);
+  url.searchParams.set("product_id", productId);
+  url.searchParams.set("checkout_token", checkoutToken);
+  url.searchParams.delete("return_url");
+  if (destination !== undefined) {
     destination.searchParams.set("checkout_token", checkoutToken);
     url.searchParams.set("return_url", destination.toString());
   }
