@@ -117,9 +117,10 @@ export interface EntitlementInfo {
   readonly periodType: PeriodType;
   /**
    * Use this property to determine whether a purchase was made by the
-   * current user or shared to them by a family member. This can be useful
-   * for onboarding users who have had an entitlement shared with them,
-   * but might not be entirely aware of the benefits they now have.
+   * current user, shared to them by a family member, or assigned to them
+   * by an organization. This can be useful for onboarding users who have
+   * had an entitlement shared with or assigned to them, but might not be
+   * entirely aware of the benefits they now have.
    */
   readonly ownershipType: OwnershipType | null;
 }
