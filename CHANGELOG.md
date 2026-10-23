@@ -1,3 +1,11 @@
+## 1.73.1
+## RevenueCat SDK
+### 🐞 Bugfixes
+* Lazy import payrails (#1257) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* ci: bump Node to 24.22.1 (#1258) via Álvaro Brey (@AlvaroBrey)
+
 ## 1.73.0
 ## RevenueCat SDK
 ### ✨ New Features
