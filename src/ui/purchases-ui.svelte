@@ -50,6 +50,7 @@
   import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
   import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
   import { PAYRAILS_CHECKOUT_ENABLED } from "../helpers/constants";
+  import { loadPayrailsSdk } from "../payrails/payrails-service";
 
   interface Props {
     customerEmail: string | undefined;
@@ -399,6 +400,7 @@
             "This payment gateway requires a newer version of the SDK.",
           );
         }
+        loadPayrailsSdk().catch(() => {});
         payrailsGatewayParams = result.payrails_gateway_params;
       } else {
         payrailsGatewayParams = null;
