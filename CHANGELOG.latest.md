@@ -1,4 +1,6 @@
 ## RevenueCat SDK
-### ✨ New Features
-* feat: add OwnershipType.assigned (#1255) via Will Taylor (@fire-at-will)
-* [WST-1125] Start backend sessions before external checkout (#1247) via Nicola Sacco (@nicfix)
+### 🐞 Bugfixes
+* Lazy import payrails (#1257) via James O'Donnell (@james-od)
+
+### 🔄 Other Changes
+* ci: bump Node to 24.22.1 (#1258) via Álvaro Brey (@AlvaroBrey)
