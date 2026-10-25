@@ -12,6 +12,7 @@ const LoginPage: React.FC = () => {
   const [appUserId, setAppUserId] = useState("");
   const [offeringId, setOfferingId] = useState("");
   const [externalPurchaseTokenId, setExternalPurchaseTokenId] = useState("");
+  const [discountCode, setDiscountCode] = useState("");
   const [useCustomLogger, setUseCustomLogger] = useState(true);
 
   const navigateToAppUserIDPaywall = (
@@ -33,6 +34,9 @@ const LoginPage: React.FC = () => {
         params.append("offeringId", offeringId.trim());
       }
       appendExternalPurchaseTokenId(params, externalPurchaseTokenId);
+      if (discountCode.trim()) {
+        params.append("discountCode", discountCode.trim());
+      }
       // Add custom logger preference
       params.append("useCustomLogger", useCustomLogger.toString());
 
@@ -72,6 +76,13 @@ const LoginPage: React.FC = () => {
               placeholder="External purchase token ID (optional)"
               value={externalPurchaseTokenId}
               onChange={(e) => setExternalPurchaseTokenId(e.target.value)}
+              className="input-field"
+            />
+            <input
+              type="text"
+              placeholder="Discount code (optional)"
+              value={discountCode}
+              onChange={(e) => setDiscountCode(e.target.value)}
               className="input-field"
             />
             <input
