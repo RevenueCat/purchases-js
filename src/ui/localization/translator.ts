@@ -307,16 +307,11 @@ export class LocaleTranslations {
     period: PeriodUnit,
     options: TranslatePeriodOptions = defaultTranslatePeriodOptions,
   ): string | undefined {
-    const { noWhitespace, short } = {
-      ...defaultTranslatePeriodOptions,
-      ...options,
-    };
-    const key = `periods.${period}${short ? "Short" : ""}`;
+    // The unit after a price has its own key because some languages write it
+    // differently from a duration (zh: "1 个月" but "¥9/月").
+    const key = `periods.${period}Unit${options.short ? "Short" : ""}`;
 
-    return this.translate(key as LocalizationKeys, { amount: "" })?.replace(
-      " ",
-      noWhitespace ? "" : " ",
-    );
+    return this.translate(key as LocalizationKeys);
   }
 
   public translatePeriodFrequency(
