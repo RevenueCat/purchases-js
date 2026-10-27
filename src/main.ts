@@ -176,6 +176,7 @@ import {
 } from "./helpers/branding-appearance-helper";
 import type { BillingWrapper } from "./helpers/billing-wrapper";
 import { getPurchasesFactory } from "./helpers/purchases-factory";
+import { toLanguageCode } from "./helpers/locale-helper";
 import {
   type PreparedStripeBillingApplePayPurchase,
   prepareStripeBillingApplePayPurchase,
@@ -934,25 +935,25 @@ export class Purchases {
     ) => {
       const localesSupportedByPaywall: { [key: string]: string[] } = {};
 
-      const toLocalePrefix = (potentialLocale: string) => {
-        return potentialLocale.toLowerCase().split("_")[0];
-      };
+      // Paywall locales use "_" ("pt_BR"); browser locales use "-" ("pt-BR").
+      const normalizeLocale = (locale: string) =>
+        locale.toLowerCase().replace(/-/g, "_");
 
       Object.keys(paywallData.components_localizations).forEach((l) => {
-        if (localesSupportedByPaywall[toLocalePrefix(l)] === undefined) {
-          localesSupportedByPaywall[toLocalePrefix(l)] = [];
+        if (localesSupportedByPaywall[toLanguageCode(l)] === undefined) {
+          localesSupportedByPaywall[toLanguageCode(l)] = [];
         }
-        localesSupportedByPaywall[toLocalePrefix(l)].push(l);
+        localesSupportedByPaywall[toLanguageCode(l)].push(l);
       });
 
       const localesGroup =
-        localesSupportedByPaywall[toLocalePrefix(selectedLocale)];
+        localesSupportedByPaywall[toLanguageCode(selectedLocale)];
       if (!localesGroup) {
         return paywallData.default_locale;
       }
 
       const bestMatch = localesGroup.find(
-        (l) => l.toLowerCase() === selectedLocale,
+        (l) => normalizeLocale(l) === normalizeLocale(selectedLocale),
       );
 
       if (bestMatch) {
