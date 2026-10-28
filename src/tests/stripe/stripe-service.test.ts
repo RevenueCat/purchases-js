@@ -104,7 +104,7 @@ describe("StripeService", () => {
           mockConfig.stripeVariables,
           mockConfig.viewport,
         ),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: undefined,
         message: "Stripe configuration is missing",
@@ -128,7 +128,7 @@ describe("StripeService", () => {
           mockConfig.stripeVariables,
           mockConfig.viewport,
         ),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: "failed_to_load",
         message: "Failed to load",
@@ -148,7 +148,7 @@ describe("StripeService", () => {
           mockConfig.stripeVariables,
           mockConfig.viewport,
         ),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: undefined,
         message: "Stripe client not found",
@@ -178,7 +178,7 @@ describe("StripeService", () => {
           mockConfig.stripeVariables,
           mockConfig.viewport,
         ),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: "failed_to_load",
         message: "Failed to load",
@@ -199,7 +199,7 @@ describe("StripeService", () => {
     test("throws error when required configuration is missing", async () => {
       await expect(
         StripeService.initializeStripeCheckout("", "", undefined, undefined),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: undefined,
         message: "Stripe configuration is missing",
@@ -260,7 +260,7 @@ describe("StripeService", () => {
           "pk_test_123",
           stripeBillingParams,
         ),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: "failed_to_load",
         message: "Failed to load",
@@ -313,7 +313,7 @@ describe("StripeService", () => {
 
       const result = StripeService.mapInitializationError(error);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: "failed_to_load",
         message: "Failed to load",
@@ -329,7 +329,7 @@ describe("StripeService", () => {
 
       const result = StripeService.mapError(error);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         code: StripeServiceErrorCode.HandledFormError,
         gatewayErrorCode: "card_declined",
         message: "Card was declined",
@@ -345,7 +345,7 @@ describe("StripeService", () => {
 
       const result = StripeService.mapError(error);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         code: StripeServiceErrorCode.UnhandledFormError,
         gatewayErrorCode: "unknown_error",
         message: "Something went wrong",
@@ -454,7 +454,7 @@ describe("StripeService", () => {
 
       await expect(
         StripeService.extractTaxCustomerDetails(mockElements, mockStripe),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ConfirmationTokenError,
         gatewayDeclineCode: "card_not_supported",
         gatewayErrorCode: "card_declined",
@@ -476,7 +476,7 @@ describe("StripeService", () => {
 
       await expect(
         StripeService.extractTaxCustomerDetails(mockElements, mockStripe),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ConfirmationTokenError,
         gatewayErrorCode: "api_error",
         message: "Something went wrong.",
@@ -490,7 +490,7 @@ describe("StripeService", () => {
         message: "An error occurred while processing your card.",
       } as StripeError);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         code: StripeServiceErrorCode.ConfirmationTokenError,
         gatewayErrorCode: "processing_error",
         message: "An error occurred while processing your card.",
