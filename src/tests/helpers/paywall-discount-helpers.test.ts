@@ -257,6 +257,34 @@ describe("discount variables", () => {
     });
   });
 
+  test("a one-year time-window discount covers twelve monthly invoices", () => {
+    const variables = parseOfferingIntoVariables(
+      toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly",
+          title: "Monthly",
+          period: MONTH,
+          basePriceMicros: 15_000_000,
+          currency: "USD",
+          discount: {
+            ...discountPhaseTimeWindow,
+            timeWindow: "P1Y",
+            periodDuration: "P1Y",
+            period: YEAR,
+            cycleCount: 1,
+          },
+        },
+      ]),
+      enTranslator,
+    );
+
+    // 12 invoices at $12 instead of $15, not 365 / 30 rounded up to 13
+    expect(discountVariables(variables.$rc_monthly).withOfferAbsolute).toBe(
+      "$36.00",
+    );
+  });
+
   test("a forever discount has no offer term", () => {
     const variables = parseOfferingIntoVariables(
       toOffering([

@@ -2,7 +2,7 @@ import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
 import type { Price, SubscriptionOption } from "../entities/offerings";
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import { type Translator } from "../ui/localization/translator";
-import { type Period } from "./duration-helper";
+import { PeriodUnit, type Period } from "./duration-helper";
 import { getPricePerPeriodFactors } from "./price-conversion-helper";
 import { getCurrencyFractionDigits } from "./price-labels";
 
@@ -30,6 +30,23 @@ function periodInMonths(period: Period): number {
   return perMonth > 0 ? 1 / perMonth : 0;
 }
 
+function isCalendarPeriod(period: Period): boolean {
+  return period.unit === PeriodUnit.Month || period.unit === PeriodUnit.Year;
+}
+
+/**
+ * How many base periods fit in the window. Months and years are compared in months, so a year holds
+ * 12 monthly invoices rather than 365 / 30.
+ */
+function periodsInWindow(window: Period, base: Period): number {
+  const length =
+    isCalendarPeriod(window) && isCalendarPeriod(base)
+      ? periodInMonths
+      : periodInDays;
+  const baseLength = length(base);
+  return baseLength > 0 ? stripFloatNoise(length(window) / baseLength) : 0;
+}
+
 /**
  * The offer the customer gets, in billing order. A discount replaces the trial and intro price, matching
  * `setOfferVariables`. A discount's price is per base-plan invoice.
@@ -51,13 +68,13 @@ function getOfferSegments(option: SubscriptionOption): OfferSegment[] {
           },
         ];
       case "time_window": {
-        const windowDays = discount.period
-          ? periodInDays(discount.period) * discount.cycleCount
-          : 0;
-        const baseDays = periodInDays(base.period);
         // Every invoice issued within the window is discounted.
-        const invoices =
-          baseDays > 0 ? Math.ceil(stripFloatNoise(windowDays / baseDays)) : 0;
+        const invoices = discount.period
+          ? Math.ceil(
+              periodsInWindow(discount.period, base.period) *
+                discount.cycleCount,
+            )
+          : 0;
         return invoices > 0
           ? [
               {
