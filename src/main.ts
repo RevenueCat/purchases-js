@@ -108,6 +108,7 @@ import {
 import { PaywallDefaultContainerZIndex } from "./ui/theme/constants";
 import {
   buildVariablesPerPackage,
+  getVariablesTranslator,
   type BuildVariablesPerPackageOptions,
 } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
@@ -455,8 +456,14 @@ export class Purchases {
    * Used to support Paywalls in Workflows.
    * @internal
    */
-  static buildInfoPerPackage(offering: Offering) {
-    return parseOfferingIntoPackageInfoPerPackage(offering);
+  static buildInfoPerPackage(
+    offering: Offering,
+    options?: BuildVariablesPerPackageOptions,
+  ) {
+    return parseOfferingIntoPackageInfoPerPackage(
+      offering,
+      options && getVariablesTranslator(offering, options),
+    );
   }
 
   /**
@@ -1213,7 +1220,10 @@ export class Purchases {
       translator,
     });
 
-    const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(offering);
+    const infoPerPackage = parseOfferingIntoPackageInfoPerPackage(
+      offering,
+      translator,
+    );
 
     const paywallContextOffering = {
       identifier: offering.identifier,

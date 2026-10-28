@@ -299,6 +299,15 @@ describe("Purchases.presentPaywall() paywall context", () => {
         hasIntroOffer: false,
         hasPromoOffer: true,
         pricePerMonthMicros: 3_000_000,
+        discountVariablesByMostExpensivePricePerMonth: {
+          "3000000": {
+            "product.absolute_discount": "",
+            "product.relative_discount_with_offer": "50%",
+            "product.absolute_discount_with_offer": "$1.50",
+            "product.relative_discount_with_offer_full_period": "50%",
+            "product.absolute_discount_with_offer_full_period": "$1.50",
+          },
+        },
       },
     });
     expect(mountedProps?.variablesPerPackage).toMatchObject({

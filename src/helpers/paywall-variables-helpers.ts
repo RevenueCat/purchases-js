@@ -34,19 +34,27 @@ export function buildVariablesPerPackage(
   offering: Offering,
   options: BuildVariablesPerPackageOptions = {},
 ): Record<string, VariableDictionary> {
+  return parseOfferingIntoVariables(
+    offering,
+    getVariablesTranslator(offering, options),
+  );
+}
+
+export function getVariablesTranslator(
+  offering: Offering,
+  options: BuildVariablesPerPackageOptions,
+): Translator {
   if (options.translator) {
-    return parseOfferingIntoVariables(offering, options.translator);
+    return options.translator;
   }
 
   const defaultLocale =
     offering.paywallComponents?.default_locale || englishLocale;
-  const translator = new Translator(
+  return new Translator(
     options.customTranslations ?? {},
     options.selectedLocale ?? defaultLocale,
     options.fallbackLocale ?? defaultLocale,
   );
-
-  return parseOfferingIntoVariables(offering, translator);
 }
 
 export function getPackageMonthlyPrice(pkg: Package): number {

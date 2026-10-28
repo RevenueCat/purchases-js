@@ -258,3 +258,43 @@ export function setDiscountVariables(
     "product.absolute_discount_with_offer_full_period",
   );
 }
+
+const MOST_EXPENSIVE_DISCOUNT_VARIABLES = [
+  "product.absolute_discount",
+  "product.relative_discount_with_offer",
+  "product.absolute_discount_with_offer",
+  "product.relative_discount_with_offer_full_period",
+  "product.absolute_discount_with_offer_full_period",
+] as const;
+
+/**
+ * The variables measured against the most expensive package, for each of `mostExpensivePricesPerMonthMicros`,
+ * keyed by `String(price)`. ui-js swaps in the entry for the selected tab's most expensive package, as it
+ * does for `product.relative_discount`.
+ */
+export function getDiscountVariablesByMostExpensivePricePerMonth(
+  option: SubscriptionOption,
+  price: Price,
+  period: Period | null,
+  mostExpensivePricesPerMonthMicros: number[],
+  translator: Translator,
+): Record<string, VariableDictionary> {
+  return Object.fromEntries(
+    mostExpensivePricesPerMonthMicros.map((mostExpensive) => {
+      const variables: VariableDictionary = {};
+      setDiscountVariables(
+        option,
+        price,
+        period,
+        mostExpensive,
+        translator,
+        variables,
+      );
+      const scoped: VariableDictionary = {};
+      for (const name of MOST_EXPENSIVE_DISCOUNT_VARIABLES) {
+        scoped[name] = variables[name] ?? "";
+      }
+      return [String(mostExpensive), scoped];
+    }),
+  );
+}
