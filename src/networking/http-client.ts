@@ -78,7 +78,13 @@ async function handleErrors(response: Response, endpoint: SupportedEndpoint) {
   if (statusCode >= StatusCodes.INTERNAL_SERVER_ERROR) {
     throwUnknownError(endpoint, statusCode, await response.text());
   } else if (statusCode >= StatusCodes.BAD_REQUEST) {
-    const errorBody = await response.json();
+    const errorBodyText = await response.text();
+    let errorBody;
+    try {
+      errorBody = JSON.parse(errorBodyText);
+    } catch {
+      throwUnknownError(endpoint, statusCode, errorBodyText || null);
+    }
     const errorBodyString = errorBody ? JSON.stringify(errorBody) : null;
     const backendErrorCodeNumber: number | null = errorBody?.code;
     const backendErrorMessage: string | null = errorBody?.message;
