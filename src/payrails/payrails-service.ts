@@ -26,20 +26,24 @@ export function loadPayrailsSdk(): Promise<typeof PayrailsSdk> {
   return payrailsSdk;
 }
 
-const payrailsDropinOptions: DropinOptions = {
-  paymentMethodsConfiguration: {
-    cards: {
-      showSingleExpiryDateField: true,
-      showStoreInstrumentCheckbox: true,
+function createPayrailsDropinOptions(
+  alwaysStoreInstrument: boolean,
+): DropinOptions {
+  return {
+    paymentMethodsConfiguration: {
+      cards: {
+        showSingleExpiryDateField: true,
+        alwaysStoreInstrument,
+      },
+      googlePay: {
+        alwaysStoreInstrument,
+      },
+      applePay: {
+        alwaysStoreInstrument,
+      },
     },
-    googlePay: {
-      showStoreInstrumentCheckbox: true,
-    },
-    applePay: {
-      showStoreInstrumentCheckbox: true,
-    },
-  },
-};
+  };
+}
 
 export const PAYRAILS_DROPIN_CONTAINER_ID = "rc-payrails-dropin";
 
@@ -71,7 +75,9 @@ export class PayrailsService {
       return;
     }
 
-    const client: PayrailsClient = await Payrails.init(gatewayParams);
+    const client: PayrailsClient = await Payrails.init(
+      gatewayParams.init_payload,
+    );
     if (generation !== this.generation) {
       return;
     }
@@ -91,7 +97,9 @@ export class PayrailsService {
       }),
     ];
 
-    const dropin = client.dropin(payrailsDropinOptions);
+    const dropin = client.dropin(
+      createPayrailsDropinOptions(gatewayParams.always_store_instrument),
+    );
     dropin.mount(`#${PAYRAILS_DROPIN_CONTAINER_ID}`);
     this.dropin = dropin;
   }
