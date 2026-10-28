@@ -28,7 +28,7 @@ import {
 } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
-import { externalCheckoutUrl } from "./helpers/external-checkout";
+import { ExternalPurchasesService } from "./external/external-purchases-service";
 import {
   isAmazonApiKey,
   isPaddleApiKey,
@@ -2374,20 +2374,22 @@ export class Purchases {
    */
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
     if (isExternalApiKey(this._API_KEY)) {
-      const url = externalCheckoutUrl(
-        params.externalCheckoutUrl ?? this._externalCheckoutUrl,
-        this._appUserId,
-        params.rcPackage.product.identifier,
-        params.externalCheckoutReturnUrl ?? this._externalCheckoutReturnUrl,
+      const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
+        ? autoParseUTMParams()
+        : {};
+      const service = new ExternalPurchasesService(
+        this.backend,
+        this.eventsTracker,
       );
-      void this.eventsTracker.flushAllEvents().catch((error) => {
-        Logger.debugLog(
-          `Failed to flush events before external checkout: ${error}`,
-        );
+      return service.purchase({
+        ...params,
+        appUserId: this._appUserId,
+        externalCheckoutUrl:
+          params.externalCheckoutUrl ?? this._externalCheckoutUrl,
+        externalCheckoutReturnUrl:
+          params.externalCheckoutReturnUrl ?? this._externalCheckoutReturnUrl,
+        metadata: { ...utmParamsMetadata, ...(params.metadata || {}) },
       });
-      getWindow().location.assign(url);
-      // A redirect starts checkout; it does not provide a completed purchase result.
-      return new Promise<PurchaseResult>(() => {});
     }
     if (params.tryWithApplePay) {
       try {

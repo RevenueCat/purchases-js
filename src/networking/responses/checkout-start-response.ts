@@ -77,6 +77,10 @@ export type CheckoutStartResponse =
   | StripeBillingApplePayCheckoutStartResponse
   | PaddleCheckoutStartResponse;
 
+export interface ExternalCheckoutStartResponse {
+  operation_session_id: string;
+}
+
 export function isPayrailsCheckoutStartResponse(
   response: object,
 ): response is PayrailsCheckoutStartResponse {

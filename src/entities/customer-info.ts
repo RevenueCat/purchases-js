@@ -38,10 +38,15 @@ export type PeriodType = "normal" | "intro" | "trial" | "prepaid";
 
 /**
  * The types used to describe whether a transaction was purchased by the user,
- * or is available to them through Family Sharing.
+ * is available to them through Family Sharing, or was assigned to them
+ * by an organization.
  * @public
  */
-export type OwnershipType = "PURCHASED" | "FAMILY_SHARED" | "UNKNOWN";
+export type OwnershipType =
+  | "PURCHASED"
+  | "FAMILY_SHARED"
+  | "ASSIGNED"
+  | "UNKNOWN";
 
 /**
  * This object gives you access to all the information about the status
@@ -112,9 +117,10 @@ export interface EntitlementInfo {
   readonly periodType: PeriodType;
   /**
    * Use this property to determine whether a purchase was made by the
-   * current user or shared to them by a family member. This can be useful
-   * for onboarding users who have had an entitlement shared with them,
-   * but might not be entirely aware of the benefits they now have.
+   * current user, shared to them by a family member, or assigned to them
+   * by an organization. This can be useful for onboarding users who have
+   * had an entitlement shared with or assigned to them, but might not be
+   * entirely aware of the benefits they now have.
    */
   readonly ownershipType: OwnershipType | null;
 }
@@ -217,6 +223,7 @@ export interface SubscriptionInfo {
    * How the Customer received access to this subscription:
    * - "PURCHASED": The customer bought the subscription.
    * - "FAMILY_SHARED": The customer has access to the product via their family.
+   * - "ASSIGNED": The customer was assigned access to the product.
    */
   readonly ownershipType: OwnershipType;
   /**
