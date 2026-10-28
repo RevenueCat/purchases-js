@@ -445,4 +445,56 @@ describe("Purchases.presentPaywall() paywall context", () => {
       expect(mountedProps?.rcSource).toBe(expected);
     },
   );
+
+  const createOfferingWithLocales = (): Offering => {
+    const offering = createOfferingWithPaywall();
+    return {
+      ...offering,
+      paywallComponents: {
+        ...offering.paywallComponents,
+        components_localizations: {
+          en_US: {},
+          es_ES: {},
+          pt_PT: {},
+          pt_BR: {},
+        },
+      } as unknown as Offering["paywallComponents"],
+    };
+  };
+
+  test.each([
+    ["es", "es_ES"],
+    ["es_ES", "es_ES"],
+    ["es-ES", "es_ES"],
+    ["pt_BR", "pt_BR"],
+    ["pt-BR", "pt_BR"],
+    ["pt-PT", "pt_PT"],
+    ["fr-FR", "en_US"],
+  ])(
+    "resolves selectedLocale %s to the paywall locale %s",
+    async (selectedLocale, expected) => {
+      const purchases = configurePurchases();
+
+      void purchases.presentPaywall({
+        offering: createOfferingWithLocales(),
+        selectedLocale,
+      });
+
+      await vi.waitFor(() => expect(mountedProps).toBeDefined());
+      expect(mountedProps?.selectedLocale).toBe(expected);
+    },
+  );
+
+  test("resolves the browser locale to the matching paywall locale", async () => {
+    const languageSpy = vi
+      .spyOn(navigator, "language", "get")
+      .mockReturnValue("pt-BR");
+    const purchases = configurePurchases();
+
+    void purchases.presentPaywall({ offering: createOfferingWithLocales() });
+
+    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    expect(mountedProps?.selectedLocale).toBe("pt_BR");
+    languageSpy.mockRestore();
+  });
 });
