@@ -323,6 +323,41 @@ describe("getCustomerInfo request", () => {
     );
   });
 
+  test("throws unknown error if the backend returns a request error with a non-JSON body", async () => {
+    setCustomerInfoResponse(
+      new HttpResponse("<html>Too Many Requests</html>", {
+        status: StatusCodes.TOO_MANY_REQUESTS,
+        headers: { "Content-Type": "text/html" },
+      }),
+    );
+    const promise = backend.getCustomerInfo("someAppUserId");
+    await expectPromiseToError(
+      promise,
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getCustomerInfo. Status code: 429. Body: <html>Too Many Requests</html>.",
+      ),
+    );
+    await expect(promise).rejects.toMatchObject({
+      extra: { statusCode: StatusCodes.TOO_MANY_REQUESTS },
+    });
+  });
+
+  test("throws unknown error if the backend returns a request error with an empty body", async () => {
+    setCustomerInfoResponse(
+      new HttpResponse(null, { status: StatusCodes.NOT_FOUND }),
+    );
+    await expectPromiseToError(
+      backend.getCustomerInfo("someAppUserId"),
+      new PurchasesError(
+        ErrorCode.UnknownBackendError,
+        "Unknown backend error.",
+        "Request: getCustomerInfo. Status code: 404. Body: null.",
+      ),
+    );
+  });
+
   test("throws network error if cannot reach server", async () => {
     setCustomerInfoResponse(HttpResponse.error());
     await expectPromiseToError(
