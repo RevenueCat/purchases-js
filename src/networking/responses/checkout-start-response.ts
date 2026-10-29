@@ -32,7 +32,7 @@ export interface WebBillingCheckoutStartResponse {
 
 /**
  * Web Billing checkout backed by Payrails. Uses the same `rcb_` API key as
- * Stripe Web Billing. `payrails_gateway_params` is the client init body.
+ * Stripe Web Billing. `payrails_gateway_params.init_payload` is the client init body.
  */
 export interface PayrailsCheckoutStartResponse {
   operation_session_id: string;
@@ -93,12 +93,25 @@ export function isPayrailsCheckoutStartResponse(
     return false;
   }
 
+  if (
+    !("always_store_instrument" in params) ||
+    typeof params.always_store_instrument !== "boolean" ||
+    !("init_payload" in params)
+  ) {
+    return false;
+  }
+
+  const initPayload = params.init_payload;
+  if (typeof initPayload !== "object" || initPayload === null) {
+    return false;
+  }
+
   return (
-    "version" in params &&
-    typeof params.version === "string" &&
-    params.version.length > 0 &&
-    "data" in params &&
-    typeof params.data === "string" &&
-    params.data.length > 0
+    "version" in initPayload &&
+    typeof initPayload.version === "string" &&
+    initPayload.version.length > 0 &&
+    "data" in initPayload &&
+    typeof initPayload.data === "string" &&
+    initPayload.data.length > 0
   );
 }
