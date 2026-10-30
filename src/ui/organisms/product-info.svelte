@@ -99,6 +99,8 @@
     {priceBreakdown}
     {trialPhase}
     {basePhase}
+    {introPricePhase}
+    {discountPhase}
     {resolvedDiscount}
     {showDiscountCodeField}
     {discountCode}
