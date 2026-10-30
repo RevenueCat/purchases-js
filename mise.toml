@@ -1,12 +1,10 @@
 [settings]
 lockfile = true
-
-[settings.node]
-corepack = true
+idiomatic_version_file_enable_tools = ["node", "pnpm"]
+minimum_release_age = "1d"
 
 [settings.ruby]
 compile = false
 
 [tools]
-node = "24.22.1"
 ruby = "3.3.0"
