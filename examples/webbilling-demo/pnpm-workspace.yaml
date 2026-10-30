@@ -1,2 +1,5 @@
 # Keep this example independent of the SDK workspace.
 packages: []
+
+allowBuilds:
+  esbuild: false
