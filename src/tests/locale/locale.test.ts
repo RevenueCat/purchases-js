@@ -236,6 +236,34 @@ describe("The Translator class", () => {
     },
   );
 
+  test.each([
+    ["zh", "zh_Hans"],
+    ["zh-CN", "zh_Hans"],
+    ["zh-SG", "zh_Hans"],
+    ["zh-Hans", "zh_Hans"],
+    ["zh-Hans-HK", "zh_Hans"],
+    ["zh-Hans-TW", "zh_Hans"],
+    ["zh-Hant", "zh_Hant"],
+    ["zh-TW", "zh_Hant"],
+    ["zh-tw", "zh_Hant"],
+    ["zh-HK", "zh_Hant"],
+    ["zh-MO", "zh_Hant"],
+    ["zh_Hant_TW", "zh_Hant"],
+    ["zh-Hant-HK", "zh_Hant"],
+  ])(
+    "should pick the Chinese translations for %s (%s)",
+    (selectedLocale, expectedLanguage) => {
+      const translator = new Translator({}, selectedLocale);
+      expect(
+        translator.translate(LocalizationKeys.PaymentEntryPagePaymentStepTitle),
+      ).toBe(
+        supportedLanguages[expectedLanguage][
+          LocalizationKeys.PaymentEntryPagePaymentStepTitle
+        ],
+      );
+    },
+  );
+
   test("should not fail translating periods when zh_Hant and zh_Hans are taken as locale", () => {
     const traditionalTranslator = new Translator({}, "zh-Hant");
     expect(() =>
