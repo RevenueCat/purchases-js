@@ -64,7 +64,7 @@
     "@microsoft/api-extractor": "^7.48.0",
     "@paddle/paddle-js": "^1.6.4",
     "@payrails/web-sdk": "^6.9.0",
-    "@revenuecat/purchases-ui-js": "4.18.0",
+    "@revenuecat/purchases-ui-js": "4.18.1",
     "@storybook/addon-essentials": "^8.6.15",
     "@storybook/addon-interactions": "^8.6.15",
     "@storybook/addon-links": "^8.6.15",
