@@ -261,6 +261,7 @@ describe("The Translator class", () => {
           LocalizationKeys.PaymentEntryPagePaymentStepTitle
         ],
       );
+      expect(translator.bcp47Locale).toBe(expectedLanguage.replace("_", "-"));
     },
   );
 
