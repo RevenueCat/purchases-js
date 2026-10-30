@@ -24,7 +24,13 @@ describe("The Translator class", () => {
         (key) => !otherLabelKeys.has(key as LocalizationKeys),
       );
       const extraKeys = [...otherLabelKeys].filter(
-        (key) => !expectedKeysSet.has(key as LocalizationKeys),
+        (key) =>
+          !expectedKeysSet.has(
+            key.replace(
+              /\.(zero|one|two|few|many|other)$/,
+              "",
+            ) as LocalizationKeys,
+          ),
       );
 
       const missingKeysText =
@@ -37,7 +43,7 @@ describe("The Translator class", () => {
           : "";
 
       expect(
-        eqSet(expectedKeysSet, otherLabelKeys),
+        missingKeys.length === 0 && extraKeys.length === 0,
         `Language ${lang} doesn't have all the expected keys. ${missingKeysText}${extraKeysText}\n\n`,
       ).toBe(true);
     });
@@ -131,6 +137,81 @@ describe("The Translator class", () => {
       () => translator.translatePeriod(period.number, period.unit),
       `Translating failed for language`,
     ).not.toThrow();
+  });
+
+  test("should use Polish few forms for renewal frequencies", () => {
+    const translator = new Translator({}, "pl");
+    expect(translator.translatePeriodFrequency(2, PeriodUnit.Week)).toBe(
+      "co 2 tygodnie",
+    );
+    expect(translator.translatePeriodFrequency(5, PeriodUnit.Week)).toBe(
+      "co 5 tygodni",
+    );
+    expect(translator.translatePeriodFrequency(2, PeriodUnit.Month)).toBe(
+      "co 2 miesiące",
+    );
+    expect(translator.translatePeriodFrequency(2, PeriodUnit.Year)).toBe(
+      "co 2 lata",
+    );
+  });
+
+  test("should preserve period formatting options and English fallback", () => {
+    const translator = new Translator({}, "pl");
+    expect(
+      translator.translatePeriod(2, PeriodUnit.Week, { short: true }),
+    ).toBe("2tydz");
+    expect(
+      translator.translatePeriod(2, PeriodUnit.Week, { noWhitespace: true }),
+    ).toBe("2tygodnie");
+    expect(
+      new Translator({}, "unknown", "en").translatePeriod(2, PeriodUnit.Week),
+    ).toBe("2 weeks");
+  });
+
+  test("should keep existing custom plural labels for every plural category", () => {
+    const translator = new Translator(
+      {
+        pl: {
+          [LocalizationKeys.PeriodsWeekPlural]: "{{amount}} custom weeks",
+          [LocalizationKeys.PeriodsWeekFrequencyPlural]:
+            "every {{amount}} custom weeks",
+        },
+      },
+      "pl",
+    );
+    expect(translator.translatePeriod(2, PeriodUnit.Week)).toBe(
+      "2 custom weeks",
+    );
+    expect(translator.translatePeriod(5, PeriodUnit.Week)).toBe(
+      "5 custom weeks",
+    );
+    expect(translator.translatePeriodFrequency(2, PeriodUnit.Week)).toBe(
+      "every 2 custom weeks",
+    );
+  });
+
+  test("should allow custom plural category labels with a base fallback", () => {
+    const translator = new Translator(
+      { pl: { "periods.weekPlural.few": "{{amount}} custom few weeks" } },
+      "pl",
+    );
+    expect(translator.translatePeriod(2, PeriodUnit.Week)).toBe(
+      "2 custom few weeks",
+    );
+    expect(translator.translatePeriod(5, PeriodUnit.Week)).toBe("5 tygodni");
+
+    translator.override({
+      pl: {
+        [LocalizationKeys.PeriodsWeekPlural]: "{{amount}} custom weeks",
+        "periods.weekPlural.few": "{{amount}} explicit few weeks",
+      },
+    });
+    expect(translator.translatePeriod(2, PeriodUnit.Week)).toBe(
+      "2 explicit few weeks",
+    );
+    expect(translator.translatePeriod(5, PeriodUnit.Week)).toBe(
+      "5 custom weeks",
+    );
   });
 
   test("should correctly translate 'per {labels}' for day", () => {
