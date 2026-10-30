@@ -9,6 +9,7 @@ test.each([
   ["ko", "P7D", "7일 무료 체험"],
   ["pl", "P1W", "Bezpłatny okres próbny: 1 tydzień"],
   ["zh_Hans", "P1W", "1 周免费试用"],
+  ["zh_Hans", "P1M", "1 个月免费试用"],
   ["zh_Hant", "P1W", "1 週免費試用"],
 ])(
   "free trial duration in %s for %s shows the unit once",
