@@ -185,24 +185,18 @@ export class Translator {
   private getChineseLocaleInstance(
     locale: string,
   ): LocaleTranslations | undefined {
-    const subtags = locale.toLowerCase().split(/[-_]/);
-    if (subtags[0] !== "zh") {
+    let maximized: Intl.Locale;
+    try {
+      maximized = new Intl.Locale(locale.replace(/_/g, "-")).maximize();
+    } catch {
       return undefined;
     }
-
-    // An explicit script ("zh-Hans-HK") wins over the region.
-    if (subtags.includes("hant")) {
-      return this.locales.zh_Hant;
+    if (maximized.language !== "zh") {
+      return undefined;
     }
-    if (subtags.includes("hans")) {
-      return this.locales.zh_Hans;
-    }
-
-    const traditionalRegions = ["tw", "hk", "mo"];
-    const isTraditionalRegion = subtags.some((subtag) =>
-      traditionalRegions.includes(subtag),
-    );
-    return this.locales[isTraditionalRegion ? "zh_Hant" : "zh_Hans"];
+    return maximized.script === "Hant"
+      ? this.locales.zh_Hant
+      : this.locales.zh_Hans;
   }
 
   public translate(
