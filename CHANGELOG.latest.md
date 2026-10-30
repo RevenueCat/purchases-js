@@ -1,6 +1,6 @@
 ## RevenueCat SDK
 ### 🐞 Bugfixes
-* Lazy import payrails (#1257) via James O'Donnell (@james-od)
-
-### 🔄 Other Changes
-* ci: bump Node to 24.22.1 (#1258) via Álvaro Brey (@AlvaroBrey)
+* [EXTERNAL] Match regional browser locales to paywall locales (#1264) via @irisfield (#1270) via Burdock (@lburdock)
+* [EXTERNAL] Return a PurchasesError for non-JSON error responses (#1265) via @irisfield (#1269) via Burdock (@lburdock)
+### 📦 Dependency Updates
+* [AUTOMATIC] purchases-ui-js 4.17.1 => 4.17.2 (#1266) via RevenueCat Git Bot (@RCGitBot)
