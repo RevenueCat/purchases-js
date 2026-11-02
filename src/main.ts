@@ -960,8 +960,22 @@ export class Purchases {
         return bestMatch;
       }
 
+      // Some languages have a localization per script (zh_Hans, zh_Hant), so
+      // "zh-TW" or "zh-CN" must match on the script its region implies.
+      const likelyScript = (locale: string) => {
+        try {
+          return new Intl.Locale(locale.replace(/_/g, "-")).maximize().script;
+        } catch {
+          return undefined;
+        }
+      };
+      const selectedScript = likelyScript(selectedLocale);
+      const scriptMatch = selectedScript
+        ? localesGroup.find((l) => likelyScript(l) === selectedScript)
+        : undefined;
+
       // Finding best match for the selected locale group.
-      return localesGroup[0];
+      return scriptMatch ?? localesGroup[0];
     };
 
     // Resolving the correct locale to use.
