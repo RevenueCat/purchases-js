@@ -1,5 +1,8 @@
 # Keep this example independent of the SDK workspace.
 packages: []
 
+# Metro 0.76 cannot resolve pnpm's isolated symlink layout reliably.
+nodeLinker: hoisted
+
 allowBuilds:
   '@amazon-devices/react-native-kepler': false
