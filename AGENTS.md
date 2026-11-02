@@ -120,11 +120,11 @@ pnpm run pack-build       # Build + npm pack
 
 ## Constraints / Support Policy
 
-| Requirement | Version                                                       |
-| ----------- | ------------------------------------------------------------- |
-| Node.js     | Node versions that are not EoL (see `package.json > engines`) |
-| pnpm        | See `package.json > packageManager`                           |
-| TypeScript  | 5.7.2                                                         |
+| Requirement | Version                               |
+| ----------- | ------------------------------------- |
+| Node.js     | All supported (non EoL) Node versions |
+| pnpm        | See `package.json > packageManager`   |
+| TypeScript  | 5.7.2                                 |
 
 ## Testing
 

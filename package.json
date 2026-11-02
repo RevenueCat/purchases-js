@@ -114,8 +114,5 @@
       "eslint --fix --no-warn-ignored"
     ]
   },
-  "engines": {
-    "node": "^22.18 || ^24.11 || ^26.13"
-  },
   "packageManager": "pnpm@12.15.0"
 }
