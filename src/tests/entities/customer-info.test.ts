@@ -746,7 +746,8 @@ describe("customer info parsing", () => {
             expires_date: "2124-03-24T10:00:00Z",
             grace_period_expires_date: null,
             is_sandbox: false,
-            original_purchase_date: null,
+            // The type says string, but guard against a missing value at runtime.
+            original_purchase_date: null as unknown as string,
             period_type: "normal",
             purchase_date: "2024-02-24T10:00:00Z",
             store: "rc_billing",
