@@ -516,6 +516,58 @@ describe("Purchases.getAppUserId()", () => {
   });
 });
 
+test("entitlement originalPurchaseDate comes from the subscription after a renewal", async () => {
+  server.use(
+    http.get(`http://localhost:8000/v1/subscribers/${testUserId}`, () =>
+      HttpResponse.json({
+        request_date: "2024-03-01T10:00:00Z",
+        request_date_ms: 1709287200000,
+        subscriber: {
+          entitlements: {
+            premium: {
+              expires_date: "2124-03-24T10:00:00Z",
+              grace_period_expires_date: null,
+              product_identifier: "monthly",
+              purchase_date: "2024-02-24T10:00:00Z",
+            },
+          },
+          first_seen: "2024-01-24T10:00:00Z",
+          management_url: null,
+          non_subscriptions: {},
+          original_app_user_id: testUserId,
+          original_application_version: null,
+          original_purchase_date: null,
+          other_purchases: {},
+          subscriptions: {
+            monthly: {
+              billing_issues_detected_at: null,
+              expires_date: "2124-03-24T10:00:00Z",
+              grace_period_expires_date: null,
+              is_sandbox: false,
+              original_purchase_date: "2024-01-24T10:00:00Z",
+              period_type: "normal",
+              purchase_date: "2024-02-24T10:00:00Z",
+              store: "rc_billing",
+              unsubscribe_detected_at: null,
+            },
+          },
+        },
+      }),
+    ),
+  );
+
+  const purchases = configurePurchases();
+  const customerInfo = await purchases.getCustomerInfo();
+  const entitlement = customerInfo.entitlements.all["premium"];
+
+  expect(entitlement.originalPurchaseDate).toEqual(
+    new Date("2024-01-24T10:00:00Z"),
+  );
+  expect(entitlement.latestPurchaseDate).toEqual(
+    new Date("2024-02-24T10:00:00Z"),
+  );
+});
+
 test("can get customer info", async () => {
   const purchases = configurePurchases();
   const customerInfo = await purchases.getCustomerInfo();
@@ -526,7 +578,7 @@ test("can get customer info", async () => {
     isSandbox: true,
     periodType: "normal",
     latestPurchaseDate: new Date("2023-12-19T16:48:42Z"),
-    originalPurchaseDate: new Date("2023-12-19T16:48:42Z"),
+    originalPurchaseDate: new Date("2023-11-20T16:48:42Z"),
     expirationDate: new Date("2053-12-20T16:48:42Z"),
     productIdentifier: "black_f_friday_worten",
     productPlanIdentifier: null,
@@ -545,7 +597,7 @@ test("can get customer info", async () => {
           isSandbox: true,
           periodType: "normal",
           latestPurchaseDate: new Date("2023-12-19T16:48:42Z"),
-          originalPurchaseDate: new Date("2023-12-19T16:48:42Z"),
+          originalPurchaseDate: new Date("2023-11-20T16:48:42Z"),
           expirationDate: new Date("2023-12-20T16:48:42Z"),
           productIdentifier: "black_f_friday_worten_2",
           productPlanIdentifier: "plan_id",
