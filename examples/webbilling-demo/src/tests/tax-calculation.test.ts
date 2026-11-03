@@ -1,5 +1,6 @@
 import type { Page, Request, Route } from "@playwright/test";
 import { expect } from "@playwright/test";
+import type { CheckoutPricingResponse } from "../../../../src/networking/responses/checkout-pricing-response";
 import {
   CANADA_FULL_ADDRESS,
   CANADA_TAX_RESPONSE,
@@ -96,6 +97,94 @@ const mockTaxCalculationRequest = async (
       await route.fallback();
     }
   });
+};
+
+const waitForTaxPricing = async (page: Page, countryCode: string) => {
+  const response = await page.waitForResponse(
+    (response) =>
+      response.url().includes("/checkout/") &&
+      isPricingRefreshRequest(response.request()) &&
+      response.request().postDataJSON()?.country_code === countryCode,
+  );
+  expect(response.ok()).toBe(true);
+  return (await response.json()) as CheckoutPricingResponse;
+};
+
+// Exact amounts belong to the mocked cases. Live cases check the SDK's
+// rendering of actual pricing, plus independent tax/discount arithmetic.
+const expectLiveTaxPricing = async (
+  page: Page,
+  pricing: CheckoutPricingResponse,
+  countryName: string,
+  discountCode?: string,
+) => {
+  expect(pricing.failed_reason).toBeFalsy();
+  expect(pricing.tax_inclusive).toBe(true);
+  expect(pricing.tax_amount_in_micros).toBeGreaterThan(0);
+  expect(pricing.total_excluding_tax_in_micros).toBeGreaterThan(0);
+  expect(pricing.tax_breakdown).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        display_name: expect.stringContaining(countryName),
+      }),
+    ]),
+  );
+  expect(
+    pricing.tax_breakdown.reduce(
+      (sum, tax) => sum + tax.tax_amount_in_micros,
+      0,
+    ),
+  ).toBe(pricing.tax_amount_in_micros);
+  expect(
+    pricing.total_excluding_tax_in_micros + pricing.tax_amount_in_micros,
+  ).toBe(pricing.total_amount_in_micros);
+
+  const expectedRows: Array<[string | RegExp, number]> = [];
+  if (discountCode) {
+    const discounts = pricing.applied_discounts ?? [];
+    expect(discounts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ discount_code: discountCode }),
+      ]),
+    );
+    const discountAmount = discounts.reduce(
+      (sum, discount) => sum + discount.discounted_amount_in_micros,
+      0,
+    );
+    expect(discountAmount).toBeGreaterThan(0);
+    expect(pricing.original_amount_in_micros).toBeGreaterThan(discountAmount);
+    expect(pricing.original_amount_in_micros! - discountAmount).toBe(
+      pricing.total_amount_in_micros,
+    );
+    expectedRows.push(
+      ["Subtotal", pricing.original_amount_in_micros!],
+      [/^Discount/, -discountAmount],
+    );
+  }
+  expectedRows.push(
+    ["Total excluding tax", pricing.total_excluding_tax_in_micros],
+    ...pricing.tax_breakdown.map((tax): [string, number] => [
+      tax.display_name,
+      tax.tax_amount_in_micros,
+    ]),
+    ["Total due today", pricing.total_amount_in_micros],
+  );
+
+  const formatAmount = (amountInMicros: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: pricing.currency,
+    }).format(amountInMicros / 1_000_000);
+  const rows = page.locator(TAX_BREAKDOWN_ITEM_SELECTOR);
+  await expect(rows).toHaveCount(expectedRows.length);
+  for (const [index, [label, amount]] of expectedRows.entries()) {
+    await expect(
+      rows.nth(index).getByText(label, { exact: true }),
+    ).toBeVisible();
+    await expect(
+      rows.nth(index).getByText(formatAmount(amount), { exact: true }),
+    ).toBeVisible();
+  }
 };
 
 /**
@@ -307,13 +396,18 @@ const trackPricingRefreshRequests = async (page: Page, mockMode: boolean) => {
           const packageCards = await getPackageCards(page);
           await startPurchaseFlow(packageCards[0]);
 
+          const pricingPromise = waitForTaxPricing(page, "IT");
           await enterEmail(page, email);
           await enterCreditCardDetails(
             page,
             "4242 4242 4242 4242",
             ITALY_CUSTOMER_DETAILS,
           );
-          await confirmTaxCalculation(page);
+          const pricing = await pricingPromise;
+          if (!mockMode) {
+            await expectLiveTaxPricing(page, pricing, "Italy");
+            return;
+          }
           await expect(page.getByText(/VAT - Italy/)).toBeVisible();
 
           const lines = await page.locator(TAX_BREAKDOWN_ITEM_SELECTOR).all();
@@ -329,7 +423,7 @@ const trackPricingRefreshRequests = async (page: Page, mockMode: boolean) => {
 
       integrationTest(
         "Displays correct discount and tax-inclusive totals",
-        async ({ page, userId }) => {
+        async ({ page, userId, email }) => {
           if (mockMode) {
             await mockTaxCalculationRequest(
               page,
@@ -346,6 +440,23 @@ const trackPricingRefreshRequests = async (page: Page, mockMode: boolean) => {
 
           const packageCards = await getPackageCards(page);
           await startPurchaseFlow(packageCards[0]);
+
+          if (!mockMode) {
+            // Select the tax location explicitly instead of assuming the
+            // initial checkout pricing uses Spain's VAT.
+            const pricingPromise = waitForTaxPricing(page, "ES");
+            await enterEmail(page, email);
+            await enterCreditCardDetails(page, "4242 4242 4242 4242", {
+              countryCode: "ES",
+            });
+            await expectLiveTaxPricing(
+              page,
+              await pricingPromise,
+              "Spain",
+              TAX_TEST_DISCOUNT_CODE,
+            );
+            return;
+          }
 
           const pricingRows = page.locator(TAX_BREAKDOWN_ITEM_SELECTOR);
           await expect(pricingRows).toHaveCount(5);
