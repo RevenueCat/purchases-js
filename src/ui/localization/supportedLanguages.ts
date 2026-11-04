@@ -178,9 +178,13 @@ export enum LocalizationKeys {
   PaddleOrderSummaryDueOn = "paddle_order_summary.due_on",
 }
 
+export type PluralLocalizationKey =
+  `${LocalizationKeys}.${Intl.LDMLPluralRule}`;
+
 export const supportedLanguages: Record<
   string,
-  Record<LocalizationKeys, string>
+  Record<LocalizationKeys, string> &
+    Partial<Record<PluralLocalizationKey, string>>
 > = {
   en,
   es,
