@@ -9,6 +9,9 @@ const __dirname = dirname(__filename);
 
 export default defineConfig({
   envDir: resolve(__dirname, ".."),
+  // The Vega SDK's Hermes (React Native 0.72) fails to parse `yield of()`, which
+  // Metro emits for `await of()` when minification renames a function to `of`.
+  esbuild: { minifyIdentifiers: false },
   build: {
     outDir: resolve(__dirname, "dist"),
     emptyOutDir: true,
