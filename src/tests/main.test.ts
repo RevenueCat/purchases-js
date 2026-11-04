@@ -1110,6 +1110,7 @@ describe("Purchases.purchase()", () => {
     const resolve = vi.fn();
     const onFinished = purchases["createCheckoutOnFinishedHandler"](
       resolve,
+      vi.fn(),
       "test-app-user-id",
       createMonthlyPackageMock(),
     );
@@ -1161,6 +1162,7 @@ describe("Purchases.purchase()", () => {
     const resolve = vi.fn();
     const onFinished = purchases["createCheckoutOnFinishedHandler"](
       resolve,
+      vi.fn(),
       "test-app-user-id",
       createMonthlyPackageMock(),
     );
