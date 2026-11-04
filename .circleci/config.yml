@@ -31,12 +31,6 @@ parameters:
     default: ""
 
 commands:
-  copy-npm-rc:
-    steps:
-      - run:
-          name: Copy npmrc sample file to final location
-          command: cp .npmrc.SAMPLE .npmrc
-
   install-dependencies:
     steps:
       - revenuecat/install-mise-tools:
@@ -44,7 +38,6 @@ commands:
       - run:
           name: Configure pnpm store
           command: pnpm config set store-dir .pnpm-store
-      - copy-npm-rc
       - restore_cache:
           keys:
             - v1-pnpm-store-{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
@@ -126,10 +119,11 @@ jobs:
       - run:
           name: Pack
           command: pnpm pack && pnpm --dir vega pack
-      - copy-npm-rc
       - run:
           name: release
-          command: bundle exec fastlane release
+          command: |
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            bundle exec fastlane release
 
   deploy-demo:
     docker:
