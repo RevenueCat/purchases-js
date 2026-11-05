@@ -127,6 +127,22 @@ export class PurchaseFlowError extends Error {
   }
 }
 
+/**
+ * Whether a product-change `complete` error should end the flow on the error
+ * page instead of staying inline on the confirm page for a retry. A declined
+ * charge can't be retried with the same card, and a payment gateway error
+ * may already have failed the operation session.
+ */
+export function isTerminalProductChangeCompleteError(
+  error: PurchaseFlowError,
+): boolean {
+  const backendErrorCode = error.extra?.backendErrorCode;
+  return (
+    backendErrorCode === BackendErrorCode.BackendPaymentDeclined ||
+    backendErrorCode === BackendErrorCode.BackendPaymentGatewayGenericError
+  );
+}
+
 interface CheckoutStartParams {
   // Purchase identity
   appUserId: string;
