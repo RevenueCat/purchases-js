@@ -42,6 +42,8 @@ export class ErrorCodeUtils {
         return ErrorCode.PurchaseInvalidError;
       case BackendErrorCode.BackendAlreadySubscribedError:
         return ErrorCode.ProductAlreadyPurchasedError;
+      case BackendErrorCode.BackendPaymentDeclined:
+        return ErrorCode.PaymentPendingError;
       case BackendErrorCode.BackendEmptyAppUserId:
         return ErrorCode.InvalidAppUserIdError;
       case BackendErrorCode.BackendSubscriberNotFound:
@@ -142,6 +144,7 @@ export enum BackendErrorCode {
   BackendInvalidPaddleAPIKey = 7967,
   BackendQuickPurchaseUnavailable = 8172,
   BackendGatewaySetupErrorInvalidTaxOriginAddressDuringCheckout = 8174,
+  BackendPaymentDeclined = 8215,
 }
 
 /**

@@ -13,7 +13,11 @@ import {
   testApiKey,
   testUserId,
 } from "./base.purchases_test";
-import { ErrorCode, PurchasesError } from "../entities/errors";
+import {
+  BackendErrorCode,
+  ErrorCode,
+  PurchasesError,
+} from "../entities/errors";
 import { expectPromiseToError } from "./test-helpers";
 import { Backend } from "../networking/backend";
 import { Purchases, type PurchaseParams } from "../main";
@@ -22,6 +26,7 @@ import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
   PurchaseOperationHelper,
+  isTerminalProductChangeCompleteError,
 } from "../helpers/purchase-operation-helper";
 import type { IEventsTracker } from "../behavioural-events/events-tracker";
 import { subscriptionChangeImmediateWithTax } from "../stories/fixtures";
@@ -933,6 +938,54 @@ describe("product change checkout networking", () => {
         PurchaseFlowErrorCode.ErrorSettingUpPurchase,
         "No product change in progress",
       ),
+    );
+  });
+
+  test("helper completeProductChange surfaces a declined charge from complete", async () => {
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/customer/checkout/start",
+        async () => HttpResponse.json(startSuccessResponse, { status: 201 }),
+      ),
+      http.post(
+        "http://localhost:8000/rcbilling/v1/customer/checkout/rcbopsess_start/complete",
+        async () =>
+          HttpResponse.json(
+            {
+              code: 8215,
+              message:
+                "Cannot change subscription product because the payment was declined.",
+            },
+            { status: 422 },
+          ),
+      ),
+    );
+    const helper = new PurchaseOperationHelper(backend, eventsTrackerMock);
+    await helper.checkoutStart({
+      appUserId: testUserId,
+      productId: "annual",
+      purchaseOption,
+      presentedOfferingContext,
+      productChange: { subscriptionId: "subabc123" },
+      subscriberToken: SUBSCRIBER_TOKEN_1,
+    });
+
+    const error = await helper
+      .completeProductChange({ subscriberToken: SUBSCRIBER_TOKEN_1 })
+      .catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(PurchaseFlowError);
+    const flowError = error as PurchaseFlowError;
+    expect(flowError.errorCode).toBe(
+      PurchaseFlowErrorCode.ErrorChargingPayment,
+    );
+    expect(flowError.purchasesErrorCode).toBe(ErrorCode.PaymentPendingError);
+    expect(flowError.extra?.backendErrorCode).toBe(
+      BackendErrorCode.BackendPaymentDeclined,
+    );
+    expect(isTerminalProductChangeCompleteError(flowError)).toBe(true);
+    expect(PurchasesError.getForPurchasesFlowError(flowError).errorCode).toBe(
+      ErrorCode.PaymentPendingError,
     );
   });
 
