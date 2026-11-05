@@ -522,7 +522,54 @@ export class PurchaseOperationHelper {
       );
     }
 
-    return new Promise<OperationSessionSuccessfulResult>((resolve, reject) => {
+    const customerEmail = this.completedCustomerEmail;
+    const operationResponse =
+      await this.pollOperationSessionUntilSucceeded(operationSessionId);
+    const storeTransactionIdentifier =
+      operationResponse.operation.store_transaction_identifier;
+    const productIdentifier = operationResponse.operation.product_identifier;
+    const purchaseDate = operationResponse.operation.purchase_date
+      ? isNaN(Date.parse(operationResponse.operation.purchase_date))
+        ? null
+        : new Date(operationResponse.operation.purchase_date)
+      : null;
+    if (!storeTransactionIdentifier || !productIdentifier || !purchaseDate) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.UnknownError,
+        "Missing required fields in operation response.",
+      );
+    }
+    return {
+      redemptionInfo: toRedemptionInfo(operationResponse),
+      operationSessionId: operationSessionId,
+      storeTransactionIdentifier: storeTransactionIdentifier,
+      productIdentifier: productIdentifier,
+      purchaseDate: purchaseDate,
+      attributionMetadata: operationResponse.attribution_metadata ?? undefined,
+      customerEmail,
+    };
+  }
+
+  /**
+   * Waits for a product change to settle after {@link completeProductChange}.
+   * For immediate changes the backend accepts `complete` before the charge
+   * settles, so a declined card only shows up as a `failed` operation session.
+   */
+  async pollProductChangeForCompletion(): Promise<void> {
+    const operationSessionId = this.operationSessionId;
+    if (!operationSessionId) {
+      throw new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No product change in progress",
+      );
+    }
+    await this.pollOperationSessionUntilSucceeded(operationSessionId);
+  }
+
+  private pollOperationSessionUntilSucceeded(
+    operationSessionId: string,
+  ): Promise<CheckoutStatusResponse> {
+    return new Promise<CheckoutStatusResponse>((resolve, reject) => {
       const checkForOperationStatus = (checkCount = 1) => {
         if (checkCount > this.maxNumberAttempts) {
           this.clearPurchaseInProgress();
@@ -537,15 +584,6 @@ export class PurchaseOperationHelper {
         this.backend
           .getCheckoutStatus(operationSessionId)
           .then((operationResponse: CheckoutStatusResponse) => {
-            const storeTransactionIdentifier =
-              operationResponse.operation.store_transaction_identifier;
-            const productIdentifier =
-              operationResponse.operation.product_identifier;
-            const purchaseDate = operationResponse.operation.purchase_date
-              ? isNaN(Date.parse(operationResponse.operation.purchase_date))
-                ? null
-                : new Date(operationResponse.operation.purchase_date)
-              : null;
             switch (operationResponse.operation.status) {
               case CheckoutSessionStatus.Started:
               case CheckoutSessionStatus.InProgress:
@@ -554,34 +592,10 @@ export class PurchaseOperationHelper {
                   this.waitMSBetweenAttempts,
                 );
                 break;
-              case CheckoutSessionStatus.Succeeded: {
-                const customerEmail = this.completedCustomerEmail;
+              case CheckoutSessionStatus.Succeeded:
                 this.clearPurchaseInProgress();
-                if (
-                  !storeTransactionIdentifier ||
-                  !productIdentifier ||
-                  !purchaseDate
-                ) {
-                  reject(
-                    new PurchaseFlowError(
-                      PurchaseFlowErrorCode.UnknownError,
-                      "Missing required fields in operation response.",
-                    ),
-                  );
-                  return;
-                }
-                resolve({
-                  redemptionInfo: toRedemptionInfo(operationResponse),
-                  operationSessionId: operationSessionId,
-                  storeTransactionIdentifier: storeTransactionIdentifier,
-                  productIdentifier: productIdentifier,
-                  purchaseDate: purchaseDate,
-                  attributionMetadata:
-                    operationResponse.attribution_metadata ?? undefined,
-                  customerEmail,
-                });
+                resolve(operationResponse);
                 return;
-              }
               case CheckoutSessionStatus.Failed:
                 this.clearPurchaseInProgress();
                 handleCheckoutSessionFailed(

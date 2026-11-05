@@ -854,6 +854,88 @@ describe("product change checkout networking", () => {
     });
   });
 
+  const checkoutStatusUrl =
+    "http://localhost:8000/rcbilling/v1/checkout/rcbopsess_start";
+
+  const subscriptionChangeStatus = (
+    status: "started" | "in_progress" | "succeeded" | "failed",
+    error: { code: number; message: string } | null = null,
+  ) => ({
+    operation: {
+      status,
+      is_expired: false,
+      error,
+      operation_type: "subscription_change",
+    },
+  });
+
+  const startProductChange = async () => {
+    server.use(
+      http.post(
+        "http://localhost:8000/rcbilling/v1/customer/checkout/start",
+        async () => HttpResponse.json(startSuccessResponse, { status: 201 }),
+      ),
+    );
+    const helper = new PurchaseOperationHelper(backend, eventsTrackerMock);
+    await helper.checkoutStart({
+      appUserId: testUserId,
+      productId: "annual",
+      purchaseOption,
+      presentedOfferingContext,
+      productChange: { subscriptionId: "subabc123" },
+      subscriberToken: SUBSCRIBER_TOKEN_1,
+    });
+    return helper;
+  };
+
+  test("helper pollProductChangeForCompletion resolves on success without transaction fields", async () => {
+    server.use(
+      http.get(checkoutStatusUrl, () =>
+        HttpResponse.json(subscriptionChangeStatus("succeeded"), {
+          status: 200,
+        }),
+      ),
+    );
+    const helper = await startProductChange();
+
+    await expect(
+      helper.pollProductChangeForCompletion(),
+    ).resolves.toBeUndefined();
+  });
+
+  test("helper pollProductChangeForCompletion rejects when the charge is declined", async () => {
+    server.use(
+      http.get(checkoutStatusUrl, () =>
+        HttpResponse.json(
+          subscriptionChangeStatus("failed", {
+            code: 3,
+            message: "payment_charge_failed",
+          }),
+          { status: 200 },
+        ),
+      ),
+    );
+    const helper = await startProductChange();
+
+    await expect(helper.pollProductChangeForCompletion()).rejects.toThrow(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorChargingPayment,
+        "Payment charge failed",
+      ),
+    );
+  });
+
+  test("helper pollProductChangeForCompletion throws when no session was started", async () => {
+    const helper = new PurchaseOperationHelper(backend, eventsTrackerMock);
+
+    await expect(helper.pollProductChangeForCompletion()).rejects.toThrow(
+      new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+        "No product change in progress",
+      ),
+    );
+  });
+
   test("helper completeProductChange throws when no session was started", async () => {
     const helper = new PurchaseOperationHelper(backend, eventsTrackerMock);
 
