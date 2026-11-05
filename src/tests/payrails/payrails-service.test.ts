@@ -17,8 +17,11 @@ vi.mock("../../helpers/constants", async (importOriginal) => {
 });
 
 const gatewayParams: PayrailsGatewayParams = {
-  version: "1.0.0",
-  data: "encoded-client-init",
+  always_store_instrument: false,
+  init_payload: {
+    version: "1.0.0",
+    data: "encoded-client-init",
+  },
 };
 
 describe("isPayrailsCheckoutStartResponse", () => {
@@ -83,18 +86,18 @@ describe("PayrailsService", () => {
       onSessionExpired,
     });
 
-    expect(Payrails.init).toHaveBeenCalledWith(gatewayParams);
+    expect(Payrails.init).toHaveBeenCalledWith(gatewayParams.init_payload);
     expect(createDropin).toHaveBeenCalledWith({
       paymentMethodsConfiguration: {
         cards: {
           showSingleExpiryDateField: true,
-          showStoreInstrumentCheckbox: true,
+          alwaysStoreInstrument: false,
         },
         googlePay: {
-          showStoreInstrumentCheckbox: true,
+          alwaysStoreInstrument: false,
         },
         applePay: {
-          showStoreInstrumentCheckbox: true,
+          alwaysStoreInstrument: false,
         },
       },
     });

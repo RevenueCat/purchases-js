@@ -2,7 +2,7 @@
   "name": "@revenuecat/purchases-js",
   "description": "Web subscriptions made easy. Powered by RevenueCat",
   "private": false,
-  "version": "1.73.1",
+  "version": "1.74.0",
   "type": "module",
   "files": [
     "dist"
@@ -63,8 +63,8 @@
     "@eslint/js": "^9.16.0",
     "@microsoft/api-extractor": "^7.48.0",
     "@paddle/paddle-js": "^1.6.4",
-    "@payrails/web-sdk": "^6.8.0",
-    "@revenuecat/purchases-ui-js": "4.17.2",
+    "@payrails/web-sdk": "^6.9.0",
+    "@revenuecat/purchases-ui-js": "4.19.2",
     "@storybook/addon-essentials": "^8.6.15",
     "@storybook/addon-interactions": "^8.6.15",
     "@storybook/addon-links": "^8.6.15",
@@ -114,9 +114,5 @@
       "eslint --fix --no-warn-ignored"
     ]
   },
-  "engine": {
-    "node": "^24.11",
-    "pnpm": "^10.0.0"
-  },
-  "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b"
+  "packageManager": "pnpm@12.15.0"
 }

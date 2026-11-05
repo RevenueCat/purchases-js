@@ -671,8 +671,11 @@ describe("PurchasesUI", () => {
     } as unknown as Awaited<ReturnType<typeof Payrails.init>>);
 
     const payrailsGatewayParams = {
-      version: "1.0.0",
-      data: "encoded-client-init",
+      always_store_instrument: true,
+      init_payload: {
+        version: "1.0.0",
+        data: "encoded-client-init",
+      },
     };
     vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue({
       operation_session_id: "rcbopsess_payrails",
@@ -688,7 +691,9 @@ describe("PurchasesUI", () => {
     render(PurchasesUI, { props: basicProps });
 
     await waitFor(() => {
-      expect(Payrails.init).toHaveBeenCalledWith(payrailsGatewayParams);
+      expect(Payrails.init).toHaveBeenCalledWith(
+        payrailsGatewayParams.init_payload,
+      );
     });
     expect(dropin.mount).toHaveBeenCalledWith("#rc-payrails-dropin");
     expect(screen.getByTestId("payrails-dropin")).toBeInTheDocument();
