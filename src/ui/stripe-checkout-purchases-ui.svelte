@@ -10,6 +10,7 @@
   import {
     PurchaseFlowError,
     PurchaseFlowErrorCode,
+    isTerminalProductChangeCompleteError,
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
   import type {
@@ -155,7 +156,11 @@
               "Failed to confirm product change.",
               e instanceof Error ? e.message : String(e),
             );
-      productChangeConfirmError = error.message;
+      if (isTerminalProductChangeCompleteError(error)) {
+        handleError(error);
+      } else {
+        productChangeConfirmError = error.message;
+      }
     } finally {
       isConfirmingProductChange = false;
     }
