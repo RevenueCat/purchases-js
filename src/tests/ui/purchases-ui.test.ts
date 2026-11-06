@@ -20,6 +20,7 @@ import {
   checkoutPricingResponse,
   checkoutStartResponse,
   rcPackage,
+  subscriptionChangeImmediateWithTax,
   subscriptionOption,
 } from "../../stories/fixtures";
 import type { Purchases } from "../../main";
@@ -168,6 +169,7 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
     Promise.resolve({ redemptionInfo: null, operationSessionId: "op-id" }),
   checkoutRefreshPricing: async () =>
     Promise.resolve(createCheckoutPricingResponse(null)),
+  pollProductChangeForCompletion: async () => Promise.resolve(),
 } as unknown as PurchaseOperationHelper;
 
 const purchasesMock: Purchases = {
@@ -703,6 +705,123 @@ describe("PurchasesUI", () => {
 
     await waitFor(() => {
       expect(pollSpy).toHaveBeenCalled();
+    });
+  });
+  describe("immediate product change confirmation", () => {
+    const immediateResult = {
+      operationSessionId: "rcbopsess_story_immediate_tax",
+      changeType: "immediate" as const,
+      newProductId: "premium_yearly",
+    };
+
+    const renderImmediateChange = (
+      helperOverrides: Partial<Record<keyof PurchaseOperationHelper, unknown>>,
+      extraProps: Record<string, unknown> = {},
+    ) => {
+      vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue(
+        subscriptionChangeImmediateWithTax,
+      );
+      render(PurchasesUI, {
+        props: {
+          ...basicProps,
+          purchaseOperationHelper: {
+            ...purchaseOperationHelperMock,
+            ...helperOverrides,
+          } as unknown as PurchaseOperationHelper,
+          productChange: { subscriberToken: "subscriber-token" },
+          ...extraProps,
+        },
+      });
+    };
+
+    const confirm = async () => {
+      await fireEvent.click(
+        await screen.findByRole("button", { name: /Confirm upgrade/ }),
+      );
+    };
+
+    test("waits for the charge to settle before reporting the change", async () => {
+      let settle: () => void = () => {};
+      const pollProductChangeForCompletion = vi.fn(
+        () => new Promise<void>((resolve) => (settle = resolve)),
+      );
+      const onProductChangeFinished = vi.fn();
+      renderImmediateChange(
+        {
+          completeProductChange: vi.fn().mockResolvedValue(immediateResult),
+          pollProductChangeForCompletion,
+        },
+        { onProductChangeFinished },
+      );
+
+      await confirm();
+
+      await waitFor(() => {
+        expect(pollProductChangeForCompletion).toHaveBeenCalledTimes(1);
+      });
+      expect(onProductChangeFinished).not.toHaveBeenCalled();
+
+      settle();
+
+      await waitFor(() => {
+        expect(onProductChangeFinished).toHaveBeenCalledWith(immediateResult);
+      });
+    });
+
+    test("shows the error page instead of success when the charge is declined", async () => {
+      const declined = new PurchaseFlowError(
+        PurchaseFlowErrorCode.ErrorChargingPayment,
+        "Payment charge failed",
+      );
+      const onProductChangeFinished = vi.fn();
+      const onError = vi.fn();
+      renderImmediateChange(
+        {
+          completeProductChange: vi.fn().mockResolvedValue(immediateResult),
+          pollProductChangeForCompletion: vi.fn().mockRejectedValue(declined),
+        },
+        { onProductChangeFinished, onError },
+      );
+
+      await confirm();
+
+      expect(await screen.findByText(/Payment failed/)).toBeInTheDocument();
+      expect(onProductChangeFinished).not.toHaveBeenCalled();
+
+      await fireEvent.click(
+        screen.getByRole("button", { name: /Try again|Close/ }),
+      );
+      expect(onError).toHaveBeenCalledWith(declined);
+    });
+
+    test("keeps complete errors inline on the confirm page", async () => {
+      const pollProductChangeForCompletion = vi.fn();
+      const onProductChangeFinished = vi.fn();
+      renderImmediateChange(
+        {
+          completeProductChange: vi
+            .fn()
+            .mockRejectedValue(
+              new PurchaseFlowError(
+                PurchaseFlowErrorCode.NetworkError,
+                "Network unavailable",
+              ),
+            ),
+          pollProductChangeForCompletion,
+        },
+        { onProductChangeFinished },
+      );
+
+      await confirm();
+
+      expect(
+        await screen.findByText("Network unavailable"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Confirm upgrade/ }),
+      ).toBeInTheDocument();
+      expect(pollProductChangeForCompletion).not.toHaveBeenCalled();
+      expect(onProductChangeFinished).not.toHaveBeenCalled();
     });
   });
 });

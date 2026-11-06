@@ -137,6 +137,14 @@
       const result = await purchaseOperationHelper.completeProductChange({
         subscriberToken: productChange.subscriberToken,
       });
+      // `complete` only starts an immediate change: the charge settles
+      // afterwards and can still be declined.
+      try {
+        await purchaseOperationHelper.pollProductChangeForCompletion();
+      } catch (error) {
+        handleError(error as PurchaseFlowError);
+        return;
+      }
       onProductChangeFinished?.(result);
     } catch (e) {
       const error =
