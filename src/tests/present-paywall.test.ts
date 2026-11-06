@@ -6,7 +6,10 @@ import type { ProductResponse } from "../networking/responses/products-response"
 import type { PurchaseResult } from "../entities/purchase-result";
 import type { PaywallListener } from "../entities/paywall-listener";
 import type { PaywallInteractionEvent } from "../entities/paywall-interaction-event";
-import type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
+import type {
+  ComponentInteractionData,
+  PaywallData,
+} from "@revenuecat/purchases-ui-js";
 import { ErrorCode, Purchases } from "../main";
 import { configurePurchases, server } from "./base.purchases_test";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
@@ -506,4 +509,49 @@ describe("Purchases.presentPaywall() paywall context", () => {
     expect(mountedProps?.selectedLocale).toBe("pt_BR");
     languageSpy.mockRestore();
   });
+
+  const createOfferingWithLocalesInOrder = (localeKeys: string[]): Offering => {
+    const offering = createOfferingWithPaywall();
+    const componentsLocalizations: PaywallData["components_localizations"] = {};
+    localeKeys.forEach((key) => {
+      componentsLocalizations[key] = {};
+    });
+    return {
+      ...offering,
+      paywallComponents: offering.paywallComponents && {
+        ...offering.paywallComponents,
+        components_localizations: componentsLocalizations,
+      },
+    };
+  };
+
+  test.each([
+    ["zh-TW", "zh_Hant", ["en_US", "zh_Hans", "zh_Hant"]],
+    ["zh-HK", "zh_Hant", ["en_US", "zh_Hans", "zh_Hant"]],
+    ["zh-MO", "zh_Hant", ["en_US", "zh_Hans", "zh_Hant"]],
+    ["zh-Hant", "zh_Hant", ["en_US", "zh_Hans", "zh_Hant"]],
+    ["zh-CN", "zh_Hans", ["en_US", "zh_Hans", "zh_Hant"]],
+    ["zh-Hans-HK", "zh_Hans", ["en_US", "zh_Hans", "zh_Hant"]],
+    ["zh-TW", "zh_Hant", ["en_US", "zh_Hant", "zh_Hans"]],
+    ["zh-CN", "zh_Hans", ["en_US", "zh_Hant", "zh_Hans"]],
+    ["zh-SG", "zh_Hans", ["en_US", "zh_Hant", "zh_Hans"]],
+    ["zh", "zh_Hans", ["en_US", "zh_Hant", "zh_Hans"]],
+    ["zh-Hans", "zh_Hans", ["en_US", "zh_Hant", "zh_Hans"]],
+    ["zh-Hans-HK", "zh_Hans", ["en_US", "zh_Hant", "zh_Hans"]],
+    ["zh-TW", "zh_Hans", ["en_US", "zh_Hans"]],
+    ["zh-CN", "zh_Hant", ["en_US", "zh_Hant"]],
+  ])(
+    "resolves selectedLocale %s to the paywall locale %s when the paywall has %j",
+    async (selectedLocale, expected, localeKeys) => {
+      const purchases = configurePurchases();
+
+      void purchases.presentPaywall({
+        offering: createOfferingWithLocalesInOrder(localeKeys),
+        selectedLocale,
+      });
+
+      await vi.waitFor(() => expect(mountedProps).toBeDefined());
+      expect(mountedProps?.selectedLocale).toBe(expected);
+    },
+  );
 });
