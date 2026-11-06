@@ -310,6 +310,44 @@ describe("discount variables", () => {
     });
   });
 
+  test("a zero-price forever discount has no offer term", () => {
+    const variables = parseOfferingIntoVariables(
+      toOffering([
+        {
+          packageIdentifier: "$rc_monthly",
+          identifier: "monthly",
+          title: "Monthly",
+          period: MONTH,
+          basePriceMicros: 10_000_000,
+          currency: "USD",
+        },
+        {
+          packageIdentifier: "$rc_annual",
+          identifier: "annual",
+          title: "Annual",
+          period: YEAR,
+          basePriceMicros: 60_000_000,
+          currency: "USD",
+          discount: {
+            ...discountPhaseForever,
+            price: toPrice(0, "USD"),
+            percentage: 100,
+          },
+        },
+      ]),
+      enTranslator,
+    );
+
+    expect(discountVariables(variables.$rc_annual)).toEqual({
+      ...EMPTY,
+      absolute: "$60.00",
+      offerRelative: "100%",
+      offerAbsolute: "$60.00",
+      fullPeriodRelative: "100%",
+      fullPeriodAbsolute: "$120.00",
+    });
+  });
+
   test("non-subscription products have no discount variables", () => {
     const variables = parseOfferingIntoVariables(
       toNonSubscriptionOffering([

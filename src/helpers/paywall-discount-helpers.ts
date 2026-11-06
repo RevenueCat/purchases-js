@@ -169,15 +169,17 @@ function offerTermSavings(
   segments: OfferSegment[],
   mostExpensivePricePerMonthMicros: number,
 ): DiscountSavings | null {
-  const paidSegment = segments.find((segment) => segment.priceMicros > 0);
+  const offerSegment = segments.find(
+    (segment) => segment.cycles === null || segment.priceMicros > 0,
+  );
   let months = periodInMonths(period);
   let cost = price.amountMicros;
-  if (paidSegment !== undefined) {
-    if (paidSegment.cycles === null) {
+  if (offerSegment !== undefined) {
+    if (offerSegment.cycles === null) {
       return null;
     }
-    months = periodInMonths(paidSegment.period) * paidSegment.cycles;
-    cost = paidSegment.priceMicros * paidSegment.cycles;
+    months = periodInMonths(offerSegment.period) * offerSegment.cycles;
+    cost = offerSegment.priceMicros * offerSegment.cycles;
   }
 
   return createSavings(
