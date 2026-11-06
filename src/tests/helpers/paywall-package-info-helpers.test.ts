@@ -3,6 +3,9 @@ import type { PackageInfo } from "@revenuecat/purchases-ui-js";
 import { parseOfferingIntoPackageInfoPerPackage } from "../../helpers/paywall-package-info-helpers";
 import type { Offering } from "../../entities/offerings";
 import { toOffering, toNonSubscriptionOffering } from "../utils/fixtures-utils";
+import { PeriodUnit } from "../../helpers/duration-helper";
+import { englishLocale } from "../../ui/localization/constants";
+import { Translator } from "../../ui/localization/translator";
 import {
   discountPhaseOneTime,
   trialPhaseP2W,
@@ -315,5 +318,81 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
     expect(result.$rc_monthly?.webCheckoutURL).toBe(
       "https://checkout.example.com/package",
     );
+  });
+});
+
+describe("discountVariablesByMostExpensivePricePerMonth", () => {
+  const translator = new Translator({}, englishLocale);
+  const offering = toOffering([
+    {
+      packageIdentifier: "$rc_monthly",
+      identifier: "monthly",
+      title: "Monthly",
+      period: { unit: PeriodUnit.Month, number: 1 },
+      basePriceMicros: 10_000_000,
+      currency: "USD",
+    },
+    {
+      packageIdentifier: "$rc_annual",
+      identifier: "annual",
+      title: "Annual",
+      period: { unit: PeriodUnit.Year, number: 1 },
+      basePriceMicros: 60_000_000,
+      currency: "USD",
+    },
+    {
+      packageIdentifier: "premium_monthly",
+      identifier: "premium_monthly",
+      title: "Premium Monthly",
+      period: { unit: PeriodUnit.Month, number: 1 },
+      basePriceMicros: 100_000_000,
+      currency: "USD",
+    },
+  ]);
+
+  test("measures each package against every price that can be its tab's most expensive", () => {
+    const result = parseOfferingIntoPackageInfoPerPackage(offering, translator);
+
+    const savings = (relative: string, absolute: string) => ({
+      "product.absolute_discount": absolute,
+      "product.relative_discount_with_offer": relative,
+      "product.absolute_discount_with_offer": absolute,
+      "product.relative_discount_with_offer_full_period": relative,
+      "product.absolute_discount_with_offer_full_period": absolute,
+    });
+    expect(
+      result.$rc_annual?.discountVariablesByMostExpensivePricePerMonth,
+    ).toEqual({
+      "5000000": savings("", ""),
+      "10000000": savings("50%", "$60.00"),
+      "100000000": savings("95%", "$1,140.00"),
+    });
+    expect(
+      result.$rc_monthly?.discountVariablesByMostExpensivePricePerMonth,
+    ).toEqual({
+      "10000000": savings("", ""),
+      "100000000": savings("90%", "$90.00"),
+    });
+    expect(
+      result.premium_monthly?.discountVariablesByMostExpensivePricePerMonth,
+    ).toEqual({ "100000000": savings("", "") });
+  });
+
+  test("keys match the monthly prices ui-js compares", () => {
+    const result = parseOfferingIntoPackageInfoPerPackage(offering, translator);
+
+    for (const info of Object.values(result)) {
+      expect(
+        Object.keys(info.discountVariablesByMostExpensivePricePerMonth ?? {}),
+      ).toContain(String(info.pricePerMonthMicros));
+    }
+  });
+
+  test("is left out without a translator", () => {
+    const result = parseOfferingIntoPackageInfoPerPackage(offering);
+
+    expect(
+      result.$rc_annual?.discountVariablesByMostExpensivePricePerMonth,
+    ).toBeUndefined();
   });
 });
