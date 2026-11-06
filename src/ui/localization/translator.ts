@@ -173,7 +173,30 @@ export class Translator {
 
   private getLocaleInstance(locale: string): LocaleTranslations | undefined {
     const potentialLocaleCode = this.getLanguageCodeString(locale);
-    return this.locales[locale] || this.locales[potentialLocaleCode];
+    return (
+      this.locales[locale] ||
+      this.locales[potentialLocaleCode] ||
+      this.getChineseLocaleInstance(locale)
+    );
+  }
+
+  // Chinese is keyed by script (zh_Hans, zh_Hant), so browser tags such as
+  // "zh-TW" or "zh-CN" have no language-only entry to fall back to.
+  private getChineseLocaleInstance(
+    locale: string,
+  ): LocaleTranslations | undefined {
+    let maximized: Intl.Locale;
+    try {
+      maximized = new Intl.Locale(locale.replace(/_/g, "-")).maximize();
+    } catch {
+      return undefined;
+    }
+    if (maximized.language !== "zh") {
+      return undefined;
+    }
+    return maximized.script === "Hant"
+      ? this.locales.zh_Hant
+      : this.locales.zh_Hans;
   }
 
   public translate(
