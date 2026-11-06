@@ -4,11 +4,12 @@
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { Translator } from "../localization/translator";
   import { getContext } from "svelte";
+  import { translatorContextKey } from "../localization/constants";
   import {
-    translatorContextKey,
-    englishLocale,
-  } from "../localization/constants";
-  import { getTranslatedPeriodLength } from "../../helpers/price-labels";
+    getPeriodDurationLabel,
+    getTranslatedPeriodLength,
+  } from "../../helpers/price-labels";
+  import { getOfferDuration } from "../../helpers/paywall-offer-helpers";
   import { type PriceBreakdown } from "../ui-types";
   import {
     type PricingPhase,
@@ -40,28 +41,19 @@
     !!discountPhase || (priceBreakdown.appliedDiscounts?.length ?? 0) > 0,
   );
 
-  const promoPriceDurationText = $derived.by(() => {
-    if (!hasLimitedTimePromotion || !introPricePhase?.period) return "";
-
-    const totalPeriods =
-      introPricePhase.period.number * introPricePhase?.cycleCount;
-    const unit = introPricePhase.period.unit;
-
-    if (totalPeriods == null || unit == null) return "";
-
-    // Specifically for English locale, instead of showing "First 1 week for..." we show "First week for..."
-    // This is a customer paper cut that we want to fix, but we run into limitations of the templating translation system.
-    // In order to avoid impact to other locales, we only apply this to the English locale.
-    if (
-      totalPeriods === 1 &&
-      !hasTrial &&
-      $translator.selectedLocale === englishLocale
-    ) {
-      return $translator.translatePeriodUnit(unit) || "";
-    }
-
-    return $translator.translatePeriod(totalPeriods, unit) || "";
-  });
+  const promoPriceDurationText = $derived(
+    hasLimitedTimePromotion
+      ? getPeriodDurationLabel(
+          getOfferDuration(introPricePhase!),
+          $translator,
+          {
+            // "First week for $1.49", not "First 1 week for $1.49". Skipped when
+            // there is a trial, where the copy is "Then 1 week for $1.49".
+            collapseSingularInEnglish: !hasTrial,
+          },
+        )
+      : "",
+  );
 
   const promoFrequencyText = $derived.by(() => {
     if (!introPricePhase?.period) return "";
