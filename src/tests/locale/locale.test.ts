@@ -247,6 +247,34 @@ describe("The Translator class", () => {
       simplifiedTranslator.translateDate(new Date()),
     ).not.toThrowError();
   });
+
+  test.each([
+    ["zh_Hans", "1 个月", "3个月", "月", "月"],
+    ["zh_Hant", "1 個月", "3個月", "月", "月"],
+  ])(
+    "should write months in %s as a duration (%s, %s) and as a unit after a price (%s, %s)",
+    (locale, oneMonth, threeMonthsShort, unit, unitShort) => {
+      const translator = new Translator({}, locale);
+      expect(translator.translatePeriod(1, PeriodUnit.Month)).toBe(oneMonth);
+      expect(
+        translator.translatePeriod(3, PeriodUnit.Month, {
+          noWhitespace: true,
+          short: true,
+        }),
+      ).toBe(threeMonthsShort);
+      expect(
+        translator.translatePeriodUnit(PeriodUnit.Month, {
+          noWhitespace: true,
+        }),
+      ).toBe(unit);
+      expect(
+        translator.translatePeriodUnit(PeriodUnit.Month, {
+          noWhitespace: true,
+          short: true,
+        }),
+      ).toBe(unitShort);
+    },
+  );
 });
 
 describe("The supportedLanguages", () => {
