@@ -29,6 +29,7 @@ import {
   PurchaseFlowErrorCode,
   type PurchaseOperationHelper,
 } from "../../helpers/purchase-operation-helper";
+import { BackendErrorCode } from "../../entities/errors";
 import { createEventsTrackerMock } from "../mocks/events-tracker-mock-provider";
 import type { CheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 import type { CheckoutPricingResponse } from "../../networking/responses/checkout-pricing-response";
@@ -793,6 +794,46 @@ describe("PurchasesUI", () => {
       );
       expect(onError).toHaveBeenCalledWith(declined);
     });
+
+    test.each([
+      ["a declined charge", BackendErrorCode.BackendPaymentDeclined],
+      [
+        "a payment gateway error",
+        BackendErrorCode.BackendPaymentGatewayGenericError,
+      ],
+    ])(
+      "shows the error page when complete returns %s",
+      async (_, backendErrorCode) => {
+        const completeError = new PurchaseFlowError(
+          PurchaseFlowErrorCode.ErrorChargingPayment,
+          "Cannot change subscription product because the payment was declined.",
+          null,
+          undefined,
+          { backendErrorCode },
+        );
+        const pollProductChangeForCompletion = vi.fn();
+        const onProductChangeFinished = vi.fn();
+        const onError = vi.fn();
+        renderImmediateChange(
+          {
+            completeProductChange: vi.fn().mockRejectedValue(completeError),
+            pollProductChangeForCompletion,
+          },
+          { onProductChangeFinished, onError },
+        );
+
+        await confirm();
+
+        const dismissButton = await screen.findByRole("button", {
+          name: /Try again|Close/,
+        });
+        expect(pollProductChangeForCompletion).not.toHaveBeenCalled();
+        expect(onProductChangeFinished).not.toHaveBeenCalled();
+
+        await fireEvent.click(dismissButton);
+        expect(onError).toHaveBeenCalledWith(completeError);
+      },
+    );
 
     test("keeps complete errors inline on the confirm page", async () => {
       const pollProductChangeForCompletion = vi.fn();
