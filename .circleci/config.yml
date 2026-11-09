@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  revenuecat: revenuecat/sdks-common-config@4.7.1
+  revenuecat: revenuecat/sdks-common-config@4.8.0
   aws-cli: circleci/aws-cli@4.1.3
 
 aliases:
@@ -327,6 +327,7 @@ workflows:
             equal: [ dependency-update, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/danger:
+          context: danger-bot
           ruby_version: "3.3.0"
           filters:
             branches:
@@ -339,6 +340,7 @@ workflows:
         - equal: [ "release-train", << pipeline.schedule.name >> ]
     jobs:
       - revenuecat/automatic-bump:
+          context: github-bot-public
           ruby_version: "3.3.0"
 
   manual-trigger-bump:
@@ -346,6 +348,7 @@ workflows:
       equal: [ bump, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/automatic-bump:
+          context: github-bot-public
           ruby_version: "3.3.0"
 
   update-error-codes:
@@ -353,6 +356,7 @@ workflows:
       equal: [ update_error_codes, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/update-error-codes:
+          context: github-bot-public
           platform: js
           outputs: "error-codes.ts:src/generated/error-codes.ts"
           commit_paths: "src/generated/error-codes.ts,api-report,vega/api-report"
@@ -374,6 +378,7 @@ workflows:
         - equal: [ dependency-update, << pipeline.parameters.action >> ]
     jobs:
       - dependency-update:
+          context: github-bot-public
           version: << pipeline.parameters.version >>
 
   test-deploy:
@@ -399,6 +404,7 @@ workflows:
           type: approval
           <<: *release-branches
       - revenuecat/tag-current-branch:
+          context: github-bot-public
           ruby_version: "3.3.0"
           requires:
             - wait-for-pr-approval
@@ -407,13 +413,16 @@ workflows:
             - build-vega-purchase-tester
           <<: *release-branches
       - make-release:
-          context: npm-publishing
+          context:
+            - npm-publishing
+            - github-bot-public
           <<: *release-tags
       - docs-deploy:
           <<: *release-tags
           requires:
             - make-release
       - revenuecat/merge-release-pr:
+          context: github-bot-public
           repo_name: purchases-js
           ruby_version: "3.3.0"
           requires:
