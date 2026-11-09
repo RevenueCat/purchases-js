@@ -5,6 +5,8 @@ import { PayrailsService } from "../../payrails/payrails-service";
 import { isPayrailsCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 import type { PayrailsGatewayParams } from "../../networking/responses/payrails-gateway-params";
 import type * as SdkConstants from "../../helpers/constants";
+import { DEFAULT_BRANDING_APPEARANCE } from "../../entities/branding";
+import { toPayrailsDropinAppearance } from "../../ui/theme/payrails-dropin";
 
 vi.mock("@payrails/web-sdk", () => ({
   Payrails: {
@@ -79,7 +81,7 @@ describe("PayrailsService", () => {
     const onPending = vi.fn();
     const onSessionExpired = vi.fn();
 
-    await service.mountDropin(gatewayParams, {
+    await service.mountDropin(gatewayParams, DEFAULT_BRANDING_APPEARANCE, {
       onSuccess,
       onFailed,
       onPending,
@@ -88,6 +90,7 @@ describe("PayrailsService", () => {
 
     expect(Payrails.init).toHaveBeenCalledWith(gatewayParams.init_payload);
     expect(createDropin).toHaveBeenCalledWith({
+      appearance: toPayrailsDropinAppearance(DEFAULT_BRANDING_APPEARANCE),
       paymentMethodsConfiguration: {
         cards: {
           showSingleExpiryDateField: true,
@@ -130,7 +133,7 @@ describe("PayrailsService", () => {
     );
 
     const service = new PayrailsService();
-    const mounting = service.mountDropin(gatewayParams, {
+    const mounting = service.mountDropin(gatewayParams, null, {
       onSuccess: vi.fn(),
       onFailed: vi.fn(),
       onPending: vi.fn(),
@@ -148,7 +151,7 @@ describe("PayrailsService", () => {
 
   test("unmounts the drop-in and unsubscribes its events", async () => {
     const service = new PayrailsService();
-    await service.mountDropin(gatewayParams, {
+    await service.mountDropin(gatewayParams, null, {
       onSuccess: vi.fn(),
       onFailed: vi.fn(),
       onPending: vi.fn(),

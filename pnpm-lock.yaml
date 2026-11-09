@@ -176,8 +176,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       '@payrails/web-sdk':
-        specifier: ^6.9.0
-        version: 6.9.0
+        specifier: ^6.10.1-rc.0
+        version: 6.10.1-rc.0
       '@revenuecat/purchases-ui-js':
         specifier: 4.19.2
         version: 4.19.2(svelte@5.46.4)
@@ -1521,8 +1521,8 @@ packages:
   '@paddle/paddle-js@1.6.4':
     resolution: {integrity: sha512-ncfnS6I8mCX6krZ3Sgz2iAYivGmhdI81yt9mT6prtPj4Ipd9J3M12LCJRUFL4FB7BYeeuV04c33RSEnbZUBCaA==}
 
-  '@payrails/web-sdk@6.9.0':
-    resolution: {integrity: sha512-VSI693Ec41rRltiOukcs5kVYDY3lH3KRdbXyEUOwJ6qhYeNRlhNtrqRDmwSIbGyBwo0LSj+HpQ1IvZlbNbAWWA==}
+  '@payrails/web-sdk@6.10.1-rc.0':
+    resolution: {integrity: sha512-G5XVLmVPsow/8oPBA1sYOLg7Gp3JY3NZ+0u7AicEGhBu0Bb40PLhn0gVKN8OUafFsRcjUpmTfdIJ/J/AaS0fSg==}
 
   '@pkgr/core@0.1.1':
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
@@ -7687,7 +7687,7 @@ snapshots:
 
   '@paddle/paddle-js@1.6.4': {}
 
-  '@payrails/web-sdk@6.9.0': {}
+  '@payrails/web-sdk@6.10.1-rc.0': {}
 
   '@pkgr/core@0.1.1': {}
 
