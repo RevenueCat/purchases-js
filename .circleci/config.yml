@@ -327,6 +327,7 @@ workflows:
             equal: [ dependency-update, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/danger:
+          context: danger-bot
           ruby_version: "3.3.0"
           filters:
             branches:
