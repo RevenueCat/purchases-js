@@ -1,2 +1,15 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/pnpm-workspace.json
+
 packages:
   - vega
+
+allowBuilds:
+  esbuild: false
+  msw: false
+  svelte-preprocess: false
+
+engineStrict: true
+
+minimumReleaseAge: 1440 # 1 day
+minimumReleaseAgeExclude:
+  - "@revenuecat/*"

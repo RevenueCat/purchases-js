@@ -120,11 +120,11 @@ pnpm run pack-build       # Build + npm pack
 
 ## Constraints / Support Policy
 
-| Requirement | Version          |
-| ----------- | ---------------- |
-| Node.js     | ^22.18 or ^24.11 |
-| pnpm        | 10.23.0          |
-| TypeScript  | 5.7.2            |
+| Requirement | Version                               |
+| ----------- | ------------------------------------- |
+| Node.js     | All supported (non EoL) Node versions |
+| pnpm        | See `package.json > packageManager`   |
+| TypeScript  | 5.7.2                                 |
 
 ## Testing
 
