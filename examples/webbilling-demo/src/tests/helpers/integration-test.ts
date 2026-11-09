@@ -17,54 +17,10 @@ export const SKIP_STRIPE_TESTS_ON_CAPTCHA =
   process.env.VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA === "true" ||
   process.env.VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA === "1";
 
-// Live discount+tax totals drifted from $7.43 after
-// VITE_SKIP_TAX_REAL_TESTS_UNTIL=2026-08-30 expired. Repo floor so an
-// expired CircleCI project env cannot re-enable the real suite.
-const REPO_SKIP_TAX_REAL_TESTS_UNTIL = "2026-11-16";
-
-export const SKIP_TAX_REAL_TESTS = (() => {
-  const envDate = process.env.VITE_SKIP_TAX_REAL_TESTS_UNTIL;
-  const skipUntilDate =
-    envDate &&
-    /^\d{4}-\d{2}-\d{2}$/.test(envDate) &&
-    envDate > REPO_SKIP_TAX_REAL_TESTS_UNTIL
-      ? envDate
-      : REPO_SKIP_TAX_REAL_TESTS_UNTIL;
-  console.log("skipUntilDate", skipUntilDate.split("-").join(" "));
-  try {
-    // Validate the format is yyyy-mm-dd
-    const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateFormatRegex.test(skipUntilDate)) {
-      console.error(
-        "Invalid date format for VITE_SKIP_TAX_REAL_TESTS_UNTIL. Expected format is 'yyyy-mm-dd'",
-      );
-      return false;
-    }
-    const skipDate = new Date(skipUntilDate);
-    if (isNaN(skipDate.getTime())) {
-      console.error(
-        "Invalid date format for VITE_SKIP_TAX_REAL_TESTS_UNTIL. Expecting 'yyyy-mm-dd'",
-      );
-      return false;
-    }
-
-    // Get current date normalized to midnight UTC
-    const now = new Date();
-    const currentDate = new Date(
-      Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()),
-    );
-
-    // Normalize skip date to midnight UTC to ensure consistent comparison
-    const normalizedSkipDate = new Date(
-      Date.UTC(skipDate.getFullYear(), skipDate.getMonth(), skipDate.getDate()),
-    );
-
-    return currentDate < normalizedSkipDate;
-  } catch (error) {
-    console.error("Error parsing VITE_SKIP_TAX_REAL_TESTS_UNTIL:", error);
-    return false;
-  }
-})();
+// Live Stripe Tax requests consume a limited test quota. Run them manually
+// with an explicit opt-in instead of enabling them in normal E2E runs.
+export const SKIP_TAX_REAL_TESTS =
+  process.env.VITE_RUN_TAX_REAL_TESTS !== "true";
 
 interface TestFixtures {
   userId: string;
