@@ -573,6 +573,7 @@ class Purchases_2 {
     /* Excluded from this release type: _platformInfo */
     /* Excluded from this release type: inMemoryCache */
     /* Excluded from this release type: billingWrapper */
+    /* Excluded from this release type: iamSessionManager */
     /* Excluded from this release type: offeringsRequests */
     /* Excluded from this release type: cachedCurrentOffering */
     /* Excluded from this release type: customWebCheckoutEnabled */

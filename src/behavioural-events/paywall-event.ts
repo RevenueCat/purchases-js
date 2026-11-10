@@ -270,6 +270,13 @@ export class PaywallEvent {
     this.data = data;
   }
 
+  /** Fills in the user of an event queued before the user was known. */
+  public assignAppUserIdIfMissing(appUserId: string): void {
+    if (this.data.appUserId === "") {
+      this.data.appUserId = appUserId;
+    }
+  }
+
   public toJSON(): PaywallEventPayload {
     const commonPayload = toCommonPayload(this.data, this.id, this.timestamp);
 

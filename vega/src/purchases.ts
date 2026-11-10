@@ -1,5 +1,8 @@
 import { Purchases as CorePurchases } from "../../src/main";
-import type { PurchasesConfig } from "../../src/entities/purchases-config";
+import type {
+  IamPurchasesConfig,
+  PurchasesConfig,
+} from "../../src/entities/purchases-config";
 import type { HttpConfig } from "../../src/entities/http-config";
 import type { FlagsConfig } from "../../src/entities/flags-config";
 import type { RestorePurchasesResult } from "../../src/entities/restore-purchases-result";
@@ -41,8 +44,14 @@ export class Purchases extends CorePurchases {
     httpConfig?: HttpConfig,
     flags?: FlagsConfig,
   ): Purchases;
+  /**
+   * Kept for compatibility with the core overloads; IAM is not supported on
+   * Vega yet, so configuring with it throws.
+   * @internal
+   */
+  static configure(config: IamPurchasesConfig): Purchases;
   static configure(
-    configOrApiKey: PurchasesConfig | string,
+    configOrApiKey: PurchasesConfig | IamPurchasesConfig | string,
     appUserId?: string,
     httpConfig?: HttpConfig,
     flags?: FlagsConfig,
@@ -50,7 +59,9 @@ export class Purchases extends CorePurchases {
     const purchases =
       typeof configOrApiKey === "string"
         ? super.configure(configOrApiKey, appUserId!, httpConfig, flags)
-        : super.configure(configOrApiKey);
+        : "iamEnabled" in configOrApiKey
+          ? super.configure(configOrApiKey)
+          : super.configure(configOrApiKey);
     return purchases as Purchases;
   }
 

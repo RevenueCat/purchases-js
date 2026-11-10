@@ -28,7 +28,7 @@ export class CustomPaywallImpressionEvent {
   public readonly id: string;
   public readonly timestamp: number;
   public readonly data: CustomPaywallImpressionEventData;
-  private readonly appUserId: string;
+  private appUserId: string;
   private readonly appSessionId?: string;
 
   constructor(
@@ -41,6 +41,13 @@ export class CustomPaywallImpressionEvent {
     this.data = data;
     this.appUserId = appUserId;
     this.appSessionId = appSessionId;
+  }
+
+  /** Fills in the user of an event queued before the user was known. */
+  public assignAppUserIdIfMissing(appUserId: string): void {
+    if (this.appUserId === "") {
+      this.appUserId = appUserId;
+    }
   }
 
   public toJSON(): CustomPaywallImpressionEventPayload {

@@ -134,9 +134,18 @@ import {
   supportedRCSources,
 } from "./entities/flags-config";
 import {
+  type IamPurchasesConfig,
   type PurchasesConfig,
   type PurchasesContext,
 } from "./entities/purchases-config";
+import { IamAuthClient } from "./iam/iam-auth-client";
+import { IamSessionManager } from "./iam/iam-session-manager";
+import type { IamSession } from "./iam/iam-session";
+import {
+  defaultIamStorage,
+  type IamStorage,
+  iamSessionStorageKey,
+} from "./iam/iam-storage";
 import { generateUUID } from "./helpers/uuid-helper";
 import {
   type PaywallComponentInteractionEventData,
@@ -266,7 +275,11 @@ export type {
 } from "./entities/purchase-result";
 export type { BrandingAppearance } from "./entities/branding";
 export type { PlatformInfo } from "./entities/platform-info";
-export type { PurchasesConfig } from "./entities/purchases-config";
+export type {
+  IamPurchasesConfig,
+  PurchasesConfig,
+} from "./entities/purchases-config";
+export type { IamStorage } from "./iam/iam-storage";
 export type { CustomPaywallImpressionParams } from "./entities/custom-paywall-impression-params";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
@@ -372,6 +385,13 @@ export class Purchases {
 
   /** @internal */
   private readonly billingWrapper: BillingWrapper | null = null;
+
+  /**
+   * Set when configured with {@link IamPurchasesConfig}. The current user is
+   * then the IAM session's, and `_appUserId` follows it.
+   * @internal
+   */
+  private readonly iamSessionManager: IamSessionManager | null = null;
 
   /**
    * Unfinished offerings requests keyed by app user ID. This lets concurrent
@@ -593,8 +613,16 @@ export class Purchases {
     flags?: FlagsConfig,
   ): Purchases;
 
+  /**
+   * Configures the Purchases SDK to authenticate customers with RevenueCat
+   * IAM. The SDK restores the stored IAM session or signs in anonymously.
+   * @param config - IAM configuration, without an app user ID.
+   * @internal
+   */
+  static configure(config: IamPurchasesConfig): Purchases;
+
   static configure(
-    configOrApiKey: PurchasesConfig | string,
+    configOrApiKey: PurchasesConfig | IamPurchasesConfig | string,
     appUserId?: string,
     httpConfig?: HttpConfig,
     flags?: FlagsConfig,
@@ -606,7 +634,7 @@ export class Purchases {
       );
     }
 
-    let config: PurchasesConfig;
+    let config: PurchasesConfig | IamPurchasesConfig;
 
     // Check if first argument is a configuration object
     if (typeof configOrApiKey === "object" && configOrApiKey !== null) {
@@ -638,7 +666,44 @@ export class Purchases {
     return Purchases.getSharedInstance();
   }
 
-  private static configureInternal(config: PurchasesConfig): void {
+  private static configureInternal(
+    config: PurchasesConfig | IamPurchasesConfig,
+  ): void {
+    if ("iamEnabled" in config && config.iamEnabled === true) {
+      Purchases.configureIamInternal(config);
+      return;
+    }
+    Purchases.configureAppUserIdInternal(config as PurchasesConfig);
+  }
+
+  private static configureIamInternal(config: IamPurchasesConfig): void {
+    validateApiKey(config.apiKey);
+    validateProxyUrl(config.httpConfig?.proxyURL);
+    validateAdditionalHeaders(config.httpConfig?.additionalHeaders);
+    if (getPurchasesFactory() || isAmazonApiKey(config.apiKey)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "RevenueCat IAM is not supported for Amazon Appstore apps yet.",
+      );
+    }
+
+    Purchases.instance?.iamSessionManager?.dispose();
+    Purchases.instance = new Purchases(
+      config.apiKey,
+      "",
+      config.httpConfig ?? defaultHttpConfig,
+      config.flags ?? defaultFlagsConfig,
+      undefined,
+      config.brandingAppearanceOverride,
+      config.context,
+      config.trace_id,
+      config.externalCheckoutUrl,
+      config.externalCheckoutReturnUrl,
+      { storage: config.iamStorage },
+    );
+  }
+
+  private static configureAppUserIdInternal(config: PurchasesConfig): void {
     const {
       apiKey,
       appUserId,
@@ -675,6 +740,7 @@ export class Purchases {
     // wrapper first so its AppState listener does not keep syncing in the
     // background after it is no longer reachable.
     Purchases.instance?.billingWrapper?.close();
+    Purchases.instance?.iamSessionManager?.dispose();
     Purchases.instance = purchasesFactory
       ? purchasesFactory.createPurchases(config)
       : new Purchases(
@@ -780,6 +846,7 @@ export class Purchases {
     trace_id?: string,
     externalCheckoutUrl?: string,
     externalCheckoutReturnUrl?: string,
+    iam?: { storage?: IamStorage },
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
@@ -803,16 +870,31 @@ export class Purchases {
     } else if (isSimulatedStoreApiKey(apiKey)) {
       Logger.debugLog("Initializing Purchases SDK with RC Test store API Key.");
     }
+    if (iam) {
+      this.iamSessionManager = Purchases.createIamSessionManager(
+        apiKey,
+        httpConfig,
+        iam.storage,
+      );
+    }
+    const iamAuthorizer = this.iamSessionManager ?? undefined;
     this.eventsTracker = new EventsTracker({
       apiKey: this._API_KEY,
-      appUserId: this._appUserId,
+      // Under IAM the user is only known once the session loads.
+      appUserId: this.iamSessionManager ? null : this._appUserId,
       silent: !this._flags.collectAnalyticsEvents,
       rcSource: this._flags.rcSource ?? null,
       workflowContext: this._context?.workflowContext,
       trace_id: trace_id,
       httpConfig,
+      iamAuthorizer,
     });
-    this.backend = new Backend(this._API_KEY, httpConfig, this._context);
+    this.backend = new Backend(
+      this._API_KEY,
+      httpConfig,
+      this._context,
+      iamAuthorizer,
+    );
     this.inMemoryCache = new InMemoryCache();
     this.purchaseOperationHelper = new PurchaseOperationHelper(
       this.backend,
@@ -836,6 +918,59 @@ export class Purchases {
         getIsAnonymous: () => this.isAnonymous(),
       });
     }
+    if (this.iamSessionManager) {
+      this.iamSessionManager.addListener((session) =>
+        this.onIamSessionChanged(session),
+      );
+      this.iamSessionManager.ensureSession().catch((error) => {
+        // Requests retry the sign-in, so this only delays them.
+        Logger.warnLog(`Could not start the IAM session: ${error}`);
+      });
+    }
+  }
+
+  /** @internal */
+  private static createIamSessionManager(
+    apiKey: string,
+    httpConfig: HttpConfig,
+    storage?: IamStorage,
+  ): IamSessionManager {
+    const localStorage = getNullableWindow()?.localStorage;
+    const resolved = storage
+      ? { storage, isLocalStorage: storage === localStorage }
+      : defaultIamStorage();
+    return new IamSessionManager({
+      authClient: new IamAuthClient(apiKey, httpConfig),
+      storage: resolved.storage,
+      storageKey: iamSessionStorageKey(apiKey),
+      syncAcrossTabs: resolved.isLocalStorage,
+    });
+  }
+
+  /**
+   * Keeps `_appUserId` on the IAM session's user, including sessions another
+   * tab switched to.
+   * @internal
+   */
+  private onIamSessionChanged(session: IamSession | null): void {
+    if (session === null || session.appUserId === this._appUserId) {
+      return;
+    }
+    void this.switchUser(session.appUserId);
+  }
+
+  /**
+   * The IAM session load to wait for, or null when there is nothing to wait
+   * for. Callers only await a non-null result, so they stay synchronous when
+   * IAM is off or the session is loaded: Apple Pay must start in the same
+   * task as the click that triggered it.
+   * @internal
+   */
+  private pendingIamSession(): Promise<unknown> | null {
+    if (!this.iamSessionManager || this.iamSessionManager.getCurrentSession()) {
+      return null;
+    }
+    return this.iamSessionManager.ensureSession();
   }
 
   /**
@@ -849,6 +984,8 @@ export class Purchases {
   public async presentPaywall(
     paywallParams: PresentPaywallParams,
   ): Promise<PaywallPurchaseResult> {
+    const pendingIamSession = this.pendingIamSession();
+    if (pendingIamSession) await pendingIamSession;
     if (isAmazonApiKey(this._API_KEY)) {
       Logger.verboseLog(
         "Paywalls are not currently available for Amazon apps.",
@@ -1629,6 +1766,8 @@ export class Purchases {
    */
   public async getOfferings(params?: GetOfferingsParams): Promise<Offerings> {
     validateCurrency(params?.currency);
+    const pendingIamSession = this.pendingIamSession();
+    if (pendingIamSession) await pendingIamSession;
     const appUserId = this._appUserId;
     const offeringsResponse = await this.getOfferingsResponse(appUserId);
 
@@ -1716,6 +1855,8 @@ export class Purchases {
     placementIdentifier: string,
     params?: GetOfferingsParams,
   ): Promise<Offering | null> {
+    const pendingIamSession = this.pendingIamSession();
+    if (pendingIamSession) await pendingIamSession;
     const appUserId = this._appUserId;
     const offeringsResponse = await this.getOfferingsResponse(appUserId);
     const placementData = offeringsResponse.placements ?? null;
@@ -1954,6 +2095,8 @@ export class Purchases {
   public async prepareForQuickPurchases(
     params: PrepareQuickPurchaseParams,
   ): Promise<QuickPurchasePreparationResult> {
+    const pendingIamSession = this.pendingIamSession();
+    if (pendingIamSession) await pendingIamSession;
     if (!isStripeApiKey(this._API_KEY)) {
       throw new PurchasesError(
         ErrorCode.ConfigurationError,
@@ -2203,6 +2346,8 @@ export class Purchases {
   public async presentExpressPurchaseButton(
     params: PresentExpressPurchaseButtonParams,
   ): Promise<PurchaseResult> {
+    const pendingIamSession = this.pendingIamSession();
+    if (pendingIamSession) await pendingIamSession;
     const {
       rcPackage,
       purchaseOption,
@@ -2384,6 +2529,8 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
   public async purchase(params: PurchaseParams): Promise<PurchaseResult> {
+    const pendingIamSession = this.pendingIamSession();
+    if (pendingIamSession) await pendingIamSession;
     if (isExternalApiKey(this._API_KEY)) {
       const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
         ? autoParseUTMParams()
@@ -3147,6 +3294,8 @@ export class Purchases {
         "Posting a test store receipt is only available for RC Test Store API keys.",
       );
     }
+    const pendingIamSession = this.pendingIamSession();
+    if (pendingIamSession) await pendingIamSession;
     const purchaseResult = await postSimulatedStoreReceipt(
       product,
       this.backend,
@@ -3163,6 +3312,8 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while fetching the customer info.
    */
   public async getCustomerInfo(): Promise<CustomerInfo> {
+    const pendingIamSession = this.pendingIamSession();
+    if (pendingIamSession) await pendingIamSession;
     return await this._getCustomerInfoForUserId(this._appUserId);
   }
 
@@ -3170,6 +3321,13 @@ export class Purchases {
    * Gets the current app user id.
    */
   public getAppUserId(): string {
+    if (this.iamSessionManager && !this.iamSessionManager.getCurrentSession()) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "The IAM session has not loaded yet, so there is no app user ID. " +
+          "Await an async method such as getCustomerInfo() first.",
+      );
+    }
     return this._appUserId;
   }
 
@@ -3204,6 +3362,7 @@ export class Purchases {
    * @param newAppUserId - The user id to change to.
    */
   public async changeUser(newAppUserId: string): Promise<CustomerInfo> {
+    this.rejectUnderIam("changeUser");
     await this.replaceUserId(newAppUserId);
     // TODO: Cancel all pending requests if any.
     // TODO: What happens with a possibly initialized purchase?
@@ -3222,6 +3381,7 @@ export class Purchases {
    * @experimental
    */
   public async identifyUser(appUserId: string): Promise<IdentifyResult> {
+    this.rejectUnderIam("identifyUser");
     validateAppUserId(appUserId);
 
     if (appUserId === this._appUserId) {
@@ -3242,6 +3402,20 @@ export class Purchases {
       customerInfo: toCustomerInfo(result),
       wasCreated: result.was_created,
     };
+  }
+
+  /**
+   * Under IAM the user comes from the session, so app user IDs can't be set
+   * directly. Same as iOS.
+   * @internal
+   */
+  private rejectUnderIam(method: string): void {
+    if (this.iamSessionManager) {
+      throw new PurchasesError(
+        ErrorCode.UnsupportedError,
+        `${method} is not available with RevenueCat IAM. Sign in through IAM instead.`,
+      );
+    }
   }
 
   /**
@@ -3301,6 +3475,10 @@ export class Purchases {
 
   private async replaceUserId(newAppUserId: string): Promise<void> {
     validateAppUserId(newAppUserId);
+    await this.switchUser(newAppUserId);
+  }
+
+  private async switchUser(newAppUserId: string): Promise<void> {
     this.stripeBillingQuickPurchaseState = null;
     this.stripeBillingQuickPurchasePreparation = null;
     this._appUserId = newAppUserId;
@@ -3348,6 +3526,10 @@ export class Purchases {
    * @returns Whether the current user is anonymous.
    */
   public isAnonymous(): boolean {
+    if (this.iamSessionManager) {
+      // Until a session loads, the SDK is signing in anonymously.
+      return this.iamSessionManager.getCurrentSession()?.isAnonymous ?? true;
+    }
     return this._appUserId.startsWith(ANONYMOUS_PREFIX);
   }
 
@@ -3357,6 +3539,8 @@ export class Purchases {
    * @returns {Promise<VirtualCurrencies>} A VirtualCurrencies object containing the subscriber's virtual currencies.
    */
   public async getVirtualCurrencies(): Promise<VirtualCurrencies> {
+    const pendingIamSession = this.pendingIamSession();
+    if (pendingIamSession) await pendingIamSession;
     return await this._getVirtualCurrenciesForUserId(this._appUserId);
   }
 
@@ -3392,6 +3576,7 @@ export class Purchases {
         this.eventsTracker.dispose();
       }
       this.billingWrapper?.close();
+      this.iamSessionManager?.dispose();
       if (this._flags.applePayBrandingLogoEnabled) {
         const doc = getNullableDocument();
         if (doc) {

@@ -35,7 +35,12 @@ export type TrackCustomPaywallImpressionProps =
 
 export interface EventsTrackerProps {
   apiKey: string;
-  appUserId: string;
+  /**
+   * Null while the user is not known yet (IAM, before the session loads).
+   * Events are still queued, and sent once {@link IEventsTracker.updateUser}
+   * names the user.
+   */
+  appUserId: string | null;
   rcSource: string | null;
   silent?: boolean;
   workflowContext?: WorkflowContext;
@@ -70,7 +75,7 @@ export default class EventsTracker implements IEventsTracker {
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
   private readonly traceId: string;
-  private appUserId: string;
+  private appUserId: string | null;
   private readonly isSilent: boolean;
   private rcSource: string | null;
   private readonly workflowContext?: WorkflowContext;
@@ -97,7 +102,14 @@ export default class EventsTracker implements IEventsTracker {
   }
 
   public async updateUser(appUserId: string) {
+    const wasUnknown = this.appUserId === null;
     this.appUserId = appUserId;
+    if (wasUnknown) {
+      for (const event of this.eventsQueue) {
+        event.assignAppUserIdIfMissing(appUserId);
+      }
+      this.flushManager.tryFlush();
+    }
   }
 
   public getTraceId() {
@@ -146,7 +158,7 @@ export default class EventsTracker implements IEventsTracker {
         {
           ...props,
         },
-        this.appUserId,
+        this.appUserId ?? "",
         EventsTracker.appSessionId,
       );
       Logger.debugLog(
@@ -173,7 +185,7 @@ export default class EventsTracker implements IEventsTracker {
       const event = new Event({
         eventName: props.eventName,
         traceId: this.traceId,
-        appUserId: this.appUserId,
+        appUserId: this.appUserId ?? "",
         context: buildEventContext(props.source, this.rcSource),
         workflowIdentifier: this.workflowContext?.workflowIdentifier,
         properties: props.properties || {
@@ -278,6 +290,11 @@ export default class EventsTracker implements IEventsTracker {
     }
 
     if (this.eventsQueue.length === 0) {
+      return true;
+    }
+
+    if (this.appUserId === null) {
+      // updateUser flushes once the user is known.
       return true;
     }
 

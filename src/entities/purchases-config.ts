@@ -1,6 +1,7 @@
 import type { FlagsConfig } from "./flags-config";
 import type { HttpConfig } from "./http-config";
 import type { BrandingAppearance } from "./branding";
+import type { IamStorage } from "../iam/iam-storage";
 
 /**
  * Contextual information specific to workflows.
@@ -116,4 +117,20 @@ export interface PurchasesConfig {
    * @internal
    */
   trace_id?: string;
+}
+
+/**
+ * Configuration for authenticating customers with RevenueCat IAM instead of
+ * app user IDs. The customer comes from the IAM session: the SDK signs in
+ * anonymously when there is none, and `logIn`/`logOut` switch it.
+ * @internal
+ */
+export interface IamPurchasesConfig
+  extends Omit<PurchasesConfig, "appUserId" | "subscriberToken"> {
+  iamEnabled: true;
+  /**
+   * Where the IAM session is persisted. Defaults to `localStorage`, or memory
+   * when `localStorage` is unavailable.
+   */
+  iamStorage?: IamStorage;
 }
