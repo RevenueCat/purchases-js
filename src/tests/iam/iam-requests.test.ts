@@ -15,7 +15,11 @@ import type {
   IamCredentials,
   IamRequestAuthorizer,
 } from "../../iam/iam-session-manager";
-import { ErrorCode, PurchasesError } from "../../entities/errors";
+import {
+  BackendErrorCode,
+  ErrorCode,
+  PurchasesError,
+} from "../../entities/errors";
 import EventsTracker from "../../behavioural-events/events-tracker";
 import { customerInfoResponse } from "../test-responses";
 
@@ -161,6 +165,44 @@ describe("performRequest with an IAM authorizer", () => {
 
     expect(authorizer.refreshAfterUnauthorized).not.toHaveBeenCalled();
   });
+
+  test.each([
+    [
+      8150,
+      BackendErrorCode.BackendPublicApiKeyAuthRejectedForMigratedSubscriber,
+    ],
+    [8151, BackendErrorCode.BackendPublicApiKeyAuthDisabledForProject],
+  ])(
+    "maps migration-mode 403 code %i to invalid credentials without refreshing",
+    async (code, backendErrorCode) => {
+      server.use(
+        http.get(CUSTOMER_URL, () =>
+          HttpResponse.json(
+            { code, message: "Authenticate with a user access token." },
+            { status: 403 },
+          ),
+        ),
+      );
+      const authorizer = fakeAuthorizer("token-1", "token-2");
+
+      const error = await performRequest(endpoint, {
+        apiKey: API_KEY,
+        iamAuthorizer: authorizer,
+      }).catch((e) => e);
+
+      expect(error).toBeInstanceOf(PurchasesError);
+      expect((error as PurchasesError).errorCode).toBe(
+        ErrorCode.InvalidCredentialsError,
+      );
+      expect((error as PurchasesError).extra?.backendErrorCode).toBe(
+        backendErrorCode,
+      );
+      expect((error as PurchasesError).underlyingErrorMessage).toBe(
+        "Authenticate with a user access token.",
+      );
+      expect(authorizer.refreshAfterUnauthorized).not.toHaveBeenCalled();
+    },
+  );
 
   test("keeps the API key and never refreshes without an authorizer", async () => {
     const authorizations = respondByToken({ [API_KEY]: 401 }, CUSTOMER_URL);

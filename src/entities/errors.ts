@@ -33,6 +33,8 @@ export class ErrorCodeUtils {
       case BackendErrorCode.BackendInvalidAuthToken:
       case BackendErrorCode.BackendInvalidAPIKey:
       case BackendErrorCode.BackendInvalidPaddleAPIKey:
+      case BackendErrorCode.BackendPublicApiKeyAuthRejectedForMigratedSubscriber:
+      case BackendErrorCode.BackendPublicApiKeyAuthDisabledForProject:
         return ErrorCode.InvalidCredentialsError;
       case BackendErrorCode.BackendInvalidPaymentModeOrIntroPriceNotProvided:
       case BackendErrorCode.BackendProductIdForGoogleReceiptNotProvided:
@@ -140,6 +142,9 @@ export enum BackendErrorCode {
   BackendGatewaySetupErrorMissingRequiredPermission = 7900,
   BackendGatewaySetupErrorSandboxModeOnly = 7901,
   BackendInvalidPaddleAPIKey = 7967,
+  // IAM migration mode: the subscriber or project now requires an IAM token.
+  BackendPublicApiKeyAuthRejectedForMigratedSubscriber = 8150,
+  BackendPublicApiKeyAuthDisabledForProject = 8151,
   BackendQuickPurchaseUnavailable = 8172,
   BackendGatewaySetupErrorInvalidTaxOriginAddressDuringCheckout = 8174,
 }
