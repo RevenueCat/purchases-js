@@ -2,6 +2,7 @@ type HttpMethodType = "GET" | "POST" | "PATCH";
 
 const SUBSCRIBERS_PATH = "/v1/subscribers";
 const RC_BILLING_PATH = "/rcbilling/v1";
+const IAM_AUTH_PATH = "/auth";
 
 interface Endpoint {
   method: HttpMethodType;
@@ -253,6 +254,33 @@ export class GetWorkflowDataByIdEndpoint implements Endpoint {
   }
 }
 
+export class IamLoginEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "iamLogin";
+
+  urlPath(): string {
+    return `${IAM_AUTH_PATH}/login`;
+  }
+}
+
+export class IamTokenEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "iamToken";
+
+  urlPath(): string {
+    return `${IAM_AUTH_PATH}/token`;
+  }
+}
+
+export class IamRevokeEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "iamRevoke";
+
+  urlPath(): string {
+    return `${IAM_AUTH_PATH}/revoke`;
+  }
+}
+
 export type SupportedEndpoint =
   | GetOfferingsEndpoint
   | PurchaseEndpoint
@@ -264,4 +292,7 @@ export type SupportedEndpoint =
   | PostReceiptEndpoint
   | GetVirtualCurrenciesEndpoint
   | GetWorkflowsEndpoint
-  | GetWorkflowDataByIdEndpoint;
+  | GetWorkflowDataByIdEndpoint
+  | IamLoginEndpoint
+  | IamTokenEndpoint
+  | IamRevokeEndpoint;
