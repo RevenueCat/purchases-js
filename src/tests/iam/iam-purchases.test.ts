@@ -244,9 +244,119 @@ describe("Purchases configured with IAM", () => {
     },
   );
 
+  test("logIn links the identity to the anonymous user and switches to it", async () => {
+    const loginBodies: Array<Record<string, unknown>> = [];
+    server.use(
+      iamLoginHandler((body) => {
+        loginBodies.push(body);
+        return body.method === "anonymous"
+          ? jsonResponse(makeTokensResponse("anon-1"))
+          : jsonResponse(makeTokensResponse("user-1", { amr: ["oidc"] }));
+      }),
+    );
+    const purchases = configureWithIam();
+    await purchases.getCustomerInfo();
+
+    const customerInfo = await purchases.logIn({
+      method: "oidc",
+      idToken: "provider-id-token",
+    });
+
+    expect(customerInfo).toBeDefined();
+    expect(loginBodies[1]).toMatchObject({
+      method: "oidc",
+      id_token: "provider-id-token",
+      link_to_id: makeTokensResponse("anon-1").id_token,
+    });
+    expect(purchases.getAppUserId()).toBe("user-1");
+    expect(purchases.isAnonymous()).toBe(false);
+    const lastCustomerRequest = requests
+      .filter((r) => r.path === "/v1/customer")
+      .at(-1);
+    expect(lastCustomerRequest?.authorization).toBe(
+      `Bearer ${makeAccessToken("user-1", { amr: ["oidc"] })}`,
+    );
+  });
+
+  test("logIn waits for the startup anonymous sign-in", async () => {
+    const order: string[] = [];
+    server.use(
+      iamLoginHandler((body) => {
+        order.push(body.method as string);
+        return body.method === "anonymous"
+          ? jsonResponse(makeTokensResponse("anon-1"))
+          : jsonResponse(makeTokensResponse("user-1", { amr: ["google"] }));
+      }),
+    );
+    const purchases = configureWithIam();
+
+    await purchases.logIn({ method: "google", idToken: "google-token" });
+
+    expect(order).toEqual(["anonymous", "google"]);
+    expect(purchases.getAppUserId()).toBe("user-1");
+  });
+
+  test("logOut revokes and signs in as a new anonymous user", async () => {
+    storeSession("user-1", ["oidc"]);
+    const revoked: unknown[] = [];
+    server.use(
+      http.post(`${BASE_URL}/auth/revoke`, async ({ request }) => {
+        revoked.push(await request.json());
+        return HttpResponse.json({});
+      }),
+      iamLoginHandler(() => jsonResponse(makeTokensResponse("anon-2"))),
+    );
+    const purchases = configureWithIam();
+    await purchases.getCustomerInfo();
+
+    await purchases.logOut();
+
+    expect(revoked).toEqual([
+      {
+        token: makeTokensResponse("user-1", { amr: ["oidc"] }).refresh_token,
+        token_type_hint: "refresh_token",
+      },
+    ]);
+    expect(purchases.getAppUserId()).toBe("anon-2");
+    expect(purchases.isAnonymous()).toBe(true);
+  });
+
+  test("logOut rejects an anonymous user", async () => {
+    server.use(
+      iamLoginHandler(() => jsonResponse(makeTokensResponse("anon-1"))),
+    );
+    const purchases = configureWithIam();
+    await purchases.getCustomerInfo();
+
+    const error = await purchases.logOut().catch((e) => e);
+
+    expect((error as PurchasesError).errorCode).toBe(
+      ErrorCode.LogOutWithAnonymousUserError,
+    );
+  });
+
   test("rejects Amazon API keys", () => {
     expect(() =>
       Purchases.configure({ apiKey: "amzn_test_key", iamEnabled: true }),
     ).toThrow(PurchasesError);
+  });
+});
+
+describe("Purchases configured without IAM", () => {
+  test.each(["logIn", "logOut"] as const)("%s requires IAM", async (method) => {
+    const purchases = Purchases.configure({
+      apiKey: API_KEY,
+      appUserId: "user-1",
+    });
+
+    const error = await (
+      method === "logIn"
+        ? purchases.logIn({ method: "oidc", idToken: "token" })
+        : purchases.logOut()
+    ).catch((e) => e);
+
+    expect((error as PurchasesError).errorCode).toBe(
+      ErrorCode.ConfigurationError,
+    );
   });
 });

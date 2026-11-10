@@ -138,7 +138,7 @@ import {
   type PurchasesConfig,
   type PurchasesContext,
 } from "./entities/purchases-config";
-import { IamAuthClient } from "./iam/iam-auth-client";
+import { IamAuthClient, type IamIdentity } from "./iam/iam-auth-client";
 import { IamSessionManager } from "./iam/iam-session-manager";
 import type { IamSession } from "./iam/iam-session";
 import {
@@ -280,6 +280,7 @@ export type {
   PurchasesConfig,
 } from "./entities/purchases-config";
 export type { IamStorage } from "./iam/iam-storage";
+export type { IamIdentity } from "./iam/iam-auth-client";
 export type { CustomPaywallImpressionParams } from "./entities/custom-paywall-impression-params";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
@@ -3405,6 +3406,45 @@ export class Purchases {
   }
 
   /**
+   * Signs in with an identity that RevenueCat IAM verifies with the project's
+   * authentication method. When the current user is anonymous, the identity
+   * is linked to it, so its purchases carry over.
+   * @param identity - The identity provider and its ID token.
+   * @returns The customer info of the signed-in user.
+   * @throws {@link PurchasesError} if the SDK is not configured with IAM, or
+   * the login is rejected.
+   * @internal
+   */
+  public async logIn(identity: IamIdentity): Promise<CustomerInfo> {
+    await this.requireIam("logIn").logIn(identity);
+    return await this.getCustomerInfo();
+  }
+
+  /**
+   * Revokes the current session and signs in as a new anonymous user, like
+   * the mobile SDKs.
+   * @returns The customer info of the new anonymous user.
+   * @throws {@link PurchasesError} if the SDK is not configured with IAM, the
+   * current user is already anonymous, or revocation fails.
+   * @internal
+   */
+  public async logOut(): Promise<CustomerInfo> {
+    await this.requireIam("logOut").logOut();
+    return await this.getCustomerInfo();
+  }
+
+  /** @internal */
+  private requireIam(method: string): IamSessionManager {
+    if (!this.iamSessionManager) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        `${method} requires configuring Purchases with iamEnabled.`,
+      );
+    }
+    return this.iamSessionManager;
+  }
+
+  /**
    * Under IAM the user comes from the session, so app user IDs can't be set
    * directly. Same as iOS.
    * @internal
@@ -3413,7 +3453,7 @@ export class Purchases {
     if (this.iamSessionManager) {
       throw new PurchasesError(
         ErrorCode.UnsupportedError,
-        `${method} is not available with RevenueCat IAM. Sign in through IAM instead.`,
+        `${method} is not available with RevenueCat IAM. Use logIn instead.`,
       );
     }
   }
