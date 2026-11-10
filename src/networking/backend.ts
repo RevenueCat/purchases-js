@@ -1,12 +1,25 @@
 import { type OfferingsResponse } from "./responses/offerings-response";
-import { performRequest, performRequestWithStatus } from "./http-client";
+import {
+  type HttpRequestConfig,
+  performRequest,
+  performRequestWithStatus,
+} from "./http-client";
 import {
   CheckoutCompleteEndpoint,
   CheckoutPrepareEndpoint,
   CheckoutRefreshPricingEndpoint,
   CheckoutStartEndpoint,
+  CustomerAttributesEndpoint,
   CustomerCheckoutCompleteEndpoint,
+  CustomerCheckoutRefreshPricingEndpoint,
   CustomerCheckoutStartEndpoint,
+  CustomerCheckoutStatusEndpoint,
+  CustomerInfoEndpoint,
+  CustomerOfferingsEndpoint,
+  CustomerProductsEndpoint,
+  CustomerVirtualCurrenciesEndpoint,
+  CustomerWorkflowDataByIdEndpoint,
+  CustomerWorkflowsEndpoint,
   GetBrandingInfoEndpoint,
   GetCheckoutStatusEndpoint,
   GetCustomerInfoEndpoint,
@@ -51,6 +64,7 @@ import type { IdentifyResponse } from "./responses/identify-response";
 import type { CheckoutPrepareResponse } from "./responses/checkout-prepare-response";
 import type { AttributionMetadata } from "../entities/purchase-params";
 import type { BrandingAppearance } from "../entities/branding";
+import type { IamRequestAuthorizer } from "../iam/iam-session-manager";
 
 const MAX_GET_PRODUCTS_URL_PATH_LENGTH = 2000;
 
@@ -119,39 +133,61 @@ export class Backend {
   private readonly httpConfig: HttpConfig;
   private readonly isSandbox: boolean;
   private readonly purchasesContext?: PurchasesContext;
+  private readonly iamAuthorizer?: IamRequestAuthorizer;
 
+  /**
+   * @param iamAuthorizer - When set, requests about the current customer go
+   * to the IAM routes with its access token, and the `appUserId` arguments
+   * are only used in request bodies. Project-level requests (branding,
+   * checkout prepare) and `/auth` keep using the public API key.
+   */
   constructor(
     API_KEY: string,
     httpConfig: HttpConfig = defaultHttpConfig,
     purchasesContext?: PurchasesContext,
+    iamAuthorizer?: IamRequestAuthorizer,
   ) {
     this.API_KEY = API_KEY;
     this.httpConfig = httpConfig;
     this.isSandbox = isWebBillingSandboxApiKey(API_KEY);
     this.purchasesContext = purchasesContext;
+    this.iamAuthorizer = iamAuthorizer;
   }
 
   getIsSandbox(): boolean {
     return this.isSandbox;
   }
 
+  private get usesIam(): boolean {
+    return this.iamAuthorizer !== undefined;
+  }
+
+  private customerRequest<RequestBody>(
+    body?: RequestBody,
+  ): HttpRequestConfig<RequestBody> {
+    return {
+      apiKey: this.API_KEY,
+      body,
+      httpConfig: this.httpConfig,
+      iamAuthorizer: this.iamAuthorizer,
+    };
+  }
+
   async getOfferings(appUserId: string): Promise<OfferingsResponse> {
     return await performRequest<null, OfferingsResponse>(
-      new GetOfferingsEndpoint(appUserId),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
+      this.usesIam
+        ? new CustomerOfferingsEndpoint()
+        : new GetOfferingsEndpoint(appUserId),
+      this.customerRequest(),
     );
   }
 
   async getCustomerInfo(appUserId: string): Promise<SubscriberResponse> {
     return await performRequest<null, SubscriberResponse>(
-      new GetCustomerInfoEndpoint(appUserId),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
+      this.usesIam
+        ? new CustomerInfoEndpoint()
+        : new GetCustomerInfoEndpoint(appUserId),
+      this.customerRequest(),
     );
   }
 
@@ -204,16 +240,13 @@ export class Backend {
     const productDetails: ProductsResponse["product_details"] = [];
     for (const productIdBatch of productIdBatches) {
       const response = await performRequest<null, ProductsResponse>(
-        new GetProductsEndpoint(
+        this.productsEndpoint(
           appUserId,
           productIdBatch,
           currency,
           discountCode,
         ),
-        {
-          apiKey: this.API_KEY,
-          httpConfig: this.httpConfig,
-        },
+        this.customerRequest(),
       );
       productDetails.push(...response.product_details);
     }
@@ -221,6 +254,17 @@ export class Backend {
     return {
       product_details: productDetails,
     };
+  }
+
+  private productsEndpoint(
+    appUserId: string,
+    productIds: string[],
+    currency?: string,
+    discountCode?: string,
+  ): GetProductsEndpoint | CustomerProductsEndpoint {
+    return this.usesIam
+      ? new CustomerProductsEndpoint(productIds, currency, discountCode)
+      : new GetProductsEndpoint(appUserId, productIds, currency, discountCode);
   }
 
   private batchProductIdsByUrlLength(
@@ -234,7 +278,7 @@ export class Backend {
 
     for (const productId of productIds) {
       const candidateBatch = [...currentBatch, productId];
-      const candidateUrlLength = new GetProductsEndpoint(
+      const candidateUrlLength = this.productsEndpoint(
         appUserId,
         candidateBatch,
         currency,
@@ -435,6 +479,14 @@ export class Backend {
       requestBody.purchase_flow = purchaseFlow;
     }
 
+    if (this.usesIam) {
+      // The IAM access token already authorizes product changes.
+      return (await performRequest<CheckoutStartRequestBody, T>(
+        new CustomerCheckoutStartEndpoint(),
+        this.customerRequest(requestBody),
+      )) as T;
+    }
+
     // With a subscriber token the IAM route is used: the token replaces the
     // public API key in Authorization. getHeaders still derives X-Is-Sandbox
     // from the configured key, which is how the backend picks the environment.
@@ -490,12 +542,10 @@ export class Backend {
       CheckoutRefreshPricingRequestBody,
       CheckoutPricingResponse
     >(
-      new CheckoutRefreshPricingEndpoint(operationSessionId),
-      {
-        apiKey: this.API_KEY,
-        body: requestBody,
-        httpConfig: this.httpConfig,
-      },
+      this.usesIam
+        ? new CustomerCheckoutRefreshPricingEndpoint(operationSessionId)
+        : new CheckoutRefreshPricingEndpoint(operationSessionId),
+      this.customerRequest(requestBody),
       signal,
     );
   }
@@ -552,6 +602,16 @@ export class Backend {
       };
     }
 
+    if (this.usesIam) {
+      return await performRequest<
+        CheckoutCompleteRequestBody,
+        CheckoutCompleteResponse | SubscriptionChangeCompleteResponse
+      >(
+        new CustomerCheckoutCompleteEndpoint(operationSessionId),
+        this.customerRequest(requestBody),
+      );
+    }
+
     return await performRequest<
       CheckoutCompleteRequestBody,
       CheckoutCompleteResponse | SubscriptionChangeCompleteResponse
@@ -574,11 +634,10 @@ export class Backend {
     operationSessionId: string,
   ): Promise<CheckoutStatusResponse> {
     return await performRequest<null, CheckoutStatusResponse>(
-      new GetCheckoutStatusEndpoint(operationSessionId),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
+      this.usesIam
+        ? new CustomerCheckoutStatusEndpoint(operationSessionId)
+        : new GetCheckoutStatusEndpoint(operationSessionId),
+      this.customerRequest(),
     );
   }
 
@@ -610,12 +669,10 @@ export class Backend {
     };
 
     return await performRequest<SetAttributesRequestBody, void>(
-      new SetAttributesEndpoint(appUserId),
-      {
-        apiKey: this.API_KEY,
-        body: requestBody,
-        httpConfig: this.httpConfig,
-      },
+      this.usesIam
+        ? new CustomerAttributesEndpoint()
+        : new SetAttributesEndpoint(appUserId),
+      this.customerRequest(requestBody),
     );
   }
 
@@ -705,13 +762,10 @@ export class Backend {
       requestBody.rc_external_purchase_token_id = externalPurchaseTokenId;
     }
 
+    // Receipts keep their path under IAM; only the token changes.
     return await performRequest<PostReceiptRequestBody, SubscriberResponse>(
       new PostReceiptEndpoint(),
-      {
-        apiKey: this.API_KEY,
-        body: requestBody,
-        httpConfig: this.httpConfig,
-      },
+      this.customerRequest(requestBody),
     );
   }
 
@@ -719,21 +773,19 @@ export class Backend {
     appUserId: string,
   ): Promise<VirtualCurrenciesResponse> {
     return await performRequest<null, VirtualCurrenciesResponse>(
-      new GetVirtualCurrenciesEndpoint(appUserId),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
+      this.usesIam
+        ? new CustomerVirtualCurrenciesEndpoint()
+        : new GetVirtualCurrenciesEndpoint(appUserId),
+      this.customerRequest(),
     );
   }
 
   async getWorkflows(appUserId: string): Promise<WorkflowsListResponse> {
     return await performRequest<null, WorkflowsListResponse>(
-      new GetWorkflowsEndpoint(appUserId),
-      {
-        apiKey: this.API_KEY,
-        httpConfig: this.httpConfig,
-      },
+      this.usesIam
+        ? new CustomerWorkflowsEndpoint()
+        : new GetWorkflowsEndpoint(appUserId),
+      this.customerRequest(),
     );
   }
 
@@ -744,10 +796,12 @@ export class Backend {
     const dataOrAction = await performRequest<
       null,
       WorkflowDataAction | WorkflowDataResponse
-    >(new GetWorkflowDataByIdEndpoint(appUserId, workflowId), {
-      apiKey: this.API_KEY,
-      httpConfig: this.httpConfig,
-    });
+    >(
+      this.usesIam
+        ? new CustomerWorkflowDataByIdEndpoint(workflowId)
+        : new GetWorkflowDataByIdEndpoint(appUserId, workflowId),
+      this.customerRequest(),
+    );
 
     if (!("action" in dataOrAction)) {
       return dataOrAction;

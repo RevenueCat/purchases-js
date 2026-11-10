@@ -2,6 +2,8 @@ type HttpMethodType = "GET" | "POST" | "PATCH";
 
 const SUBSCRIBERS_PATH = "/v1/subscribers";
 const RC_BILLING_PATH = "/rcbilling/v1";
+const RC_BILLING_CUSTOMER_PATH = `${RC_BILLING_PATH}/customer`;
+const CUSTOMER_PATH = "/v1/customer";
 const IAM_AUTH_PATH = "/auth";
 
 interface Endpoint {
@@ -58,15 +60,21 @@ export class GetProductsEndpoint implements Endpoint {
 
   urlPath(): string {
     const encodedAppUserId = encodeURIComponent(this.appUserId);
-    const encodedProductIds = this.productIds
-      .map(encodeURIComponent)
-      .join("&id=");
-    const currencyParam = this.currency ? `&currency=${this.currency}` : "";
-    const discountCodeParam = this.discountCode
-      ? `&discount_code=${encodeURIComponent(this.discountCode)}`
-      : "";
-    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?id=${encodedProductIds}${currencyParam}${discountCodeParam}`;
+    return `${RC_BILLING_PATH}/subscribers/${encodedAppUserId}/products?${productsQuery(this.productIds, this.currency, this.discountCode)}`;
   }
+}
+
+function productsQuery(
+  productIds: string[],
+  currency?: string,
+  discountCode?: string,
+): string {
+  const encodedProductIds = productIds.map(encodeURIComponent).join("&id=");
+  const currencyParam = currency ? `&currency=${currency}` : "";
+  const discountCodeParam = discountCode
+    ? `&discount_code=${encodeURIComponent(discountCode)}`
+    : "";
+  return `id=${encodedProductIds}${currencyParam}${discountCodeParam}`;
 }
 
 export class GetCustomerInfoEndpoint implements Endpoint {
@@ -254,6 +262,102 @@ export class GetWorkflowDataByIdEndpoint implements Endpoint {
   }
 }
 
+// IAM routes: the subject is the access token's user, so paths carry no
+// app_user_id.
+
+export class CustomerInfoEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getCustomerInfo";
+
+  urlPath(): string {
+    return CUSTOMER_PATH;
+  }
+}
+
+export class CustomerOfferingsEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getOfferings";
+
+  urlPath(): string {
+    return `${CUSTOMER_PATH}/offerings`;
+  }
+}
+
+export class CustomerAttributesEndpoint implements Endpoint {
+  method: HttpMethodType = "POST";
+  name: string = "setAttributes";
+
+  urlPath(): string {
+    return `${CUSTOMER_PATH}/attributes`;
+  }
+}
+
+export class CustomerVirtualCurrenciesEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getVirtualCurrencies";
+
+  urlPath(): string {
+    return `${CUSTOMER_PATH}/virtual_currencies`;
+  }
+}
+
+export class CustomerWorkflowsEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getWorkflows";
+
+  urlPath(): string {
+    return `${CUSTOMER_PATH}/workflows?type=paywall`;
+  }
+}
+
+export class CustomerWorkflowDataByIdEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getWorkflowData";
+
+  constructor(private readonly workflowId: string) {}
+
+  urlPath(): string {
+    return `${CUSTOMER_PATH}/workflows/${encodeURIComponent(this.workflowId)}`;
+  }
+}
+
+export class CustomerProductsEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getProducts";
+
+  constructor(
+    private readonly productIds: string[],
+    private readonly currency?: string,
+    private readonly discountCode?: string,
+  ) {}
+
+  urlPath(): string {
+    return `${RC_BILLING_CUSTOMER_PATH}/products?${productsQuery(this.productIds, this.currency, this.discountCode)}`;
+  }
+}
+
+export class CustomerCheckoutRefreshPricingEndpoint implements Endpoint {
+  method: HttpMethodType = "PATCH";
+  name: string = "patchCustomerCheckoutRefreshPricing";
+
+  constructor(private readonly operationSessionId: string) {}
+
+  urlPath(): string {
+    return `${RC_BILLING_CUSTOMER_PATH}/checkout/${this.operationSessionId}`;
+  }
+}
+
+export class CustomerCheckoutStatusEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name: string = "getCustomerCheckoutStatus";
+
+  constructor(private readonly operationSessionId: string) {}
+
+  urlPath(): string {
+    return `${RC_BILLING_CUSTOMER_PATH}/checkout/${this.operationSessionId}`;
+  }
+}
+
 export class IamLoginEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
   name: string = "iamLogin";
@@ -286,13 +390,29 @@ export type SupportedEndpoint =
   | PurchaseEndpoint
   | GetProductsEndpoint
   | GetCustomerInfoEndpoint
+  | IdentifyEndpoint
   | GetBrandingInfoEndpoint
+  | CheckoutPrepareEndpoint
+  | CheckoutStartEndpoint
+  | CustomerCheckoutStartEndpoint
+  | CheckoutRefreshPricingEndpoint
+  | CheckoutCompleteEndpoint
+  | CustomerCheckoutCompleteEndpoint
   | GetCheckoutStatusEndpoint
   | SetAttributesEndpoint
   | PostReceiptEndpoint
   | GetVirtualCurrenciesEndpoint
   | GetWorkflowsEndpoint
   | GetWorkflowDataByIdEndpoint
+  | CustomerInfoEndpoint
+  | CustomerOfferingsEndpoint
+  | CustomerAttributesEndpoint
+  | CustomerVirtualCurrenciesEndpoint
+  | CustomerWorkflowsEndpoint
+  | CustomerWorkflowDataByIdEndpoint
+  | CustomerProductsEndpoint
+  | CustomerCheckoutRefreshPricingEndpoint
+  | CustomerCheckoutStatusEndpoint
   | IamLoginEndpoint
   | IamTokenEndpoint
   | IamRevokeEndpoint;

@@ -16,7 +16,7 @@ import type {
   IamRequestAuthorizer,
 } from "../iam/iam-session-manager";
 
-interface HttpRequestConfig<RequestBody> {
+export interface HttpRequestConfig<RequestBody> {
   apiKey: string;
   body?: RequestBody;
   headers?: { [key: string]: string };
