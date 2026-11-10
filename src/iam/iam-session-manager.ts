@@ -6,7 +6,9 @@ import { IamLock } from "./iam-lock";
 import {
   deserializeSession,
   type IamSession,
+  type IamTokens,
   serializeSession,
+  sessionFromTokens,
   sessionFromTokensResponse,
 } from "./iam-session";
 import type { IamStorage } from "./iam-storage";
@@ -213,6 +215,19 @@ export class IamSessionManager implements IamRequestAuthorizer {
   }
 
   /**
+   * Replaces the session with tokens obtained outside the SDK, e.g. by a
+   * server that called `/auth/login`. Without a refresh token the session
+   * ends at the access token's first 401.
+   */
+  setTokens(tokens: IamTokens): Promise<IamSession> {
+    const session = sessionFromTokens(tokens);
+    return this.lock.run(async () => {
+      await this.persist(session);
+      return session;
+    });
+  }
+
+  /**
    * Revokes the refresh token, then signs in anonymously, like the mobile
    * SDKs. A failed revocation keeps the current session.
    */
@@ -243,6 +258,10 @@ export class IamSessionManager implements IamRequestAuthorizer {
   }
 
   private async loadOrSignInAnonymously(): Promise<IamSession> {
+    // An operation queued ahead of this one (e.g. setTokens) may have set it.
+    if (this.session) {
+      return this.session;
+    }
     const stored = deserializeSession(await this.readStoredRaw());
     if (stored) {
       this.adopt(stored);

@@ -335,6 +335,52 @@ describe("Purchases configured with IAM", () => {
     );
   });
 
+  test("uses tokens passed at configure time instead of signing in", async () => {
+    storeSession("anon-old");
+    const login = vi.fn(() => jsonResponse(makeTokensResponse("anon-new")));
+    server.use(iamLoginHandler(login));
+    const accessToken = makeAccessToken("user-1", { amr: ["firebase"] });
+
+    const purchases = Purchases.configure({
+      apiKey: API_KEY,
+      iamEnabled: true,
+      iamTokens: { accessToken, refreshToken: "server-refresh-token" },
+    });
+    await purchases.getCustomerInfo();
+
+    expect(login).not.toHaveBeenCalled();
+    expect(purchases.getAppUserId()).toBe("user-1");
+    expect(requests.find((r) => r.path === "/v1/customer")?.authorization).toBe(
+      `Bearer ${accessToken}`,
+    );
+  });
+
+  test("rejects malformed tokens at configure time", () => {
+    expect(() =>
+      Purchases.configure({
+        apiKey: API_KEY,
+        iamEnabled: true,
+        iamTokens: { accessToken: "not-a-jwt" },
+      }),
+    ).toThrow(PurchasesError);
+  });
+
+  test("_setIamTokens switches to the tokens' user", async () => {
+    server.use(
+      iamLoginHandler(() => jsonResponse(makeTokensResponse("anon-1"))),
+    );
+    const purchases = configureWithIam();
+    await purchases.getCustomerInfo();
+
+    await purchases._setIamTokens({
+      accessToken: makeAccessToken("user-1", { amr: ["oidc"] }),
+      refreshToken: "server-refresh-token",
+    });
+
+    expect(purchases.getAppUserId()).toBe("user-1");
+    expect(purchases.isAnonymous()).toBe(false);
+  });
+
   test("rejects Amazon API keys", () => {
     expect(() =>
       Purchases.configure({ apiKey: "amzn_test_key", iamEnabled: true }),

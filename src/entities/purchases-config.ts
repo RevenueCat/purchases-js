@@ -2,6 +2,7 @@ import type { FlagsConfig } from "./flags-config";
 import type { HttpConfig } from "./http-config";
 import type { BrandingAppearance } from "./branding";
 import type { IamStorage } from "../iam/iam-storage";
+import type { IamTokens } from "../iam/iam-session";
 
 /**
  * Contextual information specific to workflows.
@@ -133,4 +134,9 @@ export interface IamPurchasesConfig
    * when `localStorage` is unavailable.
    */
   iamStorage?: IamStorage;
+  /**
+   * Tokens obtained outside the SDK, e.g. by a server that called
+   * `/auth/login`. They replace any stored session.
+   */
+  iamTokens?: IamTokens;
 }

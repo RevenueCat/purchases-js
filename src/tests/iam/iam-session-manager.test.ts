@@ -328,6 +328,53 @@ describe("logOut", () => {
   });
 });
 
+describe("setTokens", () => {
+  test("replaces the stored session with the given tokens", async () => {
+    storeSession("anon-1");
+    const manager = createManager();
+    const accessToken = makeAccessToken("user-1", { amr: ["firebase"] });
+
+    const session = await manager.setTokens({
+      accessToken,
+      refreshToken: "server-refresh-token",
+    });
+
+    expect(session).toMatchObject({
+      appUserId: "user-1",
+      refreshToken: "server-refresh-token",
+      isAnonymous: false,
+    });
+    expect(storage.getItem(STORAGE_KEY)).toBe(serializeSession(session));
+  });
+
+  test("a session request queued behind it uses the tokens", async () => {
+    const login = vi.fn(() => jsonResponse(makeTokensResponse("anon-1")));
+    server.use(iamLoginHandler(login));
+    const failingStorage = new MemoryIamStorage();
+    failingStorage.setItem = () => {
+      throw new Error("quota");
+    };
+    const manager = createManager({ storage: failingStorage });
+
+    const setting = manager.setTokens({
+      accessToken: makeAccessToken("user-1"),
+    });
+    const ensured = manager.ensureSession();
+    await setting;
+
+    expect((await ensured).appUserId).toBe("user-1");
+    expect(login).not.toHaveBeenCalled();
+  });
+
+  test("rejects a malformed access token without touching storage", () => {
+    const stored = storeSession("anon-1");
+    const manager = createManager();
+
+    expect(() => manager.setTokens({ accessToken: "nope" })).toThrow();
+    expect(storage.getItem(STORAGE_KEY)).toBe(serializeSession(stored));
+  });
+});
+
 describe("cross-tab sync", () => {
   test("adopts a session another tab writes to localStorage", async () => {
     storeSession("anon-1");

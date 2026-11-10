@@ -140,7 +140,11 @@ import {
 } from "./entities/purchases-config";
 import { IamAuthClient, type IamIdentity } from "./iam/iam-auth-client";
 import { IamSessionManager } from "./iam/iam-session-manager";
-import type { IamSession } from "./iam/iam-session";
+import {
+  type IamSession,
+  type IamTokens,
+  sessionFromTokens,
+} from "./iam/iam-session";
 import {
   defaultIamStorage,
   type IamStorage,
@@ -281,6 +285,7 @@ export type {
 } from "./entities/purchases-config";
 export type { IamStorage } from "./iam/iam-storage";
 export type { IamIdentity } from "./iam/iam-auth-client";
+export type { IamTokens } from "./iam/iam-session";
 export type { CustomPaywallImpressionParams } from "./entities/custom-paywall-impression-params";
 export type { VirtualCurrencies } from "./entities/virtual-currencies";
 export type { VirtualCurrency } from "./entities/virtual-currency";
@@ -688,6 +693,10 @@ export class Purchases {
       );
     }
 
+    if (config.iamTokens) {
+      Purchases.validateIamTokens(config.iamTokens);
+    }
+
     Purchases.instance?.iamSessionManager?.dispose();
     Purchases.instance = new Purchases(
       config.apiKey,
@@ -700,8 +709,21 @@ export class Purchases {
       config.trace_id,
       config.externalCheckoutUrl,
       config.externalCheckoutReturnUrl,
-      { storage: config.iamStorage },
+      { storage: config.iamStorage, tokens: config.iamTokens },
     );
+  }
+
+  /** @internal */
+  private static validateIamTokens(tokens: IamTokens): void {
+    try {
+      sessionFromTokens(tokens);
+    } catch (error) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Invalid IAM tokens.",
+        error instanceof Error ? error.message : undefined,
+      );
+    }
   }
 
   private static configureAppUserIdInternal(config: PurchasesConfig): void {
@@ -847,7 +869,7 @@ export class Purchases {
     trace_id?: string,
     externalCheckoutUrl?: string,
     externalCheckoutReturnUrl?: string,
-    iam?: { storage?: IamStorage },
+    iam?: { storage?: IamStorage; tokens?: IamTokens },
   ) {
     this._API_KEY = apiKey;
     this._appUserId = appUserId;
@@ -923,7 +945,10 @@ export class Purchases {
       this.iamSessionManager.addListener((session) =>
         this.onIamSessionChanged(session),
       );
-      this.iamSessionManager.ensureSession().catch((error) => {
+      const startSession = iam?.tokens
+        ? this.iamSessionManager.setTokens(iam.tokens)
+        : this.iamSessionManager.ensureSession();
+      startSession.catch((error) => {
         // Requests retry the sign-in, so this only delays them.
         Logger.warnLog(`Could not start the IAM session: ${error}`);
       });
@@ -3430,6 +3455,22 @@ export class Purchases {
    */
   public async logOut(): Promise<CustomerInfo> {
     await this.requireIam("logOut").logOut();
+    return await this.getCustomerInfo();
+  }
+
+  /**
+   * Switches to a session whose tokens were obtained outside the SDK, e.g. by
+   * a server that called `/auth/login`.
+   * @param tokens - The access token, and the refresh and ID tokens if any.
+   * @returns The customer info of the tokens' user.
+   * @throws {@link PurchasesError} if the SDK is not configured with IAM, or
+   * the tokens are malformed.
+   * @internal
+   */
+  public async _setIamTokens(tokens: IamTokens): Promise<CustomerInfo> {
+    const manager = this.requireIam("_setIamTokens");
+    Purchases.validateIamTokens(tokens);
+    await manager.setTokens(tokens);
     return await this.getCustomerInfo();
   }
 
