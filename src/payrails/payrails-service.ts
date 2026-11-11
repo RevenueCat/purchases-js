@@ -4,8 +4,10 @@ import type {
   Payrails as PayrailsClient,
 } from "@payrails/web-sdk";
 import type * as PayrailsSdk from "@payrails/web-sdk";
+import type { BrandingAppearance } from "../entities/branding";
 import type { PayrailsGatewayParams } from "../networking/responses/payrails-gateway-params";
 import { PAYRAILS_CHECKOUT_ENABLED } from "../helpers/constants";
+import { toPayrailsDropinAppearance } from "../ui/theme/payrails-dropin";
 
 let payrailsSdk: Promise<typeof PayrailsSdk> | null = null;
 
@@ -28,8 +30,10 @@ export function loadPayrailsSdk(): Promise<typeof PayrailsSdk> {
 
 function createPayrailsDropinOptions(
   alwaysStoreInstrument: boolean,
+  appearance: BrandingAppearance | null | undefined,
 ): DropinOptions {
   return {
+    appearance: toPayrailsDropinAppearance(appearance),
     paymentMethodsConfiguration: {
       cards: {
         showSingleExpiryDateField: true,
@@ -65,6 +69,7 @@ export class PayrailsService {
 
   async mountDropin(
     gatewayParams: PayrailsGatewayParams,
+    appearance: BrandingAppearance | null | undefined,
     handlers: PayrailsDropinHandlers,
   ): Promise<void> {
     const generation = ++this.generation;
@@ -98,7 +103,10 @@ export class PayrailsService {
     ];
 
     const dropin = client.dropin(
-      createPayrailsDropinOptions(gatewayParams.always_store_instrument),
+      createPayrailsDropinOptions(
+        gatewayParams.always_store_instrument,
+        appearance,
+      ),
     );
     dropin.mount(`#${PAYRAILS_DROPIN_CONTAINER_ID}`);
     this.dropin = dropin;
