@@ -92,6 +92,19 @@ describe("ensureSession", () => {
     expect(session).toEqual(stored);
   });
 
+  test("getCurrentCredentials is null until a session is loaded", async () => {
+    const stored = storeSession("user-1", { amr: ["oidc"] });
+    const manager = createManager();
+
+    expect(manager.getCurrentCredentials()).toBeNull();
+    await manager.ensureSession();
+
+    expect(manager.getCurrentCredentials()).toEqual({
+      accessToken: stored.accessToken,
+      appUserId: "user-1",
+    });
+  });
+
   test("signs in anonymously when the stored session is unusable", async () => {
     storage.setItem(STORAGE_KEY, "garbage");
     server.use(

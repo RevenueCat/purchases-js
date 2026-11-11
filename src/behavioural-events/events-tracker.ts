@@ -2,6 +2,7 @@ import { generateUUID } from "../helpers/uuid-helper";
 import { RC_ANALYTICS_ENDPOINT } from "../helpers/constants";
 import { HttpMethods } from "msw";
 import { getHeaders } from "../networking/http-client";
+import type { IamRequestAuthorizer } from "../iam/iam-session-manager";
 import { FlushManager, type FlushOptions } from "./flush-manager";
 import { Logger } from "../helpers/logger";
 import { defaultPurchaseMode, Event, type EventProperties } from "./event";
@@ -40,6 +41,7 @@ export interface EventsTrackerProps {
   workflowContext?: WorkflowContext;
   trace_id?: string;
   httpConfig?: HttpConfig;
+  iamAuthorizer?: IamRequestAuthorizer;
 }
 
 export interface IEventsTracker {
@@ -72,6 +74,7 @@ export default class EventsTracker implements IEventsTracker {
   private readonly isSilent: boolean;
   private rcSource: string | null;
   private readonly workflowContext?: WorkflowContext;
+  private readonly iamAuthorizer?: IamRequestAuthorizer;
   private isDisposed: boolean = false;
 
   private static readonly appSessionId = generateUUID();
@@ -84,6 +87,7 @@ export default class EventsTracker implements IEventsTracker {
     this.rcSource = props.rcSource;
     this.workflowContext = props.workflowContext;
     this.traceId = props.trace_id || generateUUID();
+    this.iamAuthorizer = props.iamAuthorizer;
     this.flushManager = new FlushManager(
       MIN_INTERVAL_RETRY,
       MAX_INTERVAL_RETRY,
@@ -291,14 +295,29 @@ export default class EventsTracker implements IEventsTracker {
     try {
       // keepalive only protects requests that have started, so fetch must
       // start in the same task that tracked the event: nothing before it may
-      // await.
+      // await. Under IAM the only wait is for a session that hasn't loaded.
+      const authorizer = this.iamAuthorizer;
+      const credentials = authorizer
+        ? (authorizer.getCurrentCredentials() ??
+          (await authorizer.getCredentials()))
+        : null;
       const response = await fetch(this.eventsUrl, {
         method: HttpMethods.POST,
-        headers: getHeaders(this.apiKey),
+        headers: getHeaders(
+          this.apiKey,
+          credentials
+            ? { Authorization: `Bearer ${credentials.accessToken}` }
+            : undefined,
+        ),
         body,
         keepalive: true,
       });
       Logger.debugLog(`[EventsTracker] Flush response: ${response.status}`);
+      if (authorizer && credentials && response.status === 401) {
+        // The batch stays queued; the flush manager's retry uses the new token.
+        await authorizer.refreshAfterUnauthorized(credentials);
+        throw new Error("Events failed to flush with an expired IAM token");
+      }
       if (response.status === 200 || response.status === 201) {
         this.eventsQueue.splice(0, eventsToFlush.length);
 

@@ -23,6 +23,12 @@ export interface IamCredentials {
 
 /** What the networking layer needs to authorize requests with IAM tokens. */
 export interface IamRequestAuthorizer {
+  /**
+   * The credentials of the session in memory, or null while none is loaded.
+   * Lets callers that must not yield (keepalive event flushes) skip the wait.
+   */
+  getCurrentCredentials(): IamCredentials | null;
+
   getCredentials(): Promise<IamCredentials>;
 
   /**
@@ -131,6 +137,10 @@ export class IamSessionManager implements IamRequestAuthorizer {
         });
     }
     return this.pendingSession;
+  }
+
+  getCurrentCredentials(): IamCredentials | null {
+    return this.session ? credentialsOf(this.session) : null;
   }
 
   async getCredentials(): Promise<IamCredentials> {

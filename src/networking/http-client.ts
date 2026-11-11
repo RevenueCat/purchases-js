@@ -11,12 +11,21 @@ import {
 } from "../helpers/api-key-helper";
 import type { HttpConfig } from "../entities/http-config";
 import { Purchases } from "../main";
+import type {
+  IamCredentials,
+  IamRequestAuthorizer,
+} from "../iam/iam-session-manager";
 
 interface HttpRequestConfig<RequestBody> {
   apiKey: string;
   body?: RequestBody;
   headers?: { [key: string]: string };
   httpConfig?: HttpConfig;
+  /**
+   * Sends the IAM access token instead of the API key, refreshing it and
+   * retrying once if the request gets a 401.
+   */
+  iamAuthorizer?: IamRequestAuthorizer;
 }
 
 export interface ResponseWithStatus<ResponseType> {
@@ -42,17 +51,43 @@ export async function performRequestWithStatus<RequestBody, ResponseType>(
   config: HttpRequestConfig<RequestBody>,
   signal?: AbortSignal | null,
 ): Promise<ResponseWithStatus<ResponseType>> {
-  const { apiKey, body, headers, httpConfig } = config;
+  const { apiKey, body, headers, httpConfig, iamAuthorizer } = config;
   const baseUrl = httpConfig?.proxyURL ?? RC_ENDPOINT;
   const url = `${baseUrl}${endpoint.urlPath()}`;
 
   try {
-    const response = await fetch(url, {
-      method: endpoint.method,
-      headers: getHeaders(apiKey, headers, httpConfig?.additionalHeaders),
-      body: getBody(body),
-      signal,
-    });
+    const send = (credentials: IamCredentials | null) =>
+      fetch(url, {
+        method: endpoint.method,
+        headers: getHeaders(
+          apiKey,
+          credentials
+            ? {
+                ...headers,
+                [AUTHORIZATION_HEADER]: `Bearer ${credentials.accessToken}`,
+              }
+            : headers,
+          httpConfig?.additionalHeaders,
+        ),
+        body: getBody(body),
+        signal,
+      });
+
+    let credentials = iamAuthorizer
+      ? await iamAuthorizer.getCredentials()
+      : null;
+    let response = await send(credentials);
+    if (
+      iamAuthorizer &&
+      credentials &&
+      response.status === StatusCodes.UNAUTHORIZED
+    ) {
+      // Same as the mobile SDKs: refresh only after a 401, and retry once.
+      credentials = await iamAuthorizer.refreshAfterUnauthorized(credentials);
+      if (credentials) {
+        response = await send(credentials);
+      }
+    }
 
     await handleErrors(response, endpoint);
 
