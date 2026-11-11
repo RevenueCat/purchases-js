@@ -29,6 +29,14 @@ import {
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
 import { ExternalPurchasesService } from "./external/external-purchases-service";
+import type {
+  ExternalPurchaseOutcome,
+  ResumeExternalPurchaseParams,
+} from "./entities/external-purchase";
+export type {
+  ExternalPurchaseOutcome,
+  ResumeExternalPurchaseParams,
+} from "./entities/external-purchase";
 import {
   isAmazonApiKey,
   isPaddleApiKey,
@@ -2163,6 +2171,43 @@ export class Purchases {
       purchaseOption,
       translator,
     };
+  }
+
+  /**
+   * Resumes an External checkout using its returned checkout token.
+   * Configure the SDK with the same app user ID used to start checkout.
+   * A pending result can be retried when the purchase report arrives later.
+   * Request errors reject; checkout failures are returned in the outcome.
+   */
+  public async resumeExternalPurchase(
+    params: ResumeExternalPurchaseParams,
+  ): Promise<ExternalPurchaseOutcome> {
+    if (!isExternalApiKey(this._API_KEY)) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "Resuming External purchases requires an External API key.",
+      );
+    }
+    const appUserId = this._appUserId;
+    return new ExternalPurchasesService(
+      this.backend,
+      this.eventsTracker,
+    ).resume(
+      params,
+      appUserId,
+      () => {
+        if (this._appUserId !== appUserId) {
+          throw new PurchasesError(
+            ErrorCode.ConfigurationError,
+            "The SDK customer changed while resuming checkout. Retry with the original customer.",
+          );
+        }
+      },
+      async () => {
+        this.invalidateRequestDataCaches();
+        return this._getCustomerInfoForUserId(appUserId);
+      },
+    );
   }
 
   /**

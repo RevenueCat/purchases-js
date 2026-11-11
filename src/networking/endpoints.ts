@@ -175,12 +175,18 @@ export class GetCheckoutStatusEndpoint implements Endpoint {
   name: string = "getCheckoutStatus";
   private readonly operationSessionId: string;
 
-  constructor(operationSessionId: string) {
+  constructor(
+    operationSessionId: string,
+    private readonly appUserId?: string,
+  ) {
     this.operationSessionId = operationSessionId;
   }
 
   urlPath(): string {
-    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}`;
+    const path = `${RC_BILLING_PATH}/checkout/${encodeURIComponent(this.operationSessionId)}`;
+    return this.appUserId === undefined
+      ? path
+      : `${path}?app_user_id=${encodeURIComponent(this.appUserId)}`;
   }
 }
 

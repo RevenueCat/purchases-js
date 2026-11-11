@@ -13,6 +13,143 @@ import { http, HttpResponse } from "msw";
 import type * as BrowserGlobals from "../helpers/browser-globals";
 
 const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }));
+
+test.each([
+  ["started", false, "pending"],
+  ["in_progress", true, "expired"],
+  ["failed", false, "failed"],
+])("resumes %s checkout as %s", async (status, isExpired, expected) => {
+  server.use(
+    http.get(
+      "http://localhost:8000/rcbilling/v1/checkout/:token",
+      ({ request }) => {
+        expect(new URL(request.url).searchParams.get("app_user_id")).toBe(
+          "return-user",
+        );
+        return HttpResponse.json({
+          operation: { status, is_expired: isExpired },
+        });
+      },
+    ),
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "return-user",
+  });
+  expect(
+    (
+      await purchases.resumeExternalPurchase({
+        checkoutToken: "token",
+        waitTimeoutMs: 0,
+      })
+    ).status,
+  ).toBe(expected);
+});
+
+test("resumes a successful expired checkout with its reported product and redemption link", async () => {
+  server.use(
+    http.get("http://localhost:8000/v1/subscribers/:id", () =>
+      HttpResponse.json(customerInfoResponse),
+    ),
+    http.get("http://localhost:8000/rcbilling/v1/checkout/:token", () =>
+      HttpResponse.json({
+        operation: {
+          status: "succeeded",
+          is_expired: true,
+          product_identifier: "reported-product",
+          store_transaction_identifier: "transaction",
+          purchase_date: "2026-11-11T12:00:00Z",
+          redemption_info: { redeem_url: "https://redeem.example/token" },
+        },
+      }),
+    ),
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "return-user",
+  });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const result = await purchases.resumeExternalPurchase({
+      checkoutToken: "token",
+      waitTimeoutMs: 0,
+    });
+    expect(result.status).toBe("completed");
+    if (result.status === "completed") {
+      expect(result.purchaseResult.storeTransaction.productIdentifier).toBe(
+        "reported-product",
+      );
+      expect(result.purchaseResult.redemptionInfo?.redeemUrl).toBe(
+        "https://redeem.example/token",
+      );
+    }
+  }
+});
+
+test("rejects malformed successful checkout responses", async () => {
+  server.use(
+    http.get("http://localhost:8000/rcbilling/v1/checkout/:token", () =>
+      HttpResponse.json({
+        operation: { status: "succeeded", is_expired: false },
+      }),
+    ),
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "return-user",
+  });
+  await expect(
+    purchases.resumeExternalPurchase({
+      checkoutToken: "token",
+      waitTimeoutMs: 0,
+    }),
+  ).rejects.toMatchObject({
+    errorCode: ErrorCode.UnexpectedBackendResponseError,
+  });
+});
+
+test("polls until the purchase report arrives", async () => {
+  let checks = 0;
+  server.use(
+    http.get("http://localhost:8000/rcbilling/v1/checkout/:token", () => {
+      checks++;
+      return HttpResponse.json({
+        operation: {
+          status: checks === 1 ? "started" : "failed",
+          is_expired: false,
+        },
+      });
+    }),
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "return-user",
+  });
+  expect(
+    (
+      await purchases.resumeExternalPurchase({
+        checkoutToken: "token",
+        waitTimeoutMs: 2000,
+      })
+    ).status,
+  ).toBe("failed");
+  expect(checks).toBe(2);
+});
+
+test.each([NaN, Infinity, -1])(
+  "rejects invalid polling timeout %s",
+  async (waitTimeoutMs) => {
+    const purchases = Purchases.configure({
+      apiKey: "ext_public_test",
+      appUserId: "return-user",
+    });
+    await expect(
+      purchases.resumeExternalPurchase({
+        checkoutToken: "token",
+        waitTimeoutMs,
+      }),
+    ).rejects.toMatchObject({ errorCode: ErrorCode.ConfigurationError });
+  },
+);
 vi.mock("../helpers/browser-globals", async (importOriginal) => ({
   ...(await importOriginal<typeof BrowserGlobals>()),
   getWindow: () => ({ location: { assign: navigate } }),

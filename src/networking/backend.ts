@@ -572,9 +572,10 @@ export class Backend {
 
   async getCheckoutStatus(
     operationSessionId: string,
+    appUserId?: string,
   ): Promise<CheckoutStatusResponse> {
     return await performRequest<null, CheckoutStatusResponse>(
-      new GetCheckoutStatusEndpoint(operationSessionId),
+      new GetCheckoutStatusEndpoint(operationSessionId, appUserId),
       {
         apiKey: this.API_KEY,
         httpConfig: this.httpConfig,
