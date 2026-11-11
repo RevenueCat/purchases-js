@@ -159,6 +159,19 @@ export interface ExpressPurchaseButtonUpdater {
 }
 
 // @public
+export type ExternalPurchaseOutcome = {
+    status: "completed";
+    purchaseResult: PurchaseResult;
+} | {
+    status: "pending";
+} | {
+    status: "failed";
+    error: PurchasesError;
+} | {
+    status: "expired";
+};
+
+// @public
 export interface FlagsConfig {
     applePayBrandingLogoEnabled?: boolean;
     autoCollectUTMAsMetadata?: boolean;
@@ -592,6 +605,7 @@ export class Purchases {
     purchase(params: PurchaseParams): Promise<PurchaseResult>;
     // @deprecated
     purchasePackage(rcPackage: Package, customerEmail?: string, htmlTarget?: HTMLElement): Promise<PurchaseResult>;
+    resumeExternalPurchase(params: ResumeExternalPurchaseParams): Promise<ExternalPurchaseOutcome>;
     setAttributes(attributes: {
         [key: string | ReservedCustomerAttribute]: string | null;
     }): Promise<void>;
@@ -695,6 +709,12 @@ export enum ReservedCustomerAttribute {
     TelemetryDeckAppId = "$telemetryDeckAppId",
     TelemetryDeckUserId = "$telemetryDeckUserId",
     TenjinId = "$tenjinId"
+}
+
+// @public
+export interface ResumeExternalPurchaseParams {
+    checkoutToken: string;
+    waitTimeoutMs?: number;
 }
 
 // @public
