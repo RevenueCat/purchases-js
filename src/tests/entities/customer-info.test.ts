@@ -102,7 +102,7 @@ describe("customer info parsing", () => {
             isActive: true,
             isSandbox: true,
             latestPurchaseDate: new Date("2024-01-31T13:46:23Z"),
-            originalPurchaseDate: new Date("2024-01-31T13:46:23.000Z"),
+            originalPurchaseDate: new Date("2024-01-24T13:46:23.000Z"),
             periodType: "normal",
             productIdentifier: "weekly_test",
             productPlanIdentifier: null,
@@ -120,7 +120,7 @@ describe("customer info parsing", () => {
             isActive: true,
             isSandbox: true,
             latestPurchaseDate: new Date("2024-01-31T13:46:23Z"),
-            originalPurchaseDate: new Date("2024-01-31T13:46:23.000Z"),
+            originalPurchaseDate: new Date("2024-01-24T13:46:23.000Z"),
             periodType: "normal",
             productIdentifier: "weekly_test",
             productPlanIdentifier: null,
@@ -227,7 +227,7 @@ describe("customer info parsing", () => {
             billing_issues_detected_at: null,
             is_sandbox: true,
             management_url: "https://apps.apple.com/account/subscriptions",
-            original_purchase_date: "2019-07-26T23:30:41Z",
+            original_purchase_date: "2018-09-26T23:17:53Z",
             purchase_date: "2019-07-26T23:45:40Z",
             product_plan_identifier: "monthly",
             store: "app_store",
@@ -239,7 +239,7 @@ describe("customer info parsing", () => {
             billing_issues_detected_at: null,
             is_sandbox: true,
             management_url: "https://apps.apple.com/account/subscriptions",
-            original_purchase_date: "2019-07-26T23:30:41Z",
+            original_purchase_date: "1990-05-30T02:40:36Z",
             purchase_date: "2019-07-26T23:45:40Z",
             product_plan_identifier: "monthly",
             store: "app_store",
@@ -308,7 +308,7 @@ describe("customer info parsing", () => {
             isActive: true,
             isSandbox: true,
             latestPurchaseDate: new Date("2018-10-26T23:17:53.000Z"),
-            originalPurchaseDate: new Date("2018-10-26T23:17:53.000Z"),
+            originalPurchaseDate: new Date("2018-09-26T23:17:53.000Z"),
             periodType: "normal",
             productIdentifier: "pro",
             productPlanIdentifier: "monthly",
@@ -326,7 +326,7 @@ describe("customer info parsing", () => {
             isActive: false,
             isSandbox: true,
             latestPurchaseDate: new Date("1990-06-30T02:40:36.000Z"),
-            originalPurchaseDate: new Date("1990-06-30T02:40:36.000Z"),
+            originalPurchaseDate: new Date("1990-05-30T02:40:36.000Z"),
             periodType: "normal",
             productIdentifier: "basic",
             productPlanIdentifier: "monthly",
@@ -358,7 +358,7 @@ describe("customer info parsing", () => {
             isActive: true,
             isSandbox: true,
             latestPurchaseDate: new Date("2018-10-26T23:17:53.000Z"),
-            originalPurchaseDate: new Date("2018-10-26T23:17:53.000Z"),
+            originalPurchaseDate: new Date("2018-09-26T23:17:53.000Z"),
             periodType: "normal",
             productIdentifier: "pro",
             productPlanIdentifier: "monthly",
@@ -419,7 +419,7 @@ describe("customer info parsing", () => {
           isActive: false,
           isSandbox: true,
           managementURL: "https://apps.apple.com/account/subscriptions",
-          originalPurchaseDate: new Date("2019-07-26T23:30:41Z"),
+          originalPurchaseDate: new Date("1990-05-30T02:40:36Z"),
           ownershipType: "UNKNOWN",
           periodType: "normal",
           productIdentifier: "basic",
@@ -441,7 +441,7 @@ describe("customer info parsing", () => {
           isActive: true,
           isSandbox: true,
           managementURL: "https://apps.apple.com/account/subscriptions",
-          originalPurchaseDate: new Date("2019-07-26T23:30:41Z"),
+          originalPurchaseDate: new Date("2018-09-26T23:17:53Z"),
           ownershipType: "UNKNOWN",
           periodType: "normal",
           productIdentifier: "pro",
@@ -521,7 +521,7 @@ describe("customer info parsing", () => {
             isActive: true,
             isSandbox: true,
             latestPurchaseDate: new Date("2024-01-31T13:46:23Z"),
-            originalPurchaseDate: new Date("2024-01-31T13:46:23.000Z"),
+            originalPurchaseDate: new Date("2024-01-24T13:46:23.000Z"),
             periodType: "normal",
             productIdentifier: "weekly_test",
             productPlanIdentifier: null,
@@ -539,7 +539,7 @@ describe("customer info parsing", () => {
             isActive: true,
             isSandbox: true,
             latestPurchaseDate: new Date("2024-01-31T13:46:23Z"),
-            originalPurchaseDate: new Date("2024-01-31T13:46:23.000Z"),
+            originalPurchaseDate: new Date("2024-01-24T13:46:23.000Z"),
             periodType: "normal",
             productIdentifier: "weekly_test",
             productPlanIdentifier: null,
@@ -669,5 +669,49 @@ describe("customer info parsing", () => {
     const subscription =
       customerInfo.subscriptionsByProductIdentifier["play_monthly"];
     expect(subscription.autoResumeDate).toEqual(new Date(autoResumeDateString));
+  });
+
+  test("subscription entitlement uses the subscription's original purchase date", () => {
+    const subscriberResponse: SubscriberResponse = {
+      request_date: "2024-03-01T00:00:00Z",
+      request_date_ms: 1709251200000,
+      subscriber: {
+        entitlements: {
+          premium: {
+            expires_date: "2124-03-24T10:00:00Z",
+            grace_period_expires_date: null,
+            product_identifier: "monthly",
+            purchase_date: "2024-02-24T10:00:00Z",
+          },
+        },
+        first_seen: "2024-01-20T00:00:00Z",
+        management_url: null,
+        non_subscriptions: {},
+        original_app_user_id: "renewedUser",
+        original_application_version: null,
+        original_purchase_date: null,
+        other_purchases: {},
+        subscriptions: {
+          monthly: {
+            billing_issues_detected_at: null,
+            expires_date: "2124-03-24T10:00:00Z",
+            is_sandbox: false,
+            original_purchase_date: "2024-01-24T10:00:00Z",
+            period_type: "normal",
+            purchase_date: "2024-02-24T10:00:00Z",
+            store: "rc_billing",
+            unsubscribe_detected_at: null,
+          },
+        },
+      },
+    };
+    const customerInfo = toCustomerInfo(subscriberResponse);
+    const entitlement = customerInfo.entitlements.all["premium"];
+    expect(entitlement.latestPurchaseDate).toEqual(
+      new Date("2024-02-24T10:00:00Z"),
+    );
+    expect(entitlement.originalPurchaseDate).toEqual(
+      new Date("2024-01-24T10:00:00Z"),
+    );
   });
 });
