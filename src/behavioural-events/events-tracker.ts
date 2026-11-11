@@ -268,18 +268,18 @@ export default class EventsTracker implements IEventsTracker {
     return eventsToFlush;
   }
 
-  private doFlush(options?: FlushOptions): Promise<boolean> {
+  private async doFlush(options?: FlushOptions): Promise<boolean> {
     if (!options?.ignoreDisposed && this.isDisposed) {
-      return Promise.resolve(true);
+      return true;
     }
 
     if (this.eventsQueue.length === 0) {
-      return Promise.resolve(true);
+      return true;
     }
 
     const eventsToFlush = this.batchEventsForKeepalive();
     if (!eventsToFlush) {
-      return Promise.resolve(this.eventsQueue.length === 0);
+      return this.eventsQueue.length === 0;
     }
 
     // Only remove from queue after successful delivery
@@ -288,28 +288,30 @@ export default class EventsTracker implements IEventsTracker {
       `[EventsTracker] Flushing ${eventsToFlush.length} event(s) to ${this.eventsUrl}`,
     );
     Logger.debugLog(`[EventsTracker] Body: ${body}`);
-    return fetch(this.eventsUrl, {
-      method: HttpMethods.POST,
-      headers: getHeaders(this.apiKey),
-      body,
-      keepalive: true,
-    })
-      .then((response) => {
-        Logger.debugLog(`[EventsTracker] Flush response: ${response.status}`);
-        if (response.status === 200 || response.status === 201) {
-          this.eventsQueue.splice(0, eventsToFlush.length);
-
-          if (this.eventsQueue.length > 0) {
-            this.flushManager.schedule();
-          }
-          return this.eventsQueue.length === 0;
-        }
-        Logger.debugLog("Events failed to flush due to server error");
-        throw new Error("Events failed to flush due to server error");
-      })
-      .catch((error) => {
-        Logger.debugLog(`[EventsTracker] Flush error: ${error}`);
-        throw error;
+    try {
+      // keepalive only protects requests that have started, so fetch must
+      // start in the same task that tracked the event: nothing before it may
+      // await.
+      const response = await fetch(this.eventsUrl, {
+        method: HttpMethods.POST,
+        headers: getHeaders(this.apiKey),
+        body,
+        keepalive: true,
       });
+      Logger.debugLog(`[EventsTracker] Flush response: ${response.status}`);
+      if (response.status === 200 || response.status === 201) {
+        this.eventsQueue.splice(0, eventsToFlush.length);
+
+        if (this.eventsQueue.length > 0) {
+          this.flushManager.schedule();
+        }
+        return this.eventsQueue.length === 0;
+      }
+      Logger.debugLog("Events failed to flush due to server error");
+      throw new Error("Events failed to flush due to server error");
+    } catch (error) {
+      Logger.debugLog(`[EventsTracker] Flush error: ${error}`);
+      throw error;
+    }
   }
 }

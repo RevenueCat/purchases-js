@@ -152,6 +152,19 @@ describe("EventsTracker", (test) => {
     });
   });
 
+  test<EventsTrackerFixtures>("starts the keepalive request in the same task that tracked the event", async ({
+    eventsTracker,
+  }) => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    eventsTracker.trackExternalEvent({ eventName: "external", source: "sdk" });
+
+    // A navigation right after tracking would cancel a request not yet started.
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(fetchSpy.mock.calls[0][1]).toMatchObject({ keepalive: true });
+    fetchSpy.mockRestore();
+  });
+
   test("uses the Amazon platform header for events when configured with an Amazon API key", async () => {
     let requestPerformed: Request | undefined;
     server.events.on("request:start", (req) => {
