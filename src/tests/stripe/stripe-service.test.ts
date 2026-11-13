@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import {
   StripeService,
+  StripeServiceError,
   StripeServiceErrorCode,
 } from "../../stripe/stripe-service";
 import type {
@@ -94,17 +95,18 @@ describe("StripeService", () => {
     });
 
     test("throws error when required configuration is missing", async () => {
-      await expect(
-        StripeService.initializeStripe(
-          "",
-          "",
-          null as unknown as StripeElementsConfiguration,
-          mockConfig.brandingInfo,
-          mockConfig.localeToUse,
-          mockConfig.stripeVariables,
-          mockConfig.viewport,
-        ),
-      ).rejects.toEqual({
+      const promise = StripeService.initializeStripe(
+        "",
+        "",
+        null as unknown as StripeElementsConfiguration,
+        mockConfig.brandingInfo,
+        mockConfig.localeToUse,
+        mockConfig.stripeVariables,
+        mockConfig.viewport,
+      );
+
+      await expect(promise).rejects.toThrow(StripeServiceError);
+      await expect(promise).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: undefined,
         message: "Stripe configuration is missing",
@@ -128,7 +130,7 @@ describe("StripeService", () => {
           mockConfig.stripeVariables,
           mockConfig.viewport,
         ),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: "failed_to_load",
         message: "Failed to load",
@@ -138,17 +140,18 @@ describe("StripeService", () => {
     test("throws error when stripe client is not found", async () => {
       vi.mocked(loadStripe).mockResolvedValue(null);
 
-      await expect(
-        StripeService.initializeStripe(
-          mockConfig.stripeAccountId,
-          mockConfig.publishableApiKey,
-          mockConfig.elementsConfiguration,
-          mockConfig.brandingInfo,
-          mockConfig.localeToUse,
-          mockConfig.stripeVariables,
-          mockConfig.viewport,
-        ),
-      ).rejects.toEqual({
+      const promise = StripeService.initializeStripe(
+        mockConfig.stripeAccountId,
+        mockConfig.publishableApiKey,
+        mockConfig.elementsConfiguration,
+        mockConfig.brandingInfo,
+        mockConfig.localeToUse,
+        mockConfig.stripeVariables,
+        mockConfig.viewport,
+      );
+
+      await expect(promise).rejects.toThrow(StripeServiceError);
+      await expect(promise).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: undefined,
         message: "Stripe client not found",
@@ -178,7 +181,7 @@ describe("StripeService", () => {
           mockConfig.stripeVariables,
           mockConfig.viewport,
         ),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: "failed_to_load",
         message: "Failed to load",
@@ -197,9 +200,15 @@ describe("StripeService", () => {
     };
 
     test("throws error when required configuration is missing", async () => {
-      await expect(
-        StripeService.initializeStripeCheckout("", "", undefined, undefined),
-      ).rejects.toEqual({
+      const promise = StripeService.initializeStripeCheckout(
+        "",
+        "",
+        undefined,
+        undefined,
+      );
+
+      await expect(promise).rejects.toThrow(StripeServiceError);
+      await expect(promise).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: undefined,
         message: "Stripe configuration is missing",
@@ -260,7 +269,7 @@ describe("StripeService", () => {
           "pk_test_123",
           stripeBillingParams,
         ),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: "failed_to_load",
         message: "Failed to load",
@@ -313,7 +322,7 @@ describe("StripeService", () => {
 
       const result = StripeService.mapInitializationError(error);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         code: StripeServiceErrorCode.ErrorLoadingStripe,
         gatewayErrorCode: "failed_to_load",
         message: "Failed to load",
@@ -329,7 +338,7 @@ describe("StripeService", () => {
 
       const result = StripeService.mapError(error);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         code: StripeServiceErrorCode.HandledFormError,
         gatewayErrorCode: "card_declined",
         message: "Card was declined",
@@ -345,7 +354,7 @@ describe("StripeService", () => {
 
       const result = StripeService.mapError(error);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         code: StripeServiceErrorCode.UnhandledFormError,
         gatewayErrorCode: "unknown_error",
         message: "Something went wrong",
@@ -454,7 +463,7 @@ describe("StripeService", () => {
 
       await expect(
         StripeService.extractTaxCustomerDetails(mockElements, mockStripe),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ConfirmationTokenError,
         gatewayDeclineCode: "card_not_supported",
         gatewayErrorCode: "card_declined",
@@ -476,7 +485,7 @@ describe("StripeService", () => {
 
       await expect(
         StripeService.extractTaxCustomerDetails(mockElements, mockStripe),
-      ).rejects.toEqual({
+      ).rejects.toMatchObject({
         code: StripeServiceErrorCode.ConfirmationTokenError,
         gatewayErrorCode: "api_error",
         message: "Something went wrong.",
@@ -490,7 +499,7 @@ describe("StripeService", () => {
         message: "An error occurred while processing your card.",
       } as StripeError);
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         code: StripeServiceErrorCode.ConfirmationTokenError,
         gatewayErrorCode: "processing_error",
         message: "An error occurred while processing your card.",
