@@ -16,6 +16,7 @@ import { ErrorCode, PurchasesError } from "../entities/errors";
 import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,
+  PurchaseOperationHelper,
 } from "../helpers/purchase-operation-helper";
 import type { Backend } from "../networking/backend";
 import type {
@@ -28,7 +29,6 @@ import type {
   AttributionMetadata,
   WorkflowPurchaseContext,
 } from "../entities/purchase-params";
-import type { CheckoutStatusResponse } from "../networking/responses/checkout-status-response";
 import { CheckoutSessionStatus } from "../networking/responses/checkout-status-response";
 import { toRedemptionInfo } from "../entities/redemption-info";
 import type { OperationSessionSuccessfulResult } from "../helpers/purchase-operation-helper";
@@ -207,7 +207,6 @@ export class PaddleService {
   private readonly backend: Backend;
   private readonly eventsTracker: IEventsTracker;
   private readonly maxNumberAttempts: number;
-  private readonly waitMSBetweenAttempts = 1000;
 
   constructor(
     backend: Backend,
@@ -513,86 +512,79 @@ export class PaddleService {
     }
 
     return new Promise<OperationSessionSuccessfulResult>((resolve, reject) => {
-      const checkForOperationStatus = (checkCount = 1) => {
-        if (checkCount > this.maxNumberAttempts) {
-          reject(
-            new PurchaseFlowError(
-              PurchaseFlowErrorCode.UnknownError,
-              "Max attempts reached trying to get successful purchase status",
-            ),
-          );
-          return;
-        }
-        this.backend
-          .getCheckoutStatus(operationSessionId)
-          .then((operationResponse: CheckoutStatusResponse) => {
-            const storeTransactionIdentifier =
-              operationResponse.operation.store_transaction_identifier;
-            const productIdentifier =
-              operationResponse.operation.product_identifier;
-            const purchaseDate = operationResponse.operation.purchase_date
-              ? isNaN(Date.parse(operationResponse.operation.purchase_date))
-                ? null
-                : new Date(operationResponse.operation.purchase_date)
-              : null;
-            switch (operationResponse.operation.status) {
-              case CheckoutSessionStatus.Started:
-              case CheckoutSessionStatus.InProgress:
-                setTimeout(
-                  () => checkForOperationStatus(checkCount + 1),
-                  this.waitMSBetweenAttempts,
+      PurchaseOperationHelper.pollOperationSession(
+        this.backend,
+        operationSessionId,
+        { maxAttempts: this.maxNumberAttempts },
+      )
+        .then((result) => {
+          if (result.status !== "finished") {
+            reject(
+              new PurchaseFlowError(
+                PurchaseFlowErrorCode.UnknownError,
+                "Max attempts reached trying to get successful purchase status",
+              ),
+            );
+            return;
+          }
+          const operationResponse = result.response;
+          const storeTransactionIdentifier =
+            operationResponse.operation.store_transaction_identifier;
+          const productIdentifier =
+            operationResponse.operation.product_identifier;
+          const purchaseDate = operationResponse.operation.purchase_date
+            ? isNaN(Date.parse(operationResponse.operation.purchase_date))
+              ? null
+              : new Date(operationResponse.operation.purchase_date)
+            : null;
+          switch (operationResponse.operation.status) {
+            case CheckoutSessionStatus.Succeeded:
+              if (
+                !storeTransactionIdentifier ||
+                !productIdentifier ||
+                !purchaseDate
+              ) {
+                reject(
+                  new PurchaseFlowError(
+                    PurchaseFlowErrorCode.UnknownError,
+                    "Missing required fields in operation response.",
+                  ),
                 );
-                break;
-              case CheckoutSessionStatus.Succeeded:
-                if (
-                  !storeTransactionIdentifier ||
-                  !productIdentifier ||
-                  !purchaseDate
-                ) {
-                  reject(
-                    new PurchaseFlowError(
-                      PurchaseFlowErrorCode.UnknownError,
-                      "Missing required fields in operation response.",
-                    ),
-                  );
-                  return;
-                }
-                resolve({
-                  redemptionInfo: toRedemptionInfo(operationResponse),
-                  operationSessionId: operationSessionId,
-                  storeTransactionIdentifier: storeTransactionIdentifier ?? "",
-                  productIdentifier: productIdentifier,
-                  purchaseDate: purchaseDate ?? new Date(),
-                  attributionMetadata:
-                    operationResponse.attribution_metadata ?? undefined,
-                });
                 return;
-              case CheckoutSessionStatus.Failed:
-                handleCheckoutSessionFailed(
-                  operationResponse.operation.error,
-                  reject,
-                );
-            }
-          })
-          .catch((error) => {
-            if (error instanceof PurchasesError) {
-              const purchasesError = PurchaseFlowError.fromPurchasesError(
-                error,
+              }
+              resolve({
+                redemptionInfo: toRedemptionInfo(operationResponse),
+                operationSessionId: operationSessionId,
+                storeTransactionIdentifier: storeTransactionIdentifier ?? "",
+                productIdentifier: productIdentifier,
+                purchaseDate: purchaseDate ?? new Date(),
+                attributionMetadata:
+                  operationResponse.attribution_metadata ?? undefined,
+              });
+              return;
+            case CheckoutSessionStatus.Failed:
+              handleCheckoutSessionFailed(
+                operationResponse.operation.error,
+                reject,
+              );
+          }
+        })
+        .catch((error) => {
+          if (error instanceof PurchasesError) {
+            const purchasesError = PurchaseFlowError.fromPurchasesError(
+              error,
+              PurchaseFlowErrorCode.NetworkError,
+            );
+            reject(purchasesError);
+          } else {
+            reject(
+              new PurchaseFlowError(
                 PurchaseFlowErrorCode.NetworkError,
-              );
-              reject(purchasesError);
-            } else {
-              reject(
-                new PurchaseFlowError(
-                  PurchaseFlowErrorCode.NetworkError,
-                  `Failed to get checkout status: ${error}`,
-                ),
-              );
-            }
-          });
-      };
-
-      checkForOperationStatus();
+                `Failed to get checkout status: ${error}`,
+              ),
+            );
+          }
+        });
     });
   }
 }

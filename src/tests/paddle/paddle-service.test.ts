@@ -1281,7 +1281,7 @@ describe("PaddleService", () => {
       await paddleService.initializePaddle("test-token", true);
     });
 
-    test("polls until operation status is succeeded", async () => {
+    test("ignores expiration and polls until operation status is succeeded", async () => {
       vi.useFakeTimers();
 
       let callCount = 0;
@@ -1293,7 +1293,7 @@ describe("PaddleService", () => {
               {
                 operation: {
                   status: CheckoutSessionStatus.InProgress,
-                  is_expired: false,
+                  is_expired: true,
                   error: null,
                 },
               },
@@ -1337,6 +1337,32 @@ describe("PaddleService", () => {
       );
 
       vi.useRealTimers();
+    });
+
+    test("rejects unknown operation statuses instead of hanging", async () => {
+      server.use(
+        http.get(operationStatusEndpoint, () =>
+          HttpResponse.json({
+            operation: { status: "unknown", is_expired: false },
+          }),
+        ),
+      );
+
+      const purchasePromise = paddleService.purchase({
+        operationSessionId,
+        transactionId,
+        onCheckoutLoaded: vi.fn(),
+        onClose: vi.fn(),
+        params: purchaseParams,
+      });
+      const rejection = expect(purchasePromise).rejects.toMatchObject({
+        errorCode: PurchaseFlowErrorCode.NetworkError,
+        purchasesErrorCode: ErrorCode.UnexpectedBackendResponseError,
+        message: "Unknown checkout status.",
+      });
+
+      await paddleEventCallback(checkoutCompletedEvent);
+      await rejection;
     });
 
     test("rejects after max attempts if status never succeeds", async () => {
