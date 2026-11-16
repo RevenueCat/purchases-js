@@ -159,19 +159,6 @@ export interface ExpressPurchaseButtonUpdater {
 }
 
 // @public
-export type ExternalPurchaseOutcome = {
-    status: "completed";
-    purchaseResult: PurchaseResult;
-} | {
-    status: "pending";
-} | {
-    status: "failed";
-    error: PurchasesError;
-} | {
-    status: "expired";
-};
-
-// @public
 export interface FlagsConfig {
     applePayBrandingLogoEnabled?: boolean;
     autoCollectUTMAsMetadata?: boolean;
@@ -729,12 +716,6 @@ export enum ReservedCustomerAttribute {
 export interface RestorePurchasesResult {
     // (undocumented)
     customerInfo: CustomerInfo;
-}
-
-// @public
-export interface ResumeExternalPurchaseParams {
-    checkoutToken: string;
-    waitTimeoutMs?: number;
 }
 
 // @public

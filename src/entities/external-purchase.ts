@@ -1,7 +1,7 @@
 import type { PurchasesError } from "./errors";
 import type { PurchaseResult } from "./purchase-result";
 
-/** Parameters for resuming an External purchase. @public */
+/** Parameters for resuming an External purchase. @internal */
 export interface ResumeExternalPurchaseParams {
   /** Checkout token returned to your application. */
   checkoutToken: string;
@@ -11,7 +11,7 @@ export interface ResumeExternalPurchaseParams {
   waitTimeoutMs?: number;
 }
 
-/** The latest result of an External checkout. @public */
+/** The latest result of an External checkout. @internal */
 export type ExternalPurchaseOutcome =
   | { status: "completed"; purchaseResult: PurchaseResult }
   | { status: "pending" }
