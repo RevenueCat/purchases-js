@@ -14,12 +14,23 @@ import type * as BrowserGlobals from "../helpers/browser-globals";
 
 const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }));
 
+const completedOperation = {
+  status: "succeeded",
+  is_expired: true,
+  product_identifier: "reported-product",
+  store_transaction_identifier: "transaction",
+  purchase_date: "2026-11-11T12:00:00Z",
+  redemption_info: { redeem_url: "https://redeem.example/token" },
+};
+
 test.each([
   ["started", false, "pending"],
   ["in_progress", true, "expired"],
   ["failed", false, "failed"],
 ])("resumes %s checkout as %s", async (status, isExpired, expected) => {
+  const getCustomerInfo = vi.fn(() => HttpResponse.json(customerInfoResponse));
   server.use(
+    http.get("http://localhost:8000/v1/subscribers/:id", getCustomerInfo),
     http.get(
       "http://localhost:8000/rcbilling/v1/checkout/:token",
       ({ request }) => {
@@ -44,25 +55,21 @@ test.each([
       })
     ).status,
   ).toBe(expected);
+  expect(getCustomerInfo).not.toHaveBeenCalled();
 });
 
 test("resumes a successful expired checkout with its reported product and redemption link", async () => {
+  const requests: string[] = [];
   server.use(
-    http.get("http://localhost:8000/v1/subscribers/:id", () =>
-      HttpResponse.json(customerInfoResponse),
-    ),
-    http.get("http://localhost:8000/rcbilling/v1/checkout/:token", () =>
-      HttpResponse.json({
-        operation: {
-          status: "succeeded",
-          is_expired: true,
-          product_identifier: "reported-product",
-          store_transaction_identifier: "transaction",
-          purchase_date: "2026-11-11T12:00:00Z",
-          redemption_info: { redeem_url: "https://redeem.example/token" },
-        },
-      }),
-    ),
+    http.get("http://localhost:8000/v1/subscribers/:id", ({ params }) => {
+      expect(params.id).toBe("return-user");
+      requests.push("customer-info");
+      return HttpResponse.json(customerInfoResponse);
+    }),
+    http.get("http://localhost:8000/rcbilling/v1/checkout/:token", () => {
+      requests.push("operation");
+      return HttpResponse.json({ operation: completedOperation });
+    }),
   );
   const purchases = Purchases.configure({
     apiKey: "ext_public_test",
@@ -75,6 +82,9 @@ test("resumes a successful expired checkout with its reported product and redemp
     });
     expect(result.status).toBe("completed");
     if (result.status === "completed") {
+      expect(result.purchaseResult.customerInfo.originalAppUserId).toBe(
+        customerInfoResponse.subscriber.original_app_user_id,
+      );
       expect(result.purchaseResult.storeTransaction.productIdentifier).toBe(
         "reported-product",
       );
@@ -83,7 +93,85 @@ test("resumes a successful expired checkout with its reported product and redemp
       );
     }
   }
+  expect(requests).toEqual([
+    "operation",
+    "customer-info",
+    "operation",
+    "customer-info",
+  ]);
 });
+
+test.each([
+  { during: "polling", status: "succeeded" },
+  { during: "polling", status: "started" },
+  { during: "customer-info", status: "succeeded" },
+])(
+  "rejects a customer change during $during for $status checkout",
+  async ({ during, status }) => {
+    let notifyRequestStarted!: () => void;
+    const requestStarted = new Promise<void>((resolve) => {
+      notifyRequestStarted = resolve;
+    });
+    let releaseRequest!: () => void;
+    const responseReady = new Promise<void>((resolve) => {
+      releaseRequest = resolve;
+    });
+    const customerInfoRequests: string[] = [];
+    server.use(
+      http.get(
+        "http://localhost:8000/rcbilling/v1/checkout/:token",
+        async ({ request }) => {
+          expect(new URL(request.url).searchParams.get("app_user_id")).toBe(
+            "return-user",
+          );
+          if (during === "polling") {
+            notifyRequestStarted();
+            await responseReady;
+          }
+          return HttpResponse.json({
+            operation: { ...completedOperation, status },
+          });
+        },
+      ),
+      http.get(
+        "http://localhost:8000/v1/subscribers/:id",
+        async ({ params }) => {
+          const userId = String(params.id);
+          customerInfoRequests.push(userId);
+          if (during === "customer-info" && userId === "return-user") {
+            notifyRequestStarted();
+            await responseReady;
+          }
+          return HttpResponse.json(customerInfoResponse);
+        },
+      ),
+    );
+    const purchases = Purchases.configure({
+      apiKey: "ext_public_test",
+      appUserId: "return-user",
+    });
+    const result = purchases.resumeExternalPurchase({
+      checkoutToken: "token",
+      waitTimeoutMs: 0,
+    });
+    const rejected = expect(result).rejects.toMatchObject({
+      errorCode: ErrorCode.ConfigurationError,
+      message:
+        "The SDK customer changed while resuming checkout. Retry with the original customer.",
+    });
+    const settled = vi.fn();
+    void result.then(settled, settled);
+    await requestStarted;
+    await purchases.changeUser("other-user");
+    expect(settled).not.toHaveBeenCalled();
+    releaseRequest();
+    await rejected;
+    expect(purchases.getAppUserId()).toBe("other-user");
+    expect(
+      customerInfoRequests.filter((id) => id === "return-user"),
+    ).toHaveLength(during === "customer-info" ? 1 : 0);
+  },
+);
 
 test("rejects malformed successful checkout responses", async () => {
   server.use(

@@ -2189,25 +2189,30 @@ export class Purchases {
       );
     }
     const appUserId = this._appUserId;
-    return new ExternalPurchasesService(
+    const result = await new ExternalPurchasesService(
       this.backend,
       this.eventsTracker,
-    ).resume(
-      params,
-      appUserId,
-      () => {
-        if (this._appUserId !== appUserId) {
-          throw new PurchasesError(
-            ErrorCode.ConfigurationError,
-            "The SDK customer changed while resuming checkout. Retry with the original customer.",
-          );
-        }
-      },
-      async () => {
-        this.invalidateRequestDataCaches();
-        return this._getCustomerInfoForUserId(appUserId);
-      },
-    );
+    ).resume(params, appUserId);
+    if (this._appUserId !== appUserId) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "The SDK customer changed while resuming checkout. Retry with the original customer.",
+      );
+    }
+    if (result.status !== "completed") return result;
+
+    this.invalidateRequestDataCaches();
+    const customerInfo = await this._getCustomerInfoForUserId(appUserId);
+    if (this._appUserId !== appUserId) {
+      throw new PurchasesError(
+        ErrorCode.ConfigurationError,
+        "The SDK customer changed while resuming checkout. Retry with the original customer.",
+      );
+    }
+    return {
+      status: "completed",
+      purchaseResult: { ...result.purchase, customerInfo },
+    };
   }
 
   /**

@@ -4,7 +4,6 @@ import type {
   ExternalPurchaseOutcome,
   ResumeExternalPurchaseParams,
 } from "../entities/external-purchase";
-import type { CustomerInfo } from "../entities/customer-info";
 import { toRedemptionInfo } from "../entities/redemption-info";
 import { handleCheckoutSessionFailed } from "../helpers/checkout-error-handler";
 import { CheckoutSessionStatus } from "../networking/responses/checkout-status-response";
@@ -23,6 +22,10 @@ interface ExternalPurchaseParams extends PurchaseParams {
   appUserId: string;
 }
 
+type ExternalPurchaseResolution =
+  | { status: "completed"; purchase: Omit<PurchaseResult, "customerInfo"> }
+  | Exclude<ExternalPurchaseOutcome, { status: "completed" }>;
+
 export class ExternalPurchasesService {
   constructor(
     private readonly backend: Backend,
@@ -32,9 +35,7 @@ export class ExternalPurchasesService {
   async resume(
     params: ResumeExternalPurchaseParams,
     appUserId: string,
-    assertCustomer: () => void,
-    getCustomerInfo: () => Promise<CustomerInfo>,
-  ): Promise<ExternalPurchaseOutcome> {
+  ): Promise<ExternalPurchaseResolution> {
     const waitTimeoutMs = params.waitTimeoutMs ?? 15000;
     if (
       typeof params.checkoutToken !== "string" ||
@@ -49,12 +50,10 @@ export class ExternalPurchasesService {
     }
     const deadline = Date.now() + waitTimeoutMs;
     for (;;) {
-      assertCustomer();
       const response = await this.backend.getCheckoutStatus(
         params.checkoutToken,
         appUserId,
       );
-      assertCustomer();
       const operation = response.operation;
       switch (operation.status) {
         case CheckoutSessionStatus.Succeeded: {
@@ -73,12 +72,9 @@ export class ExternalPurchasesService {
               "Missing required fields in operation response.",
             );
           }
-          const customerInfo = await getCustomerInfo();
-          assertCustomer();
           return {
             status: "completed",
-            purchaseResult: {
-              customerInfo,
+            purchase: {
               operationSessionId: params.checkoutToken,
               redemptionInfo: toRedemptionInfo(response),
               storeTransaction: {
