@@ -204,7 +204,6 @@ export class PurchaseOperationHelper {
   private readonly backend: Backend;
   private readonly eventsTracker: IEventsTracker;
   private readonly maxNumberAttempts: number;
-  private readonly waitMSBetweenAttempts = 1000;
 
   constructor(
     backend: Backend,
@@ -588,83 +587,76 @@ export class PurchaseOperationHelper {
     }
 
     return new Promise<OperationSessionSuccessfulResult>((resolve, reject) => {
-      const checkForOperationStatus = (checkCount = 1) => {
-        if (checkCount > this.maxNumberAttempts) {
-          this.clearPurchaseInProgress();
-          reject(
-            new PurchaseFlowError(
-              PurchaseFlowErrorCode.UnknownError,
-              "Max attempts reached trying to get successful purchase status",
-            ),
-          );
-          return;
-        }
-        this.backend
-          .getCheckoutStatus(operationSessionId)
-          .then((operationResponse: CheckoutStatusResponse) => {
-            const storeTransactionIdentifier =
-              operationResponse.operation.store_transaction_identifier;
-            const productIdentifier =
-              operationResponse.operation.product_identifier;
-            const purchaseDate = operationResponse.operation.purchase_date
-              ? isNaN(Date.parse(operationResponse.operation.purchase_date))
-                ? null
-                : new Date(operationResponse.operation.purchase_date)
-              : null;
-            switch (operationResponse.operation.status) {
-              case CheckoutSessionStatus.Started:
-              case CheckoutSessionStatus.InProgress:
-                setTimeout(
-                  () => checkForOperationStatus(checkCount + 1),
-                  this.waitMSBetweenAttempts,
+      PurchaseOperationHelper.pollOperationSession(
+        this.backend,
+        operationSessionId,
+        { maxAttempts: this.maxNumberAttempts },
+      )
+        .then((result) => {
+          if (result.status !== "finished") {
+            this.clearPurchaseInProgress();
+            reject(
+              new PurchaseFlowError(
+                PurchaseFlowErrorCode.UnknownError,
+                "Max attempts reached trying to get successful purchase status",
+              ),
+            );
+            return;
+          }
+          const operationResponse = result.response;
+          const storeTransactionIdentifier =
+            operationResponse.operation.store_transaction_identifier;
+          const productIdentifier =
+            operationResponse.operation.product_identifier;
+          const purchaseDate = operationResponse.operation.purchase_date
+            ? isNaN(Date.parse(operationResponse.operation.purchase_date))
+              ? null
+              : new Date(operationResponse.operation.purchase_date)
+            : null;
+          switch (operationResponse.operation.status) {
+            case CheckoutSessionStatus.Succeeded: {
+              const customerEmail = this.completedCustomerEmail;
+              this.clearPurchaseInProgress();
+              if (
+                !storeTransactionIdentifier ||
+                !productIdentifier ||
+                !purchaseDate
+              ) {
+                reject(
+                  new PurchaseFlowError(
+                    PurchaseFlowErrorCode.UnknownError,
+                    "Missing required fields in operation response.",
+                  ),
                 );
-                break;
-              case CheckoutSessionStatus.Succeeded: {
-                const customerEmail = this.completedCustomerEmail;
-                this.clearPurchaseInProgress();
-                if (
-                  !storeTransactionIdentifier ||
-                  !productIdentifier ||
-                  !purchaseDate
-                ) {
-                  reject(
-                    new PurchaseFlowError(
-                      PurchaseFlowErrorCode.UnknownError,
-                      "Missing required fields in operation response.",
-                    ),
-                  );
-                  return;
-                }
-                resolve({
-                  redemptionInfo: toRedemptionInfo(operationResponse),
-                  operationSessionId: operationSessionId,
-                  storeTransactionIdentifier: storeTransactionIdentifier,
-                  productIdentifier: productIdentifier,
-                  purchaseDate: purchaseDate,
-                  attributionMetadata:
-                    operationResponse.attribution_metadata ?? undefined,
-                  customerEmail,
-                });
                 return;
               }
-              case CheckoutSessionStatus.Failed:
-                this.clearPurchaseInProgress();
-                handleCheckoutSessionFailed(
-                  operationResponse.operation.error,
-                  reject,
-                );
+              resolve({
+                redemptionInfo: toRedemptionInfo(operationResponse),
+                operationSessionId: operationSessionId,
+                storeTransactionIdentifier: storeTransactionIdentifier,
+                productIdentifier: productIdentifier,
+                purchaseDate: purchaseDate,
+                attributionMetadata:
+                  operationResponse.attribution_metadata ?? undefined,
+                customerEmail,
+              });
+              return;
             }
-          })
-          .catch((error: PurchasesError) => {
-            const purchasesError = PurchaseFlowError.fromPurchasesError(
-              error,
-              PurchaseFlowErrorCode.NetworkError,
-            );
-            reject(purchasesError);
-          });
-      };
-
-      checkForOperationStatus();
+            case CheckoutSessionStatus.Failed:
+              this.clearPurchaseInProgress();
+              handleCheckoutSessionFailed(
+                operationResponse.operation.error,
+                reject,
+              );
+          }
+        })
+        .catch((error: PurchasesError) => {
+          const purchasesError = PurchaseFlowError.fromPurchasesError(
+            error,
+            PurchaseFlowErrorCode.NetworkError,
+          );
+          reject(purchasesError);
+        });
     });
   }
 

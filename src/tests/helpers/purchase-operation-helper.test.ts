@@ -1243,7 +1243,7 @@ describe("PurchaseOperationHelper", () => {
     );
   });
 
-  test("pollCurrentPurchaseForCompletion fails if poll returns in progress more times than retries", async () => {
+  test("pollCurrentPurchaseForCompletion ignores expiration and fails after the configured attempts", async () => {
     vi.useFakeTimers();
 
     setCheckoutStartResponse(
@@ -1254,7 +1254,7 @@ describe("PurchaseOperationHelper", () => {
     const getCheckoutStatusResponse: CheckoutStatusResponse = {
       operation: {
         status: CheckoutSessionStatus.InProgress,
-        is_expired: false,
+        is_expired: true,
         error: null,
       },
     };
@@ -1299,6 +1299,32 @@ describe("PurchaseOperationHelper", () => {
     await pollPromise;
 
     vi.useRealTimers();
+  });
+
+  test("pollCurrentPurchaseForCompletion rejects unknown statuses instead of hanging", async () => {
+    setCheckoutStartResponse(HttpResponse.json(checkoutStartResponse));
+    setGetCheckoutStatusResponseResolver(() =>
+      HttpResponse.json({
+        operation: { status: "unknown", is_expired: false },
+      }),
+    );
+    await purchaseOperationHelper.checkoutStart({
+      appUserId: "test-app-user-id",
+      productId: "test-product-id",
+      purchaseOption: { id: "test-option-id", priceId: "test-price-id" },
+      presentedOfferingContext: {
+        offeringIdentifier: "test-offering-id",
+        targetingContext: null,
+        placementIdentifier: null,
+      },
+    });
+    await expect(
+      purchaseOperationHelper.pollCurrentPurchaseForCompletion(),
+    ).rejects.toMatchObject({
+      errorCode: PurchaseFlowErrorCode.NetworkError,
+      purchasesErrorCode: ErrorCode.UnexpectedBackendResponseError,
+      message: "Unknown checkout status.",
+    });
   });
 
   test("pollCurrentPurchaseForCompletion error if poll returns error", async () => {
