@@ -185,6 +185,19 @@ export interface OperationSessionSuccessfulResult {
   customerEmail?: string;
 }
 
+type OperationSessionPollingOptions = {
+  appUserId?: string;
+  stopOnExpiration?: boolean;
+} & (
+  | { maxAttempts: number; waitTimeoutMs?: never }
+  | { waitTimeoutMs: number; maxAttempts?: never }
+);
+
+type OperationSessionPollingResult =
+  | { status: "finished"; response: CheckoutStatusResponse }
+  | { status: "limit_reached" }
+  | { status: "expired" };
+
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
   private completedCustomerEmail: string | undefined = undefined;
@@ -510,6 +523,58 @@ export class PurchaseOperationHelper {
         "Failed to complete product change.",
         error instanceof Error ? error.message : String(error),
       );
+    }
+  }
+
+  static async pollOperationSession(
+    backend: Backend,
+    operationSessionId: string,
+    options: OperationSessionPollingOptions,
+  ): Promise<OperationSessionPollingResult> {
+    const deadline =
+      options.waitTimeoutMs === undefined
+        ? undefined
+        : Date.now() + options.waitTimeoutMs;
+    let attempts = 0;
+    for (;;) {
+      if (
+        options.maxAttempts !== undefined &&
+        attempts >= options.maxAttempts
+      ) {
+        return { status: "limit_reached" };
+      }
+      attempts++;
+      const response = await backend.getCheckoutStatus(
+        operationSessionId,
+        options.appUserId,
+      );
+      switch (response.operation.status) {
+        case CheckoutSessionStatus.Succeeded:
+        case CheckoutSessionStatus.Failed:
+          return { status: "finished", response };
+        case CheckoutSessionStatus.Started:
+        case CheckoutSessionStatus.InProgress:
+          if (options.stopOnExpiration && response.operation.is_expired) {
+            return { status: "expired" };
+          }
+          if (deadline !== undefined && Date.now() >= deadline) {
+            return { status: "limit_reached" };
+          }
+          await new Promise((resolve) =>
+            setTimeout(
+              resolve,
+              deadline === undefined
+                ? 1000
+                : Math.min(1000, deadline - Date.now()),
+            ),
+          );
+          break;
+        default:
+          throw new PurchasesError(
+            ErrorCode.UnexpectedBackendResponseError,
+            "Unknown checkout status.",
+          );
+      }
     }
   }
 

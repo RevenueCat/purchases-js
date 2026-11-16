@@ -6,6 +6,7 @@ import type {
 } from "../entities/external-purchase";
 import { toRedemptionInfo } from "../entities/redemption-info";
 import { handleCheckoutSessionFailed } from "../helpers/checkout-error-handler";
+import { PurchaseOperationHelper } from "../helpers/purchase-operation-helper";
 import { CheckoutSessionStatus } from "../networking/responses/checkout-status-response";
 import type { PurchaseParams } from "../entities/purchase-params";
 import type { PurchaseResult } from "../entities/purchase-result";
@@ -48,70 +49,63 @@ export class ExternalPurchasesService {
         "Provide a checkout token and a finite, nonnegative waitTimeoutMs.",
       );
     }
-    const deadline = Date.now() + waitTimeoutMs;
-    for (;;) {
-      const response = await this.backend.getCheckoutStatus(
-        params.checkoutToken,
-        appUserId,
-      );
-      const operation = response.operation;
-      switch (operation.status) {
-        case CheckoutSessionStatus.Succeeded: {
-          const transactionId = operation.store_transaction_identifier;
-          const productIdentifier = operation.product_identifier;
-          const purchaseDate = new Date(operation.purchase_date ?? "");
-          if (
-            typeof transactionId !== "string" ||
-            !transactionId ||
-            typeof productIdentifier !== "string" ||
-            !productIdentifier ||
-            !Number.isFinite(purchaseDate.getTime())
-          ) {
-            throw new PurchasesError(
-              ErrorCode.UnexpectedBackendResponseError,
-              "Missing required fields in operation response.",
-            );
-          }
-          return {
-            status: "completed",
-            purchase: {
-              operationSessionId: params.checkoutToken,
-              redemptionInfo: toRedemptionInfo(response),
-              storeTransaction: {
-                storeTransactionId: transactionId,
-                productIdentifier,
-                purchaseDate,
-              },
-              attributionMetadata: response.attribution_metadata,
-            },
-          };
-        }
-        case CheckoutSessionStatus.Failed: {
-          let error!: PurchasesError;
-          handleCheckoutSessionFailed(operation.error, (failure) => {
-            error = new PurchasesError(
-              ErrorCodeUtils.convertPurchaseFlowErrorCodeToErrorCode(
-                failure.errorCode,
-              ),
-              failure.message,
-            );
-          });
-          return { status: "failed", error };
-        }
-        case CheckoutSessionStatus.Started:
-        case CheckoutSessionStatus.InProgress:
-          if (operation.is_expired) return { status: "expired" };
-          if (Date.now() >= deadline) return { status: "pending" };
-          await new Promise((resolve) =>
-            setTimeout(resolve, Math.min(1000, deadline - Date.now())),
-          );
-          break;
-        default:
+    const result = await PurchaseOperationHelper.pollOperationSession(
+      this.backend,
+      params.checkoutToken,
+      { appUserId, waitTimeoutMs, stopOnExpiration: true },
+    );
+    if (result.status === "limit_reached") return { status: "pending" };
+    if (result.status === "expired") return { status: "expired" };
+    const response = result.response;
+    const operation = response.operation;
+    switch (operation.status) {
+      case CheckoutSessionStatus.Succeeded: {
+        const transactionId = operation.store_transaction_identifier;
+        const productIdentifier = operation.product_identifier;
+        const purchaseDate = new Date(operation.purchase_date ?? "");
+        if (
+          typeof transactionId !== "string" ||
+          !transactionId ||
+          typeof productIdentifier !== "string" ||
+          !productIdentifier ||
+          !Number.isFinite(purchaseDate.getTime())
+        ) {
           throw new PurchasesError(
             ErrorCode.UnexpectedBackendResponseError,
-            "Unknown checkout status.",
+            "Missing required fields in operation response.",
           );
+        }
+        return {
+          status: "completed",
+          purchase: {
+            operationSessionId: params.checkoutToken,
+            redemptionInfo: toRedemptionInfo(response),
+            storeTransaction: {
+              storeTransactionId: transactionId,
+              productIdentifier,
+              purchaseDate,
+            },
+            attributionMetadata: response.attribution_metadata,
+          },
+        };
       }
+      case CheckoutSessionStatus.Failed: {
+        let error!: PurchasesError;
+        handleCheckoutSessionFailed(operation.error, (failure) => {
+          error = new PurchasesError(
+            ErrorCodeUtils.convertPurchaseFlowErrorCodeToErrorCode(
+              failure.errorCode,
+            ),
+            failure.message,
+          );
+        });
+        return { status: "failed", error };
+      }
+      default:
+        throw new PurchasesError(
+          ErrorCode.UnexpectedBackendResponseError,
+          "Unknown checkout status.",
+        );
     }
   }
 
