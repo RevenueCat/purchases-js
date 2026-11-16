@@ -2178,6 +2178,7 @@ export class Purchases {
    * Configure the SDK with the same app user ID used to start checkout.
    * A pending result can be retried when the purchase report arrives later.
    * Request errors reject; checkout failures are returned in the outcome.
+   * @internal
    */
   public async resumeExternalPurchase(
     params: ResumeExternalPurchaseParams,
