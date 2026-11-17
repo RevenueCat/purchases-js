@@ -7,7 +7,8 @@ files_with_version_number = {
 files_to_update_on_latest_stable_releases = {
   './scripts/docs/index.html' => ['purchases-js-docs/{x}/']
 }
-repo_name = 'purchases-js'
+internal_repo_name = 'purchases-js_internal'
+public_repo_name = 'purchases-js'
 PURCHASES_UI_JS_PACKAGE = '@revenuecat/purchases-ui-js'
 changelog_latest_path = './CHANGELOG.latest.md'
 changelog_path = './CHANGELOG.md'
@@ -24,19 +25,20 @@ lane :bump do |options|
     changelog_path: changelog_path,
     files_to_update: files_with_version_number,
     files_to_update_on_latest_stable_releases: files_to_update_on_latest_stable_releases,
-    repo_name: repo_name,
+    repo_name: internal_repo_name,
     github_rate_limit: options[:github_rate_limit],
     editor: options[:editor],
     next_version: options[:next_version],
     automatic_release: options[:automatic_release],
-    is_prerelease: options[:is_prerelease]
+    is_prerelease: options[:is_prerelease],
+    omit_pr_references_in_changelog_files: true
   )
 end
 
 desc "Automatically bumps version, replaces version numbers, updates changelog and creates PR"
 lane :automatic_bump do |options|
   next_version, type_of_bump = determine_next_version_using_labels(
-    repo_name: repo_name,
+    repo_name: internal_repo_name,
     github_rate_limit: options[:github_rate_limit]
   )
   options[:next_version] = next_version
@@ -57,7 +59,7 @@ lane :github_release do |options|
   release_version = options[:version]
   create_github_release(
     version: release_version,
-    repo_name: repo_name,
+    repo_name: public_repo_name,
     github_api_token: ENV["GITHUB_TOKEN"],
     changelog_latest_path: changelog_latest_path
   )
@@ -185,7 +187,7 @@ lane :open_pr_upgrading_dependencies do |options|
   create_pr_if_necessary(
     title: message,
     body: message,
-    repo_name: repo_name,
+    repo_name: internal_repo_name,
     base_branch: "main",
     head_branch: branch,
     github_pr_token: ENV["GITHUB_PULL_REQUEST_API_TOKEN"],
@@ -197,7 +199,7 @@ lane :open_pr_upgrading_dependencies do |options|
   # authorized to merge into the protected `main` branch.
   enable_auto_merge_for_pr(
     github_token: ENV["GITHUB_PULL_REQUEST_API_TOKEN"],
-    repo_name: repo_name,
+    repo_name: internal_repo_name,
     branch: branch,
     base_branch: "main",
     merge_method: "SQUASH"
