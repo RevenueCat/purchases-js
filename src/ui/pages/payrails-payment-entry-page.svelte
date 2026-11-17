@@ -75,7 +75,7 @@
     paymentErrorMessage = undefined;
 
     void service
-      .mountDropin(gatewayParams, {
+      .mountDropin(gatewayParams, brandingInfo?.appearance, {
         onSuccess: () => {
           if (cancelled) return;
           processing = true;

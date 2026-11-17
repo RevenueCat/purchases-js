@@ -118,6 +118,15 @@ With a UI
 npm run test:e2e-ui
 ```
 
+#### Manual live tax tests
+
+Live tax tests are skipped by default to avoid Stripe Tax rate limits; mocked
+tests still run. To opt in, with the demo server running:
+
+```bash
+VITE_RUN_TAX_REAL_TESTS=true pnpm run test:e2e --project=chromium --grep '\(real\)' --retries=0
+```
+
 ### Testing Apple Pay and Google Pay with local certs
 
 To test Apple Pay and Google Pay we have to fake an https setup for the Apple Pay/Google Pay authorized domains locally.

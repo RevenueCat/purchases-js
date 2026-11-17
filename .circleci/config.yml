@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  revenuecat: revenuecat/sdks-common-config@4.7.1
+  revenuecat: revenuecat/sdks-common-config@4.8.0
   aws-cli: circleci/aws-cli@4.1.3
 
 aliases:
@@ -32,6 +32,11 @@ parameters:
 
 commands:
   install-dependencies:
+    parameters:
+      cache-prefix:
+        description: "Distinguishes caches saved by jobs with a different user or project path, since the archive stores absolute paths."
+        type: string
+        default: ""
     steps:
       - revenuecat/install-mise-tools:
           tools: node,pnpm
@@ -40,12 +45,12 @@ commands:
           command: pnpm config set store-dir .pnpm-store
       - restore_cache:
           keys:
-            - v1-pnpm-store-{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
+            - v2-pnpm-store-<< parameters.cache-prefix >>{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
       - run:
           name: Npm Install
           command: pnpm install
       - save_cache:
-          key: v1-pnpm-store-{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
+          key: v2-pnpm-store-<< parameters.cache-prefix >>{{ arch }}-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - .pnpm-store
 
@@ -281,17 +286,14 @@ jobs:
               echo 'export VITE_RC_STRIPE_CHECKOUT_E2E_API_KEY=${E2E_RC_STRIPE_CHECKOUT_E2E_API_KEY}'
               echo 'export VITE_RC_PADDLE_E2E_API_KEY=${E2E_RC_PADDLE_E2E_API_KEY}'
               echo 'export VITE_RC_FULL_ADDRESS_E2E_API_KEY=${E2E_RC_FULL_ADDRESS_E2E_API_KEY}'
-              # Hard-set: project env VITE_SKIP_TAX_REAL_TESTS_UNTIL=2026-08-30
-              # expired; ${VAR} / :-default cannot override a set env. Live
-              # discount+tax totals drifted from $7.43.
-              echo 'export VITE_SKIP_TAX_REAL_TESTS_UNTIL=2026-11-16'
               echo 'export VITE_SKIP_STRIPE_TESTS=${VITE_SKIP_STRIPE_TESTS:-false}'
               echo 'export VITE_SKIP_PADDLE_TESTS=${VITE_SKIP_PADDLE_TESTS:-false}'
               echo 'export VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA=${VITE_SKIP_STRIPE_TESTS_ON_CAPTCHA:-true}'
               echo 'export VITE_ALLOW_PAYWALLS_TESTS=true'
             } >> "$BASH_ENV"
             source "$BASH_ENV"
-      - install-dependencies
+      - install-dependencies:
+          cache-prefix: root-
       - run:
           name: Build purchases-js
           command: pnpm run build
@@ -327,6 +329,7 @@ workflows:
             equal: [ dependency-update, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/danger:
+          context: danger-bot
           ruby_version: "3.3.0"
           filters:
             branches:
@@ -339,6 +342,7 @@ workflows:
         - equal: [ "release-train", << pipeline.schedule.name >> ]
     jobs:
       - revenuecat/automatic-bump:
+          context: github-bot-public
           ruby_version: "3.3.0"
 
   manual-trigger-bump:
@@ -346,6 +350,7 @@ workflows:
       equal: [ bump, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/automatic-bump:
+          context: github-bot-public
           ruby_version: "3.3.0"
 
   update-error-codes:
@@ -353,6 +358,7 @@ workflows:
       equal: [ update_error_codes, << pipeline.parameters.action >> ]
     jobs:
       - revenuecat/update-error-codes:
+          context: github-bot-public
           platform: js
           outputs: "error-codes.ts:src/generated/error-codes.ts"
           commit_paths: "src/generated/error-codes.ts,api-report,vega/api-report"
@@ -374,6 +380,7 @@ workflows:
         - equal: [ dependency-update, << pipeline.parameters.action >> ]
     jobs:
       - dependency-update:
+          context: github-bot-public
           version: << pipeline.parameters.version >>
 
   test-deploy:
@@ -399,6 +406,7 @@ workflows:
           type: approval
           <<: *release-branches
       - revenuecat/tag-current-branch:
+          context: github-bot-public
           ruby_version: "3.3.0"
           requires:
             - wait-for-pr-approval
@@ -407,13 +415,16 @@ workflows:
             - build-vega-purchase-tester
           <<: *release-branches
       - make-release:
-          context: npm-publishing
+          context:
+            - npm-publishing
+            - github-bot-public
           <<: *release-tags
       - docs-deploy:
           <<: *release-tags
           requires:
             - make-release
       - revenuecat/merge-release-pr:
+          context: github-bot-public
           repo_name: purchases-js
           ruby_version: "3.3.0"
           requires:

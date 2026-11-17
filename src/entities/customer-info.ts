@@ -381,7 +381,10 @@ function toSubscriptionEntitlementInfo(
     ),
     store: subscriptionResponse?.store ?? "unknown",
     latestPurchaseDate: new Date(entitlementInfoResponse.purchase_date),
-    originalPurchaseDate: new Date(entitlementInfoResponse.purchase_date),
+    originalPurchaseDate: new Date(
+      subscriptionResponse?.original_purchase_date ??
+        entitlementInfoResponse.purchase_date,
+    ),
     expirationDate: toDateIfNotNull(entitlementInfoResponse.expires_date),
     productIdentifier: entitlementInfoResponse.product_identifier,
     productPlanIdentifier:
