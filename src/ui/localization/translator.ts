@@ -2,7 +2,10 @@ import { Logger } from "../../helpers/logger";
 import type { PeriodUnit } from "../../helpers/duration-helper";
 import { englishLocale } from "./constants";
 
-import type { LocalizationKeys } from "./supportedLanguages";
+import type {
+  LocalizationKeys,
+  PluralLocalizationKey,
+} from "./supportedLanguages";
 import { supportedLanguages } from "./supportedLanguages";
 
 import { formatPrice } from "../../helpers/price-labels";
@@ -15,6 +18,7 @@ export type EmptyString = "";
  * Custom translations to be used in the purchase flow.
  * This class allows you to override the default translations used in the purchase flow.
  * The main level keys are the locale codes and the values are objects with the same keys as the default translations.
+ * Optional plural forms use a CLDR category suffix, e.g. `periods.weekPlural.few`.
  * @public
  * @example
  * This example will override the default translation for the email step title in the English locale.
@@ -27,7 +31,9 @@ export type EmptyString = "";
  * ```
  */
 export type CustomTranslations = {
-  [langKey: string]: { [translationKey in LocalizationKeys]?: string };
+  [langKey: string]: {
+    [translationKey in LocalizationKeys | PluralLocalizationKey]?: string;
+  };
 };
 
 /**
@@ -87,9 +93,21 @@ export class Translator {
 
   public override(customTranslations: CustomTranslations) {
     Object.entries(customTranslations).forEach(([locale, translations]) => {
+      const labels = { ...(this.locales[locale].labels || {}) };
+      // An existing base-label override must still apply to every category.
+      // Explicit category overrides are merged back in below.
+      Object.keys(labels).forEach((key) => {
+        const baseKey = key.replace(/\.(zero|one|two|few|many|other)$/, "");
+        if (
+          baseKey !== key &&
+          translations[baseKey as LocalizationKeys] !== undefined
+        ) {
+          delete labels[key as PluralLocalizationKey];
+        }
+      });
       this.locales[locale] = new LocaleTranslations(
         {
-          ...(this.locales[locale].labels || {}),
+          ...labels,
           ...translations,
         },
         this.getLanguageCodeString(locale),
@@ -254,10 +272,20 @@ export class Translator {
 }
 
 export class LocaleTranslations {
+  private readonly pluralRules?: Intl.PluralRules;
+
   public constructor(
     public readonly labels: Record<string, string> = {},
     public readonly localeKey: string,
-  ) {}
+  ) {
+    if (
+      Object.keys(labels).some((key) =>
+        /\.(zero|one|two|few|many|other)$/.test(key),
+      )
+    ) {
+      this.pluralRules = new Intl.PluralRules(toBcp47Locale(localeKey));
+    }
+  }
 
   private replaceVariables(
     label: string,
@@ -276,7 +304,14 @@ export class LocaleTranslations {
     labelId: LocalizationKeys | EmptyString,
     variables?: TranslationVariables,
   ): string | undefined {
-    const label = this.labels[labelId];
+    const amount = variables?.amount;
+    const category =
+      amount !== undefined && amount !== null && amount !== ""
+        ? this.pluralRules?.select(Number(amount))
+        : undefined;
+    const label =
+      (category && this.labels[`${labelId}.${category}`]) ||
+      this.labels[labelId];
     if (!label) return undefined;
 
     return this.replaceVariables(label, variables || {});
