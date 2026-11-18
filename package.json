@@ -1,12 +1,27 @@
 {
   "name": "@revenuecat/purchases-js",
-  "description": "Web subscriptions made easy. Powered by RevenueCat",
-  "private": false,
   "version": "1.75.0",
-  "type": "module",
+  "private": false,
+  "description": "Web subscriptions made easy. Powered by RevenueCat",
+  "keywords": [
+    "iap",
+    "purchases",
+    "revenuecat",
+    "subscriptions"
+  ],
+  "bugs": {
+    "url": "https://github.com/RevenueCat/purchases-js/issues"
+  },
+  "license": "MIT",
+  "author": "RevenueCat, Inc.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RevenueCat/purchases-js.git"
+  },
   "files": [
     "dist"
   ],
+  "type": "module",
   "main": "./dist/Purchases.umd.js",
   "module": "./dist/Purchases.es.js",
   "types": "./dist/Purchases.es.d.ts",
@@ -20,47 +35,29 @@
       "require": "./dist/style.css"
     }
   },
-  "author": "RevenueCat, Inc.",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/RevenueCat/purchases-js.git"
-  },
-  "bugs": {
-    "url": "https://github.com/RevenueCat/purchases-js/issues"
-  },
-  "keywords": [
-    "revenuecat",
-    "purchases",
-    "subscriptions",
-    "iap"
-  ],
   "scripts": {
     "watch": "vite build --config vite.watch.config.js --watch",
     "build": "tsc && vite build && pnpm run build:vega",
     "build:dev": "tsc && vite build --mode development && pnpm --filter @revenuecat/purchases-js-vega build --mode development",
     "build:dev-watch": "tsc && vite build --mode development --config vite.watch.config.js --watch",
     "preview": "vite preview",
-    "lint": "prettier --check . && eslint src/ vega/src/",
-    "format": "prettier --write .",
+    "lint": "oxlint",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "pack-build": "npm run build && npm pack",
     "test": "vitest run",
     "verify:entry-point-boundaries": "node scripts/verify-entry-point-boundaries.mjs",
     "test:watch": "vitest watch",
     "test:typecheck": "tsc --project tsconfig.test.json",
     "typecheck": "tsc --noEmit",
-    "prettier": "prettier --write .",
-    "prettier:ci": "prettier --check .",
     "svelte-check": "svelte-check",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "extract-api": "api-extractor run --local --verbose && api-extractor run --local --verbose --config vega/api-extractor.json",
     "check-version-consistency": "node scripts/check-version-consistency.mjs",
-    "prepare": "husky",
     "build:vega": "pnpm --filter @revenuecat/purchases-js-vega build"
   },
   "devDependencies": {
-    "@eslint/js": "^9.16.0",
     "@microsoft/api-extractor": "^7.48.0",
     "@paddle/paddle-js": "^1.6.4",
     "@payrails/web-sdk": "^6.10.1-rc.0",
@@ -77,25 +74,14 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/svelte": "^5.2.6",
     "@types/node": "^22.10.5",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
     "chromatic": "^18.14.5",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-config-standard-with-typescript": "^43.0.1",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-promise": "^6.6.0",
-    "eslint-plugin-storybook": "^0.11.1",
-    "eslint-plugin-svelte": "^2.46.1",
-    "globals": "^15.13.0",
+    "eslint-plugin-svelte": "^3.24.1",
     "http-status-codes": "^2.3.0",
-    "husky": "^9.1.7",
     "jsdom": "^25.0.1",
-    "lint-staged": "^15.2.10",
+    "lefthook": "^2.2.2",
     "msw": "^2.0.4",
-    "prettier": "^3.4.2",
-    "prettier-plugin-svelte": "^3.3.2",
+    "oxfmt": "^0.76.0",
+    "oxlint": "^1.94.0",
     "storybook": "^8.6.15",
     "storybook-addon-mock-date": "^0.6.0",
     "storybook-addon-pseudo-states": "^4.0.2",
@@ -103,16 +89,9 @@
     "svelte-check": "^4.1.1",
     "typedoc": "^0.27.4",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.17.0",
     "vite": "^6.4.1",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^4.1.11"
-  },
-  "lint-staged": {
-    "**/*": [
-      "prettier --write --ignore-unknown",
-      "eslint --fix --no-warn-ignored"
-    ]
   },
   "packageManager": "pnpm@12.15.0"
 }

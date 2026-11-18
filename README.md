@@ -151,7 +151,7 @@ pnpm run test
 ```bash
 pnpm run test:typecheck
 pnpm run svelte-check
-pnpm run prettier
+pnpm run format:check
 pnpm run lint
 ```
 

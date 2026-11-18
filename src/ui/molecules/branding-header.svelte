@@ -20,7 +20,7 @@
   );
 
   const handleCloseClick = () => {
-    onClose && onClose();
+    onClose?.();
   };
 </script>
 

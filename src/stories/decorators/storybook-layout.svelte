@@ -1,4 +1,4 @@
-<script module>
+<script lang="ts" module>
   import { brandingInfos } from "../fixtures";
   import type { Snippet } from "svelte";
   import Template from "../../ui/layout/template.svelte";

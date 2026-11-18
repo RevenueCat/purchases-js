@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getWindow } from "../../helpers/browser-globals";
   import { getContext, onMount } from "svelte";
   import type {
     Appearance,
@@ -161,7 +162,8 @@
   // Maybe extract this to a hook
   function updateStripeVariables() {
     const isMobile =
-      window.matchMedia && window.matchMedia("(max-width: 767px)").matches;
+      getWindow().matchMedia &&
+      getWindow().matchMedia("(max-width: 767px)").matches;
 
     if (isMobile) {
       viewport = "mobile";
@@ -275,10 +277,10 @@
   };
 
   onMount(() => {
-    window.addEventListener("resize", onResize);
+    getWindow().addEventListener("resize", onResize);
 
     return () => {
-      window.removeEventListener("resize", onResize);
+      getWindow().removeEventListener("resize", onResize);
     };
   });
 

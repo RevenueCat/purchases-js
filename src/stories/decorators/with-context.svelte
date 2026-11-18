@@ -3,7 +3,7 @@
 
   interface Props {
     children?: Snippet;
-    context?: Record<string, any>;
+    context?: Record<string, unknown>;
   }
 
   let { children, context }: Props = $props();

@@ -1,0 +1,108 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["eslint", "typescript"],
+  "jsPlugins": ["eslint-plugin-svelte"],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "browser": true
+  },
+  "ignorePatterns": ["examples/", "api-report/", "docs/", "fastlane/"],
+  "rules": {
+    "no-case-declarations": "error",
+    "no-empty": "error",
+    "no-fallthrough": "error",
+    "no-prototype-builtins": "error",
+    "no-regex-spaces": "error",
+    "no-var": "error",
+    "prefer-const": "error",
+    "prefer-rest-params": "error",
+    "prefer-spread": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/consistent-type-imports": [
+      "error",
+      { "prefer": "type-imports" }
+    ],
+    "typescript/no-empty-object-type": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/no-namespace": "error",
+    "typescript/no-require-imports": "error",
+    "typescript/no-unsafe-function-type": "error",
+    "typescript/prefer-namespace-keyword": "error",
+    "typescript/triple-slash-reference": "error",
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "window",
+        "message": "Use getWindow() or getNullableWindow() from helpers/browser-globals instead."
+      },
+      {
+        "name": "document",
+        "message": "Use getDocument() or getNullableDocument() from helpers/browser-globals instead."
+      }
+    ],
+
+    "svelte/comment-directive": "error",
+    "svelte/infinite-reactive-loop": "error",
+    "svelte/no-at-debug-tags": "warn",
+    "svelte/no-dom-manipulating": "error",
+    "svelte/no-dupe-else-if-blocks": "error",
+    "svelte/no-dupe-on-directives": "error",
+    "svelte/no-dupe-style-properties": "error",
+    "svelte/no-dupe-use-directives": "error",
+    "svelte/no-immutable-reactive-statements": "error",
+    "svelte/no-inner-declarations": "error",
+    "svelte/no-inspect": "warn",
+    "svelte/no-not-function-handler": "error",
+    "svelte/no-object-in-text-mustaches": "error",
+    "svelte/no-raw-special-elements": "error",
+    "svelte/no-reactive-functions": "error",
+    "svelte/no-reactive-literals": "error",
+    "svelte/no-reactive-reassign": "error",
+    "svelte/no-shorthand-style-property-overrides": "error",
+    "svelte/no-store-async": "error",
+    "svelte/no-svelte-internal": "error",
+    "svelte/no-unknown-style-directive-property": "error",
+    "svelte/no-unnecessary-state-wrap": "error",
+    "svelte/no-unused-props": "error",
+    "svelte/no-unused-svelte-ignore": "error",
+    "svelte/no-useless-children-snippet": "error",
+    "svelte/no-useless-mustaches": "error",
+    "svelte/prefer-svelte-reactivity": "error",
+    "svelte/prefer-writable-derived": "error",
+    "svelte/require-each-key": "error",
+    "svelte/require-event-dispatcher-types": "error",
+    "svelte/require-store-reactive-access": "error",
+    "svelte/system": "error",
+    "svelte/valid-each-key": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.svelte"],
+      "rules": {
+        "no-inner-declarations": "off",
+        "no-self-assign": "off"
+      }
+    },
+    {
+      "files": ["src/stories/**"],
+      "rules": {
+        "typescript/ban-ts-comment": "off",
+        "typescript/no-explicit-any": "off"
+      }
+    },
+    {
+      "files": [
+        "**/*.test.{js,ts}",
+        "**/tests/**/*.{js,ts}",
+        "vitest.setup.js",
+        ".storybook/**",
+        "scripts/**"
+      ],
+      "rules": {
+        "no-restricted-globals": "off"
+      }
+    }
+  ]
+}

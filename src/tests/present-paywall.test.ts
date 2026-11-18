@@ -320,7 +320,7 @@ describe("Purchases.presentPaywall() paywall context", () => {
     expect(walletOffering?.monthly?.product.defaultPurchaseOption.id).toBe(
       discountedPurchaseOptionId,
     );
-    (mountedProps?.onPurchaseClicked as (selectedPackageId: string) => void)(
+    (mountedProps!.onPurchaseClicked as (selectedPackageId: string) => void)(
       "$rc_monthly",
     );
     await vi.waitFor(() => {

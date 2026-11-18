@@ -66,9 +66,7 @@ export type PaywallCloseOrCancelEventData = BasePaywallEventData & {
 };
 
 export interface PaywallComponentInteractionEventData
-  extends BasePaywallEventData,
-    PaywallDisplayData,
-    ComponentInteractionData {
+  extends BasePaywallEventData, PaywallDisplayData, ComponentInteractionData {
   type: "paywall_component_interacted";
 }
 

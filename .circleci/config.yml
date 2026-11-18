@@ -192,12 +192,12 @@ jobs:
           working_directory: examples/webbilling-demo
           command: pnpm run lint
       - run:
-          name: Prettier
-          command: pnpm run prettier:ci
+          name: Formatting
+          command: pnpm run format:check
       - run:
-          name: Prettier webbilling-demo
+          name: Formatting webbilling-demo
           working_directory: examples/webbilling-demo
-          command: pnpm run prettier:ci
+          command: pnpm run format:check
       - run:
           name: Type checker including tests
           command: pnpm run test:typecheck

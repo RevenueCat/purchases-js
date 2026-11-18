@@ -73,8 +73,9 @@ pnpm run test:typecheck   # TypeScript type checking
 pnpm run typecheck        # Full typecheck without emit
 
 # Code Quality
-pnpm run lint             # Prettier check
-pnpm run format           # Prettier formatting
+pnpm run lint             # oxlint
+pnpm run format           # oxfmt formatting
+pnpm run format:check     # oxfmt check
 pnpm run svelte-check     # Svelte template checking
 
 # UI & Documentation

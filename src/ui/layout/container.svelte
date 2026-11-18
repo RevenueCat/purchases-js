@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getDocument } from "../../helpers/browser-globals";
   import { type Snippet } from "svelte";
   import { Theme } from "../theme/theme";
 
@@ -33,7 +34,7 @@
     try {
       const fontFace = new FontFace(BRANDED_FONT_NAME, `url(${fontURL})`);
       await fontFace.load();
-      (document as any).fonts.add(fontFace);
+      getDocument().fonts.add(fontFace);
     } catch (error) {
       console.error(`Failed to set brand font:`, error);
     }
