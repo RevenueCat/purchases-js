@@ -5,7 +5,7 @@ import type {
   PricingPhase,
   SubscriptionOption,
 } from "../entities/offerings";
-import { type Translator } from "../ui/localization/translator";
+import type { Translator } from "../ui/localization/translator";
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import { getNextRenewalDate, type Period } from "./duration-helper";
 import { getPeriodVariables } from "./paywall-period-helpers";

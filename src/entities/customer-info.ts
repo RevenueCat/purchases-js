@@ -1,12 +1,12 @@
-import {
-  type NonSubscriptionResponse,
-  type SubscriberEntitlementResponse,
-  type SubscriberResponse,
-  type SubscriberSubscriptionPriceResponse,
-  type SubscriberSubscriptionResponse,
+import type {
+  NonSubscriptionResponse,
+  SubscriberEntitlementResponse,
+  SubscriberResponse,
+  SubscriberSubscriptionPriceResponse,
+  SubscriberSubscriptionResponse,
 } from "../networking/responses/subscriber-response";
 import { ErrorCode, PurchasesError } from "./errors";
-import { type Price } from "./offerings";
+import type { Price } from "./offerings";
 import { formatPrice } from "../helpers/price-labels";
 
 /**

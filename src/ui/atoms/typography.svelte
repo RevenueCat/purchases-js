@@ -1,5 +1,5 @@
 <script module lang="ts">
-  import { type Snippet } from "svelte";
+  import type { Snippet } from "svelte";
 
   type Size =
     | "heading-2xl"

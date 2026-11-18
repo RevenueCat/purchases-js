@@ -1,4 +1,4 @@
-import { type SupportedEndpoint } from "./endpoints";
+import type { SupportedEndpoint } from "./endpoints";
 import type { BackendErrorCode } from "../entities/errors";
 import { ErrorCode, ErrorCodeUtils, PurchasesError } from "../entities/errors";
 import { RC_ENDPOINT, VERSION } from "../helpers/constants";

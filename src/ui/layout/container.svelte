@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getDocument } from "../../helpers/browser-globals";
-  import { type Snippet } from "svelte";
+  import type { Snippet } from "svelte";
   import { Theme } from "../theme/theme";
 
   import type { BrandingAppearance } from "../../entities/branding";

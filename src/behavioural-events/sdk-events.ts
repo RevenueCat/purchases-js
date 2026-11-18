@@ -1,4 +1,4 @@
-import { type EventProperties, type SDKEventPurchaseMode } from "./event";
+import type { EventProperties, SDKEventPurchaseMode } from "./event";
 
 export type SDKEvent =
   | SDKInitializedEvent

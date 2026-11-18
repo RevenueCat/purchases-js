@@ -17,14 +17,14 @@ import {
   PurchasesError,
   UninitializedPurchasesError,
 } from "./entities/errors";
-import {
-  type OfferingResponse,
-  type OfferingsResponse,
-  type PackageResponse,
+import type {
+  OfferingResponse,
+  OfferingsResponse,
+  PackageResponse,
 } from "./networking/responses/offerings-response";
-import {
-  type ProductResponse,
-  type ProductsResponse,
+import type {
+  ProductResponse,
+  ProductsResponse,
 } from "./networking/responses/products-response";
 import { RC_ENDPOINT } from "./helpers/constants";
 import { Backend } from "./networking/backend";
@@ -46,7 +46,7 @@ import {
 } from "./helpers/purchase-operation-helper";
 import { PaddleService } from "./paddle/paddle-service";
 import { withPaddleDiscountsOnOffering } from "./paddle/paddle-discount-preview";
-import { type LogHandler, type LogLevel } from "./entities/logging";
+import type { LogHandler, LogLevel } from "./entities/logging";
 import { Logger } from "./helpers/logger";
 import {
   validateAdditionalHeaders,
@@ -59,14 +59,14 @@ import type {
   PurchaseParams,
   QuickPurchasePreparationResult,
 } from "./entities/purchase-params";
-import { type ProductChangeResult } from "./entities/product-change-params";
+import type { ProductChangeResult } from "./entities/product-change-params";
 import { defaultHttpConfig, type HttpConfig } from "./entities/http-config";
 import {
   type GetOfferingsParams,
   OfferingKeyword,
 } from "./entities/get-offerings-params";
 import { validateCurrency } from "./helpers/validators";
-import { type BrandingInfoResponse } from "./networking/responses/branding-response";
+import type { BrandingInfoResponse } from "./networking/responses/branding-response";
 import type { StripeBillingApplePayCheckoutStartResponse } from "./networking/responses/checkout-start-response";
 import type { BrandingAppearance } from "./entities/branding";
 import { requiresLoadedResources } from "./helpers/decorators";
@@ -81,15 +81,15 @@ import {
   toOffering,
   toOfferings,
 } from "./helpers/offerings-parser";
-import {
-  type PaywallPurchaseResult,
-  type PurchaseResult,
+import type {
+  PaywallPurchaseResult,
+  PurchaseResult,
 } from "./entities/purchase-result";
 import { type ComponentProps, mount, unmount } from "svelte";
-import { type PaywallListener } from "./entities/paywall-listener";
-import {
-  type CompleteWorkflowNavigateArgs,
-  type PresentPaywallParams,
+import type { PaywallListener } from "./entities/paywall-listener";
+import type {
+  CompleteWorkflowNavigateArgs,
+  PresentPaywallParams,
 } from "./entities/present-paywall-params";
 import {
   type ComponentInteractionData as UIComponentInteractionData,
@@ -131,9 +131,9 @@ import {
   type FlagsConfig,
   supportedRCSources,
 } from "./entities/flags-config";
-import {
-  type PurchasesConfig,
-  type PurchasesContext,
+import type {
+  PurchasesConfig,
+  PurchasesContext,
 } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
 import {

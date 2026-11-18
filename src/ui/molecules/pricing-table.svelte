@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { type Writable } from "svelte/store";
-  import { type Translator } from "../localization/translator";
+  import type { Writable } from "svelte/store";
+  import type { Translator } from "../localization/translator";
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import { type PriceBreakdown } from "../ui-types";
+  import type { PriceBreakdown } from "../ui-types";
   import { getNextRenewalDate } from "../../helpers/duration-helper";
-  import { type PricingPhase } from "../../entities/offerings";
+  import type { PricingPhase } from "../../entities/offerings";
   import type { ResolvedDiscountBreakdown } from "../../helpers/discount-breakdown-helper";
   import DiscountInput from "./discount-input.svelte";
   import PricingDropdown from "./pricing-dropdown.svelte";

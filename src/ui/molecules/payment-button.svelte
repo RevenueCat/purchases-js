@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { type SubscriptionOption } from "../../entities/offerings";
+  import type { SubscriptionOption } from "../../entities/offerings";
   import { Button } from "@revenuecat/purchases-ui-js";
   import Localized from "../localization/localized.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import { type PriceBreakdown } from "../ui-types";
-  import { type Writable } from "svelte/store";
+  import type { PriceBreakdown } from "../ui-types";
+  import type { Writable } from "svelte/store";
   import { Translator } from "../localization/translator";
   import { translatorContextKey } from "../../ui/localization/constants";
   import { getContext } from "svelte";

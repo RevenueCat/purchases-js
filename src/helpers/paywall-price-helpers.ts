@@ -1,6 +1,6 @@
-import { type Price } from "../entities/offerings";
-import { type Translator } from "../ui/localization/translator";
-import { type Period } from "./duration-helper";
+import type { Price } from "../entities/offerings";
+import type { Translator } from "../ui/localization/translator";
+import type { Period } from "./duration-helper";
 import { getPricePerPeriodFactors } from "./price-conversion-helper";
 import { floorMicrosToCurrencyUnit } from "./price-labels";
 

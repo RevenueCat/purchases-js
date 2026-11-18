@@ -1,11 +1,11 @@
-import {
-  type OfferingResponse,
-  type OfferingsResponse,
-  type PlacementsResponse,
+import type {
+  OfferingResponse,
+  OfferingsResponse,
+  PlacementsResponse,
 } from "../networking/responses/offerings-response";
-import {
-  type ProductResponse,
-  type ProductsResponse,
+import type {
+  ProductResponse,
+  ProductsResponse,
 } from "../networking/responses/products-response";
 import {
   type Offering,

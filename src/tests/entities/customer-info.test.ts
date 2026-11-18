@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { type SubscriberResponse } from "../../networking/responses/subscriber-response";
+import type { SubscriberResponse } from "../../networking/responses/subscriber-response";
 import {
   type CustomerInfo,
   toCustomerInfo,

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { type Snippet } from "svelte";
+  import type { Snippet } from "svelte";
   import Icon from "../atoms/icon.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { translatorContextKey } from "../localization/constants";
   import { getContext } from "svelte";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import { Translator } from "../localization/translator";
   import Typography from "../atoms/typography.svelte";
 

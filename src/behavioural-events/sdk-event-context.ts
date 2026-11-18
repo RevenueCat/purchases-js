@@ -1,5 +1,5 @@
 import { VERSION } from "../helpers/constants";
-import { type EventContext } from "./event";
+import type { EventContext } from "./event";
 import {
   getNullableDocument,
   getNullableWindow,

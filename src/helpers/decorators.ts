@@ -1,4 +1,4 @@
-import { type Purchases } from "../main";
+import type { Purchases } from "../main";
 
 export function requiresLoadedResources<
   This extends Purchases,

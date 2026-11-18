@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext } from "svelte";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import { Button } from "@revenuecat/purchases-ui-js";
   import type { SubscriptionChangeCheckoutStartResponse } from "../../networking/responses/subscription-change-response";
   import type { BrandingAppearance } from "../../entities/branding";

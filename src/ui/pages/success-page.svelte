@@ -6,9 +6,9 @@
   import { Translator } from "../localization/translator";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import { type IEventsTracker } from "../../behavioural-events/events-tracker";
+  import type { IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import { defaultPurchaseMode } from "../../behavioural-events/event";
   import {
     createCheckoutPurchaseSuccessfulDismissEvent,

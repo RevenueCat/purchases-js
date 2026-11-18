@@ -1,7 +1,7 @@
 import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
 import type { Price, SubscriptionOption } from "../entities/offerings";
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
-import { type Translator } from "../ui/localization/translator";
+import type { Translator } from "../ui/localization/translator";
 import { PeriodUnit, type Period } from "./duration-helper";
 import { getPricePerPeriodFactors } from "./price-conversion-helper";
 import { getCurrencyFractionDigits } from "./price-labels";

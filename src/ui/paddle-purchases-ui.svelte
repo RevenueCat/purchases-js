@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getDocument } from "../helpers/browser-globals";
   import { onMount, setContext, onDestroy, tick } from "svelte";
-  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
+  import type { BrandingInfoResponse } from "../networking/responses/branding-response";
   import { translatorContextKey } from "./localization/constants";
   import { Translator } from "./localization/translator";
   import { writable } from "svelte/store";

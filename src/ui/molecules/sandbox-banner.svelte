@@ -3,7 +3,7 @@
   import CloseButton from "./close-button.svelte";
   import { Logger } from "../../helpers/logger";
   import Typography from "../atoms/typography.svelte";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
   import IconOpenExternal from "../atoms/icons/icon-open-external.svelte";
   export let style = "";
   export let isInElement = false;

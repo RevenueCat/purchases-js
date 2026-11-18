@@ -16,7 +16,7 @@ import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discoun
 import type { StripeElements } from "@stripe/stripe-js";
 import { DEFAULT_FONT_FAMILY } from "../theme/text";
 import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
-import { type PriceBreakdown } from "../ui-types";
+import type { PriceBreakdown } from "../ui-types";
 import {
   PurchaseFlowError,
   PurchaseFlowErrorCode,

@@ -1,7 +1,7 @@
 <script lang="ts">
   import Container from "./container.svelte";
   import SandboxBanner from "../molecules/sandbox-banner.svelte";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { getContext, type Snippet } from "svelte";
   import { Theme } from "../theme/theme";
   import type { BrandingAppearance } from "../../entities/branding";

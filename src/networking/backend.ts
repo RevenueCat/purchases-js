@@ -1,4 +1,4 @@
-import { type OfferingsResponse } from "./responses/offerings-response";
+import type { OfferingsResponse } from "./responses/offerings-response";
 import { performRequest, performRequestWithStatus } from "./http-client";
 import {
   CheckoutCompleteEndpoint,
@@ -19,19 +19,19 @@ import {
   PostReceiptEndpoint,
   SetAttributesEndpoint,
 } from "./endpoints";
-import { type SubscriberResponse } from "./responses/subscriber-response";
+import type { SubscriberResponse } from "./responses/subscriber-response";
 import type {
   CheckoutStartResponse,
   ExternalCheckoutStartResponse,
 } from "./responses/checkout-start-response";
-import { type ProductsResponse } from "./responses/products-response";
-import { type BrandingInfoResponse } from "./responses/branding-response";
-import { type CheckoutStatusResponse } from "./responses/checkout-status-response";
+import type { ProductsResponse } from "./responses/products-response";
+import type { BrandingInfoResponse } from "./responses/branding-response";
+import type { CheckoutStatusResponse } from "./responses/checkout-status-response";
 import type {
   SubscriptionChangeCheckoutStartResponse,
   SubscriptionChangeCompleteResponse,
 } from "./responses/subscription-change-response";
-import { type VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
+import type { VirtualCurrenciesResponse } from "./responses/virtual-currencies-response";
 import type {
   WorkflowDataAction,
   WorkflowDataResponse,
@@ -287,7 +287,7 @@ export class Backend {
       requestBody.offer_id = purchaseOption.id;
     }
 
-    return await performRequest<CheckoutPrepareRequestBody, T>(
+    return performRequest<CheckoutPrepareRequestBody, T>(
       new CheckoutPrepareEndpoint(),
       {
         apiKey: this.API_KEY,
@@ -438,7 +438,7 @@ export class Backend {
     // With a subscriber token the IAM route is used: the token replaces the
     // public API key in Authorization. getHeaders still derives X-Is-Sandbox
     // from the configured key, which is how the backend picks the environment.
-    return await performRequest<CheckoutStartRequestBody, T>(
+    return performRequest<CheckoutStartRequestBody, T>(
       subscriberToken
         ? new CustomerCheckoutStartEndpoint()
         : new CheckoutStartEndpoint(),

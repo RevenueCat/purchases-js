@@ -8,7 +8,7 @@
   import { translatorContextKey } from "./constants";
 
   import { LocalizationKeys } from "./supportedLanguages";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
 
   interface LocalizedProps {
     key?: LocalizationKeys | EmptyString | undefined;

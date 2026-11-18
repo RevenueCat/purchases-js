@@ -12,7 +12,7 @@ import {
   CheckoutStatusErrorCodes,
   type CheckoutStatusResponse,
 } from "../../networking/responses/checkout-status-response";
-import { type IEventsTracker } from "../../behavioural-events/events-tracker";
+import type { IEventsTracker } from "../../behavioural-events/events-tracker";
 import type { PaddleCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 import {
   PurchaseFlowError,

@@ -12,7 +12,7 @@
   import Localized from "../localization/localized.svelte";
 
   import { LocalizationKeys } from "../localization/supportedLanguages";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import Icon, { type IconName } from "../atoms/icon.svelte";
 
   interface Props {

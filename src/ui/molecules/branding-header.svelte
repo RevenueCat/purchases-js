@@ -1,6 +1,6 @@
 <script lang="ts">
   import AppLogo from "../atoms/app-logo.svelte";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
   import { buildBrandingSources } from "../../helpers/build-branding-sources";
   import Typography from "../atoms/typography.svelte";
   import BackButton from "./back-button.svelte";

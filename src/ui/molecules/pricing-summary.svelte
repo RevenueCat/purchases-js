@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import Localized from "../localization/localized.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { Translator } from "../localization/translator";
@@ -9,11 +9,8 @@
     englishLocale,
   } from "../localization/constants";
   import { getTranslatedPeriodLength } from "../../helpers/price-labels";
-  import { type PriceBreakdown } from "../ui-types";
-  import {
-    type PricingPhase,
-    type DiscountPhase,
-  } from "../../entities/offerings";
+  import type { PriceBreakdown } from "../ui-types";
+  import type { PricingPhase, DiscountPhase } from "../../entities/offerings";
   import Typography from "../atoms/typography.svelte";
 
   export type Props = {

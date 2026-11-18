@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext } from "svelte";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import Icon from "../atoms/icon.svelte";
   import { translatorContextKey } from "../localization/constants";
   import { LocalizationKeys } from "../localization/supportedLanguages";

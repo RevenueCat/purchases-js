@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Snippet } from "svelte";
+  import type { Snippet } from "svelte";
 
   export let children: Snippet;
 </script>

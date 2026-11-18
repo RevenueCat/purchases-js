@@ -27,7 +27,7 @@
     PurchaseOperationHelper,
   } from "../../helpers/purchase-operation-helper";
   import type { PriceBreakdown, TaxCalculationStatus } from "../ui-types";
-  import { type IEventsTracker } from "../../behavioural-events/events-tracker";
+  import type { IEventsTracker } from "../../behavioural-events/events-tracker";
   import { eventsTrackerContextKey } from "../constants";
   import {
     createCheckoutPaymentFormErrorEvent,

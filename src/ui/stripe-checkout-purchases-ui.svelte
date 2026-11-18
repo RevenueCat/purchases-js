@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getDocument } from "../helpers/browser-globals";
   import { onMount, setContext, onDestroy } from "svelte";
-  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
+  import type { BrandingInfoResponse } from "../networking/responses/branding-response";
   import { translatorContextKey } from "./localization/constants";
   import { Translator } from "./localization/translator";
   import { writable } from "svelte/store";
@@ -32,7 +32,7 @@
     isSubscriptionChangeCheckoutStartResponse,
     type SubscriptionChangeCheckoutStartResponse,
   } from "../networking/responses/subscription-change-response";
-  import { type ProductChangeResult } from "../entities/product-change-params";
+  import type { ProductChangeResult } from "../entities/product-change-params";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;

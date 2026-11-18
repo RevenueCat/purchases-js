@@ -1,22 +1,22 @@
 <script lang="ts">
-  import {
-    type Product,
-    type PurchaseOption,
-    type SubscriptionOption,
-    type NonSubscriptionOption,
-    type PricingPhase,
-    type DiscountPhase,
+  import type {
+    Product,
+    PurchaseOption,
+    SubscriptionOption,
+    NonSubscriptionOption,
+    PricingPhase,
+    DiscountPhase,
   } from "../../entities/offerings";
   import PricingTable from "../molecules/pricing-table.svelte";
   import ProductHeader from "../molecules/product-header.svelte";
   import PricingSummary from "../molecules/pricing-summary.svelte";
   import PricingSummaryNonSubscription from "../molecules/pricing-summary-non-subscription.svelte";
-  import { type PriceBreakdown } from "../ui-types";
+  import type { PriceBreakdown } from "../ui-types";
   import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discount-breakdown-helper";
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
-  import { type Translator } from "../localization/translator";
-  import { type Writable } from "svelte/store";
+  import type { Translator } from "../localization/translator";
+  import type { Writable } from "svelte/store";
 
   export let productDetails: Product;
   export let purchaseOption: PurchaseOption;

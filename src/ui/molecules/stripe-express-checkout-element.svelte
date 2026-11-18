@@ -15,7 +15,7 @@
   import TextSeparator from "../atoms/text-separator.svelte";
   import { LocalizationKeys } from "../localization/supportedLanguages";
   import { Translator } from "../localization/translator";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import { translatorContextKey } from "../localization/constants";
 
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";

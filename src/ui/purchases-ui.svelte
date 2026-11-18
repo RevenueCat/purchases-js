@@ -1,13 +1,8 @@
 <script lang="ts">
   import { getDocument } from "../helpers/browser-globals";
   import { onMount, setContext, onDestroy } from "svelte";
-  import {
-    type Package,
-    type Product,
-    type PurchaseOption,
-    type Purchases,
-  } from "../main";
-  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
+  import type { Package, Product, PurchaseOption, Purchases } from "../main";
+  import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 
   import {
     type OperationSessionSuccessfulResult,
@@ -21,13 +16,13 @@
     Translator,
   } from "./localization/translator";
   import { translatorContextKey } from "./localization/constants";
-  import {
-    type CurrentPage,
-    type PriceBreakdown,
-    type TaxCalculationStatus,
+  import type {
+    CurrentPage,
+    PriceBreakdown,
+    TaxCalculationStatus,
   } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
-  import { type IEventsTracker } from "../behavioural-events/events-tracker";
+  import type { IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey, brandingContextKey } from "./constants";
   import { createCheckoutFlowErrorEvent } from "../behavioural-events/sdk-event-helpers";
   import type { PurchaseMetadata } from "../entities/offerings";
@@ -38,7 +33,7 @@
   import { get, writable } from "svelte/store";
   import type { BrandingAppearance } from "../entities/branding";
   import type { TaxCustomerDetails } from "../stripe/stripe-service";
-  import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import type { GatewayParams } from "../networking/responses/stripe-elements";
   import { isPayrailsCheckoutStartResponse } from "../networking/responses/checkout-start-response";
   import type { PayrailsGatewayParams } from "../networking/responses/payrails-gateway-params";
   import {
@@ -50,7 +45,7 @@
     isSubscriptionChangeCheckoutStartResponse,
     type SubscriptionChangeCheckoutStartResponse,
   } from "../networking/responses/subscription-change-response";
-  import { type ProductChangeResult } from "../entities/product-change-params";
+  import type { ProductChangeResult } from "../entities/product-change-params";
   import { validateEmail } from "../helpers/validators";
   import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
   import { PAYRAILS_CHECKOUT_ENABLED } from "../helpers/constants";

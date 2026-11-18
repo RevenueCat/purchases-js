@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext } from "svelte";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import type { BrandingAppearance } from "../../entities/branding";
   import type { Translator } from "../localization/translator";
   import { brandingContextKey } from "../constants";

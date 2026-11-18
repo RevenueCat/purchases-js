@@ -7,7 +7,7 @@
   import BrandingHeader from "./molecules/branding-header.svelte";
   import UpgradeConfirmPage from "./pages/upgrade-confirm-page.svelte";
   import UpgradeProductInfo from "./organisms/upgrade-product-info.svelte";
-  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
+  import type { BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { BrandingAppearance, Product, PurchaseOption } from "../main";
   import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
   import Typography from "./atoms/typography.svelte";
@@ -16,7 +16,7 @@
   import { getContext } from "svelte";
   import { translatorContextKey } from "./localization/constants";
   import { Translator } from "./localization/translator";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import ColLayout from "./layout/col-layout.svelte";
   import type { StripeBillingParams } from "../networking/responses/checkout-start-response";
   import type { SubscriptionChangeCheckoutStartResponse } from "../networking/responses/subscription-change-response";

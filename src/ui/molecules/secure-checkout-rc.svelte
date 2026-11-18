@@ -28,7 +28,7 @@
     SubscriptionOption,
     NonSubscriptionOption,
   } from "../../entities/offerings";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import Typography from "../atoms/typography.svelte";
   import type { PriceBreakdown } from "../ui-types";
 

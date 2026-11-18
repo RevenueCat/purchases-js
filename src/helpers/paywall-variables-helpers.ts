@@ -1,4 +1,4 @@
-import { type VariableDictionary } from "@revenuecat/purchases-ui-js";
+import type { VariableDictionary } from "@revenuecat/purchases-ui-js";
 import {
   type Offering,
   type Package,

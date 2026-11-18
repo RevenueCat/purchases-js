@@ -2,7 +2,7 @@
   import SuccessPage from "./pages/success-page.svelte";
   import ErrorPage from "./pages/error-page.svelte";
   import FullscreenTemplate from "./layout/fullscreen-template.svelte";
-  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
+  import type { BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product } from "../main";
   import { PurchaseFlowError } from "../helpers/purchase-operation-helper";
   import Typography from "./atoms/typography.svelte";
@@ -11,7 +11,7 @@
   import { getContext } from "svelte";
   import { translatorContextKey } from "./localization/constants";
   import { Translator } from "./localization/translator";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import ColLayout from "./layout/col-layout.svelte";
 
   interface Props {

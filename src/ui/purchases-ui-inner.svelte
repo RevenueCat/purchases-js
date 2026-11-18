@@ -7,8 +7,8 @@
   import UpgradeConfirmPage from "./pages/upgrade-confirm-page.svelte";
   import UpgradeProductInfo from "./organisms/upgrade-product-info.svelte";
   import type { SubscriptionChangeCheckoutStartResponse } from "../networking/responses/subscription-change-response";
-  import { type PriceBreakdown, type CurrentPage } from "./ui-types";
-  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
+  import type { PriceBreakdown, CurrentPage } from "./ui-types";
+  import type { BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../main";
   import { getInitialPriceFromPurchaseOption } from "../helpers/purchase-option-price-helper";
   import ProductInfo from "./organisms/product-info.svelte";
@@ -17,7 +17,7 @@
     PurchaseOperationHelper,
   } from "../helpers/purchase-operation-helper";
   import Template from "./layout/template.svelte";
-  import { type GatewayParams } from "../networking/responses/stripe-elements";
+  import type { GatewayParams } from "../networking/responses/stripe-elements";
   import type { PayrailsGatewayParams } from "../networking/responses/payrails-gateway-params";
   import BrandingHeader from "./molecules/branding-header.svelte";
   import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";

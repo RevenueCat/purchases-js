@@ -1,16 +1,16 @@
 <script lang="ts">
   import { getContext } from "svelte";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import Typography from "../atoms/typography.svelte";
   import { Theme } from "../theme/theme";
   import { translatorContextKey } from "../localization/constants";
   import { Translator } from "../localization/translator";
   import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
   import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import {
-    type Product,
-    type PurchaseOption,
-    type SubscriptionOption,
+  import type {
+    Product,
+    PurchaseOption,
+    SubscriptionOption,
   } from "../../entities/offerings";
   import {
     getNextRenewalDate,

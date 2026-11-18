@@ -1,9 +1,9 @@
-import {
-  type NonSubscriptionOption,
-  type SubscriptionOption,
+import type {
+  NonSubscriptionOption,
+  SubscriptionOption,
 } from "../../entities/offerings";
 
-import { type PriceBreakdown } from "../../ui/ui-types";
+import type { PriceBreakdown } from "../../ui/ui-types";
 
 const getPriceFromOption = (
   option: SubscriptionOption | NonSubscriptionOption,

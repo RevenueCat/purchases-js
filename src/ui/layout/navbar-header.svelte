@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Snippet } from "svelte";
+  import type { Snippet } from "svelte";
   import ModalSection from "./modal-section.svelte";
   import CloseButton from "../molecules/close-button.svelte";
   import BackButton from "../molecules/back-button.svelte";

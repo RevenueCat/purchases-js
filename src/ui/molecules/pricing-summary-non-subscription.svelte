@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import { Translator } from "../localization/translator";
   import { getContext } from "svelte";
   import { translatorContextKey } from "../localization/constants";
-  import { type PriceBreakdown } from "../ui-types";
-  import { type PricingPhase } from "../../entities/offerings";
+  import type { PriceBreakdown } from "../ui-types";
+  import type { PricingPhase } from "../../entities/offerings";
   import Typography from "../atoms/typography.svelte";
 
   export type Props = {

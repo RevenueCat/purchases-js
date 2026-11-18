@@ -4,7 +4,7 @@ import {
   PurchasesError,
   type PurchasesErrorExtra,
 } from "../entities/errors";
-import { type Backend } from "../networking/backend";
+import type { Backend } from "../networking/backend";
 import type {
   PayrailsCheckoutStartResponse,
   StripeBillingApplePayCheckoutStartResponse,
@@ -14,10 +14,10 @@ import {
   CheckoutSessionStatus,
   type CheckoutStatusResponse,
 } from "../networking/responses/checkout-status-response";
-import {
-  type PresentedOfferingContext,
-  type PurchaseMetadata,
-  type PurchaseOption,
+import type {
+  PresentedOfferingContext,
+  PurchaseMetadata,
+  PurchaseOption,
 } from "../entities/offerings";
 import type {
   AttributionMetadata,
@@ -29,7 +29,7 @@ import {
   type RedemptionInfo,
   toRedemptionInfo,
 } from "../entities/redemption-info";
-import { type IEventsTracker } from "../behavioural-events/events-tracker";
+import type { IEventsTracker } from "../behavioural-events/events-tracker";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
 import {
   CheckoutPricingFailedReason,

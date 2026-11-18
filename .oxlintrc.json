@@ -35,7 +35,6 @@
     "typescript/no-dynamic-delete": "warn", // TODO: change to error
     "typescript/no-extraneous-class": "warn", // TODO: change to error
     "typescript/no-floating-promises": "warn", // TODO: change to error
-    "typescript/no-import-type-side-effects": "warn", // TODO: change to error
     "typescript/no-inferrable-types": "warn", // TODO: change to error
     "typescript/no-invalid-void-type": "warn", // TODO: change to error
     "typescript/no-misused-promises": "warn", // TODO: change to error

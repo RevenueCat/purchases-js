@@ -1,4 +1,4 @@
-import { type Translator } from "../ui/localization/translator";
+import type { Translator } from "../ui/localization/translator";
 import { type Period, PeriodUnit } from "./duration-helper";
 
 // Conversion constants for consistent pricing calculations

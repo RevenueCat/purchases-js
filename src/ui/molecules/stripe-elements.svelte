@@ -28,7 +28,7 @@
     StripeService,
     StripeServiceError,
   } from "../../stripe/stripe-service";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import type { StripeExpressCheckoutConfiguration } from "../../stripe/stripe-express-checkout-configuration";
   import { Logger } from "../../helpers/logger";
 

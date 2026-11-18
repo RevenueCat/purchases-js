@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext } from "svelte";
-  import { type Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
   import Template from "./layout/template.svelte";
   import PaddleOrderSummary from "./organisms/paddle-order-summary.svelte";
   import SuccessPage from "./pages/success-page.svelte";
@@ -12,13 +12,13 @@
   import { translatorContextKey } from "./localization/constants";
   import { Translator } from "./localization/translator";
   import { LocalizationKeys } from "./localization/supportedLanguages";
-  import { type BrandingInfoResponse } from "../networking/responses/branding-response";
+  import type { BrandingInfoResponse } from "../networking/responses/branding-response";
   import type { Product, PurchaseOption } from "../entities/offerings";
   import {
     PADDLE_INLINE_FRAME_TARGET,
     type PaddleCheckoutTotals,
   } from "../paddle/paddle-service";
-  import { type PurchaseFlowError } from "../helpers/purchase-operation-helper";
+  import type { PurchaseFlowError } from "../helpers/purchase-operation-helper";
 
   interface Props {
     brandingInfo: BrandingInfoResponse | null;

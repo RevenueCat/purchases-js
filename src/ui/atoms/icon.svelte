@@ -1,5 +1,5 @@
 <script module lang="ts">
-  import { type Component } from "svelte";
+  import type { Component } from "svelte";
   import {
     type Direction,
     default as IconChevron,

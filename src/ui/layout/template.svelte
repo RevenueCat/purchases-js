@@ -4,8 +4,8 @@
   import NavBar from "./navbar.svelte";
   import SandboxBanner from "../molecules/sandbox-banner.svelte";
   import Main from "./main-block.svelte";
-  import { type BrandingInfoResponse } from "../../networking/responses/branding-response";
-  import { type Snippet } from "svelte";
+  import type { BrandingInfoResponse } from "../../networking/responses/branding-response";
+  import type { Snippet } from "svelte";
   import { toProductInfoStyleVar } from "../theme/utils";
 
   export interface Props {

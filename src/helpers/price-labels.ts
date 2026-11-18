@@ -1,5 +1,5 @@
 import { parseISODuration, type Period } from "./duration-helper";
-import { type Translator } from "../ui/localization/translator";
+import type { Translator } from "../ui/localization/translator";
 
 import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import { englishLocale } from "../ui/localization/constants";

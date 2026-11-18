@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type Snippet } from "svelte";
+  import type { Snippet } from "svelte";
   type Gap = "large" | "medium" | "small";
   export let gap: Gap = "small";
   export let justify: "start" | "center" | "end" = "start";

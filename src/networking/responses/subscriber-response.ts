@@ -1,7 +1,7 @@
-import {
-  type OwnershipType,
-  type PeriodType,
-  type Store,
+import type {
+  OwnershipType,
+  PeriodType,
+  Store,
 } from "../../entities/customer-info";
 
 export interface SubscriberEntitlementResponse {

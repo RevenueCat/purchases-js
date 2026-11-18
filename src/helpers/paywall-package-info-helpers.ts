@@ -3,8 +3,8 @@ import {
   type Package,
   ProductType,
 } from "../entities/offerings";
-import { type PackageInfo } from "@revenuecat/purchases-ui-js";
-import { type Translator } from "../ui/localization/translator";
+import type { PackageInfo } from "@revenuecat/purchases-ui-js";
+import type { Translator } from "../ui/localization/translator";
 import { getDiscountVariablesByMostExpensivePricePerMonth } from "./paywall-discount-helpers";
 import { getPackageMonthlyPrice } from "./paywall-variables-helpers";
 

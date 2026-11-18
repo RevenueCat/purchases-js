@@ -1,7 +1,7 @@
-import {
-  type OfferingResponse,
-  type PackageResponse,
-  type TargetingResponse,
+import type {
+  OfferingResponse,
+  PackageResponse,
+  TargetingResponse,
 } from "../networking/responses/offerings-response";
 import type {
   DiscountResponse,
