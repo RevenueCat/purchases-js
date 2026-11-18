@@ -136,7 +136,7 @@ export class Backend {
   }
 
   async getOfferings(appUserId: string): Promise<OfferingsResponse> {
-    return await performRequest<null, OfferingsResponse>(
+    return performRequest<null, OfferingsResponse>(
       new GetOfferingsEndpoint(appUserId),
       {
         apiKey: this.API_KEY,
@@ -146,7 +146,7 @@ export class Backend {
   }
 
   async getCustomerInfo(appUserId: string): Promise<SubscriberResponse> {
-    return await performRequest<null, SubscriberResponse>(
+    return performRequest<null, SubscriberResponse>(
       new GetCustomerInfoEndpoint(appUserId),
       {
         apiKey: this.API_KEY,
@@ -174,7 +174,7 @@ export class Backend {
       SubscriberResponse
     >(new IdentifyEndpoint(), {
       apiKey: this.API_KEY,
-      body: body,
+      body,
       httpConfig: this.httpConfig,
     });
 
@@ -260,7 +260,7 @@ export class Backend {
   }
 
   async getBrandingInfo(): Promise<BrandingInfoResponse> {
-    return await performRequest<null, BrandingInfoResponse>(
+    return performRequest<null, BrandingInfoResponse>(
       new GetBrandingInfoEndpoint(),
       {
         apiKey: this.API_KEY,
@@ -287,14 +287,14 @@ export class Backend {
       requestBody.offer_id = purchaseOption.id;
     }
 
-    return (await performRequest<CheckoutPrepareRequestBody, T>(
+    return await performRequest<CheckoutPrepareRequestBody, T>(
       new CheckoutPrepareEndpoint(),
       {
         apiKey: this.API_KEY,
         body: requestBody,
         httpConfig: this.httpConfig,
       },
-    )) as T;
+    );
   }
 
   async postCheckoutStart<
@@ -438,7 +438,7 @@ export class Backend {
     // With a subscriber token the IAM route is used: the token replaces the
     // public API key in Authorization. getHeaders still derives X-Is-Sandbox
     // from the configured key, which is how the backend picks the environment.
-    return (await performRequest<CheckoutStartRequestBody, T>(
+    return await performRequest<CheckoutStartRequestBody, T>(
       subscriberToken
         ? new CustomerCheckoutStartEndpoint()
         : new CheckoutStartEndpoint(),
@@ -450,7 +450,7 @@ export class Backend {
           : undefined,
         httpConfig: this.httpConfig,
       },
-    )) as T;
+    );
   }
 
   async patchCheckoutRefreshPricing(
@@ -486,7 +486,7 @@ export class Backend {
       discount_code: discountCode,
     };
 
-    return await performRequest<
+    return performRequest<
       CheckoutRefreshPricingRequestBody,
       CheckoutPricingResponse
     >(
@@ -552,7 +552,7 @@ export class Backend {
       };
     }
 
-    return await performRequest<
+    return performRequest<
       CheckoutCompleteRequestBody,
       CheckoutCompleteResponse | SubscriptionChangeCompleteResponse
     >(
@@ -573,7 +573,7 @@ export class Backend {
   async getCheckoutStatus(
     operationSessionId: string,
   ): Promise<CheckoutStatusResponse> {
-    return await performRequest<null, CheckoutStatusResponse>(
+    return performRequest<null, CheckoutStatusResponse>(
       new GetCheckoutStatusEndpoint(operationSessionId),
       {
         apiKey: this.API_KEY,
@@ -609,7 +609,7 @@ export class Backend {
       attributes: formattedAttributes,
     };
 
-    return await performRequest<SetAttributesRequestBody, void>(
+    await performRequest<SetAttributesRequestBody, void>(
       new SetAttributesEndpoint(appUserId),
       {
         apiKey: this.API_KEY,
@@ -672,7 +672,7 @@ export class Backend {
     const requestBody: PostReceiptRequestBody = {
       fetch_token: fetchToken,
       product_id: productId,
-      currency: currency,
+      currency,
       app_user_id: appUserId,
       presented_offering_identifier:
         presentedOfferingContext?.offeringIdentifier ?? null,
@@ -683,7 +683,7 @@ export class Backend {
       applied_targeting_rule: targetingInfo,
       initiation_source: initiationSource,
       store_user_id: storeUserId,
-      is_restore: is_restore,
+      is_restore,
       price: price ?? null,
     };
 
@@ -705,7 +705,7 @@ export class Backend {
       requestBody.rc_external_purchase_token_id = externalPurchaseTokenId;
     }
 
-    return await performRequest<PostReceiptRequestBody, SubscriberResponse>(
+    return performRequest<PostReceiptRequestBody, SubscriberResponse>(
       new PostReceiptEndpoint(),
       {
         apiKey: this.API_KEY,
@@ -718,7 +718,7 @@ export class Backend {
   async getVirtualCurrencies(
     appUserId: string,
   ): Promise<VirtualCurrenciesResponse> {
-    return await performRequest<null, VirtualCurrenciesResponse>(
+    return performRequest<null, VirtualCurrenciesResponse>(
       new GetVirtualCurrenciesEndpoint(appUserId),
       {
         apiKey: this.API_KEY,
@@ -728,7 +728,7 @@ export class Backend {
   }
 
   async getWorkflows(appUserId: string): Promise<WorkflowsListResponse> {
-    return await performRequest<null, WorkflowsListResponse>(
+    return performRequest<null, WorkflowsListResponse>(
       new GetWorkflowsEndpoint(appUserId),
       {
         apiKey: this.API_KEY,

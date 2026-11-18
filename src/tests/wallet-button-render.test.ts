@@ -64,7 +64,9 @@ describe("Purchases.getWalletButtonRender()", () => {
       selectedPackageId: monthlyPackage.identifier,
       onReady: vi.fn(),
     });
-    await vi.waitFor(() => expect(buttonProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(buttonProps).toBeDefined();
+    });
     // Simulates the wallet button becoming ready, which delivers the updater.
     buttonProps!.onReady?.(true);
     return action;
@@ -86,8 +88,10 @@ describe("Purchases.getWalletButtonRender()", () => {
     action.update?.({ selectedPackageId: annualPackage.identifier });
     completePurchase(annualPackage);
 
-    await vi.waitFor(() => expect(onSuccess).toHaveBeenCalled());
-    const result = onSuccess.mock.calls[0]![0];
+    await vi.waitFor(() => {
+      expect(onSuccess).toHaveBeenCalled();
+    });
+    const result = onSuccess.mock.calls[0][0];
     expect(result.selectedPackage).toBe(annualPackage);
     expect(result.storeTransaction.productIdentifier).toBe("annual");
   });
@@ -97,8 +101,10 @@ describe("Purchases.getWalletButtonRender()", () => {
 
     completePurchase(monthlyPackage);
 
-    await vi.waitFor(() => expect(onSuccess).toHaveBeenCalled());
-    const result = onSuccess.mock.calls[0]![0];
+    await vi.waitFor(() => {
+      expect(onSuccess).toHaveBeenCalled();
+    });
+    const result = onSuccess.mock.calls[0][0];
     expect(result.selectedPackage).toBe(monthlyPackage);
     expect(result.storeTransaction.productIdentifier).toBe("monthly");
   });
@@ -117,7 +123,9 @@ describe("Purchases.getWalletButtonRender()", () => {
       selectedPackageId: monthlyPackage.identifier,
       onReady: vi.fn(),
     });
-    await vi.waitFor(() => expect(buttonProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(buttonProps).toBeDefined();
+    });
     expect(buttonProps!.metadata).toEqual(metadata);
   });
 
@@ -133,8 +141,10 @@ describe("Purchases.getWalletButtonRender()", () => {
       customerEmail: "typed@example.com",
     });
 
-    await vi.waitFor(() => expect(onSuccess).toHaveBeenCalled());
-    expect(onSuccess.mock.calls[0]![0].customerEmail).toBe("typed@example.com");
+    await vi.waitFor(() => {
+      expect(onSuccess).toHaveBeenCalled();
+    });
+    expect(onSuccess.mock.calls[0][0].customerEmail).toBe("typed@example.com");
   });
 
   test("forwards an external purchase token ID to the express purchase button", async () => {
@@ -151,7 +161,9 @@ describe("Purchases.getWalletButtonRender()", () => {
       selectedPackageId: monthlyPackage.identifier,
       onReady: vi.fn(),
     });
-    await vi.waitFor(() => expect(buttonProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(buttonProps).toBeDefined();
+    });
     expect(buttonProps!.externalPurchaseTokenId).toBe(
       "rcat_external_purchase_token_123",
     );

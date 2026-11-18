@@ -6,8 +6,7 @@ import {
   validateExternalCheckoutUrls,
 } from "../external/external-checkout";
 import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
-import { APIPostRequest } from "./test-responses";
-import { customerInfoResponse } from "./test-responses";
+import { APIPostRequest, customerInfoResponse } from "./test-responses";
 import { server } from "./base.purchases_test";
 import { http, HttpResponse } from "msw";
 import type * as BrowserGlobals from "../helpers/browser-globals";
@@ -148,7 +147,9 @@ test.each([undefined, "https://merchant.example/override?foo=bar#paywall"])(
       rcPackage: createMonthlyPackageMock(),
       externalCheckoutReturnUrl: override,
     });
-    await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => {
+      expect(navigate).toHaveBeenCalledTimes(1);
+    });
     const checkout = new URL(navigate.mock.calls[0][0]);
     const returned = new URL(checkout.searchParams.get("return_url")!);
     expect(returned.searchParams.get("checkout_token")).toBe(
@@ -263,7 +264,9 @@ test.each([undefined, "https://merchant.example/checkout?source=override"])(
       externalCheckoutUrl: override,
     });
     void promise.then(settled, settled);
-    await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => {
+      expect(navigate).toHaveBeenCalledTimes(1);
+    });
     expect(navigate).toHaveBeenCalledTimes(1);
     const url = new URL(navigate.mock.calls[0][0]);
     expect(url.origin).toBe(
@@ -301,7 +304,9 @@ test("purchasePackage uses the configured checkout URL", async () => {
   });
   const pkg = createMonthlyPackageMock();
   void purchases.purchasePackage(pkg);
-  await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
+  await vi.waitFor(() => {
+    expect(navigate).toHaveBeenCalledTimes(1);
+  });
   expect(navigate).toHaveBeenCalledTimes(1);
   expect(
     new URL(navigate.mock.calls[0][0]).searchParams.get("product_id"),
@@ -355,7 +360,9 @@ test("stores presentation context before navigating to the merchant", async () =
     },
     metadata: { campaign: "autumn" },
   });
-  await vi.waitFor(() => expect(navigate).toHaveBeenCalledTimes(1));
+  await vi.waitFor(() => {
+    expect(navigate).toHaveBeenCalledTimes(1);
+  });
   expect(received).toHaveBeenCalledWith(
     expect.objectContaining({
       app_user_id: "user",

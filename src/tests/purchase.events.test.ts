@@ -351,9 +351,9 @@ describe("Purchases with unreachable eventsURL", () => {
 
     const unreachableEventsURL = "http://unreachable.local:9999";
     server.use(
-      http.post(`${unreachableEventsURL}/v1/events`, () => {
-        return HttpResponse.error();
-      }),
+      http.post(`${unreachableEventsURL}/v1/events`, () =>
+        HttpResponse.error(),
+      ),
     );
 
     Purchases.configure({

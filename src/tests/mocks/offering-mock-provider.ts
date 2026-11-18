@@ -70,7 +70,7 @@ export function createMonthlyPackageMock(
     presentedOfferingIdentifier: "offering_1",
     presentedOfferingContext: {
       offeringIdentifier: "offering_1",
-      targetingContext: targetingContext,
+      targetingContext,
       placementIdentifier: null,
     },
     defaultPurchaseOption: subscriptionOption,
@@ -98,7 +98,7 @@ export function createMonthlyPackageMock(
     identifier: "$rc_monthly",
     packageType: PackageType.Monthly,
     rcBillingProduct: webBillingProduct,
-    webBillingProduct: webBillingProduct,
+    webBillingProduct,
     product: webBillingProduct,
   };
 }
@@ -253,7 +253,7 @@ export function createMonthlyPackageWithIntroPriceMock(): Package {
     identifier: "$rc_monthly_intro",
     packageType: PackageType.Monthly,
     rcBillingProduct: webBillingProduct,
-    webBillingProduct: webBillingProduct,
+    webBillingProduct,
     product: webBillingProduct,
   };
 }
@@ -430,7 +430,7 @@ export function createMonthlyPackageWithTrialAndIntroPriceMock(): Package {
     identifier: "$rc_monthly_trial_intro",
     packageType: PackageType.Monthly,
     rcBillingProduct: webBillingProduct,
-    webBillingProduct: webBillingProduct,
+    webBillingProduct,
     product: webBillingProduct,
   };
 }
@@ -495,7 +495,7 @@ export function createConsumablePackageMock(): Package {
     identifier: "test-consumable-package",
     packageType: PackageType.Custom,
     rcBillingProduct: webBillingProduct,
-    webBillingProduct: webBillingProduct,
+    webBillingProduct,
     product: webBillingProduct,
   };
 }

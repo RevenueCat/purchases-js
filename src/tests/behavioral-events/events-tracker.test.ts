@@ -22,13 +22,10 @@ vi.mock("../../behavioural-events/sdk-event-context", () => ({
 
 const MAX_JITTER_MULTIPLIER = 1 + 0.1;
 
-function getEventsFromPostCalls(
-  calls: Array<unknown[]>,
-): Array<{ event_name: string }> {
+function getEventsFromPostCalls(calls: unknown[][]): { event_name: string }[] {
   return calls.flatMap(
     (call) =>
-      (call[0] as { json: { events: Array<{ event_name: string }> } }).json
-        .events,
+      (call[0] as { json: { events: { event_name: string }[] } }).json.events,
   );
 }
 
@@ -370,7 +367,7 @@ describe("EventsTracker", (test) => {
           return new HttpResponse(null, { status: 500 });
         }
 
-        const json = (await request.json()) as Record<string, Array<unknown>>;
+        const json = (await request.json()) as Record<string, unknown[]>;
         if (json.events?.length === 4) {
           successFlushMock();
           return HttpResponse.json(json, { status: 201 });
@@ -410,15 +407,13 @@ describe("EventsTracker", (test) => {
         eventPayloadSpy(json);
 
         if (attempts === 1) {
-          setTimeout(
-            () =>
-              eventsTracker.trackExternalEvent({
-                eventName: "external2",
-                properties: { mode: defaultPurchaseMode, a: "b" },
-                source: "other",
-              }),
-            1_000,
-          );
+          setTimeout(() => {
+            eventsTracker.trackExternalEvent({
+              eventName: "external2",
+              properties: { mode: defaultPurchaseMode, a: "b" },
+              source: "other",
+            });
+          }, 1_000);
           await new Promise((resolve) => setTimeout(resolve, 10_000));
           return new HttpResponse(null, { status: 201 });
         }
@@ -615,7 +610,7 @@ describe("EventsTracker", (test) => {
     server.use(
       http.post(eventsURL, async ({ request }) => {
         const json = (await request.json()) as {
-          events: Array<{ event_name: string }>;
+          events: { event_name: string }[];
         };
         APIPostRequest({ url: eventsURL, json, keepalive: request.keepalive });
         if (json.events?.some((e) => e.event_name === "first")) {
@@ -661,7 +656,7 @@ describe("EventsTracker", (test) => {
       http.post(eventsURL, async ({ request }) => {
         ++attempts;
         const json = (await request.json()) as {
-          events: Array<{ event_name: string }>;
+          events: { event_name: string }[];
         };
         APIPostRequest({ url: eventsURL, json, keepalive: request.keepalive });
 
@@ -695,7 +690,7 @@ describe("EventsTracker", (test) => {
 
     // Verify events are in correct order on retry
     const secondCall = APIPostRequest.mock.calls[1][0] as {
-      json: { events: Array<{ event_name: string }> };
+      json: { events: { event_name: string }[] };
     };
     expect(secondCall.json.events).toMatchObject([
       { event_name: "first" },
@@ -745,7 +740,7 @@ describe("EventsTracker", (test) => {
       http.post(eventsURL, async ({ request }) => {
         ++attempts;
         const json = (await request.json()) as {
-          events: Array<{ event_name: string }>;
+          events: { event_name: string }[];
         };
         APIPostRequest({ url: eventsURL, json, keepalive: request.keepalive });
 
@@ -853,7 +848,7 @@ describe("EventsTracker", (test) => {
       http.post(eventsURL, async ({ request }) => {
         ++attempts;
         const json = (await request.json()) as {
-          events: Array<{ event_name: string }>;
+          events: { event_name: string }[];
         };
         APIPostRequest({ url: eventsURL, json, keepalive: request.keepalive });
 

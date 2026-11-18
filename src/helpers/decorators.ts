@@ -6,7 +6,6 @@ export function requiresLoadedResources<
   Result,
 >(
   target: (this: This, ...args: Args) => Promise<Result>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _context: ClassMethodDecoratorContext<
     This,
     (...args: Args) => Promise<Result>
@@ -14,7 +13,7 @@ export function requiresLoadedResources<
 ) {
   async function wrapper(this: This, ...args: Args): Promise<Result> {
     await this.preload();
-    return await target.call(this, ...args);
+    return target.call(this, ...args);
   }
 
   return wrapper;

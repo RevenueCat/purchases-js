@@ -45,13 +45,13 @@ describe("PurchaseOperationHelper", () => {
     backend = new Backend("test_api_key");
     const eventsTrackerMock: IEventsTracker = {
       getTraceId: () => testTraceId,
-      updateUser: () => Promise.resolve(),
+      updateUser: async () => Promise.resolve(),
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       trackPaywallEvent: () => {},
       trackCustomPaywallImpression: () => {},
       dispose: () => {},
-      flushAllEvents: () => Promise.resolve(),
+      flushAllEvents: async () => Promise.resolve(),
     };
     purchaseOperationHelper = new PurchaseOperationHelper(
       backend,
@@ -65,7 +65,7 @@ describe("PurchaseOperationHelper", () => {
 
   function setCheckoutStartResponse(
     httpResponse: HttpResponse,
-    traceId?: string | undefined,
+    traceId?: string,
   ) {
     server.use(
       http.post(
@@ -83,9 +83,10 @@ describe("PurchaseOperationHelper", () => {
 
   function setCheckoutPrepareResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/checkout/prepare", () => {
-        return httpResponse;
-      }),
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/prepare",
+        () => httpResponse,
+      ),
     );
   }
 
@@ -93,9 +94,7 @@ describe("PurchaseOperationHelper", () => {
     server.use(
       http.patch(
         `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}`,
-        () => {
-          return httpResponse;
-        },
+        () => httpResponse,
       ),
     );
   }
@@ -104,17 +103,13 @@ describe("PurchaseOperationHelper", () => {
     server.use(
       http.post(
         `http://localhost:8000/rcbilling/v1/checkout/${operationSessionId}/complete`,
-        () => {
-          return httpResponse;
-        },
+        () => httpResponse,
       ),
     );
   }
 
   function setGetCheckoutStatusResponse(httpResponse: HttpResponse) {
-    setGetCheckoutStatusResponseResolver(() => {
-      return httpResponse;
-    });
+    setGetCheckoutStatusResponseResolver(() => httpResponse);
   }
 
   function setGetCheckoutStatusResponseResolver(
@@ -1454,12 +1449,14 @@ function verifyExpectedError(e: unknown, expectedError: PurchaseFlowError) {
   );
 }
 
-function expectPromiseToPurchaseFlowError(
+async function expectPromiseToPurchaseFlowError(
   f: Promise<unknown>,
   expectedError: PurchaseFlowError,
 ) {
   return f.then(
     () => assert.fail("Promise was expected to raise an error"),
-    (e) => verifyExpectedError(e, expectedError),
+    (e) => {
+      verifyExpectedError(e, expectedError);
+    },
   );
 }

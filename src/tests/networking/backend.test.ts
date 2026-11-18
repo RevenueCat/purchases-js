@@ -38,9 +38,10 @@ afterEach(() => {
 describe("httpConfig is setup correctly", () => {
   function setCustomerInfoResponse(httpResponse: HttpResponse) {
     server.use(
-      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () => {
-        return httpResponse;
-      }),
+      http.get(
+        "http://localhost:8000/v1/subscribers/someAppUserId",
+        () => httpResponse,
+      ),
     );
   }
 
@@ -217,9 +218,10 @@ describe("httpConfig is setup correctly", () => {
 describe("getCustomerInfo request", () => {
   function setCustomerInfoResponse(httpResponse: HttpResponse) {
     server.use(
-      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () => {
-        return httpResponse;
-      }),
+      http.get(
+        "http://localhost:8000/v1/subscribers/someAppUserId",
+        () => httpResponse,
+      ),
     );
   }
 
@@ -374,9 +376,10 @@ describe("getCustomerInfo request", () => {
 describe("identify request", () => {
   function setIdentifyResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post("http://localhost:8000/v1/subscribers/identify", () => {
-        return httpResponse;
-      }),
+      http.post(
+        "http://localhost:8000/v1/subscribers/identify",
+        () => httpResponse,
+      ),
     );
   }
 
@@ -494,9 +497,7 @@ describe("getOfferings request", () => {
     server.use(
       http.get(
         "http://localhost:8000/v1/subscribers/someAppUserId/offerings",
-        () => {
-          return httpResponse;
-        },
+        () => httpResponse,
       ),
     );
   }
@@ -855,9 +856,10 @@ describe("getProducts request", () => {
 describe("postCheckoutPrepare request", () => {
   function setCheckoutPrepareResponse(httpResponse: HttpResponse) {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/checkout/prepare", () => {
-        return httpResponse;
-      }),
+      http.post(
+        "http://localhost:8000/rcbilling/v1/checkout/prepare",
+        () => httpResponse,
+      ),
     );
   }
 
@@ -1774,9 +1776,7 @@ describe("setAttributes request", () => {
     server.use(
       http.post(
         "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
-        () => {
-          return httpResponse;
-        },
+        () => httpResponse,
       ),
     );
   }
@@ -2303,9 +2303,7 @@ describe("getVirtualCurrencies request", () => {
     server.use(
       http.get(
         "http://localhost:8000/v1/subscribers/someAppUserId/virtual_currencies",
-        () => {
-          return httpResponse;
-        },
+        () => httpResponse,
       ),
     );
   }

@@ -72,7 +72,7 @@ describe("StripeService", () => {
       elements: vi.fn().mockReturnValue({
         _elements: [1],
         submit: vi.fn(),
-      } as unknown as StripeElements),
+      } as unknown),
     };
 
     const mockConfig = {
@@ -116,7 +116,7 @@ describe("StripeService", () => {
         type: "api_connection_error",
         code: "failed_to_load",
         message: "Failed to load",
-      } as StripeError);
+      });
 
       await expect(
         StripeService.initializeStripe(
@@ -249,7 +249,7 @@ describe("StripeService", () => {
           type: "api_connection_error",
           code: "failed_to_load",
           message: "Failed to load",
-        } as StripeError),
+        }),
       };
 
       vi.mocked(loadStripe).mockResolvedValue(mockStripe as Stripe);
@@ -488,7 +488,7 @@ describe("StripeService", () => {
         type: "card_error",
         code: "processing_error",
         message: "An error occurred while processing your card.",
-      } as StripeError);
+      });
 
       expect(result).toEqual({
         code: StripeServiceErrorCode.ConfirmationTokenError,
@@ -647,7 +647,7 @@ describe("StripeService", () => {
     // Asserts that line items always sum to elements.amount, which Stripe
     // enforces silently — mismatches cause the wallet to drop them.
     const expectLineItemsBalance = (
-      lineItems: Array<{ amount: number }> | undefined,
+      lineItems: { amount: number }[] | undefined,
       totalMinimumAmount: number,
     ) => {
       if (lineItems === undefined) return;
@@ -1201,7 +1201,7 @@ describe("StripeService", () => {
     });
 
     const expectLineItemsBalance = (
-      lineItems: Array<{ amount: number }> | undefined,
+      lineItems: { amount: number }[] | undefined,
       totalMinimumAmount: number,
     ) => {
       if (lineItems === undefined) return;

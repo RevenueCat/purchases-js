@@ -54,7 +54,7 @@
 
   if (name.startsWith("chevron")) {
     const direction = name.split("-")[1];
-    args = { direction: direction };
+    args = { direction };
   }
 </script>
 

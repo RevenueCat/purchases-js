@@ -11,12 +11,14 @@ export function verifyExpectedError(e: unknown, expectedError: PurchasesError) {
   );
 }
 
-export function expectPromiseToError(
+export async function expectPromiseToError(
   f: Promise<unknown>,
   expectedError: PurchasesError,
 ) {
   return f.then(
     () => assert.fail("Promise was expected to raise an error"),
-    (e) => verifyExpectedError(e, expectedError),
+    (e) => {
+      verifyExpectedError(e, expectedError);
+    },
   );
 }

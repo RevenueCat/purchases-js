@@ -1,4 +1,4 @@
-import type { VirtualCurrencyResponse } from "src/networking/responses/virtual-currencies-response";
+import type { VirtualCurrencyResponse } from "../networking/responses/virtual-currencies-response";
 
 /**
  * The VirtualCurrency object represents information about a virtual currency in the app.

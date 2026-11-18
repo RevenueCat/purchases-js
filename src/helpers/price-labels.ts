@@ -5,9 +5,7 @@ import { LocalizationKeys } from "../ui/localization/supportedLanguages";
 import { englishLocale } from "../ui/localization/constants";
 import { toBcp47Locale, toLanguageCode } from "./locale-helper";
 
-const microsToDollars = (micros: number): number => {
-  return micros / 1000000;
-};
+const microsToDollars = (micros: number): number => micros / 1000000;
 
 const fractionDigitsCache = new Map<string, number>();
 

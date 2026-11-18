@@ -11,16 +11,16 @@ describe("virtual currency backend response to public model parsing", () => {
     const description = "It's gold";
 
     const virtualCurrencyResponse: VirtualCurrencyResponse = {
-      balance: balance,
-      code: code,
-      name: name,
-      description: description,
+      balance,
+      code,
+      name,
+      description,
     };
 
     const expectedVirtualCurrency: VirtualCurrency = {
-      balance: balance,
-      code: code,
-      name: name,
+      balance,
+      code,
+      name,
       serverDescription: description,
     };
 
@@ -34,16 +34,16 @@ describe("virtual currency backend response to public model parsing", () => {
     const name = "Gold";
 
     const virtualCurrencyResponse: VirtualCurrencyResponse = {
-      balance: balance,
-      code: code,
-      name: name,
+      balance,
+      code,
+      name,
       description: null,
     };
 
     const expectedVirtualCurrency: VirtualCurrency = {
-      balance: balance,
-      code: code,
-      name: name,
+      balance,
+      code,
+      name,
       serverDescription: null,
     };
 
@@ -58,16 +58,16 @@ describe("virtual currency backend response to public model parsing", () => {
     const description = "It's gold";
 
     const virtualCurrencyResponse: VirtualCurrencyResponse = {
-      balance: balance,
-      code: code,
-      name: name,
-      description: description,
+      balance,
+      code,
+      name,
+      description,
     };
 
     const expectedVirtualCurrency: VirtualCurrency = {
-      balance: balance,
-      code: code,
-      name: name,
+      balance,
+      code,
+      name,
       serverDescription: description,
     };
 
@@ -81,16 +81,16 @@ describe("virtual currency backend response to public model parsing", () => {
     const name = "Gold";
 
     const virtualCurrencyResponse: VirtualCurrencyResponse = {
-      balance: balance,
-      code: code,
-      name: name,
+      balance,
+      code,
+      name,
       // description field is intentionally omitted
     } as VirtualCurrencyResponse;
 
     const expectedVirtualCurrency: VirtualCurrency = {
-      balance: balance,
-      code: code,
-      name: name,
+      balance,
+      code,
+      name,
       serverDescription: null,
     };
 

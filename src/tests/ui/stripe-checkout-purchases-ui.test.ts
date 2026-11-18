@@ -399,7 +399,7 @@ describe("StripeCheckoutPurchasesUi", () => {
         purchaseOperationHelper: {
           ...purchaseOperationHelperMock,
           completeProductChange,
-        } as unknown as PurchaseOperationHelper,
+        },
         productChange: { subscriberToken: "subscriber.token" },
         onProductChangeFinished,
       },

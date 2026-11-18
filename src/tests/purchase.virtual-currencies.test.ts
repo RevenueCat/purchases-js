@@ -132,11 +132,10 @@ describe("getVirtualCurrencies", () => {
       server.use(
         http.get(
           `http://localhost:8000/v1/subscribers/${appUserIDWith3Currencies}/virtual_currencies`,
-          () => {
-            return HttpResponse.json(null, {
+          () =>
+            HttpResponse.json(null, {
               status: StatusCodes.INTERNAL_SERVER_ERROR,
-            });
-          },
+            }),
         ),
       );
 
@@ -156,10 +155,9 @@ describe("getVirtualCurrencies", () => {
       server.use(
         http.get(
           `http://localhost:8000/v1/subscribers/${appUserIDWith3Currencies}/virtual_currencies`,
-          () => {
+          () =>
             // Simulate connection failure by throwing a network error
-            return HttpResponse.error();
-          },
+            HttpResponse.error(),
         ),
       );
 
@@ -330,7 +328,9 @@ describe("invalidateVirtualCurrenciesCache", () => {
     const purchases = configurePurchases(appUserIDWith3Currencies);
     expect(purchases.getCachedVirtualCurrencies()).toBeNull();
 
-    expect(() => purchases.invalidateVirtualCurrenciesCache()).not.toThrow();
+    expect(() => {
+      purchases.invalidateVirtualCurrenciesCache();
+    }).not.toThrow();
 
     expect(purchases.getCachedVirtualCurrencies()).toBeNull();
   });

@@ -235,7 +235,7 @@ export class StripeService {
       // createEmbeddedCheckoutPage works on every Stripe.js release train and is
       // the only name that works on dahlia (initEmbeddedCheckout throws there).
       embeddedCheckout = await stripe.createEmbeddedCheckoutPage({
-        fetchClientSecret: () =>
+        fetchClientSecret: async () =>
           Promise.resolve(StripeBillingParams.client_secret),
         onComplete,
       });
@@ -426,7 +426,7 @@ export class StripeService {
         }
       : {
           ...baseOptions,
-          elements: elements,
+          elements,
         };
 
     const isSetupIntent = clientSecret.startsWith("seti_");
@@ -451,7 +451,7 @@ export class StripeService {
   }> {
     const { error: confirmationError, confirmationToken } =
       await stripe.createConfirmationToken({
-        elements: elements,
+        elements,
       });
 
     if (confirmationError) {
@@ -735,7 +735,7 @@ export class StripeService {
           regularBilling: {
             label: productDetails.title,
             amount: regularBillingAmount,
-            recurringPaymentStartDate: recurringPaymentStartDate,
+            recurringPaymentStartDate,
             ...recurringPeriod,
           },
         },

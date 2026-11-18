@@ -118,7 +118,7 @@ export async function prepareStripeBillingApplePayPurchase({
   }
 }
 
-export function presentStripeBillingApplePayPurchase({
+export async function presentStripeBillingApplePayPurchase({
   preparedPurchase,
   customerEmail,
   translator,

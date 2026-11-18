@@ -27,10 +27,10 @@ describe("virtual currencies backend response to public model parsing", () => {
     const description = "It's gold";
 
     const virtualCurrencyResponse: VirtualCurrencyResponse = {
-      balance: balance,
-      code: code,
-      name: name,
-      description: description,
+      balance,
+      code,
+      name,
+      description,
     };
 
     const virtualCurrenciesResponse: VirtualCurrenciesResponse = {
@@ -42,9 +42,9 @@ describe("virtual currencies backend response to public model parsing", () => {
     const expectedVirtualCurrencies: VirtualCurrencies = {
       all: {
         [code]: {
-          balance: balance,
-          code: code,
-          name: name,
+          balance,
+          code,
+          name,
           serverDescription: description,
         },
       },
@@ -66,10 +66,10 @@ describe("virtual currencies backend response to public model parsing", () => {
     const description2 = null;
 
     const virtualCurrencyResponse: VirtualCurrencyResponse = {
-      balance: balance,
-      code: code,
-      name: name,
-      description: description,
+      balance,
+      code,
+      name,
+      description,
     };
 
     const virtualCurrencyResponse2: VirtualCurrencyResponse = {
@@ -89,9 +89,9 @@ describe("virtual currencies backend response to public model parsing", () => {
     const expectedVirtualCurrencies: VirtualCurrencies = {
       all: {
         [code]: {
-          balance: balance,
-          code: code,
-          name: name,
+          balance,
+          code,
+          name,
           serverDescription: description,
         },
         [code2]: {
@@ -114,10 +114,10 @@ describe("virtual currencies backend response to public model parsing", () => {
     const description = "It's gold";
 
     const virtualCurrencyResponse: VirtualCurrencyResponse = {
-      balance: balance,
-      code: code,
-      name: name,
-      description: description,
+      balance,
+      code,
+      name,
+      description,
     };
 
     const virtualCurrenciesResponse: VirtualCurrenciesResponse = {
@@ -129,9 +129,9 @@ describe("virtual currencies backend response to public model parsing", () => {
     const expectedVirtualCurrencies: VirtualCurrencies = {
       all: {
         [code]: {
-          balance: balance,
-          code: code,
-          name: name,
+          balance,
+          code,
+          name,
           serverDescription: description,
         },
       },
@@ -148,10 +148,10 @@ describe("virtual currencies backend response to public model parsing", () => {
     const description = null;
 
     const virtualCurrencyResponse: VirtualCurrencyResponse = {
-      balance: balance,
-      code: code,
-      name: name,
-      description: description,
+      balance,
+      code,
+      name,
+      description,
     };
 
     const virtualCurrenciesResponse: VirtualCurrenciesResponse = {
@@ -163,9 +163,9 @@ describe("virtual currencies backend response to public model parsing", () => {
     const expectedVirtualCurrencies: VirtualCurrencies = {
       all: {
         [code]: {
-          balance: balance,
-          code: code,
-          name: name,
+          balance,
+          code,
+          name,
           serverDescription: null,
         },
       },
@@ -181,9 +181,9 @@ describe("virtual currencies backend response to public model parsing", () => {
     const name = "Gold";
 
     const virtualCurrencyResponse: VirtualCurrencyResponse = {
-      balance: balance,
-      code: code,
-      name: name,
+      balance,
+      code,
+      name,
       // description field is intentionally omitted
     } as VirtualCurrencyResponse;
 
@@ -196,9 +196,9 @@ describe("virtual currencies backend response to public model parsing", () => {
     const expectedVirtualCurrencies: VirtualCurrencies = {
       all: {
         [code]: {
-          balance: balance,
-          code: code,
-          name: name,
+          balance,
+          code,
+          name,
           serverDescription: null,
         },
       },

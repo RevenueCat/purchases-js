@@ -48,7 +48,7 @@ describe("buildPaywallContextPackages", () => {
         currency: "USD",
       },
     ]);
-    const product = offering.availablePackages[0]!.product;
+    const product = offering.availablePackages[0].product;
     // Deprecated Price.amount is cents (999). Major units from micros are 9.99.
     expect(product.price.amount).toBe(999);
     expect(product.price.amountMicros).toBe(9990000);
@@ -68,7 +68,7 @@ describe("buildPaywallContextPackages", () => {
         title: "Monthly Basic",
       },
     ]);
-    const pkg = offering.availablePackages[0]!;
+    const pkg = offering.availablePackages[0];
     const productWithoutPrice = {
       ...pkg.product,
       price: undefined,

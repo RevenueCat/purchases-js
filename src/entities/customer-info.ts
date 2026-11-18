@@ -491,7 +491,7 @@ export function toCustomerInfo(
       ([productIdentifier, responses]) =>
         responses.map((response) => ({
           transactionIdentifier: response.id,
-          productIdentifier: productIdentifier,
+          productIdentifier,
           purchaseDate: new Date(
             response.purchase_date || response.original_purchase_date,
           ),
@@ -554,14 +554,14 @@ export function toCustomerInfo(
     ),
     activeSubscriptions: getActiveSubscriptions(expirationDatesByProductId),
     managementURL: subscriberResponse.management_url,
-    requestDate: requestDate,
+    requestDate,
     firstSeenDate: new Date(subscriberResponse.first_seen),
     originalPurchaseDate: toDateIfNotNull(
       subscriberResponse.original_purchase_date,
     ),
     originalAppUserId: customerInfoResponse.subscriber.original_app_user_id,
-    nonSubscriptionTransactions: nonSubscriptionTransactions,
-    subscriptionsByProductIdentifier: subscriptionsByProductIdentifier,
+    nonSubscriptionTransactions,
+    subscriptionsByProductIdentifier,
   };
 }
 
@@ -625,7 +625,7 @@ function getExpirationDatesByProductId(
 function getActiveSubscriptions(expirationDatesByProductId: {
   [productId: string]: Date | null;
 }): Set<string> {
-  const activeSubscriptions: Set<string> = new Set();
+  const activeSubscriptions = new Set<string>();
   const currentDate = new Date();
   for (const productId in expirationDatesByProductId) {
     const expirationDate = expirationDatesByProductId[productId];

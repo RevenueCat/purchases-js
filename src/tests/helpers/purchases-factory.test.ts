@@ -13,7 +13,9 @@ const createFactory = (): PurchasesFactory => ({
 });
 
 describe("purchases factory", () => {
-  afterEach(() => resetPurchasesFactory());
+  afterEach(() => {
+    resetPurchasesFactory();
+  });
 
   test("is undefined before registration", () => {
     resetPurchasesFactory();

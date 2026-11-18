@@ -166,12 +166,10 @@ const INTERACTION_FIELD_MAP = {
   keyof PaywallComponentInteractionPayload
 >;
 
-const interactionFieldEntries = Object.entries(INTERACTION_FIELD_MAP) as Array<
-  [
-    keyof typeof INTERACTION_FIELD_MAP,
-    (typeof INTERACTION_FIELD_MAP)[keyof typeof INTERACTION_FIELD_MAP],
-  ]
->;
+const interactionFieldEntries = Object.entries(INTERACTION_FIELD_MAP) as [
+  keyof typeof INTERACTION_FIELD_MAP,
+  (typeof INTERACTION_FIELD_MAP)[keyof typeof INTERACTION_FIELD_MAP],
+][];
 
 const toDisplayPayload = (data: PaywallDisplayData): PaywallDisplayPayload => {
   if (data.displayMode === undefined) {

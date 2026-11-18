@@ -148,7 +148,7 @@ const prepare = async (
   purchaseOption: PurchaseOption = subscriptionOption,
   product: Product = rcPackage.webBillingProduct,
 ) =>
-  await prepareStripeBillingApplePayPurchase({
+  prepareStripeBillingApplePayPurchase({
     startResponse: startResponse(accountCountry, expiresAt),
     product,
     purchaseOption,

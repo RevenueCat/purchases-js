@@ -130,10 +130,7 @@ function formatDiscountSuffixForPromo({
     );
   }
 
-  if (
-    !purchaseOptionDiscount ||
-    purchaseOptionDiscount.durationMode !== "time_window"
-  ) {
+  if (purchaseOptionDiscount?.durationMode !== "time_window") {
     return formatPercentageDiscountSuffix(percentage);
   }
 

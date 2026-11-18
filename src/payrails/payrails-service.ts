@@ -17,7 +17,7 @@ let payrailsSdk: Promise<typeof PayrailsSdk> | null = null;
  * React Native. Importing it lazily keeps it out of the main bundle, and the
  * flag check lets builds without Payrails drop it entirely.
  */
-export function loadPayrailsSdk(): Promise<typeof PayrailsSdk> {
+export async function loadPayrailsSdk(): Promise<typeof PayrailsSdk> {
   if (!PAYRAILS_CHECKOUT_ENABLED) {
     return Promise.reject(new Error("Payrails checkout is not enabled"));
   }
@@ -65,7 +65,7 @@ export interface PayrailsDropinHandlers {
 export class PayrailsService {
   private generation = 0;
   private dropin: { unmount: () => void } | null = null;
-  private unsubscribe: Array<() => void> = [];
+  private unsubscribe: (() => void)[] = [];
 
   async mountDropin(
     gatewayParams: PayrailsGatewayParams,

@@ -152,7 +152,7 @@ describe("getOfferings", () => {
       identifier: "package_2",
       packageType: PackageType.Custom,
       rcBillingProduct: webBillingProduct,
-      webBillingProduct: webBillingProduct,
+      webBillingProduct,
       product: webBillingProduct,
     };
 
@@ -231,7 +231,7 @@ describe("getOfferings", () => {
       identifier: "package_2",
       packageType: PackageType.Custom,
       rcBillingProduct: webBillingProduct,
-      webBillingProduct: webBillingProduct,
+      webBillingProduct,
       product: webBillingProduct,
     };
     const packageWithoutTargeting = createMonthlyPackageMock(null);
@@ -275,7 +275,7 @@ describe("getOfferings", () => {
         },
       },
       current: null,
-    } as Offerings;
+    };
 
     expect(offerings).toEqual(expectedOfferings);
   });
@@ -306,7 +306,7 @@ describe("getOfferings", () => {
     };
     expect(offerings).toEqual({
       all: {
-        offering_1: offering_1,
+        offering_1,
       },
       current: null,
     });
@@ -466,7 +466,7 @@ describe("getOfferings", () => {
       identifier: "package_2",
       packageType: PackageType.Custom,
       rcBillingProduct: webBillingProduct,
-      webBillingProduct: webBillingProduct,
+      webBillingProduct,
       product: webBillingProduct,
     };
 
@@ -1038,7 +1038,7 @@ describe("getOfferings placements", () => {
     const getOfferingsSpy = vi
       .spyOn(purchases["backend"], "getOfferings")
       .mockImplementationOnce(
-        () =>
+        async () =>
           new Promise((resolve) => {
             resolveFirstRequest = resolve;
           }),
@@ -1053,12 +1053,16 @@ describe("getOfferings placements", () => {
 
     const firstLookup =
       purchases.getCurrentOfferingForPlacement("test_placement_id");
-    await vi.waitFor(() => expect(getOfferingsSpy).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => {
+      expect(getOfferingsSpy).toHaveBeenCalledTimes(1);
+    });
 
     await purchases.setAttributes({ segment: "updated" });
     const secondLookup =
       purchases.getCurrentOfferingForPlacement("test_placement_id");
-    await vi.waitFor(() => expect(getOfferingsSpy).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => {
+      expect(getOfferingsSpy).toHaveBeenCalledTimes(2);
+    });
 
     resolveFirstRequest?.(rawOfferingsResponse);
     await Promise.all([firstLookup, secondLookup]);

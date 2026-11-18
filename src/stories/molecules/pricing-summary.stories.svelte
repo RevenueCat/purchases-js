@@ -84,13 +84,13 @@
       return {
         ...defaultP,
         period: parseISODuration(periodDuration),
-        periodDuration: periodDuration,
+        periodDuration,
       };
     }
     return {
       ...pricingPhase,
       period: parseISODuration(periodDuration) || pricingPhase.periodDuration,
-      periodDuration: periodDuration,
+      periodDuration,
     } as PricingPhase;
   };
   const setCyclesCount = (

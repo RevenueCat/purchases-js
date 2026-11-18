@@ -17,7 +17,7 @@ import type { BrandingAppearance } from "../../entities/branding";
 export class Theme {
   private readonly brandingAppearance: BrandingAppearance | null | undefined;
 
-  constructor(brandingAppearance?: BrandingAppearance | null | undefined) {
+  constructor(brandingAppearance?: BrandingAppearance | null) {
     if (brandingAppearance) {
       this.brandingAppearance = brandingAppearance;
     } else {

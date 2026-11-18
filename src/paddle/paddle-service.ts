@@ -230,9 +230,9 @@ export class PaddleService {
     const environment = isSandbox ? "sandbox" : "production";
     try {
       const paddleInstance = await initPaddle({
-        token: token,
+        token,
         version: "v1" as Version,
-        environment: environment,
+        environment,
       });
       if (!paddleInstance) {
         throw new PurchaseFlowError(
@@ -538,10 +538,9 @@ export class PaddleService {
             switch (operationResponse.operation.status) {
               case CheckoutSessionStatus.Started:
               case CheckoutSessionStatus.InProgress:
-                setTimeout(
-                  () => checkForOperationStatus(checkCount + 1),
-                  this.waitMSBetweenAttempts,
-                );
+                setTimeout(() => {
+                  checkForOperationStatus(checkCount + 1);
+                }, this.waitMSBetweenAttempts);
                 break;
               case CheckoutSessionStatus.Succeeded:
                 if (
@@ -559,9 +558,9 @@ export class PaddleService {
                 }
                 resolve({
                   redemptionInfo: toRedemptionInfo(operationResponse),
-                  operationSessionId: operationSessionId,
+                  operationSessionId,
                   storeTransactionIdentifier: storeTransactionIdentifier ?? "",
-                  productIdentifier: productIdentifier,
+                  productIdentifier,
                   purchaseDate: purchaseDate ?? new Date(),
                   attributionMetadata:
                     operationResponse.attribution_metadata ?? undefined,

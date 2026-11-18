@@ -284,7 +284,9 @@ describe("Logger", () => {
       Logger.setLogLevel(LogLevel.Debug);
 
       // Should not throw
-      expect(() => Logger.debugLog("test message")).toThrow("Handler error");
+      expect(() => {
+        Logger.debugLog("test message");
+      }).toThrow("Handler error");
     });
 
     test("should preserve message formatting with custom handler", () => {

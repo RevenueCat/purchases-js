@@ -1,11 +1,13 @@
 <script lang="ts" module>
   import { Translator } from "../../ui/localization/translator";
   import { translatorContextKey } from "../../ui/localization/constants";
-  import { eventsTrackerContextKey } from "../../ui/constants";
+  import {
+    eventsTrackerContextKey,
+    brandingContextKey,
+  } from "../../ui/constants";
   import { setContext, type Snippet } from "svelte";
   import { writable, type Writable } from "svelte/store";
   import { brandingInfos } from "../fixtures";
-  import { brandingContextKey } from "../../ui/constants";
   import type { BrandingAppearance } from "../../entities/branding";
 </script>
 

@@ -1,11 +1,9 @@
 import { type Period, PeriodUnit } from "../../helpers/duration-helper";
-import type {
-  SubscriptionOption,
-  DiscountPhase,
-  Price,
-  PurchaseOption,
-} from "../../entities/offerings";
 import {
+  type SubscriptionOption,
+  type DiscountPhase,
+  type Price,
+  type PurchaseOption,
   type Offering,
   type Package,
   PackageType,
@@ -86,8 +84,8 @@ export const buildOffering = (packages: Package[] = []) => {
 
   return built;
 };
-export const buildPackage = (packageId: string, product: Product) => {
-  return {
+export const buildPackage = (packageId: string, product: Product) =>
+  ({
     identifier: packageId,
     rcBillingProduct: product,
     webBillingProduct: product,
@@ -95,13 +93,12 @@ export const buildPackage = (packageId: string, product: Product) => {
     packageType: Object.values<string>(PackageType).includes(packageId)
       ? packageId
       : PackageType.Custom,
-  } as Package;
-};
+  }) as Package;
 
 export const toPrice = (amountMicros: number, currency: string): Price => ({
   amount: Math.floor(amountMicros / 10000),
-  amountMicros: amountMicros,
-  currency: currency,
+  amountMicros,
+  currency,
   formattedPrice: formatPrice(amountMicros, currency),
 });
 
@@ -115,12 +112,12 @@ export interface MinimumBaseProductInfo {
 const buildProduct: (
   data: MinimumBaseProductInfo & Partial<Product>,
 ) => Product = ({ identifier, title, price, ...rest }) => ({
-  identifier: identifier,
+  identifier,
   displayName: title,
-  title: title,
+  title,
   description: `Description for ${identifier}`,
   currentPrice: price,
-  price: price,
+  price,
   presentedOfferingIdentifier: "MultiCurrencyTest",
   presentedOfferingContext: {
     offeringIdentifier: "MultiCurrencyTest",
@@ -160,7 +157,7 @@ const buildSubscriptionProduct: (
     ...DEFAULT_PURCHASE_OPTION,
     base: {
       periodDuration: "P1M",
-      period: period,
+      period,
       cycleCount: 1,
       price: basePrice,
       pricePerWeek: toPrice(pricePerWeekMicros, currency),
@@ -189,13 +186,12 @@ const buildSubscriptionProduct: (
   });
 };
 
-export const toOffering = (productInfo: MinimumPackageInfo[]) => {
-  return buildOffering(
+export const toOffering = (productInfo: MinimumPackageInfo[]) =>
+  buildOffering(
     productInfo.map((pi) =>
       buildPackage(pi.packageIdentifier, buildSubscriptionProduct(pi)),
     ),
   );
-};
 
 export const buildNonSubscriptionProduct: (
   data: MinimumNonSubscriptionProductInfo,
@@ -227,10 +223,9 @@ export const buildNonSubscriptionProduct: (
 
 export const toNonSubscriptionOffering = (
   productInfo: MinimumNonSubscriptionPackageInfo[],
-) => {
-  return buildOffering(
+) =>
+  buildOffering(
     productInfo.map((pi) =>
       buildPackage(pi.packageIdentifier, buildNonSubscriptionProduct(pi)),
     ),
   );
-};

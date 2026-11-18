@@ -9,7 +9,7 @@ import { postSimulatedStoreReceipt } from "./simulated-store-post-receipt-helper
 import { Logger } from "./logger";
 import { getDocument } from "./browser-globals";
 
-export function purchaseSimulatedStoreProduct(
+export async function purchaseSimulatedStoreProduct(
   purchaseParams: PurchaseParams,
   backend: Backend,
   appUserId: string,
@@ -49,7 +49,7 @@ export function purchaseSimulatedStoreProduct(
       props: {
         productIdentifier: product.identifier,
         productTitle: product.title,
-        productType: productType,
+        productType,
         basePrice: basePrice.formattedPrice,
         freeTrialPeriod: freeTrialPhase
           ? formatPeriod(freeTrialPhase.period)

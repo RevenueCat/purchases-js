@@ -1,4 +1,4 @@
-import type { VirtualCurrenciesResponse } from "src/networking/responses/virtual-currencies-response";
+import type { VirtualCurrenciesResponse } from "../networking/responses/virtual-currencies-response";
 import type { VirtualCurrency } from "./virtual-currency";
 import { toVirtualCurrency } from "./virtual-currency";
 

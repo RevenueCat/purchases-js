@@ -300,9 +300,9 @@ describe("getPaywallVariables", () => {
     ]);
 
     const variables = parseOfferingIntoVariables(off, enTranslator);
-    Object.values(variables).forEach((variable) =>
-      expect(variable["product.relative_discount"]).toBe(""),
-    );
+    Object.values(variables).forEach((variable) => {
+      expect(variable["product.relative_discount"]).toBe("");
+    });
   });
 
   test("sub_relative_discount is calculated correctly for packages with different prices", () => {

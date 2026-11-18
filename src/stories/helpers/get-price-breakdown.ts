@@ -7,15 +7,12 @@ import { type PriceBreakdown } from "../../ui/ui-types";
 
 const getPriceFromOption = (
   option: SubscriptionOption | NonSubscriptionOption,
-) => {
-  return (
-    (option as SubscriptionOption).discount?.price?.amountMicros ??
-    (option as SubscriptionOption).introPrice?.price?.amountMicros ??
-    (option as SubscriptionOption).base?.price?.amountMicros ??
-    (option as NonSubscriptionOption).basePrice?.amountMicros ??
-    0
-  );
-};
+) =>
+  (option as SubscriptionOption).discount?.price?.amountMicros ??
+  (option as SubscriptionOption).introPrice?.price?.amountMicros ??
+  (option as SubscriptionOption).base?.price?.amountMicros ??
+  (option as NonSubscriptionOption).basePrice?.amountMicros ??
+  0;
 
 export const getPriceBreakdownTaxDisabled = (
   option: SubscriptionOption | NonSubscriptionOption,
@@ -40,8 +37,8 @@ export const getPriceBreakdownTaxInclusive = (
   return {
     currency: "USD",
     totalAmountInMicros: price,
-    totalExcludingTaxInMicros: totalExcludingTaxInMicros,
-    taxAmountInMicros: taxAmountInMicros,
+    totalExcludingTaxInMicros,
+    taxAmountInMicros,
     taxCalculationStatus: "calculated",
     taxBreakdown: [
       {
@@ -61,7 +58,7 @@ export const getPriceBreakdownTaxExclusive = (
     currency: "USD",
     totalAmountInMicros: price + taxAmountInMicros,
     totalExcludingTaxInMicros: price,
-    taxAmountInMicros: taxAmountInMicros,
+    taxAmountInMicros,
     taxCalculationStatus: "calculated",
     taxBreakdown: [
       {

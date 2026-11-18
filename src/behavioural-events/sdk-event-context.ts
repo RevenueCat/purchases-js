@@ -54,19 +54,19 @@ export function buildEventContext(
     locale: navigator.language,
     userAgent: navigator.userAgent,
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    screenWidth: screenWidth,
-    screenHeight: screenHeight,
+    screenWidth,
+    screenHeight,
     utmSource: urlParams.get("utm_source") ?? null,
     utmMedium: urlParams.get("utm_medium") ?? null,
     utmCampaign: urlParams.get("utm_campaign") ?? null,
     utmContent: urlParams.get("utm_content") ?? null,
     utmTerm: urlParams.get("utm_term") ?? null,
-    pageReferrer: pageReferrer,
+    pageReferrer,
     pageUrl: win?.location
       ? `${win.location.origin}${win.location.pathname}`
       : "",
-    pageTitle: pageTitle,
-    source: source,
-    rcSource: rcSource,
+    pageTitle,
+    source,
+    rcSource,
   };
 }

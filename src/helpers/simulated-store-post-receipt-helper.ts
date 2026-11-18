@@ -25,7 +25,7 @@ export async function postSimulatedStoreReceipt(
   const storeTransaction: StoreTransaction = {
     storeTransactionId,
     productIdentifier: product.identifier,
-    purchaseDate: purchaseDate,
+    purchaseDate,
   };
 
   const subscriberResponse = await backend.postReceipt(

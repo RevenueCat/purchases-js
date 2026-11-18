@@ -32,7 +32,7 @@ const addPlacementContextToPackage = (
     ...rcPackage,
     webBillingProduct: product,
     rcBillingProduct: product,
-    product: product,
+    product,
   };
 };
 
@@ -100,11 +100,10 @@ export const getOfferingIdForPlacement = (
 export const enrichPackagesWithPlacementContext = (
   placementId: string,
   offering: Offering,
-): Offering => {
-  return mapOfferingPackages(offering, (rcPackage) =>
+): Offering =>
+  mapOfferingPackages(offering, (rcPackage) =>
     addPlacementContextToPackage(rcPackage, placementId),
   );
-};
 
 // Keep every package view in sync when package data is replaced.
 const mapOfferingPackages = (

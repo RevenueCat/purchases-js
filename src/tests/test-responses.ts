@@ -7,8 +7,10 @@ import type {
 } from "../networking/responses/products-response";
 import { type CheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { CheckoutCompleteResponse } from "../networking/responses/checkout-complete-response";
-import { StripeElementsSetupFutureUsage } from "../networking/responses/stripe-elements";
-import { StripeElementsMode } from "../networking/responses/stripe-elements";
+import {
+  StripeElementsSetupFutureUsage,
+  StripeElementsMode,
+} from "../networking/responses/stripe-elements";
 import type { CheckoutPrepareResponse } from "../networking/responses/checkout-prepare-response";
 import type { SubscriberResponse } from "../networking/responses/subscriber-response";
 
@@ -990,7 +992,7 @@ export const eventsURL = "http://localhost:8000/v1/events";
 export function getRequestHandlers(): RequestHandler[] {
   const requestHandlers: RequestHandler[] = [];
   Object.keys(offeringsResponsesPerUserId).forEach((userId: string) => {
-    const body = offeringsResponsesPerUserId[userId]!;
+    const body = offeringsResponsesPerUserId[userId];
     const url = `http://localhost:8000/v1/subscribers/${userId}/offerings`;
     requestHandlers.push(
       http.get(url, ({ request }) => {
@@ -1001,7 +1003,7 @@ export function getRequestHandlers(): RequestHandler[] {
   });
 
   Object.keys(productsResponsesPerUserId).forEach((userId: string) => {
-    const body = productsResponsesPerUserId[userId]!;
+    const body = productsResponsesPerUserId[userId];
     const url = `http://localhost:8000/rcbilling/v1/subscribers/${userId}/products`;
     requestHandlers.push(
       http.get(url, ({ request }) => {
@@ -1012,7 +1014,7 @@ export function getRequestHandlers(): RequestHandler[] {
   });
 
   Object.keys(customerInfoResponsePerUserId).forEach((userId: string) => {
-    const body = customerInfoResponsePerUserId[userId]!;
+    const body = customerInfoResponsePerUserId[userId];
     const url = `http://localhost:8000/v1/subscribers/${userId}`;
     requestHandlers.push(
       http.get(url, ({ request }) => {

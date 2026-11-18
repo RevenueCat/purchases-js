@@ -76,7 +76,7 @@ const createPaddleServiceMock = ({
 };
 
 const baseProps: ComponentProps<PaddlePurchasesUI> = {
-  brandingInfo: brandingInfo,
+  brandingInfo,
   eventsTracker: eventsTrackerMock,
   selectedLocale: "en",
   defaultLocale: "en",
@@ -87,7 +87,7 @@ const baseProps: ComponentProps<PaddlePurchasesUI> = {
   onFinished: vi.fn(),
   onError: vi.fn(),
   productDetails: rcPackage.product,
-  rcPackage: rcPackage,
+  rcPackage,
   appUserId: "test-app-user-id",
   purchaseOption: subscriptionOption,
   customerEmail: undefined,
@@ -145,7 +145,7 @@ describe("PaddlePurchasesUI", () => {
         onCheckoutLoaded: expect.any(Function),
         onClose: expect.any(Function),
         params: {
-          rcPackage: rcPackage,
+          rcPackage,
           purchaseOption: subscriptionOption,
           appUserId: "test-app-user-id",
           presentedOfferingIdentifier:
@@ -324,7 +324,9 @@ describe("PaddlePurchasesUI", () => {
       context: defaultContext,
     });
 
-    await waitFor(() => expect(onError).toHaveBeenCalled());
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalled();
+    });
     const errorArg = onError.mock.calls[0][0];
     expect(errorArg).toBeInstanceOf(PurchaseFlowError);
     expect(errorArg.errorCode).toBe(PurchaseFlowErrorCode.UnknownError);
@@ -545,7 +547,7 @@ describe("PaddlePurchasesUI", () => {
       });
       // Keep purchase pending so the inline container stays mounted.
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
-        () => new Promise(() => {}),
+        async () => new Promise(() => {}),
       );
 
       render(PaddlePurchasesUI, {
@@ -686,7 +688,7 @@ describe("PaddlePurchasesUI", () => {
         inlineCheckoutEnabled: true,
       });
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
-        () => new Promise(() => {}),
+        async () => new Promise(() => {}),
       );
       const onClose = vi.fn();
 
@@ -712,7 +714,7 @@ describe("PaddlePurchasesUI", () => {
         inlineCheckoutEnabled: true,
       });
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
-        () => new Promise(() => {}),
+        async () => new Promise(() => {}),
       );
 
       render(PaddlePurchasesUI, {
@@ -736,7 +738,7 @@ describe("PaddlePurchasesUI", () => {
         inlineCheckoutEnabled: true,
       });
       vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
-        () => new Promise(() => {}),
+        async () => new Promise(() => {}),
       );
 
       render(PaddlePurchasesUI, {
@@ -781,18 +783,20 @@ describe("PaddlePurchasesUI", () => {
       });
       // Report totals (incl. tax) the way Paddle's checkout.loaded event does,
       // then keep the checkout open so the summary stays on screen.
-      vi.spyOn(paddleServiceMock, "purchase").mockImplementation((params) => {
-        params.onCheckoutTotals?.({
-          currencyCode: "USD",
-          subtotalAmount: 8.26,
-          taxAmount: 1.74,
-          totalAmount: 10,
-          recurringTotalAmount: 10,
-          productName: "Premium",
-          priceName: "monthly",
-        });
-        return new Promise(() => {});
-      });
+      vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+        async (params) => {
+          params.onCheckoutTotals?.({
+            currencyCode: "USD",
+            subtotalAmount: 8.26,
+            taxAmount: 1.74,
+            totalAmount: 10,
+            recurringTotalAmount: 10,
+            productName: "Premium",
+            priceName: "monthly",
+          });
+          return new Promise(() => {});
+        },
+      );
 
       render(PaddlePurchasesUI, {
         props: {
@@ -827,19 +831,21 @@ describe("PaddlePurchasesUI", () => {
         const paddleServiceMock = createPaddleServiceMock({
           inlineCheckoutEnabled: true,
         });
-        vi.spyOn(paddleServiceMock, "purchase").mockImplementation((params) => {
-          params.onCheckoutTotals?.({
-            currencyCode: "USD",
-            subtotalAmount: totalAmount,
-            taxAmount: 0,
-            totalAmount,
-            recurringTotalAmount,
-            productName: "Premium",
-            priceName: "Monthly sub",
-          });
-          // Keep the checkout open so the summary stays mounted.
-          return new Promise(() => {});
-        });
+        vi.spyOn(paddleServiceMock, "purchase").mockImplementation(
+          async (params) => {
+            params.onCheckoutTotals?.({
+              currencyCode: "USD",
+              subtotalAmount: totalAmount,
+              taxAmount: 0,
+              totalAmount,
+              recurringTotalAmount,
+              productName: "Premium",
+              priceName: "Monthly sub",
+            });
+            // Keep the checkout open so the summary stays mounted.
+            return new Promise(() => {});
+          },
+        );
 
         return render(PaddlePurchasesUI, {
           props: {

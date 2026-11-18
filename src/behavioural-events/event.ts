@@ -12,10 +12,7 @@ export type EventData = {
 
 type EventContextSingleValue = string | number | boolean;
 
-type EventContextValue =
-  | null
-  | EventContextSingleValue
-  | Array<EventContextValue>;
+type EventContextValue = null | EventContextSingleValue | EventContextValue[];
 
 export type EventContext = {
   [key: string]: EventContextValue;
@@ -26,7 +23,7 @@ type EventPropertySingleValue = string | number | boolean;
 type EventPropertyValue =
   | null
   | EventPropertySingleValue
-  | Array<EventPropertyValue>;
+  | EventPropertyValue[];
 
 // Used to track the difference between the regular checkout form
 // and the express purchase button in events.

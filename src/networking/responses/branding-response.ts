@@ -1,4 +1,4 @@
-import type { BrandFontConfig } from "src/ui/theme/text";
+import type { BrandFontConfig } from "../../ui/theme/text";
 import type { BrandingAppearance } from "../../entities/branding";
 
 /**

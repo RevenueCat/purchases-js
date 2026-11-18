@@ -68,7 +68,7 @@ export class FlushManager {
    * Returns the callback result (true = queue empty).
    * Runs the callback even when stopped (used by flushUntilDrain).
    */
-  public flushImmediately(options?: FlushOptions): Promise<boolean> {
+  public async flushImmediately(options?: FlushOptions): Promise<boolean> {
     this.clearTimeout();
     return this.executeCallbackWithRetries(options);
   }

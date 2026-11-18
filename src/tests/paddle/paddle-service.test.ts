@@ -5,8 +5,7 @@ import {
   PADDLE_INLINE_FRAME_TARGET,
 } from "../../paddle/paddle-service";
 import { Backend } from "../../networking/backend";
-import { HttpResponse } from "msw";
-import { http } from "msw";
+import { HttpResponse, http } from "msw";
 import { StatusCodes } from "http-status-codes";
 import {
   CheckoutSessionStatus,
@@ -280,13 +279,13 @@ describe("PaddleService", () => {
     backend = new Backend("test_api_key");
     const eventsTrackerMock: IEventsTracker = {
       getTraceId: () => testTraceId,
-      updateUser: () => Promise.resolve(),
+      updateUser: async () => Promise.resolve(),
       trackSDKEvent: () => {},
       trackExternalEvent: () => {},
       trackPaywallEvent: () => {},
       trackCustomPaywallImpression: () => {},
       dispose: () => {},
-      flushAllEvents: () => Promise.resolve(),
+      flushAllEvents: async () => Promise.resolve(),
     };
     paddleService = new PaddleService(backend, eventsTrackerMock);
 
@@ -302,7 +301,7 @@ describe("PaddleService", () => {
     vi.clearAllMocks();
   });
 
-  function paddleEventCallback(event: PaddleEventData): Promise<void> {
+  async function paddleEventCallback(event: PaddleEventData): Promise<void> {
     const paddleInstanceUpdate = vi.mocked(mockPaddleInstance.Update).mock
       .calls[0]?.[0] as
       | { eventCallback: (event: PaddleEventData) => Promise<void> }
@@ -427,7 +426,9 @@ describe("PaddleService", () => {
     });
 
     test("is a no-op when Paddle is not initialized", () => {
-      expect(() => paddleService.closeCheckout()).not.toThrow();
+      expect(() => {
+        paddleService.closeCheckout();
+      }).not.toThrow();
       expect(mockPaddleInstance.Checkout?.close).not.toHaveBeenCalled();
     });
   });
@@ -555,7 +556,7 @@ describe("PaddleService", () => {
       vi.mocked(initPaddle).mockResolvedValue({
         ...mockPaddleInstance,
         PricePreview: pricePreview,
-      } as unknown as Paddle);
+      });
       await paddleService.initializePaddle("test-token", true);
 
       const phase = await paddleService.previewDiscount({
@@ -872,7 +873,7 @@ describe("PaddleService", () => {
         params: purchaseParams,
       });
 
-      const openOptions = vi.mocked(mockPaddleInstance.Checkout!.open).mock
+      const openOptions = vi.mocked(mockPaddleInstance.Checkout.open).mock
         .calls[0][0];
       expect(openOptions).not.toHaveProperty("discountCode");
 
@@ -1143,7 +1144,7 @@ describe("PaddleService", () => {
           redeemUrl: "test-url://redeem_my_rcb?token=1234",
           redeemUrlRedirect: null,
         },
-        operationSessionId: operationSessionId,
+        operationSessionId,
         storeTransactionIdentifier: "test-store-transaction-id",
         productIdentifier: "test-product-id",
         purchaseDate: new Date("2025-01-15T04:21:11Z"),
@@ -1249,13 +1250,13 @@ describe("PaddleService", () => {
     test("rejects if Paddle is not initialized", async () => {
       const uninitializedService = new PaddleService(backend, {
         getTraceId: () => testTraceId,
-        updateUser: () => Promise.resolve(),
+        updateUser: async () => Promise.resolve(),
         trackSDKEvent: () => {},
         trackExternalEvent: () => {},
         trackPaywallEvent: () => {},
         trackCustomPaywallImpression: () => {},
         dispose: () => {},
-        flushAllEvents: () => Promise.resolve(),
+        flushAllEvents: async () => Promise.resolve(),
       });
 
       await expect(

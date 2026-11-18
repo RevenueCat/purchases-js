@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-globals */
+/* oxlint-disable no-restricted-globals */
 
 /**
  * Helper functions to safely access browser globals (window, document)

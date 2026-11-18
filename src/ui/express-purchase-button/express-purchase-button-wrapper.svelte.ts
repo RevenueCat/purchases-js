@@ -17,7 +17,7 @@ export class ExpressPurchaseButtonWrapper {
     props: ExpressPurchaseButtonProps,
   ) {
     this.state = $state({
-      props: props,
+      props,
     });
 
     const updatePurchase = (pkg: Package, purchaseOption?: PurchaseOption) => {

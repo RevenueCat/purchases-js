@@ -35,7 +35,6 @@ import {
   checkoutCompleteResponse,
   checkoutPrepareResponse,
 } from "../test-responses";
-import type { CheckoutCompleteResponse } from "../../networking/responses/checkout-complete-response";
 import type { SubscriptionOptionResponse } from "../../networking/responses/products-response";
 
 const eventsTrackerMock = createEventsTrackerMock();
@@ -162,8 +161,7 @@ const purchaseOperationHelperMock: PurchaseOperationHelper = {
   prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
-  checkoutComplete: async () =>
-    Promise.resolve(checkoutCompleteResponse as CheckoutCompleteResponse),
+  checkoutComplete: async () => Promise.resolve(checkoutCompleteResponse),
   pollCurrentPurchaseForCompletion: async () =>
     Promise.resolve({ redemptionInfo: null, operationSessionId: "op-id" }),
   checkoutRefreshPricing: async () =>
@@ -183,7 +181,7 @@ const basicProps = {
   purchases: purchasesMock,
   eventsTracker: eventsTrackerMock,
   purchaseOperationHelper: purchaseOperationHelperMock,
-  rcPackage: rcPackage,
+  rcPackage,
   purchaseOption: subscriptionOption,
   brandingInfo: null,
   isSandbox: true,
@@ -286,7 +284,7 @@ describe("PurchasesUI", () => {
         operationSessionId: "op-id",
         storeTransactionIdentifier: "store-tx-id",
         productIdentifier: "product-id",
-        purchaseDate: purchaseDate,
+        purchaseDate,
       });
 
     render(PurchasesUI, {
@@ -309,7 +307,7 @@ describe("PurchasesUI", () => {
       operationSessionId: "op-id",
       productIdentifier: "product-id",
       storeTransactionIdentifier: "store-tx-id",
-      purchaseDate: purchaseDate,
+      purchaseDate,
       redemptionInfo: null,
     });
   });

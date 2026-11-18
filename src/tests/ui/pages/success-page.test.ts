@@ -15,7 +15,7 @@ const eventsTrackerMock = createEventsTrackerMock();
 
 const basicProps = {
   productDetails: rcPackage.rcBillingProduct,
-  brandingInfo: brandingInfo,
+  brandingInfo,
   onContinue: vi.fn(),
 };
 

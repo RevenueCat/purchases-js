@@ -66,12 +66,10 @@ export class AmazonBillingWrapper implements BillingWrapper {
   public async getProducts(
     _appUserId: string,
     productIds: string[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _currency?: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _discountCode?: string,
   ): Promise<ProductsResponse> {
-    return await this.getProductsFromAmazonAppstoreIapLib(productIds);
+    return this.getProductsFromAmazonAppstoreIapLib(productIds);
   }
 
   async purchase(
@@ -417,7 +415,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
       `Notifying Amazon Store of fulfillment for receipt ID ${receiptId}`,
     );
     const response = await PurchasingService.notifyFulfillment({
-      receiptId: receiptId,
+      receiptId,
       fulfillmentResult: FulfillmentResult.FULFILLED,
     });
 

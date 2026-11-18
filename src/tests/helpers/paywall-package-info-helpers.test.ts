@@ -243,7 +243,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         title: "Monthly Basic",
       },
     ]);
-    const monthly = off.packagesById["$rc_monthly"]!;
+    const monthly = off.packagesById["$rc_monthly"];
     off.packagesById["$rc_monthly"] = {
       ...monthly,
       webCheckoutURL: "https://checkout.example.com/monthly",
@@ -301,7 +301,7 @@ describe("parseOfferingIntoPackageInfoPerPackage", () => {
         title: "Monthly Basic",
       },
     ]);
-    const monthly = off.packagesById["$rc_monthly"]!;
+    const monthly = off.packagesById["$rc_monthly"];
     off.packagesById["$rc_monthly"] = {
       ...monthly,
       webCheckoutURL: "https://checkout.example.com/package",

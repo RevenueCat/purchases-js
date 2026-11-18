@@ -1,5 +1,12 @@
-import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { describe, type MockedFunction } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  expect,
+  test,
+  vi,
+  describe,
+  type MockedFunction,
+} from "vitest";
 import type { FlushCallback } from "../../behavioural-events/flush-manager";
 import { FlushManager } from "../../behavioural-events/flush-manager";
 
@@ -54,7 +61,9 @@ describe("FlushManager", () => {
   test("reschedules the callback when it is already running adding jitter", async () => {
     callbackSpy.mockReturnValueOnce(
       new Promise<boolean>((resolve) =>
-        setTimeout(() => resolve(true), 10_000),
+        setTimeout(() => {
+          resolve(true);
+        }, 10_000),
       ),
     );
     callbackSpy.mockReturnValueOnce(Promise.resolve(true));

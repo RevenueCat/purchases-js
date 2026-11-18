@@ -27,7 +27,9 @@ beforeEach(() => {
   }
 });
 
-afterAll(() => server.close());
+afterAll(() => {
+  server.close();
+});
 
 export function configurePurchases(
   appUserId: string = testUserId,
@@ -37,11 +39,11 @@ export function configurePurchases(
   subscriberToken?: string,
 ): Purchases {
   return Purchases.configure({
-    apiKey: apiKey,
-    appUserId: appUserId,
+    apiKey,
+    appUserId,
     httpConfig: defaultHttpConfig,
     flags: {
-      rcSource: rcSource,
+      rcSource,
       ...flags,
     },
     subscriberToken,

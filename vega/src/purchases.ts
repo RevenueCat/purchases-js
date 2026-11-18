@@ -75,9 +75,7 @@ export class Purchases extends CorePurchases {
    * @throws {@link PurchasesError} if restoration fails.
    */
   public async restorePurchases(): Promise<RestorePurchasesResult> {
-    return await this.unwrappedBillingWrapper().restorePurchases(
-      this._appUserId,
-    );
+    return this.unwrappedBillingWrapper().restorePurchases(this._appUserId);
   }
 
   /**
@@ -93,6 +91,6 @@ export class Purchases extends CorePurchases {
    * @throws {@link PurchasesError} if syncing fails.
    */
   public async syncPurchases(): Promise<SyncPurchasesResult> {
-    return await this.unwrappedBillingWrapper().syncPurchases(this._appUserId);
+    return this.unwrappedBillingWrapper().syncPurchases(this._appUserId);
   }
 }

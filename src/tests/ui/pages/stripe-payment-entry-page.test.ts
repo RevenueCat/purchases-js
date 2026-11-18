@@ -31,7 +31,6 @@ import type {
 } from "@stripe/stripe-js";
 import type { ComponentProps } from "svelte";
 import type { GatewayParams } from "../../../networking/responses/stripe-elements";
-import type { CheckoutPricingResponse } from "../../../networking/responses/checkout-pricing-response";
 import { defaultPurchaseMode } from "../../../behavioural-events/event";
 import { Logger } from "../../../helpers/logger";
 
@@ -90,8 +89,7 @@ const eventsTrackerMock = createEventsTrackerMock();
 const trackSDKEventMock = vi.mocked(eventsTrackerMock.trackSDKEvent);
 const purchaseOperationHelperMock: PurchaseOperationHelper = {
   prepareCheckout: async () => Promise.resolve(checkoutPrepareResponse),
-  checkoutRefreshPricing: async () =>
-    Promise.resolve(checkoutPricingResponse as CheckoutPricingResponse),
+  checkoutRefreshPricing: async () => Promise.resolve(checkoutPricingResponse),
   checkoutStart: async () =>
     Promise.resolve(checkoutStartResponse as CheckoutStartResponse),
   checkoutComplete: async () =>
@@ -109,11 +107,11 @@ const gatewayParams: GatewayParams = {
 };
 
 const basicProps: ComponentProps<StripePaymentEntryPage> = {
-  gatewayParams: gatewayParams,
+  gatewayParams,
   processing: false,
   productDetails: rcPackage.product,
   purchaseOption: rcPackage.product.defaultPurchaseOption,
-  brandingInfo: brandingInfo,
+  brandingInfo,
   purchaseOperationHelper: purchaseOperationHelperMock,
   customerEmail: null,
   onContinue: vi.fn(),
@@ -143,7 +141,9 @@ const createCompleteAddressElementMock = () => ({
     }) => void,
   ) => {
     if (eventType === "ready") {
-      setTimeout(() => callback(), 0);
+      setTimeout(() => {
+        callback();
+      }, 0);
     }
     if (eventType === "change") {
       setTimeout(() => {
@@ -171,7 +171,9 @@ const createElementReadyAfter = (delay: number, readyEvent?: object) => ({
   mount: vi.fn(),
   on: (eventType: string, callback: (event?: object) => void) => {
     if (eventType === "ready") {
-      setTimeout(() => callback(readyEvent), delay);
+      setTimeout(() => {
+        callback(readyEvent);
+      }, delay);
     }
   },
   destroy: vi.fn(),
@@ -296,18 +298,16 @@ describe("PurchasesUI", () => {
         }) => void,
       ) => {
         if (eventType === "loaderror") {
-          setTimeout(
-            () =>
-              callback({
-                elementType: "expressCheckout",
-                error: {
-                  type: "api_connection_error",
-                  code: "0",
-                  message: "Failed to initialize Express Checkout",
-                } as StripeError,
-              }),
-            10,
-          );
+          setTimeout(() => {
+            callback({
+              elementType: "expressCheckout",
+              error: {
+                type: "api_connection_error",
+                code: "0",
+                message: "Failed to initialize Express Checkout",
+              } as StripeError,
+            });
+          }, 10);
         }
       },
       destroy: vi.fn(),
@@ -372,7 +372,9 @@ describe("PurchasesUI", () => {
         callback: (event?: StripePaymentElementChangeEvent) => void,
       ) => {
         if (eventType === "ready") {
-          setTimeout(() => callback(), 0);
+          setTimeout(() => {
+            callback();
+          }, 0);
         }
         if (eventType === "change") {
           setTimeout(() => {
@@ -459,18 +461,16 @@ describe("PurchasesUI", () => {
         }) => void,
       ) => {
         if (eventType === "loaderror") {
-          setTimeout(
-            () =>
-              callback({
-                elementType: "payment",
-                error: {
-                  type: "api_connection_error",
-                  code: "0",
-                  message: "Failed to initialize payment form",
-                } as StripeError,
-              }),
-            0,
-          );
+          setTimeout(() => {
+            callback({
+              elementType: "payment",
+              error: {
+                type: "api_connection_error",
+                code: "0",
+                message: "Failed to initialize payment form",
+              } as StripeError,
+            });
+          }, 0);
         }
       },
       mount: vi.fn(),
@@ -529,18 +529,16 @@ describe("PurchasesUI", () => {
         }) => void,
       ) => {
         if (eventType === "loaderror") {
-          setTimeout(
-            () =>
-              callback({
-                elementType: "linkAuthentication",
-                error: {
-                  type: "api_connection_error",
-                  code: "0",
-                  message: "Failed to initialize payment form",
-                } as StripeError,
-              }),
-            0,
-          );
+          setTimeout(() => {
+            callback({
+              elementType: "linkAuthentication",
+              error: {
+                type: "api_connection_error",
+                code: "0",
+                message: "Failed to initialize payment form",
+              } as StripeError,
+            });
+          }, 0);
         }
       },
       mount: vi.fn(),
@@ -604,7 +602,9 @@ describe("PurchasesUI", () => {
         callback: (event?: StripePaymentElementChangeEvent) => void,
       ) => {
         if (eventType === "ready") {
-          setTimeout(() => callback(), 0);
+          setTimeout(() => {
+            callback();
+          }, 0);
         }
         if (eventType === "change") {
           setTimeout(() => {
@@ -790,7 +790,9 @@ describe("PurchasesUI", () => {
         callback: (event?: StripePaymentElementChangeEvent) => void,
       ) => {
         if (eventType === "ready") {
-          setTimeout(() => callback(), 0);
+          setTimeout(() => {
+            callback();
+          }, 0);
         }
         if (eventType === "change") {
           countries.forEach((country, index) => {
@@ -940,7 +942,9 @@ describe("PurchasesUI", () => {
         callback: (event?: StripePaymentElementChangeEvent) => void,
       ) => {
         if (eventType === "ready") {
-          setTimeout(() => callback(), 0);
+          setTimeout(() => {
+            callback();
+          }, 0);
         }
         if (eventType === "change") {
           setTimeout(() => {
@@ -1031,7 +1035,9 @@ describe("PurchasesUI", () => {
       mount: vi.fn(),
       on: (eventType: string, callback: (event?: unknown) => void) => {
         if (eventType === "ready") {
-          setTimeout(() => callback({ availablePaymentMethods: null }), 0);
+          setTimeout(() => {
+            callback({ availablePaymentMethods: null });
+          }, 0);
         }
       },
       destroy: vi.fn(),
@@ -1047,12 +1053,12 @@ describe("PurchasesUI", () => {
         callback: (event?: StripePaymentElementChangeEvent) => void,
       ) => {
         if (eventType === "ready") {
-          setTimeout(() => callback(), 0);
+          setTimeout(() => {
+            callback();
+          }, 0);
         }
         if (eventType === "change") {
-          paymentChangeCallback = callback as (
-            event: StripePaymentElementChangeEvent,
-          ) => void;
+          paymentChangeCallback = callback;
           setTimeout(() => {
             paymentChangeCallback?.({
               complete: true,
@@ -1261,7 +1267,9 @@ describe("PurchasesUI", () => {
         callback: (event?: StripePaymentElementChangeEvent) => void,
       ) => {
         if (eventType === "ready") {
-          setTimeout(() => callback(), 0);
+          setTimeout(() => {
+            callback();
+          }, 0);
         }
         if (eventType === "change") {
           setTimeout(() => {
@@ -1294,7 +1302,9 @@ describe("PurchasesUI", () => {
         }) => void,
       ) => {
         if (eventType === "ready") {
-          setTimeout(() => callback(), 0);
+          setTimeout(() => {
+            callback();
+          }, 0);
         }
         if (eventType === "change") {
           setTimeout(() => {
@@ -1372,7 +1382,9 @@ describe("PurchasesUI", () => {
         callback: (event?: StripePaymentElementChangeEvent) => void,
       ) => {
         if (eventType === "ready") {
-          setTimeout(() => callback(), 0);
+          setTimeout(() => {
+            callback();
+          }, 0);
         }
         if (eventType === "change") {
           setTimeout(() => {
@@ -1532,10 +1544,9 @@ describe("PurchasesUI", () => {
           callback: (event?: { availablePaymentMethods?: object }) => void,
         ) => {
           if (eventType === "ready") {
-            setTimeout(
-              () => callback({ availablePaymentMethods: { applePay: true } }),
-              0,
-            );
+            setTimeout(() => {
+              callback({ availablePaymentMethods: { applePay: true } });
+            }, 0);
           }
         },
         destroy: vi.fn(),
@@ -1551,7 +1562,9 @@ describe("PurchasesUI", () => {
           callback: (event?: StripePaymentElementChangeEvent) => void,
         ) => {
           if (eventType === "ready") {
-            setTimeout(() => callback(), 0);
+            setTimeout(() => {
+              callback();
+            }, 0);
           }
           if (eventType === "change") {
             setTimeout(() => {
@@ -1576,7 +1589,9 @@ describe("PurchasesUI", () => {
         mount: vi.fn(),
         on: (eventType: string, callback: () => void) => {
           if (eventType === "ready") {
-            setTimeout(() => callback(), 0);
+            setTimeout(() => {
+              callback();
+            }, 0);
           }
         },
         destroy: vi.fn(),

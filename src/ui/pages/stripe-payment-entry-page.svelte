@@ -773,7 +773,7 @@
       if (error.errorCode === PurchaseFlowErrorCode.MissingEmailError) {
         modalErrorMessage = $translator.translate(
           LocalizationKeys.ErrorPageErrorMessageInvalidEmailError,
-          { email: email },
+          { email },
         );
       } else {
         onError(error);

@@ -666,9 +666,7 @@ describe("Purchases.preload()", () => {
 const uuidImplementations = [
   {
     name: "crypto.randomUUID",
-    setup: () => {
-      return vi.spyOn(crypto, "randomUUID");
-    },
+    setup: () => vi.spyOn(crypto, "randomUUID"),
   },
   {
     name: "crypto.getRandomValues fallback",
@@ -830,9 +828,9 @@ describe("Purchases.purchase()", () => {
   });
 
   test("pressing back button unmounts the component", async () => {
-    const unmountSpy = vi.spyOn(svelte, "unmount").mockImplementation(() => {
-      return Promise.resolve();
-    });
+    const unmountSpy = vi
+      .spyOn(svelte, "unmount")
+      .mockImplementation(async () => Promise.resolve());
 
     const purchases = configurePurchases();
     const purchasePromise = purchases.purchase({
@@ -1066,9 +1064,11 @@ describe("Purchases.purchase()", () => {
     const amazonPurchaseSpy = vi
       .spyOn(billingWrapper, "purchase")
       .mockImplementation(
-        () =>
+        async () =>
           new Promise((resolve) => {
-            completeAmazonPurchase = () => resolve({} as never);
+            completeAmazonPurchase = () => {
+              resolve({} as never);
+            };
           }),
       );
     const invalidateAllCachesSpy = vi.spyOn(
@@ -1257,11 +1257,11 @@ describe("setAttributes", () => {
   test("throws an error if getCustomerInfo fails", async () => {
     const purchases = configurePurchases();
     server.use(
-      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () => {
-        return HttpResponse.json(null, {
+      http.get("http://localhost:8000/v1/subscribers/someAppUserId", () =>
+        HttpResponse.json(null, {
           status: StatusCodes.INTERNAL_SERVER_ERROR,
-        });
-      }),
+        }),
+      ),
     );
 
     await expectPromiseToError(
@@ -1279,15 +1279,14 @@ describe("setAttributes", () => {
     server.use(
       http.post(
         "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
-        () => {
-          return HttpResponse.json(
+        () =>
+          HttpResponse.json(
             {
               code: BackendErrorCode.BackendInvalidSubscriberAttributes,
               message: "Invalid attributes format",
             },
             { status: StatusCodes.BAD_REQUEST },
-          );
-        },
+          ),
       ),
     );
 
@@ -1306,14 +1305,13 @@ describe("setAttributes", () => {
     server.use(
       http.post(
         "http://localhost:8000/v1/subscribers/someAppUserId/attributes",
-        () => {
-          return HttpResponse.json(
+        () =>
+          HttpResponse.json(
             {},
             {
               status: StatusCodes.INTERNAL_SERVER_ERROR,
             },
-          );
-        },
+          ),
       ),
     );
 
@@ -1346,7 +1344,9 @@ describe("Purchases.setLogHandler()", () => {
     Purchases.setLogHandler(mockHandler);
 
     // The handler should be set (we can't directly test this, but we can test the effect)
-    expect(() => Purchases.setLogHandler(mockHandler)).not.toThrow();
+    expect(() => {
+      Purchases.setLogHandler(mockHandler);
+    }).not.toThrow();
   });
 
   test("should reset to null handler", () => {
@@ -1356,7 +1356,9 @@ describe("Purchases.setLogHandler()", () => {
     Purchases.setLogHandler(null);
 
     // Should not throw
-    expect(() => Purchases.setLogHandler(null)).not.toThrow();
+    expect(() => {
+      Purchases.setLogHandler(null);
+    }).not.toThrow();
   });
 
   test("should call custom handler when logging occurs", () => {

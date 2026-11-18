@@ -67,16 +67,13 @@
   const isSameTaxRelevantAddress = (
     a: StripeAddressElementChangeEvent["value"]["address"] | null,
     b: StripeAddressElementChangeEvent["value"]["address"],
-  ): boolean => {
-    return (
-      a?.country === b.country &&
-      a?.postal_code === b.postal_code &&
-      a?.state === b.state &&
-      a?.city === b.city &&
-      a?.line1 === b.line1 &&
-      a?.line2 === b.line2
-    );
-  };
+  ): boolean =>
+    a?.country === b.country &&
+    a?.postal_code === b.postal_code &&
+    a?.state === b.state &&
+    a?.city === b.city &&
+    a?.line1 === b.line1 &&
+    a?.line2 === b.line2;
 
   onMount(() => {
     try {

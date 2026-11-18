@@ -11,5 +11,5 @@ pre-commit:
       stage_fixed: true
     - name: oxlint
       glob: "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,svelte}"
-      run: pnpm exec oxlint --fix --no-error-on-unmatched-pattern {staged_files}
+      run: pnpm exec oxlint --disable-nested-config --fix --no-error-on-unmatched-pattern {staged_files}
       stage_fixed: true

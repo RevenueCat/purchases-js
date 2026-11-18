@@ -40,18 +40,16 @@ const preview: Preview = {
     },
   },
   decorators: [
-    (Story, context) => {
-      return {
-        Component: GlobalDecorator,
-        props: {
-          globals: context.globals,
-          children: () => ({
-            Component: Story,
-            props: context.args,
-          }),
-        },
-      };
-    },
+    (Story, context) => ({
+      Component: GlobalDecorator,
+      props: {
+        globals: context.globals,
+        children: () => ({
+          Component: Story,
+          props: context.args,
+        }),
+      },
+    }),
   ],
   globalTypes: {
     locale: {

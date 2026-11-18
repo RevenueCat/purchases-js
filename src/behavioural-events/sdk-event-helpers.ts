@@ -17,7 +17,7 @@ import type { RedemptionInfo } from "../entities/redemption-info";
 import type { BrandingAppearance } from "../entities/branding";
 import type { CheckoutPricingResponse } from "../networking/responses/checkout-pricing-response";
 import { CheckoutPricingFailedReason } from "../networking/responses/checkout-pricing-response";
-import type { TaxCustomerDetails } from "src/stripe/stripe-service";
+import type { TaxCustomerDetails } from "../stripe/stripe-service";
 import { defaultPurchaseMode, type SDKEventPurchaseMode } from "./event";
 
 export function createCheckoutFlowErrorEvent({
@@ -52,8 +52,8 @@ export function createCheckoutPaymentFormErrorEvent({
     eventName: SDKEventName.CheckoutPaymentFormError,
     properties: {
       mode,
-      errorCode: errorCode,
-      errorMessage: errorMessage,
+      errorCode,
+      errorMessage,
     },
   };
 }
@@ -74,7 +74,7 @@ export function createCheckoutSessionStartEvent({
   return {
     eventName: SDKEventName.CheckoutSessionStart,
     properties: {
-      mode: mode,
+      mode,
       customizationColorButtonsPrimary:
         appearance?.color_buttons_primary ?? null,
       customizationColorAccent: appearance?.color_accent ?? null,
@@ -108,7 +108,7 @@ export function createCheckoutSessionEndFinishedEvent({
   return {
     eventName: SDKEventName.CheckoutSessionEnd,
     properties: {
-      mode: mode,
+      mode,
       outcome: "finished",
       withRedemptionInfo: Boolean(redemptionInfo),
     },
@@ -141,8 +141,8 @@ export function createCheckoutSessionEndErroredEvent({
     properties: {
       mode,
       outcome: "errored",
-      errorCode: errorCode,
-      errorMessage: errorMessage,
+      errorCode,
+      errorMessage,
     },
   };
 }
@@ -209,8 +209,8 @@ export function createCheckoutPaymentGatewayErrorEvent({
     eventName: SDKEventName.CheckoutPaymentFormGatewayError,
     properties: {
       mode,
-      errorCode: errorCode,
-      errorMessage: errorMessage,
+      errorCode,
+      errorMessage,
     },
   };
 }

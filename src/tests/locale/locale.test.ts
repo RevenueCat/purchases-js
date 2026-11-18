@@ -24,7 +24,7 @@ describe("The Translator class", () => {
         (key) => !otherLabelKeys.has(key as LocalizationKeys),
       );
       const extraKeys = [...otherLabelKeys].filter(
-        (key) => !expectedKeysSet.has(key as LocalizationKeys),
+        (key) => !expectedKeysSet.has(key),
       );
 
       const missingKeysText =

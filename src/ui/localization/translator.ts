@@ -89,7 +89,7 @@ export class Translator {
     Object.entries(customTranslations).forEach(([locale, translations]) => {
       this.locales[locale] = new LocaleTranslations(
         {
-          ...(this.locales[locale].labels || {}),
+          ...this.locales[locale].labels,
           ...translations,
         },
         this.getLanguageCodeString(locale),

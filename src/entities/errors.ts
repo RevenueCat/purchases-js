@@ -75,7 +75,7 @@ export class ErrorCodeUtils {
 
   static convertCodeToBackendErrorCode(code: number): BackendErrorCode | null {
     if (code in BackendErrorCode) {
-      return code as BackendErrorCode;
+      return code;
     } else {
       return null;
     }
@@ -176,7 +176,7 @@ export class PurchasesError extends Error {
       errorCode,
       ErrorCodeUtils.getPublicMessage(errorCode),
       backendErrorMessage,
-      { backendErrorCode: backendErrorCode },
+      { backendErrorCode },
     );
   }
 
@@ -216,9 +216,8 @@ export class PurchasesError extends Error {
     super(message);
   }
 
-  toString = (): string => {
-    return `PurchasesError(code: ${ErrorCode[this.errorCode]}, message: ${this.message})`;
-  };
+  toString = (): string =>
+    `PurchasesError(code: ${ErrorCode[this.errorCode]}, message: ${this.message})`;
 }
 
 /**

@@ -21,7 +21,11 @@
     Translator,
   } from "./localization/translator";
   import { translatorContextKey } from "./localization/constants";
-  import { type CurrentPage } from "./ui-types";
+  import {
+    type CurrentPage,
+    type PriceBreakdown,
+    type TaxCalculationStatus,
+  } from "./ui-types";
   import PurchasesUiInner from "./purchases-ui-inner.svelte";
   import { type IEventsTracker } from "../behavioural-events/events-tracker";
   import { eventsTrackerContextKey, brandingContextKey } from "./constants";
@@ -48,7 +52,6 @@
   } from "../networking/responses/subscription-change-response";
   import { type ProductChangeResult } from "../entities/product-change-params";
   import { validateEmail } from "../helpers/validators";
-  import type { PriceBreakdown, TaxCalculationStatus } from "./ui-types";
   import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
   import { PAYRAILS_CHECKOUT_ENABLED } from "../helpers/constants";
   import { loadPayrailsSdk } from "../payrails/payrails-service";

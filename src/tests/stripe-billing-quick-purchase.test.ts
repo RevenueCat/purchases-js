@@ -4,7 +4,6 @@ import { describe, expect, test, vi } from "vitest";
 
 import { BackendErrorCode } from "../entities/errors";
 import { ErrorCode, type PurchaseParams, type PurchaseResult } from "../main";
-import type { OperationSessionSuccessfulResult } from "../helpers/purchase-operation-helper";
 import type { StripeBillingApplePayCheckoutStartResponse } from "../networking/responses/checkout-start-response";
 import type { OfferingsResponse } from "../networking/responses/offerings-response";
 import type { PreparedStripeBillingApplePayPurchase } from "../stripe/stripe-billing-apple-pay-purchase";
@@ -174,15 +173,15 @@ describe("Purchases Stripe Billing quick purchases", () => {
 
   test("returns unavailable for backend preparation errors", async () => {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/checkout/start", () => {
-        return HttpResponse.json(
+      http.post("http://localhost:8000/rcbilling/v1/checkout/start", () =>
+        HttpResponse.json(
           {
             code: BackendErrorCode.BackendInvalidAPIKey,
             message: "API key was wrong",
           },
           { status: 401 },
-        );
-      }),
+        ),
+      ),
     );
     const purchases = configurePurchases(
       testUserId,
@@ -231,7 +230,9 @@ describe("Purchases Stripe Billing quick purchases", () => {
         if (eventName === "cancel") handlers.cancel = handler;
       }),
       off: vi.fn(),
-      show: vi.fn(() => queueMicrotask(() => handlers.cancel?.())),
+      show: vi.fn(() => {
+        queueMicrotask(() => handlers.cancel?.());
+      }),
     } as unknown as PaymentRequest;
     const stripe = {
       paymentRequest: vi.fn(() => paymentRequest),
@@ -281,9 +282,9 @@ describe("Purchases Stripe Billing quick purchases", () => {
 
   test("uses normal checkout when the prepared package does not match", async () => {
     server.use(
-      http.post("http://localhost:8000/rcbilling/v1/checkout/start", () => {
-        return HttpResponse.json(applePayStartResponse());
-      }),
+      http.post("http://localhost:8000/rcbilling/v1/checkout/start", () =>
+        HttpResponse.json(applePayStartResponse()),
+      ),
     );
     const paymentRequest = {
       canMakePayment: vi.fn().mockResolvedValue({ applePay: true }),
@@ -328,12 +329,12 @@ describe("Purchases Stripe Billing quick purchases", () => {
   test("returns unavailable without starting when checkout consent is required", async () => {
     let startCount = 0;
     server.use(
-      http.get("http://localhost:8000/rcbilling/v1/branding", () => {
-        return HttpResponse.json({
+      http.get("http://localhost:8000/rcbilling/v1/branding", () =>
+        HttpResponse.json({
           require_checkout_consent: true,
           terms_and_conditions_url: "https://example.com/terms",
-        });
-      }),
+        }),
+      ),
       http.post("http://localhost:8000/rcbilling/v1/checkout/start", () => {
         startCount += 1;
         return HttpResponse.json(applePayStartResponse());
@@ -404,7 +405,7 @@ describe("Purchases Stripe Billing quick purchases", () => {
         storeTransactionIdentifier: "store-transaction-id",
         productIdentifier: "monthly",
         purchaseDate: new Date(),
-      } as OperationSessionSuccessfulResult,
+      },
     });
 
     let resolveFirstRequest:
@@ -413,7 +414,7 @@ describe("Purchases Stripe Billing quick purchases", () => {
     const getOfferings = vi
       .spyOn(internals.backend, "getOfferings")
       .mockImplementationOnce(
-        () =>
+        async () =>
           new Promise((resolve) => {
             resolveFirstRequest = resolve;
           }),
@@ -421,11 +422,15 @@ describe("Purchases Stripe Billing quick purchases", () => {
       .mockResolvedValueOnce(offeringsResponse);
 
     const firstLookup = purchases.getOfferings();
-    await vi.waitFor(() => expect(getOfferings).toHaveBeenCalledTimes(1));
+    await vi.waitFor(() => {
+      expect(getOfferings).toHaveBeenCalledTimes(1);
+    });
 
     await purchases.purchase({ ...params, tryWithApplePay: true });
     const secondLookup = purchases.getOfferings();
-    await vi.waitFor(() => expect(getOfferings).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => {
+      expect(getOfferings).toHaveBeenCalledTimes(2);
+    });
 
     resolveFirstRequest?.(offeringsResponse);
     await Promise.all([firstLookup, secondLookup]);

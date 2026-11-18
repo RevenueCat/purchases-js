@@ -63,7 +63,7 @@ export function getPackageMonthlyPrice(pkg: Package): number {
   const period =
     pkg.product.period || (purchaseOption as SubscriptionOption)?.base?.period;
 
-  if (!period || !period.number || period.number <= 0) {
+  if (!period?.number || period.number <= 0) {
     return price.amountMicros;
   }
 
@@ -144,7 +144,7 @@ export function parseOfferingIntoVariables(
         })
       : null;
 
-  return packages.reduce(
+  return packages.reduce<Record<string, VariableDictionary>>(
     (packagesById, pkg) => {
       packagesById[pkg.identifier] = parsePackageIntoVariables(
         pkg,
@@ -153,7 +153,7 @@ export function parseOfferingIntoVariables(
       );
       return packagesById;
     },
-    {} as Record<string, VariableDictionary>,
+    {},
   );
 }
 

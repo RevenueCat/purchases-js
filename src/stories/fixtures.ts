@@ -1,7 +1,9 @@
 import type { BrandingInfoResponse } from "../networking/responses/branding-response";
 import { eventsTrackerContextKey } from "../ui/constants";
-import type { Price, PricingPhase, DiscountPhase } from "../entities/offerings";
 import {
+  type Price,
+  type PricingPhase,
+  type DiscountPhase,
   type NonSubscriptionOption,
   type Package,
   PackageType,
@@ -185,15 +187,13 @@ export const nonSubscriptionBasePricingPhase: PricingPhase = {
 
 const createNonSubscriptionOption = (
   fields: Partial<NonSubscriptionOption> = {},
-): NonSubscriptionOption => {
-  return {
-    id: "nonsub_option_id_1",
-    priceId: "nonsub_price_1",
-    basePrice: subscriptionOptionBasePrice.price!,
-    discount: null,
-    ...fields,
-  };
-};
+): NonSubscriptionOption => ({
+  id: "nonsub_option_id_1",
+  priceId: "nonsub_price_1",
+  basePrice: subscriptionOptionBasePrice.price!,
+  discount: null,
+  ...fields,
+});
 
 export const nonSubscriptionOption = createNonSubscriptionOption();
 
@@ -224,17 +224,15 @@ export const nonSubscriptionOptionWithTimeWindowDiscount =
 
 const createSubscriptionOption = (
   fields: Partial<SubscriptionOption> = {},
-): SubscriptionOption => {
-  return {
-    id: "option_id_1",
-    priceId: "price_1",
-    base: subscriptionOptionBasePrice,
-    trial: null,
-    discount: null,
-    introPrice: null,
-    ...fields,
-  };
-};
+): SubscriptionOption => ({
+  id: "option_id_1",
+  priceId: "price_1",
+  base: subscriptionOptionBasePrice,
+  trial: null,
+  discount: null,
+  introPrice: null,
+  ...fields,
+});
 
 export const subscriptionOption = createSubscriptionOption();
 
@@ -494,7 +492,7 @@ export const rcPackage: Package = {
   packageType: PackageType.Monthly,
   rcBillingProduct: product,
   webBillingProduct: product,
-  product: product,
+  product,
 };
 
 /**
@@ -630,7 +628,7 @@ export const defaultContext = {
   [eventsTrackerContextKey]: {
     trackExternalEvent: () => {},
     trackSDKEvent: () => {},
-    updateUser: () => Promise.resolve(),
+    updateUser: async () => Promise.resolve(),
     dispose: () => {},
   },
 };

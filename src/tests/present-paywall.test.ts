@@ -144,7 +144,7 @@ describe("Purchases.presentPaywall()", () => {
   ])("forwards purchase context (%j)", async (externalCheckout) => {
     const purchases = configurePurchases();
     const offering = createOfferingWithPaywall();
-    const packageId = offering.availablePackages[0]!.identifier;
+    const packageId = offering.availablePackages[0].identifier;
     const purchaseSpy = vi
       .spyOn(purchases, "purchase")
       .mockResolvedValue({} as PurchaseResult);
@@ -155,7 +155,9 @@ describe("Purchases.presentPaywall()", () => {
       ...externalCheckout,
     });
 
-    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(paywallProps).toBeDefined();
+    });
     paywallProps!.onPurchaseClicked(packageId);
 
     await vi.waitFor(() => {
@@ -209,14 +211,18 @@ describe("Purchases.presentPaywall()", () => {
     const paywallPromise = purchases.presentPaywall({ offering, listener });
     void paywallPromise.catch(() => undefined);
 
-    await vi.waitFor(() => expect(paywallProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(paywallProps).toBeDefined();
+    });
     paywallProps!.onComponentInteraction({
       componentType: "button",
       componentName: "Terms",
       componentValue: "navigate_to_terms",
     });
 
-    await vi.waitFor(() => expect(listener.received).toHaveLength(1));
+    await vi.waitFor(() => {
+      expect(listener.received).toHaveLength(1);
+    });
     expect(listener.received[0].component_value).toBe("navigate_to_terms");
 
     paywallProps!.onBackClicked();
@@ -251,7 +257,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
 
     void purchases.presentPaywall({ offering });
 
-    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(mountedProps).toBeDefined();
+    });
     expect(mountedProps?.offering).toEqual({
       identifier: offering.identifier,
       display_name: offering.serverDescription,
@@ -286,7 +294,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
 
     void purchases.presentPaywall({ offering, discountCode: "SAVE50" });
 
-    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(mountedProps).toBeDefined();
+    });
     expect(APIGetRequest).toHaveBeenCalledWith({
       url: `${productsUrl}?id=monthly&currency=USD&discount_code=SAVE50`,
     });
@@ -355,7 +365,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
 
     void purchases.presentPaywall({ offering, discountCode: "SAVE50" });
 
-    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(mountedProps).toBeDefined();
+    });
     expect(getWalletButtonRenderSpy.mock.calls[0]?.[0]).toBe(offering);
   });
 
@@ -374,7 +386,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
 
     void purchases.presentPaywall({ offering, discountCode: "SAVE50" });
 
-    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(mountedProps).toBeDefined();
+    });
     const walletOffering = getWalletButtonRenderSpy.mock.calls[0]?.[0];
     expect(walletOffering?.availablePackages).toEqual(
       offering.availablePackages,
@@ -401,7 +415,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
 
     void purchases.presentPaywall({ offering, discountCode: "SAVE50" });
 
-    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(mountedProps).toBeDefined();
+    });
     const walletOffering = getWalletButtonRenderSpy.mock.calls[0]?.[0];
     expect(walletOffering?.availablePackages).toHaveLength(2);
     expect(walletOffering?.monthly?.product.defaultPurchaseOption.id).toBe(
@@ -424,7 +440,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
 
     void purchases.presentPaywall({ discountCode: "SAVE50" });
 
-    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(mountedProps).toBeDefined();
+    });
     expect(getOfferingsSpy).toHaveBeenCalledExactlyOnceWith({
       offeringIdentifier: "current",
       discountCode: "SAVE50",
@@ -446,7 +464,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
 
       void purchases.presentPaywall({ offering });
 
-      await vi.waitFor(() => expect(mountedProps).toBeDefined());
+      await vi.waitFor(() => {
+        expect(mountedProps).toBeDefined();
+      });
       expect(mountedProps).toMatchObject({
         appUserId: purchases.getAppUserId(),
         isSandbox: purchases.isSandbox(),
@@ -489,7 +509,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
         selectedLocale,
       });
 
-      await vi.waitFor(() => expect(mountedProps).toBeDefined());
+      await vi.waitFor(() => {
+        expect(mountedProps).toBeDefined();
+      });
       expect(mountedProps?.selectedLocale).toBe(expected);
     },
   );
@@ -502,7 +524,9 @@ describe("Purchases.presentPaywall() paywall context", () => {
 
     void purchases.presentPaywall({ offering: createOfferingWithLocales() });
 
-    await vi.waitFor(() => expect(mountedProps).toBeDefined());
+    await vi.waitFor(() => {
+      expect(mountedProps).toBeDefined();
+    });
     expect(mountedProps?.selectedLocale).toBe("pt_BR");
     languageSpy.mockRestore();
   });

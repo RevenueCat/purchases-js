@@ -9,9 +9,7 @@ export default defineConfig(() => ({
         css: "injected",
       },
       preprocess: {
-        style: ({ content }) => {
-          return { code: content };
-        },
+        style: ({ content }) => ({ code: content }),
       },
     }),
     svelteTesting(),

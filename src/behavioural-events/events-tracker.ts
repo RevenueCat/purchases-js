@@ -62,9 +62,11 @@ export interface IEventsTracker {
 
 export default class EventsTracker implements IEventsTracker {
   private readonly apiKey: string;
-  private readonly eventsQueue: Array<
-    Event | PaywallEvent | CustomPaywallImpressionEvent
-  > = [];
+  private readonly eventsQueue: (
+    | Event
+    | PaywallEvent
+    | CustomPaywallImpressionEvent
+  )[] = [];
   private readonly eventsUrl: string;
   private readonly flushManager: FlushManager;
   private readonly traceId: string;
@@ -231,12 +233,14 @@ export default class EventsTracker implements IEventsTracker {
    * https://developer.mozilla.org/en-US/docs/Web/API/RequestInit#keepalive
    * Returns null if the first event exceeds the limit (and removes it from queue).
    */
-  private batchEventsForKeepalive(): Array<
-    Event | PaywallEvent | CustomPaywallImpressionEvent
-  > | null {
-    const eventsToFlush: Array<
-      Event | PaywallEvent | CustomPaywallImpressionEvent
-    > = [];
+  private batchEventsForKeepalive():
+    | (Event | PaywallEvent | CustomPaywallImpressionEvent)[]
+    | null {
+    const eventsToFlush: (
+      | Event
+      | PaywallEvent
+      | CustomPaywallImpressionEvent
+    )[] = [];
     let batchSize = 16; // Account for {"events":[]} wrapper overhead
 
     for (const event of this.eventsQueue) {
@@ -268,7 +272,7 @@ export default class EventsTracker implements IEventsTracker {
     return eventsToFlush;
   }
 
-  private doFlush(options?: FlushOptions): Promise<boolean> {
+  private async doFlush(options?: FlushOptions): Promise<boolean> {
     if (!options?.ignoreDisposed && this.isDisposed) {
       return Promise.resolve(true);
     }

@@ -15,8 +15,8 @@ import {
   type Shape,
 } from "./shapes";
 
-import type { BrandFontConfig } from "./text";
 import {
+  type BrandFontConfig,
   BRANDED_FONT_FAMILY,
   DEFAULT_FONT_FAMILY,
   type TextStyles,
@@ -186,24 +186,20 @@ const textColorsForBackground = (
   return textColors;
 };
 
-export const colorsForButtonStates = (primaryColor: string) => {
-  return {
-    "primary-hover": applyAlpha(primaryColor, 0.1),
-    "primary-pressed": applyAlpha(primaryColor, 0.15),
-  };
-};
+export const colorsForButtonStates = (primaryColor: string) => ({
+  "primary-hover": applyAlpha(primaryColor, 0.1),
+  "primary-pressed": applyAlpha(primaryColor, 0.15),
+});
 
 const fallback = <T>(
   somethingNullable: T | null | undefined,
   defaultValue: T,
-): T => {
-  return somethingNullable ? somethingNullable : defaultValue;
-};
+): T => (somethingNullable ? somethingNullable : defaultValue);
 
 const mapColors = (
   colorsMapping: Record<string, string>,
   defaultColors: Colors,
-  brandingAppearance?: BrandingAppearance | null | undefined,
+  brandingAppearance?: BrandingAppearance | null,
 ): Colors => {
   const mappedColors = Object.entries(colorsMapping).map(([target, source]) => [
     target,
@@ -221,7 +217,7 @@ const mapColors = (
 export const toColors = (
   colorsMapping: Record<string, string>,
   defaultColors: Colors,
-  brandingAppearance?: BrandingAppearance | null | undefined,
+  brandingAppearance?: BrandingAppearance | null,
 ): Colors => {
   const mappedColors = mapColors(
     colorsMapping,
@@ -245,37 +241,34 @@ export const toColors = (
 };
 
 export const toProductInfoColors = (
-  brandingAppearance?: BrandingAppearance | null | undefined,
-): Colors => {
-  return toColors(
+  brandingAppearance?: BrandingAppearance | null,
+): Colors =>
+  toColors(
     InfoColorsToBrandingAppearanceMapping,
     DEFAULT_INFO_COLORS,
     brandingAppearance,
   );
-};
 
 export const toFormColors = (
-  brandingAppearance?: BrandingAppearance | null | undefined,
-): Colors => {
-  return toColors(
+  brandingAppearance?: BrandingAppearance | null,
+): Colors =>
+  toColors(
     FormColorsToBrandingAppearanceMapping,
     DEFAULT_FORM_COLORS,
     brandingAppearance,
   );
-};
 
 export const toPageColors = (
-  brandingAppearance?: BrandingAppearance | null | undefined,
-): Colors => {
-  return toColors(
+  brandingAppearance?: BrandingAppearance | null,
+): Colors =>
+  toColors(
     PageColorsToBrandingAppearanceMapping,
     DEFAULT_PAGE_COLORS,
     brandingAppearance,
   );
-};
 
 export const toShape = (
-  brandingAppearance?: BrandingAppearance | null | undefined,
+  brandingAppearance?: BrandingAppearance | null,
 ): Shape => {
   if (!brandingAppearance) {
     return DefaultShape;
@@ -362,8 +355,8 @@ export const toTextStyleVar = (
   prefix: string = "",
   textStyles: TextStyles,
   brand_font_config: BrandFontConfig | null | undefined,
-) => {
-  return Object.entries(textStyles)
+) =>
+  Object.entries(textStyles)
     .flatMap(([key, { desktop, mobile }]) => {
       const desktopFontStyle = `normal normal ${desktop.fontWeight} ${desktop.fontSize}/${desktop.lineHeight} ${DEFAULT_FONT_FAMILY}`;
       const mobileFontStyle = `normal normal ${mobile.fontWeight} ${mobile.fontSize}/${mobile.lineHeight} ${DEFAULT_FONT_FAMILY}`;
@@ -380,7 +373,6 @@ export const toTextStyleVar = (
       ];
     })
     .join("; ");
-};
 
 /**
  * Generates CSS variables for the spacing system.

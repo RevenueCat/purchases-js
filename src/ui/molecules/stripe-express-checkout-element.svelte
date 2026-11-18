@@ -96,13 +96,12 @@
 
   const onConfirmCallback = async (
     event: StripeExpressCheckoutElementConfirmEvent,
-  ) => {
-    return onSubmit(
+  ) =>
+    onSubmit(
       event.expressPaymentType,
       event.billingDetails?.email ?? "",
       event,
     );
-  };
 
   const onReadyCallback = async (
     event: StripeExpressCheckoutElementReadyEvent,

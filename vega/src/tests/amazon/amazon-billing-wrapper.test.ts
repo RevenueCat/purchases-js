@@ -63,7 +63,7 @@ type ReactNativeAppState = Pick<
 >;
 const { nativeAppState } = vi.hoisted(() => ({
   nativeAppState: {
-    currentState: "active" as string | null,
+    currentState: "active",
     addEventListener: vi.fn(),
   },
 }));
@@ -119,7 +119,7 @@ async function getProducts(
   productIds = ["product-id"],
 ) {
   getProductData.mockResolvedValue(response);
-  return await new AmazonBillingWrapper(
+  return new AmazonBillingWrapper(
     {} as Backend,
     amazonApiKey,
     getNoAppUserId,

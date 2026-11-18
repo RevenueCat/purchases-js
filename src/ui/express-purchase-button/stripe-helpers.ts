@@ -7,11 +7,13 @@ import {
   type SubscriptionOption,
 } from "../../entities/offerings";
 import type { Translator } from "../localization/translator";
-import type { GatewayParams } from "../../networking/responses/stripe-elements";
+import type {
+  GatewayParams,
+  StripeElementsConfiguration,
+} from "../../networking/responses/stripe-elements";
 import { StripeService } from "../../stripe/stripe-service";
 import { resolveDiscountBreakdownForPurchaseOption } from "../../helpers/discount-breakdown-helper";
 import type { StripeElements } from "@stripe/stripe-js";
-import type { StripeElementsConfiguration } from "../../networking/responses/stripe-elements";
 import { DEFAULT_FONT_FAMILY } from "../theme/text";
 import { getInitialPriceFromPurchaseOption } from "../../helpers/purchase-option-price-helper";
 import { type PriceBreakdown } from "../ui-types";

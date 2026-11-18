@@ -5,9 +5,8 @@
   import type { SubscriptionOption } from "../../entities/offerings";
   import { PeriodUnit } from "../../helpers/duration-helper";
   import SecureCheckoutRC from "../../ui/molecules/secure-checkout-rc.svelte";
-  import { brandingInfo } from "../fixtures";
-  import { getPriceBreakdownTaxExclusive } from "../helpers/get-price-breakdown";
   import {
+    brandingInfo,
     subscriptionOptionWithTrial,
     subscriptionOption,
     nonSubscriptionOption,
@@ -20,6 +19,7 @@
     subscriptionOptionWithDiscountForever,
     subscriptionOptionWithDiscountOneTime,
   } from "../fixtures";
+  import { getPriceBreakdownTaxExclusive } from "../helpers/get-price-breakdown";
 
   const subscriptionOptionWithShortWindowDiscount = {
     ...subscriptionOption,

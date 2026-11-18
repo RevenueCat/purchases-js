@@ -551,13 +551,13 @@ describe("product change checkout networking", () => {
 
   const eventsTrackerMock = {
     getTraceId: () => "trace-abc",
-    updateUser: () => Promise.resolve(),
+    updateUser: async () => Promise.resolve(),
     trackSDKEvent: () => {},
     trackExternalEvent: () => {},
     trackPaywallEvent: () => {},
     trackCustomPaywallImpression: () => {},
     dispose: () => {},
-    flushAllEvents: () => Promise.resolve(),
+    flushAllEvents: async () => Promise.resolve(),
   } as unknown as IEventsTracker;
 
   test("start with subscriber token uses the customer route with the token in Authorization", async () => {

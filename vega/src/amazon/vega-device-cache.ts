@@ -89,7 +89,7 @@ export class VegaDeviceCache {
         KEPLER_FILE_SYSTEM_EXISTS_MIN_VERSION,
       )
     ) {
-      return await fileSystem.exists(this.tokensCachePath);
+      return fileSystem.exists(this.tokensCachePath);
     }
 
     try {

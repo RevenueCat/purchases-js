@@ -120,7 +120,7 @@ function throwUnknownError(
     ErrorCode.UnknownBackendError,
     `Unknown backend error.`,
     `Request: ${endpoint.name}. Status code: ${statusCode}. Body: ${errorBody}.`,
-    { statusCode: statusCode, backendErrorCode: backendErrorCode },
+    { statusCode, backendErrorCode },
   );
 }
 

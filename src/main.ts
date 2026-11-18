@@ -91,11 +91,9 @@ import {
   type CompleteWorkflowNavigateArgs,
   type PresentPaywallParams,
 } from "./entities/present-paywall-params";
-import type {
-  ComponentInteractionData as UIComponentInteractionData,
-  WalletButtonRender,
-} from "@revenuecat/purchases-ui-js";
 import {
+  type ComponentInteractionData as UIComponentInteractionData,
+  type WalletButtonRender,
   Paywall,
   type PaywallData,
   Workflow,
@@ -113,8 +111,8 @@ import {
 } from "./helpers/paywall-variables-helpers";
 import { Translator } from "./ui/localization/translator";
 import { englishLocale } from "./ui/localization/constants";
-import type { TrackEventProps } from "./behavioural-events/events-tracker";
 import EventsTracker, {
+  type TrackEventProps,
   type IEventsTracker,
 } from "./behavioural-events/events-tracker";
 import {
@@ -305,14 +303,16 @@ function stableSerialize(value: unknown): string {
   }
   if (value !== null && typeof value === "object") {
     const entries = Object.entries(value as Record<string, unknown>)
-      .filter(([, entryValue]) => {
-        return entryValue !== undefined && typeof entryValue !== "function";
-      })
+      .filter(
+        ([, entryValue]) =>
+          entryValue !== undefined && typeof entryValue !== "function",
+      )
       .sort(([left], [right]) => left.localeCompare(right));
     return `{${entries
-      .map(([key, entryValue]) => {
-        return `${JSON.stringify(key)}:${stableSerialize(entryValue)}`;
-      })
+      .map(
+        ([key, entryValue]) =>
+          `${JSON.stringify(key)}:${stableSerialize(entryValue)}`,
+      )
       .join(",")}}`;
   }
   return JSON.stringify(value);
@@ -628,9 +628,9 @@ export class Purchases {
       }
       config = {
         apiKey: configOrApiKey,
-        appUserId: appUserId,
-        httpConfig: httpConfig,
-        flags: flags,
+        appUserId,
+        httpConfig,
+        flags,
       };
     }
 
@@ -809,7 +809,7 @@ export class Purchases {
       silent: !this._flags.collectAnalyticsEvents,
       rcSource: this._flags.rcSource ?? null,
       workflowContext: this._context?.workflowContext,
-      trace_id: trace_id,
+      trace_id,
       httpConfig,
     });
     this.backend = new Backend(this._API_KEY, httpConfig, this._context);
@@ -893,7 +893,7 @@ export class Purchases {
       );
     }
 
-    const certainHTMLTarget = resolvedHTMLTarget as unknown as HTMLElement;
+    const certainHTMLTarget = resolvedHTMLTarget;
 
     const offering = paywallParams.offering
       ? // Fetch discounted products before building paywall prices and promo state.
@@ -1438,8 +1438,8 @@ export class Purchases {
         ? navigateToCustomCheckout
         : undefined;
 
-      const createPurchaseClickHandler = (checkoutLocale: string) => {
-        return (selectedPackageId: string) => {
+      const createPurchaseClickHandler =
+        (checkoutLocale: string) => (selectedPackageId: string) => {
           if (purchaseInFlight) {
             return;
           }
@@ -1457,7 +1457,6 @@ export class Purchases {
               purchaseInFlight = false;
             });
         };
-      };
 
       const walletButtonRender = this.getWalletButtonRender(
         offering,
@@ -1577,7 +1576,7 @@ export class Purchases {
             rcSource: this.getSupportedRCSource(),
             onCustomWebCheckout,
             onCompleteWorkflowNavigate,
-            onVisitCustomerCenterClicked: onVisitCustomerCenterClicked,
+            onVisitCustomerCenterClicked,
             uiConfig: offering.uiConfig!,
             onBackClicked: () => {
               if (paywallParams.onBack) {
@@ -1589,7 +1588,7 @@ export class Purchases {
               // closing the current purchase and emptying the paywall.
               closePaywall();
             },
-            onRestorePurchasesClicked: onRestorePurchasesClicked,
+            onRestorePurchasesClicked,
             onPurchaseClicked: createPurchaseClickHandler(finalLocale),
             onError: (err: unknown) => {
               unmountPaywall();
@@ -1780,7 +1779,7 @@ export class Purchases {
 
     const existingRequest = this.offeringsRequests.get(appUserId);
     if (existingRequest !== undefined) {
-      return await existingRequest;
+      return existingRequest;
     }
 
     const request = this.backend
@@ -1806,7 +1805,7 @@ export class Purchases {
       });
 
     this.offeringsRequests.set(appUserId, request);
-    return await request;
+    return request;
   }
 
   private clearOfferingsCache(appUserId?: string): void {
@@ -1978,7 +1977,7 @@ export class Purchases {
 
     const existingPreparation = this.stripeBillingQuickPurchasePreparation;
     if (existingPreparation?.key === context.key) {
-      return await existingPreparation.promise;
+      return existingPreparation.promise;
     }
 
     this.stripeBillingQuickPurchaseState = null;
@@ -2013,7 +2012,7 @@ export class Purchases {
       key: context.key,
       promise,
     };
-    return await promise;
+    return promise;
   }
 
   /** @internal */
@@ -2029,7 +2028,7 @@ export class Purchases {
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
       : {};
-    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+    const metadata = { ...utmParamsMetadata, ...params.metadata };
     let startResponse: StripeBillingApplePayCheckoutStartResponse;
     try {
       startResponse = await operationHelper.checkoutStart({
@@ -2177,7 +2176,7 @@ export class Purchases {
    * @returns a Promise for the customer info after the purchase is completed successfully.
    * @throws {@link PurchasesError} if there is an error while performing the purchase. If the {@link PurchasesError.errorCode} is {@link ErrorCode.UserCancelledError}, the user cancelled the purchase.
    */
-  public purchasePackage(
+  public async purchasePackage(
     rcPackage: Package,
     customerEmail?: string,
     htmlTarget?: HTMLElement,
@@ -2229,7 +2228,7 @@ export class Purchases {
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
       : {};
-    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+    const metadata = { ...utmParamsMetadata, ...params.metadata };
 
     const translator = new Translator({}, selectedLocale, defaultLocale);
 
@@ -2281,7 +2280,7 @@ export class Purchases {
         brandingInfo: this._brandingInfo,
         purchaseOperationHelper: this.purchaseOperationHelper,
         externalPurchaseTokenId,
-        metadata: metadata,
+        metadata,
         customTranslations: params.labelsOverride,
         translator,
         onFinished,
@@ -2333,7 +2332,7 @@ export class Purchases {
       let buttonUpdater: ExpressPurchaseButtonUpdater | null = null;
       this.presentExpressPurchaseButton({
         rcPackage: pkg,
-        customerEmail: customerEmail,
+        customerEmail,
         htmlTarget: element,
         metadata,
         externalPurchaseTokenId,
@@ -2399,7 +2398,7 @@ export class Purchases {
           params.externalCheckoutUrl ?? this._externalCheckoutUrl,
         externalCheckoutReturnUrl:
           params.externalCheckoutReturnUrl ?? this._externalCheckoutReturnUrl,
-        metadata: { ...utmParamsMetadata, ...(params.metadata || {}) },
+        metadata: { ...utmParamsMetadata, ...params.metadata },
       });
     }
     if (params.tryWithApplePay) {
@@ -2484,7 +2483,7 @@ export class Purchases {
               `Apple Pay fallback analytics failed: ${String(error)}`,
             );
           }
-          return await this.purchaseAfterLoadingResources({
+          return this.purchaseAfterLoadingResources({
             ...params,
             tryWithApplePay: false,
           });
@@ -2561,18 +2560,12 @@ export class Purchases {
 
     const isPaddle = isPaddleApiKey(this._API_KEY);
     if (isPaddle) {
-      return await this.performPaddlePurchase(
-        effectiveParams,
-        effectiveBrandingInfo,
-      );
+      return this.performPaddlePurchase(effectiveParams, effectiveBrandingInfo);
     }
 
     const isStripe = isStripeApiKey(this._API_KEY);
     if (isStripe) {
-      return await this.performStripePurchase(
-        effectiveParams,
-        effectiveBrandingInfo,
-      );
+      return this.performStripePurchase(effectiveParams, effectiveBrandingInfo);
     }
 
     const isAmazon = isAmazonApiKey(this._API_KEY);
@@ -2585,7 +2578,7 @@ export class Purchases {
       return purchaseResult;
     }
 
-    return await this.performWebBillingPurchase(
+    return this.performWebBillingPurchase(
       effectiveParams,
       effectiveBrandingInfo,
     );
@@ -2635,7 +2628,7 @@ export class Purchases {
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
       : {};
-    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+    const metadata = { ...utmParamsMetadata, ...params.metadata };
 
     let component: ReturnType<typeof mount> | null = null;
 
@@ -2701,7 +2694,7 @@ export class Purchases {
       component = mount(StripeCheckoutPurchasesUi, {
         target: certainHTMLTarget,
         props: {
-          isInElement: isInElement,
+          isInElement,
           isSandbox: this.isSandbox(),
           appUserId,
           rcPackage,
@@ -2722,7 +2715,7 @@ export class Purchases {
           purchaseOperationHelper: this.purchaseOperationHelper,
           externalPurchaseTokenId,
           selectedLocale: localeToBeUsed,
-          metadata: metadata,
+          metadata,
           defaultLocale,
           customTranslations: params.labelsOverride,
           skipSuccessPage,
@@ -2777,7 +2770,7 @@ export class Purchases {
     const utmParamsMetadata = this._flags.autoCollectUTMAsMetadata
       ? autoParseUTMParams()
       : {};
-    const metadata = { ...utmParamsMetadata, ...(params.metadata || {}) };
+    const metadata = { ...utmParamsMetadata, ...params.metadata };
 
     let component: ReturnType<typeof mount> | null = null;
 
@@ -2848,7 +2841,7 @@ export class Purchases {
       component = mount(PurchasesUi, {
         target: certainHTMLTarget,
         props: {
-          isInElement: isInElement,
+          isInElement,
           appUserId,
           rcPackage,
           purchaseOption: purchaseOptionToUse,
@@ -2869,7 +2862,7 @@ export class Purchases {
           purchaseOperationHelper: this.purchaseOperationHelper,
           externalPurchaseTokenId,
           selectedLocale: localeToBeUsed,
-          metadata: metadata,
+          metadata,
           defaultLocale,
           customTranslations: params.labelsOverride,
           termsAndConditionsUrl,
@@ -2918,7 +2911,7 @@ export class Purchases {
     const metadata = {
       source: "paddle",
       ...utmParamsMetadata,
-      ...(params.metadata || {}),
+      ...params.metadata,
     };
 
     const event = createCheckoutSessionStartEvent({
@@ -3163,7 +3156,7 @@ export class Purchases {
    * @throws {@link PurchasesError} if there is an error while fetching the customer info.
    */
   public async getCustomerInfo(): Promise<CustomerInfo> {
-    return await this._getCustomerInfoForUserId(this._appUserId);
+    return this._getCustomerInfoForUserId(this._appUserId);
   }
 
   /**
@@ -3207,7 +3200,7 @@ export class Purchases {
     await this.replaceUserId(newAppUserId);
     // TODO: Cancel all pending requests if any.
     // TODO: What happens with a possibly initialized purchase?
-    return await this.getCustomerInfo();
+    return this.getCustomerInfo();
   }
 
   /**
@@ -3357,7 +3350,7 @@ export class Purchases {
    * @returns {Promise<VirtualCurrencies>} A VirtualCurrencies object containing the subscriber's virtual currencies.
    */
   public async getVirtualCurrencies(): Promise<VirtualCurrencies> {
-    return await this._getVirtualCurrenciesForUserId(this._appUserId);
+    return this._getVirtualCurrenciesForUserId(this._appUserId);
   }
 
   /**
@@ -3476,7 +3469,7 @@ export class Purchases {
    * @returns Promise that resolves when all events have been flushed or an error occurs
    * @internal
    */
-  public _flushAllEvents(): Promise<void> {
+  public async _flushAllEvents(): Promise<void> {
     return this.eventsTracker.flushAllEvents();
   }
 

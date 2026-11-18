@@ -43,7 +43,7 @@ function buildResponse({
   billingCycle = {
     interval: "month",
     frequency: 1,
-  } as LineItem["price"]["billingCycle"],
+  },
 }: {
   currencyCode?: string;
   subtotal?: string;
@@ -129,7 +129,7 @@ describe("toDiscountPhaseFromPricePreview", () => {
             ...baseDiscount,
             type: "flat",
             amount: "100",
-            currencyCode: "USD" as Discount["currencyCode"],
+            currencyCode: "USD",
             recur: true,
             maximumRecurringIntervals: 3,
           },
@@ -224,7 +224,7 @@ describe("toDiscountPhaseFromPricePreview", () => {
             ...baseDiscount,
             type: "flat",
             amount: "1000",
-            currencyCode: "USD" as Discount["currencyCode"],
+            currencyCode: "USD",
           },
           total: "1000",
           formattedTotal: "$10.00",

@@ -254,10 +254,7 @@ export class PurchaseOperationHelper {
     purchaseOption: PurchaseOption,
   ): Promise<CheckoutPrepareResponse> {
     try {
-      return await this.backend.postCheckoutPrepare<CheckoutPrepareResponse>(
-        productId,
-        purchaseOption,
-      );
+      return await this.backend.postCheckoutPrepare(productId, purchaseOption);
     } catch (error) {
       if (error instanceof PurchasesError) {
         throw PurchaseFlowError.fromPurchasesError(
@@ -549,10 +546,9 @@ export class PurchaseOperationHelper {
             switch (operationResponse.operation.status) {
               case CheckoutSessionStatus.Started:
               case CheckoutSessionStatus.InProgress:
-                setTimeout(
-                  () => checkForOperationStatus(checkCount + 1),
-                  this.waitMSBetweenAttempts,
-                );
+                setTimeout(() => {
+                  checkForOperationStatus(checkCount + 1);
+                }, this.waitMSBetweenAttempts);
                 break;
               case CheckoutSessionStatus.Succeeded: {
                 const customerEmail = this.completedCustomerEmail;
@@ -572,10 +568,10 @@ export class PurchaseOperationHelper {
                 }
                 resolve({
                   redemptionInfo: toRedemptionInfo(operationResponse),
-                  operationSessionId: operationSessionId,
-                  storeTransactionIdentifier: storeTransactionIdentifier,
-                  productIdentifier: productIdentifier,
-                  purchaseDate: purchaseDate,
+                  operationSessionId,
+                  storeTransactionIdentifier,
+                  productIdentifier,
+                  purchaseDate,
                   attributionMetadata:
                     operationResponse.attribution_metadata ?? undefined,
                   customerEmail,

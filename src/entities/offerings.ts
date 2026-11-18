@@ -541,8 +541,8 @@ export const getPriceForCurrency = (
   currency: string,
 ): Price => ({
   amount: amountMicros / 10000,
-  amountMicros: amountMicros,
-  currency: currency,
+  amountMicros,
+  currency,
   formattedPrice: formatPrice(amountMicros, currency),
 });
 
@@ -597,13 +597,13 @@ const toPricingPhase = (optionPhase: PricingPhaseResponse): PricingPhase => {
   }
 
   return {
-    periodDuration: periodDuration,
-    period: period,
+    periodDuration,
+    period,
     cycleCount: optionPhase.cycle_count,
-    price: price,
-    pricePerWeek: pricePerWeek,
-    pricePerMonth: pricePerMonth,
-    pricePerYear: pricePerYear,
+    price,
+    pricePerWeek,
+    pricePerMonth,
+    pricePerYear,
   };
 };
 
@@ -635,12 +635,12 @@ const toDiscountPhase = (
 
   return {
     timeWindow: optionPhase.time_window,
-    durationMode: durationMode,
+    durationMode,
     price: getPriceForCurrency(optionPhase.amount_micros, optionPhase.currency),
     name: optionPhase.name,
-    period: period,
+    period,
     cycleCount: cycleCount ?? 0,
-    periodDuration: periodDuration,
+    periodDuration,
     discountType: optionPhase.discount_type,
     percentage: optionPhase.percentage ?? null,
     fixedAmount:
@@ -773,11 +773,11 @@ const toNonSubscriptionProduct = (
     displayName: productDetailsData.title,
     title: productDetailsData.title,
     description: productDetailsData.description,
-    productType: productType,
+    productType,
     currentPrice: defaultOption.basePrice,
     normalPeriodDuration: null,
     presentedOfferingIdentifier: presentedOfferingContext.offeringIdentifier,
-    presentedOfferingContext: presentedOfferingContext,
+    presentedOfferingContext,
     defaultPurchaseOption: defaultOption,
     defaultSubscriptionOption: null,
     subscriptionOptions: {},
@@ -837,14 +837,14 @@ const toSubscriptionProduct = (
     displayName: productDetailsData.title,
     title: productDetailsData.title,
     description: productDetailsData.description,
-    productType: productType,
-    currentPrice: currentPrice,
+    productType,
+    currentPrice,
     normalPeriodDuration: defaultOption.base.periodDuration,
     presentedOfferingIdentifier: presentedOfferingContext.offeringIdentifier,
-    presentedOfferingContext: presentedOfferingContext,
+    presentedOfferingContext,
     defaultPurchaseOption: defaultOption,
     defaultSubscriptionOption: defaultOption,
-    subscriptionOptions: subscriptionOptions,
+    subscriptionOptions,
     defaultNonSubscriptionOption: null,
     price: currentPrice,
     period: defaultOption.base.period,
@@ -869,7 +869,7 @@ const toPackage = (
     identifier: packageData.identifier,
     rcBillingProduct: product,
     webBillingProduct: product,
-    product: product,
+    product,
     ...(packageData.web_checkout_url
       ? { webCheckoutURL: packageData.web_checkout_url }
       : {}),
@@ -903,7 +903,7 @@ export const toOffering = (
   const packagesById: { [packageId: string]: Package } = {};
   for (const p of packages) {
     if (p != null) {
-      packagesById[p.identifier] = p as Package;
+      packagesById[p.identifier] = p;
     }
   }
   if (packages.length == 0) return null;
@@ -915,8 +915,8 @@ export const toOffering = (
     ...(offeringsData.web_checkout_url
       ? { webCheckoutURL: offeringsData.web_checkout_url }
       : {}),
-    packagesById: packagesById,
-    availablePackages: packages as Package[],
+    packagesById,
+    availablePackages: packages,
     lifetime: packagesById[PackageType.Lifetime] ?? null,
     annual: packagesById[PackageType.Annual] ?? null,
     sixMonth: packagesById[PackageType.SixMonth] ?? null,
