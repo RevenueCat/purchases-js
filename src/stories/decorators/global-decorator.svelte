@@ -1,4 +1,4 @@
-<script module>
+<script lang="ts" module>
   import { Translator } from "../../ui/localization/translator";
   import { translatorContextKey } from "../../ui/localization/constants";
   import { eventsTrackerContextKey } from "../../ui/constants";

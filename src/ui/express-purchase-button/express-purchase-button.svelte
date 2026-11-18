@@ -369,7 +369,7 @@
     const anyWalletAvailable =
       event.availablePaymentMethods?.applePay ||
       event.availablePaymentMethods?.googlePay;
-    onReady && onReady(!!anyWalletAvailable);
+    onReady?.(!!anyWalletAvailable);
   }
 </script>
 

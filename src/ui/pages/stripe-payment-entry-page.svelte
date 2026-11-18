@@ -172,7 +172,7 @@
     appliedDiscounts,
   });
 
-  let elementsConfiguration: StripeElementsConfiguration | undefined = $state(
+  let elementsConfiguration: StripeElementsConfiguration | undefined = $derived(
     gatewayParams.elements_configuration,
   );
 
@@ -313,10 +313,6 @@
     }
 
     applyLocalPriceBreakdown(defaultPriceBreakdown);
-  });
-
-  $effect(() => {
-    elementsConfiguration = gatewayParams.elements_configuration;
   });
 
   $effect(() => {
@@ -797,6 +793,7 @@
     eventsTracker.trackSDKEvent(event);
 
     if (error.code === StripeServiceErrorCode.HandledFormError) {
+      // Stripe displays these errors inline in the form
     } else if (error.code === StripeServiceErrorCode.ConfirmationTokenError) {
       const localizationKey =
         error.gatewayErrorCode === "card_declined" &&

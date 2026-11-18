@@ -68,7 +68,7 @@
   const expressCheckoutElementId = `express-checkout-element-${generateUUID()}`;
 
   const onCancelCallback = async () => {
-    onCancel && onCancel();
+    onCancel?.();
   };
 
   const onClickCallback = async (
@@ -78,7 +78,7 @@
       return;
     }
     const { business: _business, ...options } = expressCheckoutOptions ?? {};
-    onClick && onClick(event);
+    onClick?.(event);
     event.resolve(options as ClickResolveDetails);
   };
 
@@ -109,7 +109,7 @@
   ) => {
     expressCheckoutElementReady = true;
     hideExpressCheckoutElement = !event.availablePaymentMethods;
-    onReady && onReady(event);
+    onReady?.(event);
   };
 
   onMount(() => {

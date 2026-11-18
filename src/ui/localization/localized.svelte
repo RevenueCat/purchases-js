@@ -4,7 +4,7 @@
     type TranslationVariables,
     Translator,
   } from "./translator";
-  import { getContext } from "svelte";
+  import { getContext, type Snippet } from "svelte";
   import { translatorContextKey } from "./constants";
 
   import { LocalizationKeys } from "./supportedLanguages";
@@ -13,7 +13,7 @@
   interface LocalizedProps {
     key?: LocalizationKeys | EmptyString | undefined;
     variables?: TranslationVariables;
-    children?: any;
+    children?: Snippet;
   }
 
   const { key = "", variables, children }: LocalizedProps = $props();

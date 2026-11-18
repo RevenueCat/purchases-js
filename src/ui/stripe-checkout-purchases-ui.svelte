@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { getDocument } from "../helpers/browser-globals";
   import { onMount, setContext, onDestroy } from "svelte";
   import { type BrandingInfoResponse } from "../networking/responses/branding-response";
   import { translatorContextKey } from "./localization/constants";
@@ -200,13 +201,13 @@
 
   onMount(async () => {
     if (!isInElement) {
-      originalHtmlHeight = document.documentElement.style.height;
-      originalHtmlOverflow = document.documentElement.style.overflow;
-      originalBodyHeight = document.body.style.height;
+      originalHtmlHeight = getDocument().documentElement.style.height;
+      originalHtmlOverflow = getDocument().documentElement.style.overflow;
+      originalBodyHeight = getDocument().body.style.height;
 
-      document.documentElement.style.height = "100%";
-      document.body.style.height = "100%";
-      document.documentElement.style.overflow = "hidden";
+      getDocument().documentElement.style.height = "100%";
+      getDocument().body.style.height = "100%";
+      getDocument().documentElement.style.overflow = "hidden";
     }
 
     const productId = productDetails.identifier;
@@ -287,14 +288,20 @@
         property: string,
         value: string | null,
       ) => {
-        value === ""
-          ? element.style.removeProperty(property)
-          : element.style.setProperty(property, value);
+        if (value === "") {
+          element.style.removeProperty(property);
+        } else {
+          element.style.setProperty(property, value);
+        }
       };
 
-      restoreStyle(document.documentElement, "height", originalHtmlHeight);
-      restoreStyle(document.body, "height", originalBodyHeight);
-      restoreStyle(document.documentElement, "overflow", originalHtmlOverflow);
+      restoreStyle(getDocument().documentElement, "height", originalHtmlHeight);
+      restoreStyle(getDocument().body, "height", originalBodyHeight);
+      restoreStyle(
+        getDocument().documentElement,
+        "overflow",
+        originalHtmlOverflow,
+      );
     }
   });
 </script>

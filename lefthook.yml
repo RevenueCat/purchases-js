@@ -1,0 +1,15 @@
+# https://lefthook.dev/configuration/
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: typecheck
+      run: pnpm run typecheck
+    - name: oxfmt
+      glob: "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,svelte,html,css,json,jsonc,md,yml,yaml}"
+      run: pnpm exec oxfmt --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+    - name: oxlint
+      glob: "*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,svelte}"
+      run: pnpm exec oxlint --fix --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true

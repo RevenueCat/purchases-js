@@ -54,8 +54,7 @@ export interface MinimumNonSubscriptionProductInfo {
   productType?: ProductType.Consumable | ProductType.NonConsumable;
 }
 
-export interface MinimumNonSubscriptionPackageInfo
-  extends MinimumNonSubscriptionProductInfo {
+export interface MinimumNonSubscriptionPackageInfo extends MinimumNonSubscriptionProductInfo {
   packageIdentifier: string;
 }
 

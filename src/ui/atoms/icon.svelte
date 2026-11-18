@@ -27,15 +27,18 @@
     | "close"
     | "warning";
 
-  const iconMap: Record<IconName, Component<{ direction?: Direction } | {}>> = {
-    cart: IconCart as Component<{}>,
-    error: IconError as Component<{}>,
-    lock: IconLock as Component<{}>,
-    success: IconSuccess as Component<{}>,
+  const iconMap: Record<
+    IconName,
+    Component<{ direction?: Direction } | object>
+  > = {
+    cart: IconCart as Component<object>,
+    error: IconError as Component<object>,
+    lock: IconLock as Component<object>,
+    success: IconSuccess as Component<object>,
     back: IconBack,
-    info: IconInfo as Component<{}>,
+    info: IconInfo as Component<object>,
     close: IconClose,
-    warning: IconWarning as Component<{}>,
+    warning: IconWarning as Component<object>,
     "chevron-left": IconChevron as Component<{ direction?: Direction }>,
     "chevron-right": IconChevron as Component<{ direction?: Direction }>,
     "chevron-up": IconChevron as Component<{ direction?: Direction }>,
