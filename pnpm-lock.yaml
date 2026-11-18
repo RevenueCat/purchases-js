@@ -221,8 +221,8 @@ importers:
         specifier: ^6.21.0
         version: 6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.8.2))(eslint@8.57.1(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.8.2)
       chromatic:
-        specifier: ^11.20.0
-        version: 11.22.0
+        specifier: ^18.14.5
+        version: 18.14.5
       eslint:
         specifier: ^8.57.1
         version: 8.57.1(supports-color@8.1.1)
@@ -2797,16 +2797,20 @@ packages:
     resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
     engines: {node: '>= 14.16.0'}
 
-  chromatic@11.22.0:
-    resolution: {integrity: sha512-u1kAPR9lj9aFzsCp0iWPXBbsKgcxFU7iJO6mFbgNHGVg+YPBqiJMuvgB8EQHdNbHjk5amFnGnIz/Ww8fK3t9Hw==}
+  chromatic@18.14.5:
+    resolution: {integrity: sha512-FKSNgph3UnlQ9adzpENaHzPsxOfaVFdurvudxoEVwXOWGHRZ58l4h5cfXMGXF5GzxmiJ08nK4cqYxjna2Eqe7w==}
+    engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
       '@chromatic-com/cypress': ^0.*.* || ^1.0.0
       '@chromatic-com/playwright': ^0.*.* || ^1.0.0
+      '@chromatic-com/vitest': ^0.*.* || ^1.0.0
     peerDependenciesMeta:
       '@chromatic-com/cypress':
         optional: true
       '@chromatic-com/playwright':
+        optional: true
+      '@chromatic-com/vitest':
         optional: true
 
   chrome-launcher@0.15.2:
@@ -9336,7 +9340,9 @@ snapshots:
     dependencies:
       readdirp: 4.0.2
 
-  chromatic@11.22.0: {}
+  chromatic@18.14.5:
+    dependencies:
+      semver: 7.8.5
 
   chrome-launcher@0.15.2(supports-color@8.1.1):
     dependencies:

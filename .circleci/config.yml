@@ -233,8 +233,7 @@ jobs:
                 --ci \
                 --only-changed \
                 --exit-once-uploaded \
-                --branch-name ${CIRCLE_BRANCH} \
-                --patch-build=${CIRCLE_BRANCH}...main
+                --branch-name ${CIRCLE_BRANCH}
             else
               NODE_OPTIONS=--max-old-space-size=4096 npx chromatic \
                 --auto-accept-changes \
