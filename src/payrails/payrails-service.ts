@@ -38,12 +38,15 @@ function createPayrailsDropinOptions(
       cards: {
         showSingleExpiryDateField: true,
         alwaysStoreInstrument,
+        showStoreInstrumentCheckbox: !alwaysStoreInstrument,
       },
       googlePay: {
         alwaysStoreInstrument,
+        showStoreInstrumentCheckbox: !alwaysStoreInstrument,
       },
       applePay: {
         alwaysStoreInstrument,
+        showStoreInstrumentCheckbox: !alwaysStoreInstrument,
       },
     },
   };

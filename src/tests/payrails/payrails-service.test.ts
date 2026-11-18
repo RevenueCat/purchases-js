@@ -95,12 +95,15 @@ describe("PayrailsService", () => {
         cards: {
           showSingleExpiryDateField: true,
           alwaysStoreInstrument: false,
+          showStoreInstrumentCheckbox: true,
         },
         googlePay: {
           alwaysStoreInstrument: false,
+          showStoreInstrumentCheckbox: true,
         },
         applePay: {
           alwaysStoreInstrument: false,
+          showStoreInstrumentCheckbox: true,
         },
       },
     });

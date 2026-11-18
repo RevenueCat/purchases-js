@@ -9,7 +9,6 @@ export interface PayrailsInitPayload {
 
 /**
  * Payrails parameters on a checkout start response.
- * `always_store_instrument` is applied as `alwaysStoreInstrument` on the drop-in.
  */
 export interface PayrailsGatewayParams {
   always_store_instrument: boolean;
