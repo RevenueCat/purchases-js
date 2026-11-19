@@ -1,6 +1,9 @@
+## RevenueCat SDK
+### ✨ New Features
+* [WST-1200] Resume External purchases from checkout tokens via Nicola Sacco (@nicfix)
+### 📦 Dependency Updates
+* [AUTOMATIC] purchases-ui-js 4.19.2 => 4.20.1 via RevenueCat Git Bot (@RCGitBot)
+
 ### 🔄 Other Changes
-* feat(payrails): show store instrument checkbox when `alwaysStoreInstrument` is `false` via Víctor Ferrer García (@vicfergar)
-* refactor: use type only imports, verbatimModuleSyntax via Nihal Gonsalves (@nihalgonsalves)
-* style: use shared RevenueCat/esconfig via Nihal Gonsalves (@nihalgonsalves)
-* devex: use oxlint/oxfmt/lefthook instead of eslint/prettier/husky via Nihal Gonsalves (@nihalgonsalves)
-* chore: bump chromatic to 18.14.5 via Álvaro Brey (@AlvaroBrey)
+* style: apply more oxlint fixes via Nihal Gonsalves (@nihalgonsalves)
+* feat(payrails): enable checkout now that the SDK import is safe via Víctor Ferrer García (@vicfergar)
