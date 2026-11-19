@@ -1,32 +1,12 @@
-import type {
-  DropinOptions,
-  PaymentFailedEvent,
-  Payrails as PayrailsClient,
+import {
+  Payrails,
+  type DropinOptions,
+  type PaymentFailedEvent,
+  type Payrails as PayrailsClient,
 } from "@payrails/web-sdk";
-import type * as PayrailsSdk from "@payrails/web-sdk";
 import type { BrandingAppearance } from "../entities/branding";
 import type { PayrailsGatewayParams } from "../networking/responses/payrails-gateway-params";
-import { PAYRAILS_CHECKOUT_ENABLED } from "../helpers/constants";
 import { toPayrailsDropinAppearance } from "../ui/theme/payrails-dropin";
-
-let payrailsSdk: Promise<typeof PayrailsSdk> | null = null;
-
-/**
- * The Payrails SDK attaches a window message listener as soon as it is
- * evaluated, which crashes in environments with a partial `window` such as
- * React Native. Importing it lazily keeps it out of the main bundle, and the
- * flag check lets builds without Payrails drop it entirely.
- */
-export async function loadPayrailsSdk(): Promise<typeof PayrailsSdk> {
-  if (!PAYRAILS_CHECKOUT_ENABLED) {
-    return Promise.reject(new Error("Payrails checkout is not enabled"));
-  }
-  payrailsSdk ??= import("@payrails/web-sdk").catch((error: unknown) => {
-    payrailsSdk = null;
-    throw error;
-  });
-  return payrailsSdk;
-}
 
 function createPayrailsDropinOptions(
   alwaysStoreInstrument: boolean,
@@ -77,11 +57,6 @@ export class PayrailsService {
   ): Promise<void> {
     const generation = ++this.generation;
     this.detach();
-
-    const { Payrails } = await loadPayrailsSdk();
-    if (generation !== this.generation) {
-      return;
-    }
 
     const client: PayrailsClient = await Payrails.init(
       gatewayParams.init_payload,

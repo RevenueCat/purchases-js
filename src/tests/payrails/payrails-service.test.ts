@@ -4,7 +4,6 @@ import type { PaymentFailedEvent } from "@payrails/web-sdk";
 import { PayrailsService } from "../../payrails/payrails-service";
 import { isPayrailsCheckoutStartResponse } from "../../networking/responses/checkout-start-response";
 import type { PayrailsGatewayParams } from "../../networking/responses/payrails-gateway-params";
-import type * as SdkConstants from "../../helpers/constants";
 import { DEFAULT_BRANDING_APPEARANCE } from "../../entities/branding";
 import { toPayrailsDropinAppearance } from "../../ui/theme/payrails-dropin";
 
@@ -13,10 +12,6 @@ vi.mock("@payrails/web-sdk", () => ({
     init: vi.fn(),
   },
 }));
-vi.mock("../../helpers/constants", async (importOriginal) => {
-  const actual = await importOriginal<typeof SdkConstants>();
-  return { ...actual, PAYRAILS_CHECKOUT_ENABLED: true };
-});
 
 const gatewayParams: PayrailsGatewayParams = {
   always_store_instrument: false,

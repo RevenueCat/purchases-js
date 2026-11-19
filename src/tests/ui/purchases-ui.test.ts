@@ -2,7 +2,6 @@ import "@testing-library/jest-dom";
 import { render, fireEvent, screen, waitFor } from "@testing-library/svelte";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { Payrails } from "@payrails/web-sdk";
-import type * as SdkConstants from "../../helpers/constants";
 
 vi.mock("@payrails/web-sdk", () => ({
   Payrails: {
@@ -10,10 +9,6 @@ vi.mock("@payrails/web-sdk", () => ({
   },
 }));
 
-vi.mock("../../helpers/constants", async (importOriginal) => {
-  const actual = await importOriginal<typeof SdkConstants>();
-  return { ...actual, PAYRAILS_CHECKOUT_ENABLED: true };
-});
 import PurchasesUI from "../../ui/purchases-ui.svelte";
 import {
   brandingInfo,

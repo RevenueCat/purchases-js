@@ -48,8 +48,6 @@
   import type { ProductChangeResult } from "../entities/product-change-params";
   import { validateEmail } from "../helpers/validators";
   import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
-  import { PAYRAILS_CHECKOUT_ENABLED } from "../helpers/constants";
-  import { loadPayrailsSdk } from "../payrails/payrails-service";
 
   interface Props {
     customerEmail: string | undefined;
@@ -399,13 +397,6 @@
       }
 
       if (isPayrailsCheckoutStartResponse(result)) {
-        if (!PAYRAILS_CHECKOUT_ENABLED) {
-          throw new PurchaseFlowError(
-            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
-            "This payment gateway requires a newer version of the SDK.",
-          );
-        }
-        loadPayrailsSdk().catch(() => {});
         payrailsGatewayParams = result.payrails_gateway_params;
       } else {
         payrailsGatewayParams = null;
