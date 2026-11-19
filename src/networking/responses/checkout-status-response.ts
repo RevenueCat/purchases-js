@@ -37,3 +37,7 @@ export interface CheckoutStatusResponse {
   readonly operation: CheckoutStatusInnerResponse;
   readonly attribution_metadata?: Record<string, unknown>;
 }
+
+export interface CheckoutResumeResponse extends CheckoutStatusResponse {
+  readonly operation_session_id: string;
+}

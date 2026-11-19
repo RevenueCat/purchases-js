@@ -12,6 +12,245 @@ import { http, HttpResponse } from "msw";
 import type * as BrowserGlobals from "../helpers/browser-globals";
 
 const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }));
+
+const operationSessionId = "rcbopsess_completed_external_checkout";
+const completedOperation = {
+  status: "succeeded",
+  is_expired: true,
+  product_identifier: "reported-product",
+  store_transaction_identifier: "transaction",
+  purchase_date: "2026-11-11T12:00:00Z",
+  redemption_info: { redeem_url: "https://redeem.example/token" },
+};
+
+test.each([
+  ["started", false, "pending"],
+  ["in_progress", true, "expired"],
+  ["failed", false, "failed"],
+])("resumes %s checkout as %s", async (status, isExpired, expected) => {
+  const getCustomerInfo = vi.fn(() => HttpResponse.json(customerInfoResponse));
+  server.use(
+    http.get("http://localhost:8000/v1/subscribers/:id", getCustomerInfo),
+    http.get(
+      "http://localhost:8000/rcbilling/v1/checkout/resume/:appUserId/:token",
+      ({ params }) => {
+        expect(params.appUserId).toBe("return-user");
+        return HttpResponse.json({
+          operation: { status, is_expired: isExpired },
+        });
+      },
+    ),
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "return-user",
+  });
+  expect(
+    (
+      await purchases.resumeExternalPurchase({
+        checkoutToken: "token",
+        waitTimeoutMs: 0,
+      })
+    ).status,
+  ).toBe(expected);
+  expect(getCustomerInfo).not.toHaveBeenCalled();
+});
+
+test("resumes a successful expired checkout with its reported product and redemption link", async () => {
+  const requests: string[] = [];
+  server.use(
+    http.get("http://localhost:8000/v1/subscribers/:id", ({ params }) => {
+      expect(params.id).toBe("return-user");
+      requests.push("customer-info");
+      return HttpResponse.json(customerInfoResponse);
+    }),
+    http.get(
+      "http://localhost:8000/rcbilling/v1/checkout/resume/:appUserId/:token",
+      ({ params }) => {
+        expect(params.token).toBe("opaque-checkout-token");
+        requests.push("operation");
+        return HttpResponse.json({
+          operation: completedOperation,
+          operation_session_id: operationSessionId,
+        });
+      },
+    ),
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "return-user",
+  });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const result = await purchases.resumeExternalPurchase({
+      checkoutToken: "opaque-checkout-token",
+      waitTimeoutMs: 0,
+    });
+    expect(result.status).toBe("completed");
+    if (result.status === "completed") {
+      expect(result.purchaseResult.operationSessionId).toBe(operationSessionId);
+      expect(result.purchaseResult.customerInfo.originalAppUserId).toBe(
+        customerInfoResponse.subscriber.original_app_user_id,
+      );
+      expect(result.purchaseResult.storeTransaction.productIdentifier).toBe(
+        "reported-product",
+      );
+      expect(result.purchaseResult.redemptionInfo?.redeemUrl).toBe(
+        "https://redeem.example/token",
+      );
+    }
+  }
+  expect(requests).toEqual([
+    "operation",
+    "customer-info",
+    "operation",
+    "customer-info",
+  ]);
+});
+
+test.each([
+  { during: "polling", status: "succeeded" },
+  { during: "polling", status: "started" },
+  { during: "customer-info", status: "succeeded" },
+])(
+  "rejects a customer change during $during for $status checkout",
+  async ({ during, status }) => {
+    let notifyRequestStarted!: () => void;
+    const requestStarted = new Promise<void>((resolve) => {
+      notifyRequestStarted = resolve;
+    });
+    let releaseRequest!: () => void;
+    const responseReady = new Promise<void>((resolve) => {
+      releaseRequest = resolve;
+    });
+    const customerInfoRequests: string[] = [];
+    server.use(
+      http.get(
+        "http://localhost:8000/rcbilling/v1/checkout/resume/:appUserId/:token",
+        async ({ params }) => {
+          expect(params.appUserId).toBe("return-user");
+          if (during === "polling") {
+            notifyRequestStarted();
+            await responseReady;
+          }
+          return HttpResponse.json({
+            operation: { ...completedOperation, status },
+            operation_session_id: operationSessionId,
+          });
+        },
+      ),
+      http.get(
+        "http://localhost:8000/v1/subscribers/:id",
+        async ({ params }) => {
+          const userId = String(params.id);
+          customerInfoRequests.push(userId);
+          if (during === "customer-info" && userId === "return-user") {
+            notifyRequestStarted();
+            await responseReady;
+          }
+          return HttpResponse.json(customerInfoResponse);
+        },
+      ),
+    );
+    const purchases = Purchases.configure({
+      apiKey: "ext_public_test",
+      appUserId: "return-user",
+    });
+    const result = purchases.resumeExternalPurchase({
+      checkoutToken: "token",
+      waitTimeoutMs: 0,
+    });
+    const rejected = expect(result).rejects.toMatchObject({
+      errorCode: ErrorCode.ConfigurationError,
+      message:
+        "The SDK customer changed while resuming checkout. Retry with the original customer.",
+    });
+    const settled = vi.fn();
+    void result.then(settled, settled);
+    await requestStarted;
+    await purchases.changeUser("other-user");
+    expect(settled).not.toHaveBeenCalled();
+    releaseRequest();
+    await rejected;
+    expect(purchases.getAppUserId()).toBe("other-user");
+    expect(
+      customerInfoRequests.filter((id) => id === "return-user"),
+    ).toHaveLength(during === "customer-info" ? 1 : 0);
+  },
+);
+
+test.each([
+  {
+    operation: { status: "succeeded", is_expired: false },
+    operation_session_id: operationSessionId,
+  },
+  { operation: completedOperation },
+])("rejects malformed successful checkout responses (%#)", async (response) => {
+  server.use(
+    http.get(
+      "http://localhost:8000/rcbilling/v1/checkout/resume/:appUserId/:token",
+      () => HttpResponse.json(response),
+    ),
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "return-user",
+  });
+  await expect(
+    purchases.resumeExternalPurchase({
+      checkoutToken: "token",
+      waitTimeoutMs: 0,
+    }),
+  ).rejects.toMatchObject({
+    errorCode: ErrorCode.UnexpectedBackendResponseError,
+  });
+});
+
+test("polls until the purchase report arrives", async () => {
+  let checks = 0;
+  server.use(
+    http.get(
+      "http://localhost:8000/rcbilling/v1/checkout/resume/:appUserId/:token",
+      () => {
+        checks++;
+        return HttpResponse.json({
+          operation: {
+            status: checks === 1 ? "started" : "failed",
+            is_expired: false,
+          },
+        });
+      },
+    ),
+  );
+  const purchases = Purchases.configure({
+    apiKey: "ext_public_test",
+    appUserId: "return-user",
+  });
+  expect(
+    (
+      await purchases.resumeExternalPurchase({
+        checkoutToken: "token",
+        waitTimeoutMs: 2000,
+      })
+    ).status,
+  ).toBe("failed");
+  expect(checks).toBe(2);
+});
+
+test.each([NaN, Infinity, -1])(
+  "rejects invalid polling timeout %s",
+  async (waitTimeoutMs) => {
+    const purchases = Purchases.configure({
+      apiKey: "ext_public_test",
+      appUserId: "return-user",
+    });
+    await expect(
+      purchases.resumeExternalPurchase({
+        checkoutToken: "token",
+        waitTimeoutMs,
+      }),
+    ).rejects.toMatchObject({ errorCode: ErrorCode.ConfigurationError });
+  },
+);
 vi.mock("../helpers/browser-globals", async (importOriginal) => ({
   ...(await importOriginal<typeof BrowserGlobals>()),
   getWindow: () => ({ location: { assign: navigate } }),
@@ -23,6 +262,7 @@ beforeEach(() => {
     http.post("http://localhost:8000/rcbilling/v1/checkout/start", () =>
       HttpResponse.json({
         operation_session_id: "rcbopsess_external_checkout",
+        checkout_token: "opaque_checkout_token",
       }),
     ),
   );
@@ -221,12 +461,15 @@ test.each([
   expect(navigate).not.toHaveBeenCalled();
 });
 
-test.each([undefined, ""])(
+test.each([undefined, "", 123])(
   "does not redirect when checkout start returns token %s",
   async (token) => {
     server.use(
       http.post("http://localhost:8000/rcbilling/v1/checkout/start", () =>
-        HttpResponse.json({ operation_session_id: token }),
+        HttpResponse.json({
+          operation_session_id: "rcbopsess_valid",
+          checkout_token: token,
+        }),
       ),
     );
     const purchases = Purchases.configure({
@@ -250,6 +493,7 @@ test.each([undefined, "https://merchant.example/checkout?source=override"])(
       apiKey: "ext_public_test",
       appUserId: "original",
       externalCheckoutUrl: "http://localhost:3001/api/checkout",
+      externalCheckoutReturnUrl: "https://merchant.example/return",
     });
     server.use(
       http.get("http://localhost:8000/v1/subscribers/:id", () =>
@@ -275,8 +519,13 @@ test.each([undefined, "https://merchant.example/checkout?source=override"])(
     expect(url.searchParams.get("app_user_id")).toBe("current+#&");
     expect(url.searchParams.get("product_id")).toBe(pkg.product.identifier);
     expect(url.searchParams.get("checkout_token")).toBe(
-      "rcbopsess_external_checkout",
+      "opaque_checkout_token",
     );
+    expect(
+      new URL(url.searchParams.get("return_url")!).searchParams.get(
+        "checkout_token",
+      ),
+    ).toBe("opaque_checkout_token");
     expect(settled).not.toHaveBeenCalled();
   },
 );
@@ -340,7 +589,10 @@ test("stores presentation context before navigating to the merchant", async () =
       "http://localhost:8000/rcbilling/v1/checkout/start",
       async ({ request }) => {
         received(await request.json());
-        return HttpResponse.json({ operation_session_id: "rcbopsess_context" });
+        return HttpResponse.json({
+          operation_session_id: "rcbopsess_context",
+          checkout_token: "opaque_context_token",
+        });
       },
     ),
   );

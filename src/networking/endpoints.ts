@@ -180,7 +180,23 @@ export class GetCheckoutStatusEndpoint implements Endpoint {
   }
 
   urlPath(): string {
-    return `${RC_BILLING_PATH}/checkout/${this.operationSessionId}`;
+    return `${RC_BILLING_PATH}/checkout/${encodeURIComponent(this.operationSessionId)}`;
+  }
+}
+
+export class ResumeCheckoutEndpoint implements Endpoint {
+  method: HttpMethodType = "GET";
+  name = "resumeCheckout";
+  private readonly appUserId: string;
+  private readonly checkoutToken: string;
+
+  constructor(appUserId: string, checkoutToken: string) {
+    this.appUserId = appUserId;
+    this.checkoutToken = checkoutToken;
+  }
+
+  urlPath(): string {
+    return `${RC_BILLING_PATH}/checkout/resume/${encodeURIComponent(this.appUserId)}/${encodeURIComponent(this.checkoutToken)}`;
   }
 }
 
@@ -260,6 +276,7 @@ export type SupportedEndpoint =
   | GetCustomerInfoEndpoint
   | GetBrandingInfoEndpoint
   | GetCheckoutStatusEndpoint
+  | ResumeCheckoutEndpoint
   | SetAttributesEndpoint
   | PostReceiptEndpoint
   | GetVirtualCurrenciesEndpoint

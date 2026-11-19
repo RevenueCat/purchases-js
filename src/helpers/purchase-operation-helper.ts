@@ -12,6 +12,7 @@ import type {
 } from "../networking/responses/checkout-start-response";
 import {
   CheckoutSessionStatus,
+  type CheckoutResumeResponse,
   type CheckoutStatusResponse,
 } from "../networking/responses/checkout-status-response";
 import type {
@@ -184,6 +185,20 @@ export interface OperationSessionSuccessfulResult {
   attributionMetadata?: PurchaseResponseAttributionMetadata;
   customerEmail?: string;
 }
+
+type OperationSessionPollingOptions = {
+  stopOnExpiration?: boolean;
+} & (
+  | { maxAttempts: number; waitTimeoutMs?: never }
+  | { waitTimeoutMs: number; maxAttempts?: never }
+);
+
+type OperationSessionPollingResult<
+  Response extends CheckoutStatusResponse = CheckoutStatusResponse,
+> =
+  | { status: "finished"; response: Response }
+  | { status: "limit_reached" }
+  | { status: "expired" };
 
 export class PurchaseOperationHelper {
   private operationSessionId: string | null = null;
@@ -507,6 +522,68 @@ export class PurchaseOperationHelper {
         "Failed to complete product change.",
         error instanceof Error ? error.message : String(error),
       );
+    }
+  }
+
+  static async pollExternalCheckout(
+    backend: Backend,
+    appUserId: string,
+    checkoutToken: string,
+    waitTimeoutMs: number,
+  ): Promise<OperationSessionPollingResult<CheckoutResumeResponse>> {
+    return this.pollCheckoutStatus(
+      async () => backend.resumeCheckout(appUserId, checkoutToken),
+      { waitTimeoutMs, stopOnExpiration: true },
+    );
+  }
+
+  private static async pollCheckoutStatus<
+    Response extends CheckoutStatusResponse,
+  >(
+    getStatus: () => Promise<Response>,
+    options: OperationSessionPollingOptions,
+  ): Promise<OperationSessionPollingResult<Response>> {
+    const deadline =
+      options.waitTimeoutMs === undefined
+        ? undefined
+        : Date.now() + options.waitTimeoutMs;
+    let attempts = 0;
+    for (;;) {
+      if (
+        options.maxAttempts !== undefined &&
+        attempts >= options.maxAttempts
+      ) {
+        return { status: "limit_reached" };
+      }
+      attempts++;
+      const response = await getStatus();
+      switch (response.operation.status) {
+        case CheckoutSessionStatus.Succeeded:
+        case CheckoutSessionStatus.Failed:
+          return { status: "finished", response };
+        case CheckoutSessionStatus.Started:
+        case CheckoutSessionStatus.InProgress:
+          if (options.stopOnExpiration && response.operation.is_expired) {
+            return { status: "expired" };
+          }
+          if (deadline !== undefined && Date.now() >= deadline) {
+            return { status: "limit_reached" };
+          }
+          await new Promise((resolve) =>
+            setTimeout(
+              resolve,
+              deadline === undefined
+                ? 1000
+                : Math.min(1000, deadline - Date.now()),
+            ),
+          );
+          break;
+        default:
+          throw new PurchasesError(
+            ErrorCode.UnexpectedBackendResponseError,
+            "Unknown checkout status.",
+          );
+      }
     }
   }
 

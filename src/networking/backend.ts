@@ -17,6 +17,7 @@ import {
   GetWorkflowsEndpoint,
   IdentifyEndpoint,
   PostReceiptEndpoint,
+  ResumeCheckoutEndpoint,
   SetAttributesEndpoint,
 } from "./endpoints";
 import type { SubscriberResponse } from "./responses/subscriber-response";
@@ -26,7 +27,10 @@ import type {
 } from "./responses/checkout-start-response";
 import type { ProductsResponse } from "./responses/products-response";
 import type { BrandingInfoResponse } from "./responses/branding-response";
-import type { CheckoutStatusResponse } from "./responses/checkout-status-response";
+import type {
+  CheckoutResumeResponse,
+  CheckoutStatusResponse,
+} from "./responses/checkout-status-response";
 import type {
   SubscriptionChangeCheckoutStartResponse,
   SubscriptionChangeCompleteResponse,
@@ -575,6 +579,19 @@ export class Backend {
   ): Promise<CheckoutStatusResponse> {
     return performRequest<null, CheckoutStatusResponse>(
       new GetCheckoutStatusEndpoint(operationSessionId),
+      {
+        apiKey: this.API_KEY,
+        httpConfig: this.httpConfig,
+      },
+    );
+  }
+
+  async resumeCheckout(
+    appUserId: string,
+    checkoutToken: string,
+  ): Promise<CheckoutResumeResponse> {
+    return performRequest<null, CheckoutResumeResponse>(
+      new ResumeCheckoutEndpoint(appUserId, checkoutToken),
       {
         apiKey: this.API_KEY,
         httpConfig: this.httpConfig,

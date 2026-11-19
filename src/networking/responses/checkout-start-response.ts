@@ -79,6 +79,7 @@ export type CheckoutStartResponse =
 
 export interface ExternalCheckoutStartResponse {
   operation_session_id: string;
+  checkout_token: string;
 }
 
 export function isPayrailsCheckoutStartResponse(

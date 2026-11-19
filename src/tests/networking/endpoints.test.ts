@@ -10,6 +10,7 @@ import {
   IdentifyEndpoint,
   PostReceiptEndpoint,
   PurchaseEndpoint,
+  ResumeCheckoutEndpoint,
   SetAttributesEndpoint,
 } from "../../networking/endpoints";
 
@@ -192,6 +193,14 @@ describe("getCheckoutStatus endpoint", () => {
       "/rcbilling/v1/checkout/someOperationSessionId",
     );
   });
+});
+
+test("resumeCheckout encodes the customer and opaque checkout token in the path", () => {
+  const endpoint = new ResumeCheckoutEndpoint("buyer+/#&", "opaque+token#&");
+  expect(endpoint.method).toBe("GET");
+  expect(endpoint.urlPath()).toBe(
+    "/rcbilling/v1/checkout/resume/buyer%2B%2F%23%26/opaque%2Btoken%23%26",
+  );
 });
 
 describe("setAttributes endpoint", () => {
