@@ -62,7 +62,7 @@
     "@paddle/paddle-js": "^1.6.4",
     "@payrails/web-sdk": "^6.10.1-rc.0",
     "@revenuecat/esconfig": "0.4.0",
-    "@revenuecat/purchases-ui-js": "4.19.2",
+    "@revenuecat/purchases-ui-js": "4.20.1",
     "@storybook/addon-essentials": "^8.6.15",
     "@storybook/addon-interactions": "^8.6.15",
     "@storybook/addon-links": "^8.6.15",
