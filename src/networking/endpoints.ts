@@ -18,7 +18,7 @@ export class GetOfferingsEndpoint implements Endpoint {
   }
 
   method: HttpMethodType = "GET";
-  name: string = "getOfferings";
+  name = "getOfferings";
 
   urlPath(): string {
     const encodedAppUserId = encodeURIComponent(this.appUserId);
@@ -28,7 +28,7 @@ export class GetOfferingsEndpoint implements Endpoint {
 
 export class PurchaseEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "purchase";
+  name = "purchase";
 
   urlPath(): string {
     return `${RC_BILLING_PATH}/purchase`;
@@ -37,7 +37,7 @@ export class PurchaseEndpoint implements Endpoint {
 
 export class GetProductsEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
-  name: string = "getProducts";
+  name = "getProducts";
   private readonly appUserId: string;
   private readonly productIds: string[];
   private readonly currency: string | undefined;
@@ -70,7 +70,7 @@ export class GetProductsEndpoint implements Endpoint {
 
 export class GetCustomerInfoEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
-  name: string = "getCustomerInfo";
+  name = "getCustomerInfo";
   private readonly appUserId: string;
 
   constructor(appUserId: string) {
@@ -85,7 +85,7 @@ export class GetCustomerInfoEndpoint implements Endpoint {
 
 export class IdentifyEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "identify";
+  name = "identify";
 
   urlPath(): string {
     return `${SUBSCRIBERS_PATH}/identify`;
@@ -94,7 +94,7 @@ export class IdentifyEndpoint implements Endpoint {
 
 export class GetBrandingInfoEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
-  name: string = "getBrandingInfo";
+  name = "getBrandingInfo";
 
   urlPath(): string {
     return `${RC_BILLING_PATH}/branding`;
@@ -103,7 +103,7 @@ export class GetBrandingInfoEndpoint implements Endpoint {
 
 export class CheckoutPrepareEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "postCheckoutPrepare";
+  name = "postCheckoutPrepare";
 
   urlPath(): string {
     return `${RC_BILLING_PATH}/checkout/prepare`;
@@ -112,7 +112,7 @@ export class CheckoutPrepareEndpoint implements Endpoint {
 
 export class CheckoutStartEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "postCheckoutStart";
+  name = "postCheckoutStart";
 
   urlPath(): string {
     return `${RC_BILLING_PATH}/checkout/start`;
@@ -121,7 +121,7 @@ export class CheckoutStartEndpoint implements Endpoint {
 
 export class CustomerCheckoutStartEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "postCustomerCheckoutStart";
+  name = "postCustomerCheckoutStart";
 
   urlPath(): string {
     return `${RC_BILLING_PATH}/customer/checkout/start`;
@@ -130,7 +130,7 @@ export class CustomerCheckoutStartEndpoint implements Endpoint {
 
 export class CheckoutRefreshPricingEndpoint implements Endpoint {
   method: HttpMethodType = "PATCH";
-  name: string = "patchCheckoutRefreshPricing";
+  name = "patchCheckoutRefreshPricing";
   private readonly operationSessionId: string;
 
   constructor(operationSessionId: string) {
@@ -144,7 +144,7 @@ export class CheckoutRefreshPricingEndpoint implements Endpoint {
 
 export class CheckoutCompleteEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "postCheckoutComplete";
+  name = "postCheckoutComplete";
   private readonly operationSessionId: string;
 
   constructor(operationSessionId: string) {
@@ -158,7 +158,7 @@ export class CheckoutCompleteEndpoint implements Endpoint {
 
 export class CustomerCheckoutCompleteEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "postCustomerCheckoutComplete";
+  name = "postCustomerCheckoutComplete";
   private readonly operationSessionId: string;
 
   constructor(operationSessionId: string) {
@@ -172,7 +172,7 @@ export class CustomerCheckoutCompleteEndpoint implements Endpoint {
 
 export class GetCheckoutStatusEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
-  name: string = "getCheckoutStatus";
+  name = "getCheckoutStatus";
   private readonly operationSessionId: string;
 
   constructor(operationSessionId: string) {
@@ -186,7 +186,7 @@ export class GetCheckoutStatusEndpoint implements Endpoint {
 
 export class SetAttributesEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "setAttributes";
+  name = "setAttributes";
   private readonly appUserId: string;
 
   constructor(appUserId: string) {
@@ -201,7 +201,7 @@ export class SetAttributesEndpoint implements Endpoint {
 
 export class PostReceiptEndpoint implements Endpoint {
   method: HttpMethodType = "POST";
-  name: string = "postReceipt";
+  name = "postReceipt";
 
   urlPath(): string {
     return "/v1/receipts";
@@ -210,7 +210,7 @@ export class PostReceiptEndpoint implements Endpoint {
 
 export class GetVirtualCurrenciesEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
-  name: string = "getVirtualCurrencies";
+  name = "getVirtualCurrencies";
   private readonly appUserId: string;
 
   constructor(appUserId: string) {
@@ -225,7 +225,7 @@ export class GetVirtualCurrenciesEndpoint implements Endpoint {
 
 export class GetWorkflowsEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
-  name: string = "getWorkflows";
+  name = "getWorkflows";
   private readonly appUserId: string;
 
   constructor(appUserId: string) {
@@ -239,7 +239,7 @@ export class GetWorkflowsEndpoint implements Endpoint {
 
 export class GetWorkflowDataByIdEndpoint implements Endpoint {
   method: HttpMethodType = "GET";
-  name: string = "getWorkflowData";
+  name = "getWorkflowData";
   private readonly appUserId: string;
   private readonly workflowId: string;
 

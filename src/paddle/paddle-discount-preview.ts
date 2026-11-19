@@ -225,15 +225,16 @@ export function withPaddleDiscountsOnOffering(
   offering: Offering,
   discountsByPackage: Record<string, DiscountPhase>,
 ): Offering {
-  const replace = (pkg: Package | null): Package | null => {
-    if (!pkg) return null;
+  const replacePackage = (pkg: Package): Package => {
     const discount = discountsByPackage[pkg.identifier];
     return discount ? withPaddleDiscountOnPackage(pkg, discount) : pkg;
   };
+  const replace = (pkg: Package | null): Package | null => {
+    if (!pkg) return null;
+    return replacePackage(pkg);
+  };
 
-  const availablePackages = offering.availablePackages.map(
-    (pkg) => replace(pkg) as Package,
-  );
+  const availablePackages = offering.availablePackages.map(replacePackage);
   const packagesById = Object.fromEntries(
     availablePackages.map((pkg) => [pkg.identifier, pkg]),
   );

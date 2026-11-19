@@ -20,8 +20,8 @@ export class FlushManager {
   private readonly callback: FlushCallback;
   private currentDelay: number;
   private timeoutId: ReturnType<typeof setTimeout> | undefined = undefined;
-  private executingCallback: boolean = false;
-  private stopped: boolean = false;
+  private executingCallback = false;
+  private stopped = false;
   private currentFlushPromise: Promise<void> | null = null;
 
   constructor(

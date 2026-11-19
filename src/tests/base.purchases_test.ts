@@ -33,7 +33,7 @@ afterAll(() => {
 
 export function configurePurchases(
   appUserId: string = testUserId,
-  rcSource: string = "rcSource",
+  rcSource = "rcSource",
   apiKey: string = testApiKey,
   flags: Partial<FlagsConfig> = {},
   subscriberToken?: string,

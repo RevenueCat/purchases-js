@@ -2210,7 +2210,7 @@ export class Purchases {
       externalPurchaseTokenId,
       selectedLocale = englishLocale,
       defaultLocale = englishLocale,
-      onButtonReady = () => {},
+      onButtonReady = () => undefined,
       walletButtonTheme,
     } = params;
 

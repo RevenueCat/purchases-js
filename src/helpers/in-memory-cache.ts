@@ -71,7 +71,7 @@ export class InMemoryCache {
    */
   getCachedVirtualCurrencies(
     appUserID: string,
-    allowStaleCache: boolean = false,
+    allowStaleCache = false,
   ): VirtualCurrencies | null {
     const entry = this.virtualCurrenciesCache.get(appUserID);
     return this.getCachedData(
@@ -96,7 +96,7 @@ export class InMemoryCache {
   private getCachedData<T>(
     entry: CacheEntry<T> | null,
     cacheExpiryMs: number,
-    allowStaleCache: boolean = false,
+    allowStaleCache = false,
   ): T | null {
     if (!entry) {
       return null;

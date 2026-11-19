@@ -322,7 +322,7 @@ export class AmazonBillingWrapper implements BillingWrapper {
       >;
       try {
         response = await PurchasingService.getPurchaseUpdates({
-          reset: executedGetPurchaseUpdatesRequests == 0 ? true : false,
+          reset: executedGetPurchaseUpdatesRequests == 0,
         });
       } catch (error) {
         Logger.errorLog(

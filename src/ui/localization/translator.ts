@@ -255,7 +255,7 @@ export class Translator {
 
 export class LocaleTranslations {
   public constructor(
-    public readonly labels: Record<string, string> = {},
+    public readonly labels: Record<string, string>,
     public readonly localeKey: string,
   ) {}
 

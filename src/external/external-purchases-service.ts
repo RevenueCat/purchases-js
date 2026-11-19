@@ -66,7 +66,8 @@ export class ExternalPurchasesService {
       );
     });
     getWindow().location.assign(url);
-    // A redirect starts checkout; it does not provide a completed purchase result.
-    return new Promise<PurchaseResult>(() => {});
+    return new Promise<PurchaseResult>(() => {
+      // A redirect starts checkout; it does not provide a completed purchase result.
+    });
   }
 }

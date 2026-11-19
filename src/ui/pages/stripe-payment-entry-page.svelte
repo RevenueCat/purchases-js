@@ -180,7 +180,7 @@
   let elements: StripeElements | null = $state(null);
 
   let email: string | undefined = $state(customerEmail ?? undefined);
-  let isEmailComplete = $state(customerEmail ? true : false);
+  let isEmailComplete = $state(Boolean(customerEmail));
   let isStripeLoading = $state(true);
   let isPaymentInfoComplete = $state(false);
   let selectedCountry: string | undefined = $state(undefined);

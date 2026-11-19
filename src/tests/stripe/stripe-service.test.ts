@@ -72,7 +72,7 @@ describe("StripeService", () => {
       elements: vi.fn().mockReturnValue({
         _elements: [1],
         submit: vi.fn(),
-      } as unknown),
+      }),
     };
 
     const mockConfig = {

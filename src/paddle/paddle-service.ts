@@ -212,7 +212,7 @@ export class PaddleService {
   constructor(
     backend: Backend,
     eventsTracker: IEventsTracker,
-    maxNumberAttempts: number = 30,
+    maxNumberAttempts = 30,
   ) {
     this.backend = backend;
     this.eventsTracker = eventsTracker;

@@ -285,7 +285,7 @@ export const toShape = (
   }
 };
 
-export const toStyleVar = (prefix: string = "", entries: [string, string][]) =>
+export const toStyleVar = (prefix: string, entries: [string, string][]) =>
   entries.map(([key, value]) => `--rc-${prefix}-${key}: ${value}`).join("; ");
 
 /**
@@ -352,7 +352,7 @@ export const toPageStyleVar = (appearance?: BrandingAppearance | null) => {
  * Convert text styles into CSS variables for both desktop and mobile.
  */
 export const toTextStyleVar = (
-  prefix: string = "",
+  prefix: string,
   textStyles: TextStyles,
   brand_font_config: BrandFontConfig | null | undefined,
 ) =>
@@ -377,7 +377,7 @@ export const toTextStyleVar = (
 /**
  * Generates CSS variables for the spacing system.
  */
-export const toSpacingVars = (prefix: string = "", spacing: Spacing) =>
+export const toSpacingVars = (prefix: string, spacing: Spacing) =>
   Object.entries(spacing)
     .map(
       ([key, { mobile, desktop }]) =>

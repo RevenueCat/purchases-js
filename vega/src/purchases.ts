@@ -34,14 +34,14 @@ export class Purchases extends CorePurchases {
   // CorePurchases creates this subclass through the registered factory, but its
   // static methods are typed to return CorePurchases. Redeclare them here so
   // Vega callers retain access to the Vega-only APIs.
-  static configure(config: PurchasesConfig): Purchases;
-  static configure(
+  static override configure(config: PurchasesConfig): Purchases;
+  static override configure(
     apiKey: string,
     appUserId: string,
     httpConfig?: HttpConfig,
     flags?: FlagsConfig,
   ): Purchases;
-  static configure(
+  static override configure(
     configOrApiKey: PurchasesConfig | string,
     appUserId?: string,
     httpConfig?: HttpConfig,
@@ -54,7 +54,7 @@ export class Purchases extends CorePurchases {
     return purchases as Purchases;
   }
 
-  static getSharedInstance(): Purchases {
+  static override getSharedInstance(): Purchases {
     return super.getSharedInstance() as Purchases;
   }
 

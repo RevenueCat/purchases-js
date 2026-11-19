@@ -74,7 +74,7 @@ export default class EventsTracker implements IEventsTracker {
   private readonly isSilent: boolean;
   private rcSource: string | null;
   private readonly workflowContext?: WorkflowContext;
-  private isDisposed: boolean = false;
+  private isDisposed = false;
 
   private static readonly appSessionId = generateUUID();
 

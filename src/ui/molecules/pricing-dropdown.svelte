@@ -8,8 +8,8 @@
   import { Translator } from "../localization/translator";
   import Typography from "../atoms/typography.svelte";
 
-  export let isExpanded: boolean = true;
-  export let showDiscountCodeField: boolean = false;
+  export let isExpanded = true;
+  export let showDiscountCodeField = false;
   export let children: Snippet;
 
   const translator: Writable<Translator> = getContext(translatorContextKey);

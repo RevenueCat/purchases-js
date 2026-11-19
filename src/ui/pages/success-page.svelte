@@ -18,7 +18,7 @@
   export let onContinue: () => void;
   export let title: string | undefined = undefined;
   export let closeButtonTitle: string | undefined = undefined;
-  export let fullWidth: boolean = false;
+  export let fullWidth = false;
 
   const translator: Writable<Translator> = getContext(translatorContextKey);
   const eventsTracker = getContext(eventsTrackerContextKey) as IEventsTracker;

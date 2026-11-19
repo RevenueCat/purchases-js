@@ -18,13 +18,13 @@ export function generateUUID(): string {
   // (not available in React Native Expo Go by default)
   const cryptoObj = typeof crypto !== "undefined" ? crypto : globalThis.crypto;
 
-  if (cryptoObj && cryptoObj.randomUUID) {
+  if (cryptoObj?.randomUUID) {
     return cryptoObj.randomUUID();
   }
 
   const bytes = new Uint8Array(16);
   try {
-    if (cryptoObj && cryptoObj.getRandomValues) {
+    if (cryptoObj?.getRandomValues) {
       cryptoObj.getRandomValues(bytes);
     } else {
       fillBytesWithMathRandom(bytes);

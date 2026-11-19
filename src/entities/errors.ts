@@ -168,7 +168,7 @@ export class PurchasesError extends Error {
   /** @internal */
   static getForBackendError(
     backendErrorCode: BackendErrorCode,
-    backendErrorMessage: string | null,
+    backendErrorMessage: string | null | undefined,
   ): PurchasesError {
     const errorCode =
       ErrorCodeUtils.getErrorCodeForBackendErrorCode(backendErrorCode);
@@ -216,7 +216,7 @@ export class PurchasesError extends Error {
     super(message);
   }
 
-  toString = (): string =>
+  override toString = (): string =>
     `PurchasesError(code: ${ErrorCode[this.errorCode]}, message: ${this.message})`;
 }
 

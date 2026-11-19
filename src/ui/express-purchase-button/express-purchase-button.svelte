@@ -153,7 +153,7 @@
 
   $effect(() => {
     checkoutStarted = false;
-    reInitPurchase().then(() => {});
+    void reInitPurchase();
   });
 
   const onStripeElementsLoadingError = (error: StripeServiceError) => {

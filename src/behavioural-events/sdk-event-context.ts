@@ -5,7 +5,7 @@ import {
   getNullableWindow,
 } from "../helpers/browser-globals";
 
-export type SDKEventContextSource = "sdk" | "wpl" | string;
+export type SDKEventContextSource = "sdk" | "wpl" | (string & {});
 
 export interface SDKEventContext {
   libraryName: string;

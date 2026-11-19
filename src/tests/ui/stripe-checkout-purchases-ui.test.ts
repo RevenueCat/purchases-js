@@ -491,7 +491,7 @@ describe("StripeCheckoutPurchasesUi", () => {
     await waitFor(() => {
       const wrapper = document.querySelector(".stripe-checkout-wrapper");
       expect(wrapper).toBeInTheDocument();
-      expect(getComputedStyle(wrapper as Element).backgroundColor).toBe(
+      expect(getComputedStyle(wrapper!).backgroundColor).toBe(
         "rgb(239, 243, 250)",
       );
     });

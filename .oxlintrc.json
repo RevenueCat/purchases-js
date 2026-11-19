@@ -14,58 +14,40 @@
     "no-underscore-dangle": "off",
 
     "class-methods-use-this": "warn", // TODO: change to error
-    "default-param-last": "warn", // TODO: change to error
     "func-style": "warn", // TODO: change to error
     "import/extensions": "warn", // TODO: change to error
     "import/no-default-export": "warn", // TODO: change to error
     "import/no-duplicates": "warn", // TODO: change to error
     "import/no-unassigned-import": "warn", // TODO: change to error
     "no-await-in-loop": "warn", // TODO: change to error
-    "no-empty-function": "warn", // TODO: change to error
     "no-new": "warn", // TODO: change to error
     "no-shadow": "warn", // TODO: change to error
-    "no-unneeded-ternary": "warn", // TODO: change to error
     "no-use-before-define": "warn", // TODO: change to error
-    "object-shorthand": "warn", // TODO: change to error
     "oxc/no-async-endpoint-handlers": "warn", // TODO: change to error
-    "typescript/await-thenable": "warn", // TODO: change to error
     "typescript/consistent-return": "warn", // TODO: change to error
-    "typescript/no-confusing-void-expression": "warn", // TODO: change to error
     "typescript/no-deprecated": "warn", // TODO: change to error
-    "typescript/no-dynamic-delete": "warn", // TODO: change to error
     "typescript/no-extraneous-class": "warn", // TODO: change to error
     "typescript/no-floating-promises": "warn", // TODO: change to error
-    "typescript/no-inferrable-types": "warn", // TODO: change to error
     "typescript/no-invalid-void-type": "warn", // TODO: change to error
     "typescript/no-misused-promises": "warn", // TODO: change to error
     "typescript/no-misused-spread": "warn", // TODO: change to error
     "typescript/no-non-null-assertion": "warn", // TODO: change to error
-    "typescript/no-redundant-type-constituents": "warn", // TODO: change to error
     "typescript/no-unnecessary-condition": "warn", // TODO: change to error
-    "typescript/no-unnecessary-type-assertion": "warn", // TODO: change to error
-    "typescript/no-unnecessary-type-parameters": "warn", // TODO: change to error
     "typescript/no-unsafe-argument": "warn", // TODO: change to error
-    "typescript/no-unsafe-assignment": "warn", // TODO: change to error
-    "typescript/no-unsafe-call": "warn", // TODO: change to error
     "typescript/no-unsafe-enum-assignment": "warn", // TODO: change to error
     "typescript/no-unsafe-enum-comparison": "warn", // TODO: change to error
-    "typescript/no-unsafe-member-access": "warn", // TODO: change to error
     "typescript/no-unsafe-return": "warn", // TODO: change to error
     "typescript/no-unsafe-type-assertion": "warn", // TODO: change to error
-    "typescript/non-nullable-type-assertion-style": "warn", // TODO: change to error
     "typescript/only-throw-error": "warn", // TODO: change to error
     "typescript/prefer-nullish-coalescing": "warn", // TODO: change to error
-    "typescript/prefer-optional-chain": "warn", // TODO: change to error
     "typescript/prefer-promise-reject-errors": "warn", // TODO: change to error
     "typescript/restrict-template-expressions": "warn", // TODO: change to error
     "typescript/return-await": "warn", // TODO: change to error
     "typescript/strict-boolean-expressions": "warn", // TODO: change to error
     "typescript/switch-exhaustiveness-check": "warn", // TODO: change to error
-    "typescript/unbound-method": "warn", // TODO: change to error
     "typescript/use-unknown-in-catch-callback-variable": "warn", // TODO: change to error
     "unicorn/consistent-function-scoping": "warn", // TODO: change to error
     "unicorn/no-array-sort": "warn", // TODO: change to error
-    "unicorn/no-empty-file": "warn", // TODO: change to error
 
     "no-restricted-globals": [
       "error",
@@ -137,6 +119,23 @@
       ],
       "rules": {
         "no-restricted-globals": "off"
+      }
+    },
+    {
+      "files": [
+        "**/*.test.{js,ts}",
+        "**/tests/**/*.{js,ts}",
+        "src/stories/**",
+        "vitest.setup.js",
+        "scripts/**"
+      ],
+      "rules": {
+        "no-empty-function": "off",
+        "typescript/no-non-null-assertion": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/unbound-method": "off"
       }
     },
     {

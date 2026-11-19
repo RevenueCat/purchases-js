@@ -73,21 +73,26 @@ export async function performRequestWithStatus<RequestBody, ResponseType>(
   }
 }
 
+type BackendErrorBody = {
+  code?: number | null;
+  message?: string | null;
+};
+
 async function handleErrors(response: Response, endpoint: SupportedEndpoint) {
   const statusCode = response.status;
   if (statusCode >= StatusCodes.INTERNAL_SERVER_ERROR) {
     throwUnknownError(endpoint, statusCode, await response.text());
   } else if (statusCode >= StatusCodes.BAD_REQUEST) {
     const errorBodyText = await response.text();
-    let errorBody;
+    let errorBody: BackendErrorBody | null = null;
     try {
-      errorBody = JSON.parse(errorBodyText);
+      errorBody = JSON.parse(errorBodyText) as BackendErrorBody | null;
     } catch {
       throwUnknownError(endpoint, statusCode, errorBodyText || null);
     }
     const errorBodyString = errorBody ? JSON.stringify(errorBody) : null;
-    const backendErrorCodeNumber: number | null = errorBody?.code;
-    const backendErrorMessage: string | null = errorBody?.message;
+    const backendErrorCodeNumber = errorBody?.code;
+    const backendErrorMessage = errorBody?.message;
     if (backendErrorCodeNumber != null) {
       const backendErrorCode: BackendErrorCode | null =
         ErrorCodeUtils.convertCodeToBackendErrorCode(backendErrorCodeNumber);
@@ -124,7 +129,7 @@ function throwUnknownError(
   );
 }
 
-function getBody<RequestBody>(body?: RequestBody): string | null {
+function getBody(body?: unknown): string | null {
   if (body == null) {
     return null;
   } else {
@@ -190,7 +195,9 @@ export function getHeaders(
   if (isAmazon) {
     // Amazon does not expose whether the app is running in a sandbox environment.
     // Do not allow caller-provided headers to send an inaccurate value either.
-    delete all_headers[IS_SANDBOX_HEADER];
+    const { [IS_SANDBOX_HEADER]: _isSandbox, ...headersWithoutSandbox } =
+      all_headers;
+    all_headers = headersWithoutSandbox;
   }
   return all_headers;
 }

@@ -384,13 +384,13 @@ describe("PaddlePurchasesUI", () => {
       context: defaultContext,
     });
 
-    await expect(document.documentElement.style.height).toBe("100%");
+    expect(document.documentElement.style.height).toBe("100%");
     expect(document.documentElement.style.overflow).toBe("hidden");
     expect(document.body.style.height).toBe("100%");
 
     unmount();
 
-    await expect(document.documentElement.style.height).toBe("auto");
+    expect(document.documentElement.style.height).toBe("auto");
     expect(document.documentElement.style.overflow).toBe("visible");
     expect(document.body.style.height).toBe("auto");
   });
@@ -427,7 +427,7 @@ describe("PaddlePurchasesUI", () => {
 
     const backButton = screen.getByRole("button", { name: /try again/i });
     backButton.click();
-    await expect(unmountPaddlePurchaseUi).toHaveBeenCalled();
+    expect(unmountPaddlePurchaseUi).toHaveBeenCalled();
   });
 
   test("passes discountCode to purchase when provided", async () => {
@@ -500,7 +500,7 @@ describe("PaddlePurchasesUI", () => {
       context: defaultContext,
     });
 
-    await expect(paddleServiceMock.startCheckout).toHaveBeenCalled();
+    expect(paddleServiceMock.startCheckout).toHaveBeenCalled();
 
     // Wait for success page to render
     const continueButton = await screen.findByRole("button", {
@@ -534,7 +534,7 @@ describe("PaddlePurchasesUI", () => {
       context: defaultContext,
     });
 
-    await expect(paddleServiceMock.startCheckout).toHaveBeenCalled();
+    expect(paddleServiceMock.startCheckout).toHaveBeenCalled();
 
     const sandboxBanner = await screen.findByText("SANDBOX");
     expect(sandboxBanner).toBeInTheDocument();

@@ -51,7 +51,7 @@ export function shouldCollectFullAddress(
       >
     | null
     | undefined,
-  selectedCountryRequiresFullAddressForTaxes: boolean = false,
+  selectedCountryRequiresFullAddressForTaxes = false,
 ): boolean {
   if (brandingInfo?.full_address_collection_mode === "always") {
     return true;

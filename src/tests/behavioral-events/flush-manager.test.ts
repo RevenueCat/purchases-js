@@ -47,7 +47,7 @@ describe("FlushManager", () => {
 
   test("does not expedite the callback when it is backing off", async () => {
     callbackSpy.mockReturnValue(
-      Promise.reject(new Error("Mocked error")) as Promise<boolean>,
+      Promise.reject<boolean>(new Error("Mocked error")),
     );
     flushManager.tryFlush();
     expect(callbackSpy).toHaveBeenCalledTimes(1);

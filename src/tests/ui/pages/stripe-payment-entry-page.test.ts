@@ -305,7 +305,7 @@ describe("PurchasesUI", () => {
                 type: "api_connection_error",
                 code: "0",
                 message: "Failed to initialize Express Checkout",
-              } as StripeError,
+              },
             });
           }, 10);
         }
@@ -468,7 +468,7 @@ describe("PurchasesUI", () => {
                 type: "api_connection_error",
                 code: "0",
                 message: "Failed to initialize payment form",
-              } as StripeError,
+              },
             });
           }, 0);
         }
@@ -536,7 +536,7 @@ describe("PurchasesUI", () => {
                 type: "api_connection_error",
                 code: "0",
                 message: "Failed to initialize payment form",
-              } as StripeError,
+              },
             });
           }, 0);
         }
@@ -1526,10 +1526,10 @@ describe("PurchasesUI", () => {
 
       await vi.advanceTimersToNextTimerAsync();
 
-      const checkbox = screen.getByTestId(
+      const checkbox = screen.getByTestId<HTMLInputElement>(
         "CheckoutConsentCheckbox",
-      ) as HTMLInputElement;
-      const tapTarget = checkbox.parentElement as HTMLElement;
+      );
+      const tapTarget = checkbox.parentElement!;
       expect(checkbox.checked).toBe(false);
 
       await fireEvent.click(tapTarget);
@@ -1615,7 +1615,7 @@ describe("PurchasesUI", () => {
         await vi.advanceTimersToNextTimerAsync();
       }
 
-      const payButton = screen.getByTestId("PayButton") as HTMLButtonElement;
+      const payButton = screen.getByTestId<HTMLButtonElement>("PayButton");
       expect(payButton.disabled).toBe(true);
 
       await fireEvent.click(screen.getByTestId("CheckoutConsentCheckbox"));

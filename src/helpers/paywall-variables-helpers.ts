@@ -103,7 +103,7 @@ function getPricePerPeriod(
   formattedPrice: string,
   product: SubscriptionOption,
   translator: Translator,
-  full: boolean = false,
+  full = false,
 ) {
   return translator.translate(LocalizationKeys.PaywallVariablesPricePerPeriod, {
     formattedPrice,

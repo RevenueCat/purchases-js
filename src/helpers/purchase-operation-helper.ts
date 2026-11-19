@@ -82,7 +82,7 @@ export class PurchaseFlowError extends Error {
   static fromPurchasesError(
     e: PurchasesError,
     defaultFlowErrorCode: PurchaseFlowErrorCode,
-    displayPurchaseFlowErrorCode: boolean = false,
+    displayPurchaseFlowErrorCode = false,
   ): PurchaseFlowError {
     let errorCode: PurchaseFlowErrorCode;
     if (e.errorCode === ErrorCode.ProductAlreadyPurchasedError) {
@@ -196,7 +196,7 @@ export class PurchaseOperationHelper {
   constructor(
     backend: Backend,
     eventsTracker: IEventsTracker,
-    maxNumberAttempts: number = 30,
+    maxNumberAttempts = 30,
   ) {
     this.backend = backend;
     this.eventsTracker = eventsTracker;
