@@ -7,4 +7,4 @@ minimum_release_age = "1d"
 compile = false
 
 [tools]
-ruby = "3.3.0"
+ruby = "3.3.14"
