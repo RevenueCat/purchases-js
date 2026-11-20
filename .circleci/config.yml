@@ -24,8 +24,14 @@ aliases:
 parameters:
   action:
     type: enum
-    enum: [ default, bump, update_error_codes, dependency-update ]
+    enum: [ default, bump, hotfix, update_error_codes, dependency-update ]
     default: default
+  hotfix_pr:
+    type: integer
+    default: 0
+  hotfix_version:
+    type: string
+    default: ''
   version:
     type: string
     default: ""
@@ -352,6 +358,16 @@ workflows:
           context: github-bot-internal
           ruby_version: "3.3.0"
 
+  manual-trigger-hotfix:
+    when:
+      equal: [ hotfix, << pipeline.parameters.action >> ]
+    jobs:
+      - revenuecat/hotfix:
+          context: github-bot-internal
+          ruby_version: "3.3.0"
+          pr_number: << pipeline.parameters.hotfix_pr >>
+          version: << pipeline.parameters.hotfix_version >>
+
   update-error-codes:
     when:
       equal: [ update_error_codes, << pipeline.parameters.action >> ]
@@ -403,6 +419,8 @@ workflows:
             equal: [ update_error_codes, << pipeline.parameters.action >> ]
         - not:
             equal: [ dependency-update, << pipeline.parameters.action >> ]
+        - not:
+            equal: [ hotfix, << pipeline.parameters.action >> ]
     jobs:
       - test
       - test-e2e

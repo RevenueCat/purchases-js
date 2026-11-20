@@ -33,3 +33,15 @@ More info on triggering pipelines in [CircleCI docs](https://circleci.com/docs/t
 4. The `wait-for-pr-approval` job in CircleCI is then approved automatically, and CircleCI tags the version and continues the release once the tests pass.
 5. The release will be published automatically by CircleCI.
 6. The release PR is merged automatically once the release is published.
+
+## Hotfix releases
+To release a fix merged into `main` without releasing the rest of `main`, for example 3.9.1 when the latest is 4.0.0, or 4.0.1 while `main` is not ready to release:
+
+1. Comment `@RCGitBot hotfix 3` on the merged fix PR. The bot cherry-picks the fix onto the latest 3.x tag, bumps the version, opens a `release/3.9.1` PR into a new `hotfix/3.9.0` branch and comments the release PR link on the fix PR.
+1. Approve the release PR, but **don't merge it**. Once tests pass, CircleCI tags 3.9.1, deploys it and merges the PR into `hotfix/3.9.0`. If that does not happen, approve the `wait-for-pr-approval` job in CircleCI by hand, or tag the last commit of `release/3.9.1` with `3.9.1` and push the tag.
+1. Delete the `hotfix/3.9.0` branch and add the release to CHANGELOG.md on `main`.
+1. If you released an older version, run `npm dist-tag add @revenuecat/purchases-js@x.x.x latest` and `npm dist-tag add @revenuecat/purchases-js-vega@x.x.x latest`, x.x.x being the latest version. Publishing the hotfix moves `latest` to it.
+
+If the cherry-pick conflicts, the bot comments a local command instead: run it from `main`, resolve the conflicts, run `git cherry-pick --continue`, then run it again to open the PR.
+
+To patch an older minor (3.8.x while 3.9.0 exists), run `bundle exec fastlane hotfix pr:<number> version:3.8.2` locally (releases 3.8.3). Both local commands need `fastlane/.env`, like `bump`.
