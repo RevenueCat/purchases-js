@@ -48,6 +48,7 @@
   import type { ProductChangeResult } from "../entities/product-change-params";
   import { validateEmail } from "../helpers/validators";
   import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
+  import { PAYRAILS_CHECKOUT_ENABLED } from "../helpers/constants";
 
   interface Props {
     customerEmail: string | undefined;
@@ -397,6 +398,12 @@
       }
 
       if (isPayrailsCheckoutStartResponse(result)) {
+        if (!PAYRAILS_CHECKOUT_ENABLED) {
+          throw new PurchaseFlowError(
+            PurchaseFlowErrorCode.ErrorSettingUpPurchase,
+            "This checkout requires a newer version of the SDK. Update to the latest version of @revenuecat/purchases-js.",
+          );
+        }
         payrailsGatewayParams = result.payrails_gateway_params;
       } else {
         payrailsGatewayParams = null;
