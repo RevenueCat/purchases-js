@@ -40,7 +40,7 @@ To release a fix merged into `main` without releasing the rest of `main`, for ex
 1. Comment `@RCGitBot hotfix 3` on the merged fix PR. The bot cherry-picks the fix onto the latest 3.x tag, bumps the version, opens a `release/3.9.1` PR into a new `hotfix/3.9.0` branch and comments the release PR link on the fix PR.
 1. Approve the release PR, but **don't merge it**. Once tests pass, CircleCI tags 3.9.1, deploys it and merges the PR into `hotfix/3.9.0`. If that does not happen, approve the `wait-for-pr-approval` job in CircleCI by hand, or tag the last commit of `release/3.9.1` with `3.9.1` and push the tag.
 1. Delete the `hotfix/3.9.0` branch and add the release to CHANGELOG.md on `main`.
-1. If you released an older version, run `npm dist-tag add @revenuecat/purchases-js@x.x.x latest` and `npm dist-tag add @revenuecat/purchases-js-vega@x.x.x latest`, x.x.x being the latest version. Publishing the hotfix moves `latest` to it.
+1. Releases from tags without `npm_publish_tag` in the Fastfile still move npm `latest` to the hotfix. If `npm view @revenuecat/purchases-js dist-tags.latest` shows the hotfix, run `npm dist-tag add @revenuecat/purchases-js@x.x.x latest` and `npm dist-tag add @revenuecat/purchases-js-vega@x.x.x latest`, x.x.x being the newest version.
 
 If the cherry-pick conflicts, the bot comments a local command instead: run it from `main`, resolve the conflicts, run `git cherry-pick --continue`, then run it again to open the PR.
 
