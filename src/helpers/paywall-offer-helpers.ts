@@ -63,7 +63,11 @@ export function setOfferVariables(
   translator: Translator,
   variables: VariableDictionary,
 ) {
-  const primaryOffer = product.discount ?? product.trial ?? product.introPrice;
+  // Fall back to the base price/period when there is no discount, trial, or
+  // intro offer, matching the iOS/Android behavior so offer_* variables
+  // render the base price instead of staying blank.
+  const primaryOffer =
+    product.discount ?? product.trial ?? product.introPrice ?? product.base;
   const secondaryOffer =
     product.trial && !product.discount ? product.introPrice : null;
 
