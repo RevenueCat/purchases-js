@@ -1,4 +1,4 @@
-export const VERSION = "1.77.0";
+export const VERSION = "1.78.0";
 /**
  * Payrails checkout stays off until the drop-in is ready to ship.
  * Tests that mount it opt in by mocking this flag.

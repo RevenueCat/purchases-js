@@ -1,3 +1,8 @@
+## 1.78.0
+## RevenueCat SDK
+### 🐞 Bugfixes
+* fix: keep unfinished checkout disabled until it is ready via Víctor Ferrer García (@vicfergar)
+
 ## 1.77.0
 ## RevenueCat SDK
 ### ✨ New Features
