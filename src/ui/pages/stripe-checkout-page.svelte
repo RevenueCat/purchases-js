@@ -18,8 +18,10 @@
 
   let checkoutContainer: HTMLDivElement;
   let embeddedCheckout: StripeEmbeddedCheckout | null = null;
+  let isDisposed = false;
 
   async function handleCheckoutComplete() {
+    if (isDisposed) return;
     try {
       onContinue();
     } catch (error) {
@@ -49,12 +51,19 @@
           handleCheckoutComplete,
         );
 
+      // Initialization can finish after the customer has closed the page.
+      if (isDisposed) {
+        checkout.destroy();
+        return;
+      }
+
       embeddedCheckout = checkout;
 
       if (checkoutContainer) {
         checkout.mount(checkoutContainer);
       }
     } catch (error) {
+      if (isDisposed) return;
       onError(
         error instanceof Error
           ? new PurchaseFlowError(
@@ -70,6 +79,7 @@
   });
 
   onDestroy(() => {
+    isDisposed = true;
     if (embeddedCheckout) {
       embeddedCheckout.destroy();
       embeddedCheckout = null;
