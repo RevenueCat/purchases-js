@@ -808,7 +808,8 @@ describe("PaddlePurchasesUI", () => {
 
       // The subtotal (excl. tax) only renders when the tax breakdown is shown,
       // i.e. when we feed Paddle's calculated totals into the price breakdown.
-      expect(await screen.findByText("$8.26")).toBeInTheDocument();
+      await screen.findByText("Total due today");
+      expect(document.body).toHaveTextContent("USD 8.26");
     });
 
     describe("order summary next billing date", () => {
@@ -889,9 +890,11 @@ describe("PaddlePurchasesUI", () => {
 
         // Not "billed monthly", which would read as $3.00/month next to the
         // headline amount while the customer is still in the intro week.
-        expect(
-          await screen.findByText("first week, then $20.00 monthly"),
-        ).toBeInTheDocument();
+        await waitFor(() => {
+          expect(document.body).toHaveTextContent(
+            "first week, then USD 20.00 monthly",
+          );
+        });
         expect(screen.queryByText("billed monthly")).not.toBeInTheDocument();
       });
 
@@ -903,7 +906,7 @@ describe("PaddlePurchasesUI", () => {
         // "/ month" describes the recurring price, so the row pairs it with
         // $20.00 rather than today's $3.00 intro total.
         await screen.findByText("Due on August 14, 2026");
-        expect(screen.getAllByText("$20.00").length).toBeGreaterThan(0);
+        expect(document.body).toHaveTextContent("USD 20.00");
       });
 
       test("counts from the trial period when the option has a free trial", async () => {
@@ -951,9 +954,9 @@ describe("PaddlePurchasesUI", () => {
         expect(
           await screen.findByText("Dû le 14 août 2026"),
         ).toBeInTheDocument();
-        expect(
-          screen.getByText("premier 1 semaine, puis 20,00 $ mensuel"),
-        ).toBeInTheDocument();
+        expect(document.body).toHaveTextContent(
+          "premier 1 semaine, puis 20,00 USD mensuel",
+        );
         expect(screen.queryByText(/^Due on /)).not.toBeInTheDocument();
       });
 
@@ -964,9 +967,11 @@ describe("PaddlePurchasesUI", () => {
           purchaseOption: subscriptionOptionWithSingleMonthIntroPriceRecurring,
         });
 
-        expect(
-          await screen.findByText("first month, then $20.00 monthly"),
-        ).toBeInTheDocument();
+        await waitFor(() => {
+          expect(document.body).toHaveTextContent(
+            "first month, then USD 20.00 monthly",
+          );
+        });
         expect(screen.queryByText("billed monthly")).not.toBeInTheDocument();
       });
 
@@ -984,9 +989,9 @@ describe("PaddlePurchasesUI", () => {
         expect(
           await screen.findByText("Due on November 7, 2026"),
         ).toBeInTheDocument();
-        expect(
-          screen.getByText("first 3 months, then $20.00 monthly"),
-        ).toBeInTheDocument();
+        expect(document.body).toHaveTextContent(
+          "first 3 months, then USD 20.00 monthly",
+        );
       });
 
       test("says nothing about the future when a trial precedes a paid intro", async () => {

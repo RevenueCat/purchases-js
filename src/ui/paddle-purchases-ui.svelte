@@ -90,6 +90,7 @@
     customTranslations,
     selectedLocale,
     defaultLocale,
+    "code",
   );
   let translatorStore = writable(translator);
   const brandingAppearanceStore = writable<BrandingAppearance | null>(

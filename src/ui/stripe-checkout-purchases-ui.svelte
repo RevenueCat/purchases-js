@@ -100,6 +100,7 @@
     customTranslations,
     selectedLocale,
     defaultLocale,
+    "code",
   );
   let translatorStore = writable(translator);
   setContext(translatorContextKey, translatorStore);

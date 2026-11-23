@@ -11,6 +11,8 @@ import { toBcp47Locale } from "../../helpers/locale-helper";
 
 export type EmptyString = "";
 
+type PriceCurrencyDisplay = "narrowSymbol" | "code";
+
 /**
  * Custom translations to be used in the purchase flow.
  * This class allows you to override the default translations used in the purchase flow.
@@ -74,6 +76,7 @@ export class Translator {
     customTranslations: CustomTranslations = {},
     public readonly selectedLocale: string = englishLocale,
     public readonly defaultLocale: string = englishLocale,
+    private readonly priceCurrencyDisplay: PriceCurrencyDisplay = "narrowSymbol",
   ) {
     const locales: Record<string, LocaleTranslations> = {};
     Object.entries(supportedLanguages).forEach(([locale, translations]) => {
@@ -100,8 +103,8 @@ export class Translator {
   public formatPrice(priceInMicros: number, currency: string): string {
     const additionalFormattingOptions: {
       maximumFractionDigits?: number;
-      currencyDisplay?: "narrowSymbol";
-    } = { currencyDisplay: "narrowSymbol" };
+      currencyDisplay?: PriceCurrencyDisplay;
+    } = { currencyDisplay: this.priceCurrencyDisplay };
     if (priceInMicros === 0) {
       additionalFormattingOptions.maximumFractionDigits = 0;
     }

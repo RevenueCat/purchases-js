@@ -62,6 +62,12 @@ describe("The Translator class", () => {
     });
   });
 
+  test("should include the ISO currency code when formatting prices", () => {
+    const translator = new Translator({}, "en-CA", "en", "code");
+
+    expect(translator.formatPrice(5990000, "CAD")).toContain("CAD");
+  });
+
   test("should not fail for any language/fallbackLanguage when translating labels", () => {
     Object.entries(supportedLanguages).forEach(([lang]) => {
       Object.entries(supportedLanguages).forEach(([fallbackLang]) => {

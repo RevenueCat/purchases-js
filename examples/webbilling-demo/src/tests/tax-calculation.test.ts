@@ -413,11 +413,11 @@ const trackPricingRefreshRequests = async (page: Page, mockMode: boolean) => {
           const lines = await page.locator(TAX_BREAKDOWN_ITEM_SELECTOR).all();
           expect(lines).toHaveLength(3);
           await expect(lines[0].getByText(/Total excluding tax/)).toBeVisible();
-          await expect(lines[0].getByText("$8.19")).toBeVisible();
+          await expect(lines[0].getByText("USD 8.19")).toBeVisible();
           await expect(lines[1].getByText(/VAT - Italy/)).toBeVisible();
-          await expect(lines[1].getByText("$1.80")).toBeVisible();
+          await expect(lines[1].getByText("USD 1.80")).toBeVisible();
           await expect(lines[2].getByText(/Total due today/)).toBeVisible();
-          await expect(lines[2].getByText("$9.99")).toBeVisible();
+          await expect(lines[2].getByText("USD 9.99")).toBeVisible();
         },
       );
 
@@ -464,15 +464,15 @@ const trackPricingRefreshRequests = async (page: Page, mockMode: boolean) => {
           const lines = await pricingRows.all();
           expect(lines).toHaveLength(5);
           await expect(lines[0].getByText(/Subtotal/)).toBeVisible();
-          await expect(lines[0].getByText("$9.99")).toBeVisible();
+          await expect(lines[0].getByText("USD 9.99")).toBeVisible();
           await expect(lines[1].getByText(/Discount/)).toBeVisible();
-          await expect(lines[1].getByText("-$1.00")).toBeVisible();
+          await expect(lines[1].getByText("-USD 1.00")).toBeVisible();
           await expect(lines[2].getByText(/Total excluding tax/)).toBeVisible();
-          await expect(lines[2].getByText("$7.43")).toBeVisible();
+          await expect(lines[2].getByText("USD 7.43")).toBeVisible();
           await expect(lines[3].getByText(/VAT - Spain \(21%\)/)).toBeVisible();
-          await expect(lines[3].getByText("$1.56")).toBeVisible();
+          await expect(lines[3].getByText("USD 1.56")).toBeVisible();
           await expect(lines[4].getByText(/Total due today/)).toBeVisible();
-          await expect(lines[4].getByText("$8.99")).toBeVisible();
+          await expect(lines[4].getByText("USD 8.99")).toBeVisible();
         },
       );
 

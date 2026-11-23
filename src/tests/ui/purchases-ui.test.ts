@@ -409,7 +409,7 @@ describe("PurchasesUI", () => {
         screen.getByRole("button", { name: "Remove promo code SAVE10" }),
       ).toBeTruthy();
       expect(screen.queryByLabelText("Promo code")).toBeNull();
-      expect(screen.getByText("-$1.00")).toBeTruthy();
+      expect(document.body).toHaveTextContent("-USD 1.00");
     });
   });
 
@@ -526,7 +526,7 @@ describe("PurchasesUI", () => {
       expect(
         screen.getByRole("button", { name: "Remove promo code SAVE10" }),
       ).toBeTruthy();
-      expect(screen.getByText("-$1.00")).toBeTruthy();
+      expect(document.body).toHaveTextContent("-USD 1.00");
       expect(screen.queryByText("Total excluding tax")).not.toBeInTheDocument();
       expect(screen.getByText("Try free for 1 week")).toBeInTheDocument();
     });
@@ -592,7 +592,7 @@ describe("PurchasesUI", () => {
       expect(
         screen.getByRole("button", { name: "Remove promo code SAVE10" }),
       ).toBeTruthy();
-      expect(screen.getByText("-$1.00")).toBeTruthy();
+      expect(document.body).toHaveTextContent("-USD 1.00");
       expect(screen.getByText("Try free for 1 week")).toBeInTheDocument();
     });
 
@@ -608,7 +608,7 @@ describe("PurchasesUI", () => {
       });
       expect(onDiscountCodeChanged).toHaveBeenCalledWith(null);
       expect(screen.getByLabelText("Promo code")).toBeTruthy();
-      expect(screen.queryByText("-$1.00")).toBeNull();
+      expect(document.body).not.toHaveTextContent("-USD 1.00");
       expect(screen.queryByText("Try free for 1 week")).toBeNull();
       expect(screen.getByText(/First 2 weeks for/i)).toBeInTheDocument();
     });
