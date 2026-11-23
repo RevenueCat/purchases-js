@@ -2,17 +2,12 @@ import "@testing-library/jest-dom";
 import { render, fireEvent, screen, waitFor } from "@testing-library/svelte";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { Payrails } from "@payrails/web-sdk";
-import type * as SdkConstants from "../../helpers/constants";
 
 vi.mock("@payrails/web-sdk", () => ({
   Payrails: {
     init: vi.fn(),
   },
 }));
-vi.mock("../../helpers/constants", async (importOriginal) => {
-  const actual = await importOriginal<typeof SdkConstants>();
-  return { ...actual, PAYRAILS_CHECKOUT_ENABLED: true };
-});
 
 import PurchasesUI from "../../ui/purchases-ui.svelte";
 import {
@@ -686,7 +681,9 @@ describe("PurchasesUI", () => {
       "pollCurrentPurchaseForCompletion",
     );
 
-    render(PurchasesUI, { props: basicProps });
+    render(PurchasesUI, {
+      props: { ...basicProps, payrailsCheckoutEnabled: true },
+    });
 
     await waitFor(() => {
       expect(Payrails.init).toHaveBeenCalledWith(
@@ -702,5 +699,33 @@ describe("PurchasesUI", () => {
     await waitFor(() => {
       expect(pollSpy).toHaveBeenCalled();
     });
+  });
+
+  test("shows an error instead of the Payrails checkout when the flag is off", async () => {
+    vi.spyOn(purchaseOperationHelperMock, "checkoutStart").mockResolvedValue({
+      operation_session_id: "rcbopsess_payrails",
+      management_url: "https://example.com/portal",
+      checkout_mode: "purchase",
+      payrails_gateway_params: {
+        always_store_instrument: true,
+        init_payload: {
+          version: "1.0.0",
+          data: "encoded-client-init",
+        },
+      },
+    });
+
+    render(PurchasesUI, { props: basicProps });
+
+    await waitFor(() => {
+      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Purchase not started due to an error (error code: 0).",
+        ),
+      ).toBeInTheDocument();
+    });
+    expect(Payrails.init).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("payrails-dropin")).not.toBeInTheDocument();
   });
 });

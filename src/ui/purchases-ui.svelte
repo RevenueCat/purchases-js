@@ -48,7 +48,6 @@
   import type { ProductChangeResult } from "../entities/product-change-params";
   import { validateEmail } from "../helpers/validators";
   import { getActiveCheckoutPurchaseOption } from "../helpers/checkout-session-purchase-option-helper";
-  import { PAYRAILS_CHECKOUT_ENABLED } from "../helpers/constants";
 
   interface Props {
     customerEmail: string | undefined;
@@ -85,6 +84,7 @@
     onError: (error: PurchaseFlowError) => void;
     onClose: (() => void) | undefined;
     hideBackButton?: boolean;
+    payrailsCheckoutEnabled?: boolean;
   }
 
   const {
@@ -118,6 +118,7 @@
     onError,
     onClose,
     hideBackButton = false,
+    payrailsCheckoutEnabled = false,
   }: Props = $props();
 
   const emailError = customerEmail ? validateEmail(customerEmail) : null;
@@ -398,7 +399,7 @@
       }
 
       if (isPayrailsCheckoutStartResponse(result)) {
-        if (!PAYRAILS_CHECKOUT_ENABLED) {
+        if (!payrailsCheckoutEnabled) {
           throw new PurchaseFlowError(
             PurchaseFlowErrorCode.ErrorSettingUpPurchase,
             "This checkout requires a newer version of the SDK. Update to the latest version of @revenuecat/purchases-js.",

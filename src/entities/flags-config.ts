@@ -32,6 +32,9 @@ export interface FlagsConfig {
    */
   hideBackButton?: boolean;
 
+  /** @internal */
+  payrailsCheckoutEnabled?: boolean;
+
   /**
    * If set to true, the SDK injects the branding app icon as an
    * `apple-touch-icon` link tag so it appears in the Apple Pay sheet.

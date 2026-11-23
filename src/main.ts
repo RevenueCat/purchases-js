@@ -2922,6 +2922,7 @@ export class Purchases {
           onDiscountCodeChanged,
           skipSuccessPage,
           hideBackButton: this.shouldHideCheckoutBackButton(),
+          payrailsCheckoutEnabled: this._flags.payrailsCheckoutEnabled === true,
         },
       });
     });
