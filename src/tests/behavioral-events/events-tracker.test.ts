@@ -6,6 +6,7 @@ import "../utils/to-have-been-called-exactly-once-with";
 import { Logger } from "../../helpers/logger";
 import EventsTracker from "../../behavioural-events/events-tracker";
 import { defaultPurchaseMode } from "../../behavioural-events/event";
+import { SDKEventName } from "../../behavioural-events/sdk-events";
 
 interface EventsTrackerFixtures {
   eventsTracker: EventsTracker;
@@ -206,6 +207,76 @@ describe("EventsTracker", (test) => {
       },
       keepalive: true,
     });
+  });
+
+  test<EventsTrackerFixtures>("sends the same app session on paywall and workflow events", async ({
+    eventsTracker,
+  }) => {
+    const paywall = {
+      appUserId: "someAppUserId",
+      sessionId: "paywall-presentation",
+      offeringId: "offering",
+      paywallRevision: 1,
+      paywallRcPublicId: "paywall",
+    };
+    eventsTracker.trackPaywallEvent({ ...paywall, type: "paywall_impression" });
+    eventsTracker.trackPaywallEvent({ ...paywall, type: "paywall_close" });
+    eventsTracker.trackPaywallEvent({ ...paywall, type: "paywall_cancel" });
+    eventsTracker.trackPaywallEvent({
+      ...paywall,
+      type: "paywall_component_interacted",
+      componentType: "button",
+      componentValue: "continue",
+    });
+    const properties = {
+      workflow_id: "workflow",
+      step_id: "step",
+      is_first_step: true,
+      is_last_step: false,
+    };
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.WorkflowStepStarted,
+      properties: { ...properties, entry_reason: "start" },
+    });
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.WorkflowStepCompleted,
+      properties,
+    });
+    eventsTracker.trackCustomPaywallImpression({});
+    await eventsTracker.flushAllEvents();
+
+    const events = getEventsFromPostCalls(APIPostRequest.mock.calls) as {
+      type: string;
+      event_name?: string;
+      app_session_id?: string;
+      session_id?: string;
+    }[];
+    const appSessionId = events.find(
+      (event) => event.type === "custom_paywall_impression",
+    )?.app_session_id;
+    expect(appSessionId).toBeTruthy();
+    for (const type of [
+      "paywall_impression",
+      "paywall_close",
+      "paywall_cancel",
+      "paywall_component_interacted",
+    ]) {
+      expect(events.find((event) => event.type === type)).toMatchObject({
+        app_session_id: appSessionId,
+        session_id: "paywall-presentation",
+      });
+    }
+    for (const eventName of [
+      "workflow_step_started",
+      "workflow_step_completed",
+    ]) {
+      expect(
+        events.find((event) => event.event_name === eventName),
+      ).toMatchObject({
+        type: "web_billing",
+        app_session_id: appSessionId,
+      });
+    }
   });
 
   test<EventsTrackerFixtures>("passes the checkout trace id to the event", async ({

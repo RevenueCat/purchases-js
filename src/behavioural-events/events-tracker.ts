@@ -10,7 +10,7 @@ import {
   CustomPaywallImpressionEvent,
   type CustomPaywallImpressionEventData,
 } from "./custom-paywall-impression-event";
-import type { SDKEvent } from "./sdk-events";
+import { SDKEventName, type SDKEvent } from "./sdk-events";
 import {
   buildEventContext,
   type SDKEventContextSource,
@@ -103,7 +103,13 @@ export default class EventsTracker implements IEventsTracker {
   }
 
   public trackSDKEvent(props: SDKEvent): void {
-    this.trackEvent({ ...props, source: "sdk" });
+    const isWorkflowEvent =
+      props.eventName === SDKEventName.WorkflowStepStarted ||
+      props.eventName === SDKEventName.WorkflowStepCompleted;
+    this.trackEvent(
+      { ...props, source: "sdk" },
+      isWorkflowEvent ? EventsTracker.appSessionId : undefined,
+    );
   }
 
   public trackExternalEvent(props: TrackEventProps): void {
@@ -116,7 +122,7 @@ export default class EventsTracker implements IEventsTracker {
       return;
     }
     try {
-      const event = new PaywallEvent(data);
+      const event = new PaywallEvent(data, EventsTracker.appSessionId);
       Logger.debugLog(
         `[PaywallEvent] Queuing ${data.type} (queue size: ${this.eventsQueue.length + 1}, url: ${this.eventsUrl})`,
       );
@@ -162,7 +168,7 @@ export default class EventsTracker implements IEventsTracker {
     }
   }
 
-  private trackEvent(props: TrackEventProps) {
+  private trackEvent(props: TrackEventProps, appSessionId?: string) {
     if (this.isSilent) {
       Logger.verboseLog("Skipping event tracking, the EventsTracker is silent");
       return;
@@ -172,6 +178,7 @@ export default class EventsTracker implements IEventsTracker {
         eventName: props.eventName,
         traceId: this.traceId,
         appUserId: this.appUserId,
+        appSessionId,
         context: buildEventContext(props.source, this.rcSource),
         workflowIdentifier: this.workflowContext?.workflowIdentifier,
         properties: props.properties || {

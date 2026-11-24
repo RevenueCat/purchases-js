@@ -85,6 +85,7 @@ type CommonPaywallEventPayload = {
   version: 1;
   id: string;
   app_user_id: string;
+  app_session_id?: string;
   session_id: string;
   offering_id: string;
   paywall_revision: number;
@@ -222,11 +223,13 @@ const toCommonPayload = (
   data: BasePaywallEventData,
   id: string,
   timestamp: number,
+  appSessionId?: string,
 ): CommonPaywallEventPayload => {
   const payload: CommonPaywallEventPayload = {
     version: 1,
     id,
     app_user_id: data.appUserId,
+    ...(appSessionId !== undefined ? { app_session_id: appSessionId } : {}),
     session_id: data.sessionId,
     offering_id: data.offeringId,
     paywall_revision: data.paywallRevision,
@@ -259,15 +262,22 @@ export class PaywallEvent {
   public readonly id: string;
   public readonly timestamp: number;
   public readonly data: PaywallEventData;
+  private readonly appSessionId?: string;
 
-  constructor(data: PaywallEventData) {
+  constructor(data: PaywallEventData, appSessionId?: string) {
     this.id = generateUUID();
     this.timestamp = Date.now();
     this.data = data;
+    this.appSessionId = appSessionId;
   }
 
   public toJSON(): PaywallEventPayload {
-    const commonPayload = toCommonPayload(this.data, this.id, this.timestamp);
+    const commonPayload = toCommonPayload(
+      this.data,
+      this.id,
+      this.timestamp,
+      this.appSessionId,
+    );
 
     switch (this.data.type) {
       case "paywall_impression":

@@ -5,6 +5,7 @@ export type EventData = {
   eventName: string;
   traceId: string;
   appUserId: string;
+  appSessionId?: string;
   properties: EventProperties;
   context: EventContext;
   workflowIdentifier?: string;
@@ -42,6 +43,7 @@ type EventPayload = {
   type: string;
   event_name: string;
   app_user_id: string;
+  app_session_id?: string;
   context: EventContext;
   properties: EventProperties;
 };
@@ -66,6 +68,9 @@ export class Event {
       type: this.EVENT_TYPE,
       eventName: this.data.eventName,
       appUserId: this.data.appUserId,
+      ...(this.data.appSessionId !== undefined
+        ? { appSessionId: this.data.appSessionId }
+        : {}),
       context: {
         ...this.data.context,
       },
