@@ -29,9 +29,6 @@
     component: PurchasesInner,
     title: "Pages/UpgradeConfirmPage",
     parameters: {
-      viewport: {
-        defaultViewport: "mobile",
-      },
       chromatic: {
         modes: brandingLanguageViewportModes,
         delay: 300,
@@ -58,7 +55,7 @@
       purchaseOptionToUse={subscriptionOption}
       lastError={null}
       stripeBillingParams={null}
-      isInElement={context.globals.viewport === "embedded"}
+      isInElement={context.globals.viewport?.value === "embedded"}
       subscriptionChangeStartData={args.startData}
       isConfirmingProductChange={args.isConfirmingProductChange ?? false}
       productChangeConfirmError={args.productChangeConfirmError ?? null}
@@ -79,7 +76,7 @@
       gatewayParams={{}}
       managementUrl={null}
       {purchaseOperationHelper}
-      isInElement={context.globals.viewport === "embedded"}
+      isInElement={context.globals.viewport?.value === "embedded"}
       forceEnableWalletMethods={false}
       customerEmail={null}
       subscriptionChangeStartData={args.startData}

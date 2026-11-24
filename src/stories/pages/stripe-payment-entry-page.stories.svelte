@@ -1,6 +1,6 @@
 <script module lang="ts">
   import { defineMeta, type StoryContext } from "@storybook/addon-svelte-csf";
-  import { expect, waitFor, within } from "@storybook/test";
+  import { expect, waitFor, within } from "storybook/test";
   import PurchasesInner from "../../ui/purchases-ui-inner.svelte";
   import { brandingLanguageViewportModes } from "../../../.storybook/modes";
   import {
@@ -42,9 +42,6 @@
       },
     },
     parameters: {
-      viewport: {
-        defaultViewport: "mobile",
-      },
       chromatic: {
         modes: brandingLanguageViewportModes,
         diffThreshold: 0.49,
@@ -85,7 +82,7 @@
       (args.withTaxes
         ? getPriceBreakdownTaxInclusive(subscriptionOption)
         : undefined)}
-    isInElement={context.globals.viewport === "embedded"}
+    isInElement={context.globals.viewport?.value === "embedded"}
     onError={() => {}}
     onClose={() => {}}
     managementUrl="http://test.com"

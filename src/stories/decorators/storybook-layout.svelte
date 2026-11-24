@@ -10,7 +10,7 @@
     position: LayoutPosition;
     globals: {
       brandingName: string;
-      viewport: string;
+      viewport?: { value?: string };
     };
   }
 </script>
@@ -19,7 +19,7 @@
   const { children, position, globals }: Props = $props();
 
   const brandingInfo = $derived(brandingInfos[globals.brandingName]);
-  const isInElement = $derived(globals.viewport === "embedded");
+  const isInElement = $derived(globals.viewport?.value === "embedded");
   const mainContent = $derived(position === "main" ? children : undefined);
 
   const navbarHeaderContent = $derived(

@@ -25,9 +25,6 @@
       onClose: () => {},
     },
     parameters: {
-      viewport: {
-        defaultViewport: "mobile",
-      },
       chromatic: {
         modes: brandingLanguageViewportModes,
       },
@@ -46,7 +43,7 @@
   <PaddlePurchasesUiInner
     {...args}
     {brandingInfo}
-    isInElement={context.globals.viewport === "embedded"}
+    isInElement={context.globals.viewport?.value === "embedded"}
   />
 {/snippet}
 

@@ -14,9 +14,6 @@
       isInElement: false,
     },
     parameters: {
-      viewport: {
-        defaultViewport: "mobile",
-      },
       chromatic: {
         modes: mobileAndDesktopBrandingModes,
       },

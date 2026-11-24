@@ -26,9 +26,6 @@
     title: "Pages/ErrorPage",
     args: defaultArgs,
     parameters: {
-      viewport: {
-        defaultViewport: "mobile",
-      },
       chromatic: {
         modes: brandingLanguageViewportModes,
       },
@@ -62,7 +59,7 @@
     gatewayParams={{}}
     purchaseOperationHelper={null as unknown as PurchaseOperationHelper}
     defaultPriceBreakdown={getPriceBreakdownTaxDisabled(subscriptionOption)}
-    isInElement={context.globals.viewport === "embedded"}
+    isInElement={context.globals.viewport?.value === "embedded"}
     onError={() => {}}
     onClose={() => {}}
     lastError={args.lastError}
@@ -119,7 +116,7 @@
     {@const brandingInfo = { ...brandingInfos[context.globals.brandingName] }}
     <FullscreenTemplate
       {brandingInfo}
-      isInElement={context.globals.viewport === "embedded"}
+      isInElement={context.globals.viewport?.value === "embedded"}
       isSandbox={false}
     >
       {#snippet mainContent()}

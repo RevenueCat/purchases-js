@@ -16,14 +16,14 @@
     children?: Snippet;
     globals: {
       locale: string;
-      viewport: string;
+      viewport?: { value?: string };
       brandingName: string;
     };
   }
 
   let { children, globals }: Props = $props();
 
-  const isEmbeddedViewport = globals.viewport === "embedded";
+  const isEmbeddedViewport = $derived(globals.viewport?.value === "embedded");
   const initiaLocale = globals.locale || "en";
   const translator = new Translator({}, initiaLocale, initiaLocale);
   const translatorStore: Writable<Translator> = writable(translator);
