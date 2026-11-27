@@ -1070,6 +1070,8 @@ export class Purchases {
       };
     };
 
+    let currentWorkflowStep: WorkflowStepChangeEvent | null = null;
+
     const trackPaywallEvent = (
       type: Exclude<PaywallEventType, "paywall_component_interacted">,
     ) => {
@@ -1086,7 +1088,8 @@ export class Purchases {
 
     const startPurchaseFlow = async (
       selectedPackageId: string,
-      checkoutLocale: string = finalLocale,
+      checkoutLocale: string,
+      activePaywallSessionId: string | undefined,
     ): Promise<PaywallPurchaseResult> => {
       const pkg = offering.availablePackages.find(
         (p) => p.identifier === selectedPackageId,
@@ -1112,7 +1115,7 @@ export class Purchases {
         defaultLocale:
           offering.paywallComponents?.default_locale ?? englishLocale,
         paywallId: offering.paywallComponents?.id,
-        paywallSessionId,
+        paywallSessionId: activePaywallSessionId,
         productChangeInfo: paywallParams.productChangeInfo,
       });
 
@@ -1303,6 +1306,7 @@ export class Purchases {
         if (initialScreen) {
           finalWorkflowLocale = calculateLocale(initialScreen, selectedLocale);
         }
+        paywallDisplayData.locale = finalWorkflowLocale;
       } else {
         if (workflowData && !navData) {
           Logger.warnLog(
@@ -1324,11 +1328,23 @@ export class Purchases {
       }
     }
 
+    const workflowStepScreenType = (stepId: string) => {
+      const screenType =
+        workflowDataResponse?.steps[stepId]?.metadata?.["screen_type"];
+      return Array.isArray(screenType)
+        ? screenType.filter(
+            (value): value is string => typeof value === "string",
+          )
+        : undefined;
+    };
+
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
-      let paywallImpressionTracked = false;
+      let paywallSessionOpen = false;
       let paywallCloseTracked = false;
+      let flowCloseTracked = false;
       let purchaseInFlight = false;
+      let flowCloseDeferredForCheckout = false;
 
       certainHTMLTarget.addEventListener("click", recordTextLinkClick);
 
@@ -1337,16 +1353,29 @@ export class Purchases {
           return;
         }
         paywallCloseTracked = true;
-        // Only fire paywall_close if an impression was recorded. For workflows,
-        // a user may exit before reaching the purchasing step, in which case
-        // neither event should fire.
-        if (paywallImpressionTracked) {
+        if (paywallSessionOpen) {
           trackPaywallEvent("paywall_close");
         }
       };
 
+      const trackFlowCloseIfNeeded = () => {
+        if (flowCloseTracked || !currentWorkflowStep) {
+          return;
+        }
+        flowCloseTracked = true;
+        this.eventsTracker.trackSDKEvent({
+          eventName: SDKEventName.WorkflowClose,
+          properties: {
+            workflow_id: currentWorkflowStep.workflowId,
+            step_id: currentWorkflowStep.stepId,
+            is_first_step: currentWorkflowStep.isFirstStep,
+            is_last_step: currentWorkflowStep.isLastStep,
+          },
+        });
+      };
+
       const trackComponentInteraction = (data: UIComponentInteractionData) => {
-        if (!paywallImpressionTracked || paywallCloseTracked) {
+        if (!paywallSessionOpen || paywallCloseTracked) {
           return;
         }
         const eventData = toInteractionEvent(data);
@@ -1375,6 +1404,17 @@ export class Purchases {
 
       const containerObserver = new MutationObserver(() => {
         if (certainHTMLTarget.childElementCount === 0) {
+          if (
+            currentWorkflowStep &&
+            purchaseInFlight &&
+            paywallParams.purchaseHtmlTarget === certainHTMLTarget
+          ) {
+            // Checkout can clear the shared target before its outcome is known.
+            flowCloseDeferredForCheckout = true;
+            trackPaywallCloseIfNeeded();
+            return;
+          }
+          trackFlowCloseIfNeeded();
           trackPaywallCloseIfNeeded();
           containerObserver.disconnect();
         }
@@ -1383,6 +1423,7 @@ export class Purchases {
       const unmountPaywall = () => {
         containerObserver.disconnect();
         certainHTMLTarget.removeEventListener("click", recordTextLinkClick);
+        trackFlowCloseIfNeeded();
         trackPaywallCloseIfNeeded();
         if (component) {
           unmount(component);
@@ -1404,6 +1445,8 @@ export class Purchases {
       };
 
       const onSuccess = (result: PaywallPurchaseResult) => {
+        flowCloseDeferredForCheckout = false;
+        flowCloseTracked = true;
         unmountPaywall();
         resolve(result);
         void this.eventsTracker.flushAllEvents().catch((error) => {
@@ -1452,17 +1495,32 @@ export class Purchases {
             return;
           }
           purchaseInFlight = true;
+          const activePaywallSessionId = paywallSessionOpen
+            ? paywallBaseEventData.sessionId
+            : undefined;
 
           const pkg = offering.packagesById[selectedPackageId];
           if (pkg) {
             notifyPurchaseStarted(pkg);
           }
 
-          startPurchaseFlow(selectedPackageId, checkoutLocale)
+          startPurchaseFlow(
+            selectedPackageId,
+            checkoutLocale,
+            activePaywallSessionId,
+          )
             .then(onSuccess)
             .catch(onError("Error performing purchase"))
             .finally(() => {
               purchaseInFlight = false;
+              if (!flowCloseDeferredForCheckout) {
+                return;
+              }
+              flowCloseDeferredForCheckout = false;
+              if (certainHTMLTarget.childElementCount === 0) {
+                trackFlowCloseIfNeeded();
+                containerObserver.disconnect();
+              }
             });
         };
 
@@ -1497,6 +1555,7 @@ export class Purchases {
               });
             } else {
               const entryReason: WorkflowStepEntryReason = event.reason;
+              currentWorkflowStep = event;
               // Fire step_started for the step being entered.
               this.eventsTracker.trackSDKEvent({
                 eventName: SDKEventName.WorkflowStepStarted,
@@ -1512,12 +1571,13 @@ export class Purchases {
                 },
               });
 
-              // paywall_impression fires only on the purchasing step so that
-              // conversion metrics reflect meaningful impressions, not
-              // informational intro pages.
-              if (event.isLastStep && !paywallImpressionTracked) {
+              const screenType = workflowStepScreenType(event.stepId);
+              paywallSessionOpen = screenType
+                ? screenType.includes("paywall")
+                : event.isLastStep;
+              if (paywallSessionOpen) {
+                paywallBaseEventData.sessionId = generateUUID();
                 trackPaywallEvent("paywall_impression");
-                paywallImpressionTracked = true;
               }
             }
           };
@@ -1617,10 +1677,9 @@ export class Purchases {
 
       containerObserver.observe(certainHTMLTarget, { childList: true });
       // For standard (non-workflow) paywalls, fire paywall_impression immediately.
-      // For workflows, impression is deferred to onStepChanged when is_last_step is reached.
       if (!workflowNavData) {
         trackPaywallEvent("paywall_impression");
-        paywallImpressionTracked = true;
+        paywallSessionOpen = true;
       }
 
       if (certainHTMLTarget.style.opacity === "0") {

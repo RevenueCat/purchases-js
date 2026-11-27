@@ -105,7 +105,8 @@ export default class EventsTracker implements IEventsTracker {
   public trackSDKEvent(props: SDKEvent): void {
     const isWorkflowEvent =
       props.eventName === SDKEventName.WorkflowStepStarted ||
-      props.eventName === SDKEventName.WorkflowStepCompleted;
+      props.eventName === SDKEventName.WorkflowStepCompleted ||
+      props.eventName === SDKEventName.WorkflowClose;
     this.trackEvent(
       { ...props, source: "sdk" },
       isWorkflowEvent ? EventsTracker.appSessionId : undefined,

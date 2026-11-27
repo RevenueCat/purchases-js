@@ -16,7 +16,8 @@ export type SDKEvent =
   | CheckoutPurchaseSuccessfulImpressionEvent
   | CheckoutPurchaseSuccessfulDismissEvent
   | WorkflowStepStartedEvent
-  | WorkflowStepCompletedEvent;
+  | WorkflowStepCompletedEvent
+  | WorkflowCloseEvent;
 
 export enum SDKEventName {
   SDKInitialized = "sdk_initialized",
@@ -33,6 +34,7 @@ export enum SDKEventName {
   CheckoutPurchaseSuccessfulDismiss = "checkout_purchase_successful_dismiss",
   WorkflowStepStarted = "workflow_step_started",
   WorkflowStepCompleted = "workflow_step_completed",
+  WorkflowClose = "workflow_close",
 }
 
 interface ISDKEvent {
@@ -189,6 +191,16 @@ export interface WorkflowStepCompletedEvent extends ISDKEvent {
     workflow_id: string;
     step_id: string;
     to_step_id?: string;
+    is_first_step: boolean;
+    is_last_step: boolean;
+  };
+}
+
+export interface WorkflowCloseEvent extends ISDKEvent {
+  eventName: SDKEventName.WorkflowClose;
+  properties: {
+    workflow_id: string;
+    step_id: string;
     is_first_step: boolean;
     is_last_step: boolean;
   };

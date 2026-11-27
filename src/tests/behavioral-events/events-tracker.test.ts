@@ -242,6 +242,10 @@ describe("EventsTracker", (test) => {
       eventName: SDKEventName.WorkflowStepCompleted,
       properties,
     });
+    eventsTracker.trackSDKEvent({
+      eventName: SDKEventName.WorkflowClose,
+      properties,
+    });
     eventsTracker.trackCustomPaywallImpression({});
     await eventsTracker.flushAllEvents();
 
@@ -269,6 +273,7 @@ describe("EventsTracker", (test) => {
     for (const eventName of [
       "workflow_step_started",
       "workflow_step_completed",
+      "workflow_close",
     ]) {
       expect(
         events.find((event) => event.event_name === eventName),

@@ -6,13 +6,18 @@ import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import {
   CustomVariableValue,
   ErrorCode,
+  type PaywallListener,
   type Purchases,
   PurchasesError,
 } from "../main";
 import type { Offering, Package } from "../entities/offerings";
 import type { CompleteWorkflowNavigateArgs } from "../entities/present-paywall-params";
 import type { PurchaseResult } from "../entities/purchase-result";
-import type { ComponentInteractionData } from "@revenuecat/purchases-ui-js";
+import type {
+  ComponentInteractionData,
+  WorkflowData,
+  WorkflowStepChangeEvent,
+} from "@revenuecat/purchases-ui-js";
 import * as browserGlobals from "../helpers/browser-globals";
 import { Logger } from "../helpers/logger";
 
@@ -1103,5 +1108,386 @@ describe("Purchases.presentPaywall() custom checkout", () => {
 
     expect(assignMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
+  });
+});
+
+const step = (id: string, screenType: string[] | undefined) => ({
+  id,
+  type: "screen",
+  screen_id: `screen_${id}`,
+  param_values: {},
+  trigger_actions: {},
+  triggers: [],
+  outputs: {},
+  metadata: screenType ? { screen_type: screenType } : null,
+});
+
+const screen = (name: string) => ({
+  name,
+  default_locale: "en_US",
+  components_localizations: { en_US: {} },
+});
+
+describe("Purchases.presentPaywall() workflow events", () => {
+  type WorkflowMountProps = {
+    onStepChanged: (event: WorkflowStepChangeEvent) => void;
+    onClose: () => void;
+    onPurchaseClicked: (selectedPackageId: string) => void;
+  };
+
+  let workflowProps: WorkflowMountProps | undefined;
+
+  const workflowData = {
+    id: "wf_1",
+    display_name: "Onboarding",
+    initial_step_id: "intro",
+    steps: {
+      intro: step("intro", ["intro"]),
+      offer: step("offer", ["paywall"]),
+    },
+    screens: {
+      screen_intro: screen("Intro"),
+      screen_offer: screen("Offer"),
+    },
+    ui_config: {},
+    content_max_width: null,
+  } as unknown as WorkflowData;
+
+  const presentWorkflow = (
+    purchases: Purchases,
+    listener: PaywallListener = {},
+    workflow: WorkflowData = workflowData,
+    sharedTarget?: HTMLElement,
+  ) => {
+    const offering = createOfferingWithPaywall();
+    vi.spyOn(purchases["backend"], "getWorkflows").mockResolvedValue({
+      workflows: [
+        {
+          id: "wf_1",
+          display_name: "Onboarding",
+          offering_id: offering.identifier,
+          prefetch: false,
+        },
+      ],
+      ui_config: {},
+    });
+    vi.spyOn(purchases["backend"], "getWorkflowById").mockResolvedValue(
+      workflow,
+    );
+    const paywallPromise = purchases.presentPaywall({
+      offering,
+      listener,
+      htmlTarget: sharedTarget,
+      purchaseHtmlTarget: sharedTarget,
+    });
+    void paywallPromise.catch(() => undefined);
+    return { offering, paywallPromise };
+  };
+
+  const walkIntroToOffer = (props: WorkflowMountProps) => {
+    props.onStepChanged({
+      workflowId: "wf_1",
+      stepId: "intro",
+      fromStepId: undefined,
+      toStepId: undefined,
+      reason: "start",
+      isFirstStep: true,
+      isLastStep: false,
+    });
+    props.onStepChanged({
+      workflowId: "wf_1",
+      stepId: "intro",
+      fromStepId: undefined,
+      toStepId: "offer",
+      reason: "completed",
+      isFirstStep: true,
+      isLastStep: false,
+    });
+    props.onStepChanged({
+      workflowId: "wf_1",
+      stepId: "offer",
+      fromStepId: "intro",
+      toStepId: undefined,
+      reason: "forward",
+      isFirstStep: false,
+      isLastStep: false,
+    });
+  };
+
+  beforeEach(() => {
+    workflowProps = undefined;
+    vi.mocked(mount).mockImplementation((_component, options) => {
+      workflowProps = options.props as unknown as WorkflowMountProps;
+      (options.target as Element).innerHTML =
+        "<div data-testid='paywall-root'></div>";
+      return {} as ReturnType<typeof mount>;
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  test("attributes a purchase on the paywall step to its impression session", async () => {
+    const purchases = configurePurchases();
+    const purchaseSpy = vi
+      .spyOn(purchases, "purchase")
+      .mockResolvedValue({} as PurchaseResult);
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+    const { offering, paywallPromise } = presentWorkflow(purchases);
+
+    await vi.waitFor(() => {
+      expect(workflowProps).toBeDefined();
+    });
+    walkIntroToOffer(workflowProps!);
+    const [[impression]] = trackPaywallEventSpy.mock.calls;
+    expect(impression.sessionId).toEqual(expect.any(String));
+
+    workflowProps!.onPurchaseClicked(offering.availablePackages[0].identifier);
+    await expect(paywallPromise).resolves.toBeDefined();
+
+    expect(purchaseSpy).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ paywallSessionId: impression.sessionId }),
+    );
+    expect(
+      trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
+    ).toEqual(["paywall_impression", "paywall_close"]);
+  });
+
+  test("does not attribute a purchase to a paywall step the user left", async () => {
+    const purchases = configurePurchases();
+    const purchaseSpy = vi
+      .spyOn(purchases, "purchase")
+      .mockResolvedValue({} as PurchaseResult);
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+    const { offering, paywallPromise } = presentWorkflow(purchases);
+
+    await vi.waitFor(() => {
+      expect(workflowProps).toBeDefined();
+    });
+    walkIntroToOffer(workflowProps!);
+    workflowProps!.onStepChanged({
+      workflowId: "wf_1",
+      stepId: "intro",
+      fromStepId: "offer",
+      toStepId: undefined,
+      reason: "back",
+      isFirstStep: true,
+      isLastStep: false,
+    });
+
+    workflowProps!.onPurchaseClicked(offering.availablePackages[0].identifier);
+    await expect(paywallPromise).resolves.toBeDefined();
+
+    expect(purchaseSpy).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ paywallSessionId: undefined }),
+    );
+    expect(
+      trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
+    ).toEqual(["paywall_impression"]);
+  });
+
+  test("gates impressions by screen_type and tracks workflow_close on dismiss", async () => {
+    const purchases = configurePurchases();
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+    const trackSDKEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackSDKEvent",
+    );
+    const { paywallPromise } = presentWorkflow(purchases);
+
+    await vi.waitFor(() => {
+      expect(workflowProps).toBeDefined();
+    });
+    walkIntroToOffer(workflowProps!);
+    workflowProps!.onClose();
+
+    await expect(paywallPromise).rejects.toHaveProperty(
+      "errorCode",
+      ErrorCode.UserCancelledError,
+    );
+    expect(
+      trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
+    ).toEqual(["paywall_impression", "paywall_close"]);
+    expect(trackSDKEventSpy).toHaveBeenCalledWith({
+      eventName: "workflow_close",
+      properties: {
+        workflow_id: "wf_1",
+        step_id: "offer",
+        is_first_step: false,
+        is_last_step: false,
+      },
+    });
+    expect(trackPaywallEventSpy.mock.calls[1][0].sessionId).toEqual(
+      trackPaywallEventSpy.mock.calls[0][0].sessionId,
+    );
+  });
+
+  test("does not track workflow_close after a purchase completes", async () => {
+    const purchases = configurePurchases();
+    const trackSDKEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackSDKEvent",
+    );
+    vi.spyOn(purchases, "purchase").mockResolvedValue({} as PurchaseResult);
+    const { offering, paywallPromise } = presentWorkflow(purchases);
+
+    await vi.waitFor(() => {
+      expect(workflowProps).toBeDefined();
+    });
+    walkIntroToOffer(workflowProps!);
+    workflowProps!.onPurchaseClicked(offering.availablePackages[0].identifier);
+
+    await expect(paywallPromise).resolves.toBeDefined();
+    expect(
+      trackSDKEventSpy.mock.calls.map(([event]) => event.eventName),
+    ).not.toContain("workflow_close");
+  });
+
+  test.each(["succeeds", "is cancelled"] as const)(
+    "waits to track workflow_close when checkout clears a shared target and %s",
+    async (outcome) => {
+      const purchases = configurePurchases();
+      const target = document.createElement("div");
+      document.body.appendChild(target);
+      const trackSDKEventSpy = vi.spyOn(
+        purchases["eventsTracker"],
+        "trackSDKEvent",
+      );
+      const trackPaywallEventSpy = vi.spyOn(
+        purchases["eventsTracker"],
+        "trackPaywallEvent",
+      );
+      let finishCheckout!: () => void;
+      const checkoutPending = new Promise<void>((resolve) => {
+        finishCheckout = resolve;
+      });
+      vi.spyOn(purchases, "purchase").mockImplementation(async () => {
+        target.innerHTML = "";
+        await checkoutPending;
+        if (outcome === "is cancelled") {
+          throw new PurchasesError(ErrorCode.UserCancelledError);
+        }
+        return {} as PurchaseResult;
+      });
+      const { offering, paywallPromise } = presentWorkflow(
+        purchases,
+        {},
+        workflowData,
+        target,
+      );
+      const paywallEventTypes = () =>
+        trackPaywallEventSpy.mock.calls.map(([event]) => event.type);
+      const flowCloses = () =>
+        trackSDKEventSpy.mock.calls.filter(
+          ([event]) => event.eventName === "workflow_close",
+        );
+
+      await vi.waitFor(() => {
+        expect(workflowProps).toBeDefined();
+      });
+      walkIntroToOffer(workflowProps!);
+      workflowProps!.onPurchaseClicked(
+        offering.availablePackages[0].identifier,
+      );
+
+      await vi.waitFor(() => {
+        expect(paywallEventTypes()).toEqual([
+          "paywall_impression",
+          "paywall_close",
+        ]);
+      });
+      expect(flowCloses()).toHaveLength(0);
+      finishCheckout();
+
+      if (outcome === "succeeds") {
+        await expect(paywallPromise).resolves.toBeDefined();
+        expect(flowCloses()).toHaveLength(0);
+        expect(paywallEventTypes()).toEqual([
+          "paywall_impression",
+          "paywall_close",
+        ]);
+      } else {
+        await vi.waitFor(() => {
+          expect(flowCloses()).toHaveLength(1);
+        });
+        workflowProps!.onClose();
+        await expect(paywallPromise).rejects.toHaveProperty(
+          "errorCode",
+          ErrorCode.UserCancelledError,
+        );
+        expect(flowCloses()).toHaveLength(1);
+        expect(paywallEventTypes()).toEqual([
+          "paywall_impression",
+          "paywall_close",
+          "paywall_cancel",
+        ]);
+      }
+    },
+  );
+
+  test("falls back to is_last_step for untagged steps and opens a new session on re-entry", async () => {
+    const purchases = configurePurchases();
+    const trackPaywallEventSpy = vi.spyOn(
+      purchases["eventsTracker"],
+      "trackPaywallEvent",
+    );
+    const { paywallPromise } = presentWorkflow(
+      purchases,
+      {},
+      {
+        ...workflowData,
+        steps: {
+          intro: step("intro", undefined),
+          offer: step("offer", undefined),
+        },
+      },
+    );
+
+    await vi.waitFor(() => {
+      expect(workflowProps).toBeDefined();
+    });
+    const enter = (
+      stepId: string,
+      reason: "start" | "forward" | "back",
+      isLastStep: boolean,
+    ) => {
+      workflowProps!.onStepChanged({
+        workflowId: "wf_1",
+        stepId,
+        fromStepId: undefined,
+        toStepId: undefined,
+        reason,
+        isFirstStep: stepId === "intro",
+        isLastStep,
+      });
+    };
+    enter("intro", "start", false);
+    enter("offer", "forward", true);
+    enter("intro", "back", false);
+    enter("offer", "forward", true);
+    workflowProps!.onClose();
+
+    await expect(paywallPromise).rejects.toBeDefined();
+    const paywallEvents = trackPaywallEventSpy.mock.calls.map(
+      ([event]) => event,
+    );
+    expect(paywallEvents.map((event) => event.type)).toEqual([
+      "paywall_impression",
+      "paywall_impression",
+      "paywall_close",
+    ]);
+    expect(paywallEvents[1].sessionId).not.toEqual(paywallEvents[0].sessionId);
+    expect(paywallEvents[2].sessionId).toEqual(paywallEvents[1].sessionId);
   });
 });
