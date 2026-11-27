@@ -6,6 +6,9 @@ import { createMonthlyPackageMock } from "./mocks/offering-mock-provider";
 import {
   CustomVariableValue,
   ErrorCode,
+  FLOW_EVENT_KEYS,
+  FLOW_EVENT_TYPES,
+  type FlowEvent,
   type PaywallListener,
   type Purchases,
   PurchasesError,
@@ -1128,7 +1131,7 @@ const screen = (name: string) => ({
   components_localizations: { en_US: {} },
 });
 
-describe("Purchases.presentPaywall() workflow events", () => {
+describe("Purchases.presentPaywall() flow events", () => {
   type WorkflowMountProps = {
     onStepChanged: (event: WorkflowStepChangeEvent) => void;
     onClose: () => void;
@@ -1294,8 +1297,9 @@ describe("Purchases.presentPaywall() workflow events", () => {
     ).toEqual(["paywall_impression"]);
   });
 
-  test("gates impressions by screen_type and tracks workflow_close on dismiss", async () => {
+  test("gates impressions by screen_type and reports every flow event to onFlowEvent", async () => {
     const purchases = configurePurchases();
+    const onFlowEvent = vi.fn<(event: FlowEvent) => void>();
     const trackPaywallEventSpy = vi.spyOn(
       purchases["eventsTracker"],
       "trackPaywallEvent",
@@ -1304,7 +1308,9 @@ describe("Purchases.presentPaywall() workflow events", () => {
       purchases["eventsTracker"],
       "trackSDKEvent",
     );
-    const { paywallPromise } = presentWorkflow(purchases);
+    const { offering, paywallPromise } = presentWorkflow(purchases, {
+      onFlowEvent,
+    });
 
     await vi.waitFor(() => {
       expect(workflowProps).toBeDefined();
@@ -1328,19 +1334,64 @@ describe("Purchases.presentPaywall() workflow events", () => {
         is_last_step: false,
       },
     });
-    expect(trackPaywallEventSpy.mock.calls[1][0].sessionId).toEqual(
-      trackPaywallEventSpy.mock.calls[0][0].sessionId,
-    );
+    expect(
+      onFlowEvent.mock.calls.map(
+        ([event]) => event[FLOW_EVENT_KEYS.EVENT_TYPE],
+      ),
+    ).toEqual([
+      FLOW_EVENT_TYPES.FLOW_STEP_STARTED,
+      FLOW_EVENT_TYPES.FLOW_STEP_COMPLETED,
+      FLOW_EVENT_TYPES.FLOW_STEP_STARTED,
+      FLOW_EVENT_TYPES.PAYWALL_IMPRESSION,
+      FLOW_EVENT_TYPES.FLOW_CLOSE,
+      FLOW_EVENT_TYPES.PAYWALL_CLOSE,
+    ]);
+    expect(onFlowEvent.mock.calls[2][0]).toEqual({
+      event_type: "flow_step_started",
+      timestamp: expect.any(Number),
+      trace_id: purchases["eventsTracker"].getTraceId(),
+      flow_id: "wf_1",
+      flow_name: "Onboarding",
+      step_id: "offer",
+      step_type: "screen",
+      screen_type: ["paywall"],
+      screen_name: "Offer",
+      locale: "en_US",
+      from_step_id: "intro",
+      entry_reason: "forward",
+      is_first_step: false,
+      is_last_step: false,
+    });
+    const impression = onFlowEvent.mock.calls[3][0];
+    const close = onFlowEvent.mock.calls[5][0];
+    expect(impression).toMatchObject({
+      flow_id: "wf_1",
+      step_id: "offer",
+      flow_name: "Onboarding",
+      screen_name: "Offer",
+      paywall_id: "paywall-public-id",
+      offering_id: offering.identifier,
+      session_id: trackPaywallEventSpy.mock.calls[0][0].sessionId,
+      locale: "en_US",
+    });
+    expect(close).toMatchObject({
+      flow_name: "Onboarding",
+      screen_name: "Offer",
+      session_id: impression.session_id,
+    });
   });
 
-  test("does not track workflow_close after a purchase completes", async () => {
+  test("does not report a flow close after a purchase completes", async () => {
     const purchases = configurePurchases();
+    const onFlowEvent = vi.fn();
     const trackSDKEventSpy = vi.spyOn(
       purchases["eventsTracker"],
       "trackSDKEvent",
     );
     vi.spyOn(purchases, "purchase").mockResolvedValue({} as PurchaseResult);
-    const { offering, paywallPromise } = presentWorkflow(purchases);
+    const { offering, paywallPromise } = presentWorkflow(purchases, {
+      onFlowEvent,
+    });
 
     await vi.waitFor(() => {
       expect(workflowProps).toBeDefined();
@@ -1352,6 +1403,83 @@ describe("Purchases.presentPaywall() workflow events", () => {
     expect(
       trackSDKEventSpy.mock.calls.map(([event]) => event.eventName),
     ).not.toContain("workflow_close");
+    expect(
+      onFlowEvent.mock.calls.map(([event]) => event.event_type),
+    ).not.toContain(FLOW_EVENT_TYPES.FLOW_CLOSE);
+  });
+
+  test.each([
+    {
+      failure: "throws",
+      onFlowEvent: () => {
+        throw new Error("listener failure");
+      },
+    },
+    {
+      failure: "rejects",
+      onFlowEvent: vi
+        .fn<(event: FlowEvent) => void>()
+        .mockRejectedValue(new Error("listener failure")),
+    },
+  ])(
+    "still tracks flow events when listener.onFlowEvent $failure",
+    async ({ onFlowEvent }) => {
+      const purchases = configurePurchases();
+      const errorLogSpy = vi.spyOn(Logger, "errorLog");
+      const trackPaywallEventSpy = vi.spyOn(
+        purchases["eventsTracker"],
+        "trackPaywallEvent",
+      );
+      const { paywallPromise } = presentWorkflow(purchases, { onFlowEvent });
+
+      await vi.waitFor(() => {
+        expect(workflowProps).toBeDefined();
+      });
+      walkIntroToOffer(workflowProps!);
+      workflowProps!.onClose();
+
+      await expect(paywallPromise).rejects.toBeDefined();
+      expect(
+        trackPaywallEventSpy.mock.calls.map(([event]) => event.type),
+      ).toEqual(["paywall_impression", "paywall_close"]);
+      await vi.waitFor(() => {
+        expect(errorLogSpy).toHaveBeenCalledWith(
+          expect.stringContaining("Error in listener.onFlowEvent"),
+        );
+      });
+    },
+  );
+
+  test("reports paywall impression and close without flow keys for a standard paywall", async () => {
+    const purchases = configurePurchases();
+    const onFlowEvent = vi.fn<(event: FlowEvent) => void>();
+    const offering = createOfferingWithPaywall();
+    const paywallPromise = purchases.presentPaywall({
+      offering,
+      listener: { onFlowEvent },
+    });
+
+    await vi.waitFor(() => {
+      expect(workflowProps).toBeDefined();
+    });
+    (workflowProps as unknown as PaywallMountProps).onBackClicked();
+
+    await expect(paywallPromise).rejects.toBeDefined();
+    expect(onFlowEvent.mock.calls.map(([event]) => event.event_type)).toEqual([
+      FLOW_EVENT_TYPES.PAYWALL_IMPRESSION,
+      FLOW_EVENT_TYPES.PAYWALL_CLOSE,
+    ]);
+    for (const [event] of onFlowEvent.mock.calls) {
+      expect(event).toMatchObject({
+        offering_id: offering.identifier,
+        paywall_id: "paywall-public-id",
+        trace_id: purchases["eventsTracker"].getTraceId(),
+      });
+      expect(event).not.toHaveProperty("flow_id");
+      expect(event).not.toHaveProperty("step_id");
+      expect(event).not.toHaveProperty("flow_name");
+      expect(event).not.toHaveProperty("screen_name");
+    }
   });
 
   test.each(["succeeds", "is cancelled"] as const)(
@@ -1438,13 +1566,14 @@ describe("Purchases.presentPaywall() workflow events", () => {
 
   test("falls back to is_last_step for untagged steps and opens a new session on re-entry", async () => {
     const purchases = configurePurchases();
+    const onFlowEvent = vi.fn<(event: FlowEvent) => void>();
     const trackPaywallEventSpy = vi.spyOn(
       purchases["eventsTracker"],
       "trackPaywallEvent",
     );
     const { paywallPromise } = presentWorkflow(
       purchases,
-      {},
+      { onFlowEvent },
       {
         ...workflowData,
         steps: {
@@ -1489,5 +1618,13 @@ describe("Purchases.presentPaywall() workflow events", () => {
     ]);
     expect(paywallEvents[1].sessionId).not.toEqual(paywallEvents[0].sessionId);
     expect(paywallEvents[2].sessionId).toEqual(paywallEvents[1].sessionId);
+    const stepStarted = onFlowEvent.mock.calls
+      .map(([event]) => event)
+      .filter(
+        (event) => event.event_type === FLOW_EVENT_TYPES.FLOW_STEP_STARTED,
+      );
+    for (const event of stepStarted) {
+      expect(event).not.toHaveProperty("screen_type");
+    }
   });
 });

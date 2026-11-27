@@ -245,16 +245,23 @@ const toCommonPayload = (
   return payload;
 };
 
-export const toPaywallInteractionEvent = (
-  data: PaywallComponentInteractionEventData,
+export const toPaywallListenerProperties = (
+  data: BasePaywallEventData & PaywallDisplayData,
   timestamp: number = Date.now(),
-): PaywallInteractionEvent => ({
+) => ({
   timestamp,
   session_id: data.sessionId,
   offering_id: data.offeringId,
   ...(data.paywallRcPublicId ? { paywall_id: data.paywallRcPublicId } : {}),
   paywall_revision: data.paywallRevision,
   ...toDisplayPayload(data),
+});
+
+export const toPaywallInteractionEvent = (
+  data: PaywallComponentInteractionEventData,
+  timestamp: number = Date.now(),
+): PaywallInteractionEvent => ({
+  ...toPaywallListenerProperties(data, timestamp),
   ...toComponentInteractionPayload(data),
 });
 

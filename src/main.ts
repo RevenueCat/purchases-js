@@ -131,7 +131,10 @@ import {
 } from "./behavioural-events/sdk-event-helpers";
 import {
   SDKEventName,
+  type WorkflowCloseEvent,
+  type WorkflowStepCompletedEvent,
   type WorkflowStepEntryReason,
+  type WorkflowStepStartedEvent,
 } from "./behavioural-events/sdk-events";
 import { autoParseUTMParams } from "./helpers/utm-params";
 import {
@@ -144,10 +147,12 @@ import type {
   PurchasesContext,
 } from "./entities/purchases-config";
 import { generateUUID } from "./helpers/uuid-helper";
+import { FLOW_EVENT_TYPES, type FlowEvent } from "./entities/flow-event";
 import {
   type PaywallComponentInteractionEventData,
   type PaywallEventType,
   toPaywallInteractionEvent,
+  toPaywallListenerProperties,
 } from "./behavioural-events/paywall-event";
 import type { PlatformInfo } from "./entities/platform-info";
 import type { ReservedCustomerAttribute } from "./entities/attributes";
@@ -280,6 +285,8 @@ export type { PresentPaywallParams } from "./entities/present-paywall-params";
 export type { PaywallListener } from "./entities/paywall-listener";
 export type { PaywallInteractionEvent } from "./entities/paywall-interaction-event";
 export { PAYWALL_COMPONENT_TYPES } from "./entities/paywall-interaction-event";
+export type { FlowEvent } from "./entities/flow-event";
+export { FLOW_EVENT_KEYS, FLOW_EVENT_TYPES } from "./entities/flow-event";
 export type { PurchaseListener } from "./entities/purchase-listener";
 export {
   CustomVariableValue,
@@ -1072,6 +1079,25 @@ export class Purchases {
 
     let currentWorkflowStep: WorkflowStepChangeEvent | null = null;
 
+    const notifyFlowEvent = async (createEvent: () => FlowEvent) => {
+      // A void callback can still return a promise at runtime.
+      const flowListener:
+        | { onFlowEvent?: (event: FlowEvent) => unknown }
+        | undefined = paywallParams.listener;
+      if (!flowListener?.onFlowEvent) {
+        return;
+      }
+      const event = {
+        ...createEvent(),
+        trace_id: this.eventsTracker.getTraceId(),
+      };
+      try {
+        await Promise.resolve(flowListener.onFlowEvent(event));
+      } catch (error) {
+        Logger.errorLog(`Error in listener.onFlowEvent: ${error}`);
+      }
+    };
+
     const trackPaywallEvent = (
       type: Exclude<PaywallEventType, "paywall_component_interacted">,
     ) => {
@@ -1084,6 +1110,23 @@ export class Purchases {
             }
           : {}),
       });
+      if (type !== "paywall_impression" && type !== "paywall_close") {
+        return;
+      }
+      void notifyFlowEvent(() => ({
+        event_type: type,
+        ...toPaywallListenerProperties({
+          ...paywallBaseEventData,
+          ...paywallDisplayData,
+        }),
+        ...(currentWorkflowStep
+          ? {
+              flow_id: currentWorkflowStep.workflowId,
+              step_id: currentWorkflowStep.stepId,
+              ...flowStepNames(currentWorkflowStep.stepId),
+            }
+          : {}),
+      }));
     };
 
     const startPurchaseFlow = async (
@@ -1338,6 +1381,54 @@ export class Purchases {
         : undefined;
     };
 
+    const flowStepNames = (stepId: string) => {
+      const screenId = workflowDataResponse?.steps[stepId]?.screen_id;
+      const screenName = screenId
+        ? workflowDataResponse?.screens[screenId]?.name
+        : undefined;
+      return {
+        ...(workflowDataResponse
+          ? { flow_name: workflowDataResponse.display_name }
+          : {}),
+        ...(screenName ? { screen_name: screenName } : {}),
+      };
+    };
+
+    const flowStepContext = (stepId: string) => {
+      const step = workflowDataResponse?.steps[stepId];
+      const screenType = workflowStepScreenType(stepId);
+      return {
+        timestamp: Date.now(),
+        ...flowStepNames(stepId),
+        ...(step ? { step_type: step.type } : {}),
+        ...(screenType?.length ? { screen_type: screenType } : {}),
+        locale: finalWorkflowLocale,
+      };
+    };
+
+    const flowEventTypes = {
+      [SDKEventName.WorkflowStepStarted]: FLOW_EVENT_TYPES.FLOW_STEP_STARTED,
+      [SDKEventName.WorkflowStepCompleted]:
+        FLOW_EVENT_TYPES.FLOW_STEP_COMPLETED,
+      [SDKEventName.WorkflowClose]: FLOW_EVENT_TYPES.FLOW_CLOSE,
+    };
+
+    const trackWorkflowEvent = (
+      sdkEvent:
+        | WorkflowStepStartedEvent
+        | WorkflowStepCompletedEvent
+        | WorkflowCloseEvent,
+    ) => {
+      this.eventsTracker.trackSDKEvent(sdkEvent);
+      const { workflow_id: flowId, ...stepProperties } = sdkEvent.properties;
+      void notifyFlowEvent(() => ({
+        ...flowStepContext(stepProperties.step_id),
+        flow_id: flowId,
+        ...stepProperties,
+        event_type: flowEventTypes[sdkEvent.eventName],
+      }));
+    };
+
     return new Promise((resolve, reject) => {
       let component: ReturnType<typeof mount> | null = null;
       let paywallSessionOpen = false;
@@ -1363,7 +1454,7 @@ export class Purchases {
           return;
         }
         flowCloseTracked = true;
-        this.eventsTracker.trackSDKEvent({
+        trackWorkflowEvent({
           eventName: SDKEventName.WorkflowClose,
           properties: {
             workflow_id: currentWorkflowStep.workflowId,
@@ -1541,7 +1632,7 @@ export class Purchases {
             if (event.reason === "completed") {
               // Fire step_completed for the step being left.
               // toStepId is undefined when leaving via close/dismiss.
-              this.eventsTracker.trackSDKEvent({
+              trackWorkflowEvent({
                 eventName: SDKEventName.WorkflowStepCompleted,
                 properties: {
                   workflow_id: event.workflowId,
@@ -1557,7 +1648,7 @@ export class Purchases {
               const entryReason: WorkflowStepEntryReason = event.reason;
               currentWorkflowStep = event;
               // Fire step_started for the step being entered.
-              this.eventsTracker.trackSDKEvent({
+              trackWorkflowEvent({
                 eventName: SDKEventName.WorkflowStepStarted,
                 properties: {
                   workflow_id: event.workflowId,

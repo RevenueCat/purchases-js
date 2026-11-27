@@ -169,6 +169,85 @@ export interface FlagsConfig {
 }
 
 // @public
+export const FLOW_EVENT_KEYS: {
+    readonly EVENT_TYPE: "event_type";
+    readonly TIMESTAMP: "timestamp";
+    readonly TRACE_ID: "trace_id";
+    readonly FLOW_ID: "flow_id";
+    readonly FLOW_NAME: "flow_name";
+    readonly STEP_ID: "step_id";
+    readonly STEP_TYPE: "step_type";
+    readonly SCREEN_TYPE: "screen_type";
+    readonly SCREEN_NAME: "screen_name";
+    readonly LOCALE: "locale";
+    readonly FROM_STEP_ID: "from_step_id";
+    readonly TO_STEP_ID: "to_step_id";
+    readonly ENTRY_REASON: "entry_reason";
+    readonly IS_FIRST_STEP: "is_first_step";
+    readonly IS_LAST_STEP: "is_last_step";
+    readonly PAYWALL_ID: "paywall_id";
+    readonly OFFERING_ID: "offering_id";
+    readonly PAYWALL_REVISION: "paywall_revision";
+    readonly SESSION_ID: "session_id";
+    readonly DISPLAY_MODE: "display_mode";
+    readonly DARK_MODE: "dark_mode";
+};
+
+// @public
+export const FLOW_EVENT_TYPES: {
+    readonly FLOW_STEP_STARTED: "flow_step_started";
+    readonly FLOW_STEP_COMPLETED: "flow_step_completed";
+    readonly FLOW_CLOSE: "flow_close";
+    readonly PAYWALL_IMPRESSION: "paywall_impression";
+    readonly PAYWALL_CLOSE: "paywall_close";
+};
+
+// @public
+export interface FlowEvent {
+    // (undocumented)
+    readonly dark_mode?: boolean;
+    // (undocumented)
+    readonly display_mode?: string;
+    // (undocumented)
+    readonly entry_reason?: string;
+    readonly event_type: string;
+    // (undocumented)
+    readonly flow_id?: string;
+    // (undocumented)
+    readonly flow_name?: string;
+    // (undocumented)
+    readonly from_step_id?: string;
+    // (undocumented)
+    readonly is_first_step?: boolean;
+    // (undocumented)
+    readonly is_last_step?: boolean;
+    // (undocumented)
+    readonly locale?: string;
+    // (undocumented)
+    readonly offering_id?: string;
+    // (undocumented)
+    readonly paywall_id?: string;
+    // (undocumented)
+    readonly paywall_revision?: number;
+    // (undocumented)
+    readonly screen_name?: string;
+    // (undocumented)
+    readonly screen_type?: readonly string[];
+    // (undocumented)
+    readonly session_id?: string;
+    // (undocumented)
+    readonly step_id?: string;
+    // (undocumented)
+    readonly step_type?: string;
+    // (undocumented)
+    readonly timestamp: number;
+    // (undocumented)
+    readonly to_step_id?: string;
+    // (undocumented)
+    readonly trace_id?: string;
+}
+
+// @public
 export interface GetOfferingsParams {
     readonly currency?: string;
     readonly offeringIdentifier?: string | OfferingKeyword;
@@ -355,6 +434,7 @@ export interface PaywallInteractionEvent {
 // @public
 export type PaywallListener = PurchaseListener & {
     onInteraction?: (event: PaywallInteractionEvent) => void;
+    onFlowEvent?: (event: FlowEvent) => void;
 };
 
 // @public
